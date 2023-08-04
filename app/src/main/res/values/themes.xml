@@ -1,0 +1,38 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Hai" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <!--        <item name="android:typeface"></item>-->
+        <item name="android:fontFamily">@font/black</item>
+    </style>
+
+    <style name="NoActionBar" parent="Theme.Hai">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Hai.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Hai.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="CustomDialog" parent="Base.AlertDialog.AppCompat.Light">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="colorAccent">?colorPrimary</item>
+    </style>
+
+    <style name="Theme.Hai.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
