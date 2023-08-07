@@ -10,7 +10,15 @@ import androidx.room.TypeConverters
     entities =
         [
             RegistrationData::class,
-        ],
+            EncounterData::class,
+            PeriData::class,
+            PreparationData::class,
+            SkinPreparationData::class,
+            HandPreparationData::class,
+            PrePostOperativeData::class,
+            PostOperativeData::class,
+            SurgicalSiteData::class,
+            OutcomeData::class],
     version = 1,
     exportSchema = false)
 @TypeConverters(Converters::class)

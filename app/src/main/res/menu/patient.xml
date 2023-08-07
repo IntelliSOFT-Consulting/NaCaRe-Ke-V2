@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_peri"
+        android:orderInCategory="100"
+        android:title="@string/action_peri_operative"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_patient_preparation"
+        android:orderInCategory="100"
+        android:title="@string/patient_preparation"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/surgical_skin_preparation"
+        android:orderInCategory="100"
+        android:title="@string/surgical_skin_preparation"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_surgical_hand_preparation"
+        android:orderInCategory="100"
+        android:title="@string/surgical_hand_preparation"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_pre_and_post_operative_antibiotics"
+        android:orderInCategory="100"
+        android:title="@string/pre_and_post_operative_antibiotics"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_post_operative_data"
+        android:orderInCategory="100"
+        android:title="@string/post_operative_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_surgical_site_infection_pathogen_information"
+        android:orderInCategory="100"
+        android:title="@string/surgical_site_infection_pathogen_information"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_microbiology_findings_and_ast_testing_results"
+        android:orderInCategory="100"
+        android:title="@string/microbiology_findings_and_ast_testing_results"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_antimicrobial_susceptibility_testing"
+        android:orderInCategory="100"
+        android:title="@string/antimicrobial_susceptibility_testing"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_outcome"
+        android:orderInCategory="100"
+        android:title="@string/outcome"
+        app:showAsAction="never" />
+</menu>

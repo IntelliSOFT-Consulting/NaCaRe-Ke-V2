@@ -9,8 +9,10 @@ import androidx.room.Query
 interface RoomDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE) fun addPatient(patientData: RegistrationData)
-  @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE patientId =:patientId)")
-  fun checkPatientExists(patientId: String): Boolean
+  @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE patientId =:id)")
+  fun checkPatientExists(id: String): Boolean
   @Query("SELECT * FROM registration WHERE userId =:userId")
   fun getPatients(userId: String): List<RegistrationData>?
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+   fun addPreparationData(data: PreparationData)
 }

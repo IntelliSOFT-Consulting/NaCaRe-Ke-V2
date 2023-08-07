@@ -2,11 +2,15 @@ package com.intellisoft.hai.util
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.DatePicker
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
+import java.util.UUID
 
 object AppUtils {
   fun hideKeyboard(context: Context) {
@@ -19,6 +23,39 @@ object AppUtils {
     editText.isFocusable = false
     editText.isCursorVisible = false
     editText.keyListener = null
+  }
+
+    fun generateUuid(): String {
+    return UUID.randomUUID().toString()
+  }
+    fun controlData(
+    child: TextInputEditText,
+    parent: TextInputLayout,
+    error: String,
+    hasMin: Boolean,
+    hasMax: Boolean,
+    min: Int,
+    max: Int
+  ) {
+
+    child.addTextChangedListener(
+      object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+          if (hasMin && s?.length ?: 0 < min) {
+            parent.error = "Minimum of $min characters required"
+          } else if (hasMax && s?.length ?: 0 > max) {
+            parent.error = "Maximum of $max characters allowed"
+          } else if (s.isNullOrEmpty()) {
+            parent.error = error
+          } else {
+            parent.error = null
+          }
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
+      })
   }
   fun showDatePickerDialog(
       context: Context,

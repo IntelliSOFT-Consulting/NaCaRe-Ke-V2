@@ -102,5 +102,22 @@
     <string name="emergency">Emergency</string>
     <string name="elective">Elective</string>
     <string name="scheduling">Scheduling</string>
+    <string name="action_details">Patient Details</string>
+    <string name="action_peri_operative">Perioperative Data</string>
+    <string name="patient_preparation">Patient Preparation</string>
+    <string name="surgical_skin_preparation">Surgical Skin Preparation</string>
+    <string name="surgical_hand_preparation">Surgical Hand Preparation</string>
+    <string name="pre_and_post_operative_antibiotics">Pre and Post Operative Antibiotics</string>
+    <string name="post_operative_data">POST-OPERATIVE DATA</string>
+    <string name="surgical_site_infection_pathogen_information">SURGICAL SITE INFECTION PATHOGEN INFORMATION</string>
+    <string name="microbiology_findings_and_ast_testing_results">Microbiology Findings and AST Testing Results</string>
+    <string name="antimicrobial_susceptibility_testing">Antimicrobial Susceptibility Testing</string>
+    <string name="outcome">OUTCOME</string>
+    <string name="hair_removal_date">Hair removal date</string>
+    <string name="peri_operative_data">PERI-OPERATIVE DATA</string>
+    <string name="pre_op_bath_shower">Pre-op bath/shower</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="antibacterial_soap_used">Antibacterial soap used</string>
 
 </resources>

@@ -16,6 +16,16 @@ class MainRepository(private val roomDao: RoomDao) {
       return true
     }
     return false
+  }  fun addPreparationData(data: PreparationData): Boolean {
+
+    val userId = data.patientId
+    val exist = roomDao.checkPatientExists(userId)
+
+    if (exist) {
+      roomDao.addPreparationData(data)
+      return true
+    }
+    return false
   }
 
   fun getPatients(context: Context): List<RegistrationData>? {
@@ -24,5 +34,7 @@ class MainRepository(private val roomDao: RoomDao) {
       return roomDao.getPatients(userId.toString())
 
   }
+
+
 
 }

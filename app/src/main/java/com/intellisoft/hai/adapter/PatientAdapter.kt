@@ -14,7 +14,8 @@ import com.intellisoft.hai.room.RegistrationData
 
 class PatientAdapter(
     private var patientList: List<RegistrationData>,
-    private val context: Context
+    private val context: Context,
+    private val click: (RegistrationData) -> Unit
 ) : RecyclerView.Adapter<PatientAdapter.Pager2ViewHolder>() {
 
   inner class Pager2ViewHolder(itemView: View) :
@@ -40,7 +41,8 @@ class PatientAdapter(
     }
 
     override fun onClick(p0: View?) {
-      val submissionId = patientList[adapterPosition].id
+      val patient = patientList[adapterPosition]
+      click(patient)
     }
   }
 
@@ -69,7 +71,7 @@ class PatientAdapter(
     holder.tvDateOfAdmission.text = "Date of Admission: $date_of_admission"
     holder.tvDateOfSurgery.text = "Date of Surgery: $date_of_surgery"
     holder.tvProcedure.text = "Procedure: $newlineSeparatedString"
-    holder.tvProcedureOther.text = "Procedure Other:: $procedure_other"
+    holder.tvProcedureOther.text = "Procedure Other: $procedure_other"
     holder.tvScheduling.text = "Scheduling: $scheduling"
     holder.tvLocation.text = "Location: $location"
     holder.imgViewMore.setOnClickListener {

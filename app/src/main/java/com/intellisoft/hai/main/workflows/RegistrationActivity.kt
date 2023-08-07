@@ -15,6 +15,7 @@ import com.intellisoft.hai.databinding.ActivityRegistrationBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.RegistrationData
+import com.intellisoft.hai.util.AppUtils.controlData
 import com.intellisoft.hai.util.AppUtils.disableTextInputEditText
 import com.intellisoft.hai.util.AppUtils.showDatePickerDialog
 
@@ -57,7 +58,7 @@ class RegistrationActivity : AppCompatActivity() {
         if (validate()) {
           // Proceed with submitting the form
           val user = formatterClass.getSharedPref("username", this@RegistrationActivity)
-          Log.e("TAG", "addPatient $user")
+
           if (user != null) {
             val gender = if (binding.rbMale.isChecked) "Male" else "Female"
             val scheduling = if (binding.radioElective.isChecked) "Elective" else "Emergency"
@@ -208,35 +209,7 @@ class RegistrationActivity : AppCompatActivity() {
         max = 0)
   }
 
-  private fun controlData(
-      child: TextInputEditText,
-      parent: TextInputLayout,
-      error: String,
-      hasMin: Boolean,
-      hasMax: Boolean,
-      min: Int,
-      max: Int
-  ) {
 
-    child.addTextChangedListener(
-        object : TextWatcher {
-          override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-          override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (hasMin && s?.length ?: 0 < min) {
-              parent.error = "Minimum of $min characters required"
-            } else if (hasMax && s?.length ?: 0 > max) {
-              parent.error = "Maximum of $max characters allowed"
-            } else if (s.isNullOrEmpty()) {
-              parent.error = error
-            } else {
-              parent.error = null
-            }
-          }
-
-          override fun afterTextChanged(s: Editable?) {}
-        })
-  }
 
   private fun validate(): Boolean {
     // Implement your validation logic here

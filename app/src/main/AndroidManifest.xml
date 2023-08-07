@@ -33,9 +33,13 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".main.workflows.PatientProfileActivity"
+            android:exported="false"
+            android:theme="@style/NoActionBar" />
+        <activity
             android:name=".main.workflows.RegistrationActivity"
-            android:theme="@style/NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".main.DashboardActivity"
             android:exported="false"
