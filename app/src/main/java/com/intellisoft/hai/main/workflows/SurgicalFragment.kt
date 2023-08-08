@@ -229,25 +229,74 @@ class SurgicalFragment : Fragment() {
       val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
       amox = selectedRadioButton.text.toString()
     }
+    binding.radioGroupAmikacin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      armi = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupAmpicillin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      amp = selectedRadioButton.text.toString()
+    }
 
-    /*  private lateinit var : String
+    binding.radioGroupCloxacillin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      clo = selectedRadioButton.text.toString()
+    }
+
+    binding.radioGroupCotrimoxazole.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      cot = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupCephalexin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      cep = selectedRadioButton.text.toString()
+    }
+
+    binding.radioGroupCiprofloxacin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      cip = selectedRadioButton.text.toString()
+    }
+
+    binding.radioGroupColistinSulphate.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      coli = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupCefotaxime.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      cefo = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupErythromycin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      ery = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupGentamycin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      gen = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupNalidixicAcid.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      nali = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupNorfloxacin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      nor = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupPenicillin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      peni = selectedRadioButton.text.toString()
+    }
+
+    binding.radioGroupTobramycin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      tob = selectedRadioButton.text.toString()
+    }
+
+    /*
+
+
     private lateinit var : String
     private lateinit var : String
     private lateinit var : String
-    private lateinit var armi: String
-    private lateinit var amp: String
-    private lateinit var clo: String
-    private lateinit var cot: String
-    private lateinit var cep: String
-    private lateinit var cip: String
-    private lateinit var coli: String
-    private lateinit var cefo: String
-    private lateinit var ery: String
-    private lateinit var gen: String
-    private lateinit var nali: String
-    private lateinit var nor: String
-    private lateinit var peni: String
-    private lateinit var tob: String
     private lateinit var van: String
     private lateinit var cefta: String
     private lateinit var ceftri: String*/
