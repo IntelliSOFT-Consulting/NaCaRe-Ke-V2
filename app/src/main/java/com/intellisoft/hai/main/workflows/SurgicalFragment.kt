@@ -173,6 +173,14 @@ class SurgicalFragment : Fragment() {
         hasMax = false,
         min = 0,
         max = 0)
+    controlData(
+        binding.edtSpecimenOther,
+        binding.specimenOtherHolder,
+        "Please specify specimen",
+        hasMin = false,
+        hasMax = false,
+        min = 0,
+        max = 0)
   }
 
   private fun validate(): Boolean {
@@ -180,15 +188,29 @@ class SurgicalFragment : Fragment() {
     val reception = binding.edtReceptionDate.text?.toString()
     val processing = binding.edtProcessingDate.text?.toString()
     val finding = binding.edtFindingsDate.text?.toString()
+    val other_spceciment = binding.edtSpecimenOther.text?.toString()
 
-    //check lab bsi
-    if(!binding.radioButtonKnownPathogen.isChecked&& !binding.radioButtonCommonCommensal.isChecked){
-      Toast.makeText(requireContext(),"Please select lab BSI",Toast.LENGTH_SHORT).show()
+    // check lab bsi
+    if (!binding.radioButtonKnownPathogen.isChecked &&
+        !binding.radioButtonCommonCommensal.isChecked) {
+      Toast.makeText(requireContext(), "Please select lab BSI", Toast.LENGTH_SHORT).show()
       return false
     }
-    if(!binding.radioButtonKnownPathogen.isChecked&& !binding.radioButtonCommonCommensal.isChecked){
-      Toast.makeText(requireContext(),"Please select lab BSI",Toast.LENGTH_SHORT).show()
+    if (!binding.radioButtonPus.isChecked &&
+        !binding.radioButtonExudate.isChecked &&
+        !binding.radioButtonTissue.isChecked &&
+        !binding.radioButtonPurulentDrainage.isChecked &&
+        !binding.radioButtonBone.isChecked &&
+        !binding.radioButtonOther.isChecked) {
+      Toast.makeText(requireContext(), "Please specify specimen", Toast.LENGTH_SHORT).show()
       return false
+    }
+    if (binding.radioButtonOther.isChecked) {
+      if (other_spceciment.isNullOrEmpty()) {
+        binding.specimenOtherHolder.error = "Please specify specimen"
+        binding.edtSpecimenOther.requestFocus()
+        return false
+      }
     }
     if (date.isNullOrEmpty()) {
       binding.dateHolder.error = "Please provide  date"
@@ -208,6 +230,14 @@ class SurgicalFragment : Fragment() {
     if (finding.isNullOrEmpty()) {
       binding.findingsHolder.error = "Please provide  date"
       binding.edtFindingsDate.requestFocus()
+      return false
+    }
+    if (!binding.radioCulture0.isChecked && !binding.radioCulture1.isChecked) {
+      Toast.makeText(requireContext(), "Please select culture ", Toast.LENGTH_SHORT).show()
+      return false
+    } 
+    if (!binding.radioButtonNoGrowth.isChecked && !binding.radioButtonStaphCoagNeg.isChecked) {
+      Toast.makeText(requireContext(), "Please select organism ", Toast.LENGTH_SHORT).show()
       return false
     }
 
@@ -318,25 +348,25 @@ class SurgicalFragment : Fragment() {
 
     binding.edtDate.apply {
       setOnClickListener {
-        AppUtils.showDatePickerDialog(
+        showDatePickerDialog(
             requireContext(), binding.edtDate, setMaxNow = false, setMinNow = false)
       }
     }
     binding.edtReceptionDate.apply {
       setOnClickListener {
-        AppUtils.showDatePickerDialog(
+        showDatePickerDialog(
             requireContext(), binding.edtReceptionDate, setMaxNow = false, setMinNow = false)
       }
     }
     binding.edtProcessingDate.apply {
       setOnClickListener {
-        AppUtils.showDatePickerDialog(
+        showDatePickerDialog(
             requireContext(), binding.edtProcessingDate, setMaxNow = false, setMinNow = false)
       }
     }
     binding.edtFindingsDate.apply {
       setOnClickListener {
-        AppUtils.showDatePickerDialog(
+        showDatePickerDialog(
             requireContext(), binding.edtFindingsDate, setMaxNow = false, setMinNow = false)
       }
     }
