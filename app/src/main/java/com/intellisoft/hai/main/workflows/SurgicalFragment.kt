@@ -84,6 +84,7 @@ class SurgicalFragment : Fragment() {
           val reception = binding.edtReceptionDate.text?.toString()
           val processing = binding.edtProcessingDate.text?.toString()
           val finding = binding.edtFindingsDate.text?.toString()
+          val specimen_other = binding.edtSpecimenOther.text?.toString()
           if (user != null) {
             val sur =
                 SurgicalSiteData(
@@ -92,6 +93,7 @@ class SurgicalFragment : Fragment() {
                     encounterId = generateUuid(),
                     lab_type = lab,
                     specimen = specimen,
+                    specimen_other = specimen_other.toString(),
                     sample_collection_date = date.toString(),
                     sample_reception_date = reception.toString(),
                     sample_processing_date = processing.toString(),
@@ -303,7 +305,7 @@ class SurgicalFragment : Fragment() {
       val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
       ceftri = selectedRadioButton.text.toString()
     }
- 
+
     binding.edtDate.apply {
       setOnClickListener {
         AppUtils.showDatePickerDialog(

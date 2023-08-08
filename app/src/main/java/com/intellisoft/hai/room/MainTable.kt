@@ -148,6 +148,7 @@ data class SurgicalSiteData(
     val encounterId: String,
     val lab_type: String,
     val specimen: String,
+    val specimen_other: String,
     val sample_collection_date: String,
     val sample_reception_date: String,
     val sample_processing_date: String,
