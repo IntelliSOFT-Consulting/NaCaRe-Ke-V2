@@ -180,6 +180,16 @@ class SurgicalFragment : Fragment() {
     val reception = binding.edtReceptionDate.text?.toString()
     val processing = binding.edtProcessingDate.text?.toString()
     val finding = binding.edtFindingsDate.text?.toString()
+
+    //check lab bsi
+    if(!binding.radioButtonKnownPathogen.isChecked&& !binding.radioButtonCommonCommensal.isChecked){
+      Toast.makeText(requireContext(),"Please select lab BSI",Toast.LENGTH_SHORT).show()
+      return false
+    }
+    if(!binding.radioButtonKnownPathogen.isChecked&& !binding.radioButtonCommonCommensal.isChecked){
+      Toast.makeText(requireContext(),"Please select lab BSI",Toast.LENGTH_SHORT).show()
+      return false
+    }
     if (date.isNullOrEmpty()) {
       binding.dateHolder.error = "Please provide  date"
       binding.edtDate.requestFocus()
