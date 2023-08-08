@@ -133,44 +133,44 @@ class SurgicalFragment : Fragment() {
         }
       }
     }
-   dataController()
+    dataController()
     handleOnClicks()
     return binding.root
   }
 
   private fun dataController() {
     controlData(
-      binding.edtDate,
-      binding.dateHolder,
-      "Please provide date",
-      hasMin = false,
-      hasMax = false,
-      min = 0,
-      max = 0)
+        binding.edtDate,
+        binding.dateHolder,
+        "Please provide date",
+        hasMin = false,
+        hasMax = false,
+        min = 0,
+        max = 0)
     controlData(
-      binding.edtReceptionDate,
-      binding.receptionHolder,
-      "Please provide date",
-      hasMin = false,
-      hasMax = false,
-      min = 0,
-      max = 0)
+        binding.edtReceptionDate,
+        binding.receptionHolder,
+        "Please provide date",
+        hasMin = false,
+        hasMax = false,
+        min = 0,
+        max = 0)
     controlData(
-      binding.edtFindingsDate,
-      binding.findingsHolder,
-      "Please provide date",
-      hasMin = false,
-      hasMax = false,
-      min = 0,
-      max = 0)
+        binding.edtFindingsDate,
+        binding.findingsHolder,
+        "Please provide date",
+        hasMin = false,
+        hasMax = false,
+        min = 0,
+        max = 0)
     controlData(
-      binding.edtProcessingDate,
-      binding.processingHolder,
-      "Please provide date",
-      hasMin = false,
-      hasMax = false,
-      min = 0,
-      max = 0)
+        binding.edtProcessingDate,
+        binding.processingHolder,
+        "Please provide date",
+        hasMin = false,
+        hasMax = false,
+        min = 0,
+        max = 0)
   }
 
   private fun validate(): Boolean {
@@ -217,27 +217,40 @@ class SurgicalFragment : Fragment() {
       lab = selectedRadioButton.text.toString()
     }
 
+    binding.radioGroupCulture.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      culture = selectedRadioButton.text.toString()
+    }
+    binding.microorganismRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      micro = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupAmoxicillin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      amox = selectedRadioButton.text.toString()
+    }
+
     /*  private lateinit var : String
-  private lateinit var culture: String
-  private lateinit var micro: String
-  private lateinit var amox: String
-  private lateinit var armi: String
-  private lateinit var amp: String
-  private lateinit var clo: String
-  private lateinit var cot: String
-  private lateinit var cep: String
-  private lateinit var cip: String
-  private lateinit var coli: String
-  private lateinit var cefo: String
-  private lateinit var ery: String
-  private lateinit var gen: String
-  private lateinit var nali: String
-  private lateinit var nor: String
-  private lateinit var peni: String
-  private lateinit var tob: String
-  private lateinit var van: String
-  private lateinit var cefta: String
-  private lateinit var ceftri: String*/
+    private lateinit var : String
+    private lateinit var : String
+    private lateinit var : String
+    private lateinit var armi: String
+    private lateinit var amp: String
+    private lateinit var clo: String
+    private lateinit var cot: String
+    private lateinit var cep: String
+    private lateinit var cip: String
+    private lateinit var coli: String
+    private lateinit var cefo: String
+    private lateinit var ery: String
+    private lateinit var gen: String
+    private lateinit var nali: String
+    private lateinit var nor: String
+    private lateinit var peni: String
+    private lateinit var tob: String
+    private lateinit var van: String
+    private lateinit var cefta: String
+    private lateinit var ceftri: String*/
     binding.edtDate.apply {
       setOnClickListener {
         AppUtils.showDatePickerDialog(
