@@ -291,15 +291,19 @@ class SurgicalFragment : Fragment() {
       tob = selectedRadioButton.text.toString()
     }
 
-    /*
-
-
-    private lateinit var : String
-    private lateinit var : String
-    private lateinit var : String
-    private lateinit var van: String
-    private lateinit var cefta: String
-    private lateinit var ceftri: String*/
+    binding.radioGroupVancomycin.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      van = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupCeftazidime.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      cefta = selectedRadioButton.text.toString()
+    }
+    binding.radioGroupCeftriaxone.setOnCheckedChangeListener { _, checkedId ->
+      val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+      ceftri = selectedRadioButton.text.toString()
+    }
+ 
     binding.edtDate.apply {
       setOnClickListener {
         AppUtils.showDatePickerDialog(

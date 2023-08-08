@@ -836,25 +836,25 @@
             android:textStyle="bold" />
 
         <RadioGroup
-            android:id="@+id/radioGroupIntermediateTobramycin"
+            android:id="@+id/radioGroupTobramycin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <RadioButton
-                android:id="@+id/radio_intermediate_tobramycin_0"
+                android:id="@+id/radio_tobramycin_0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/susceptible" />
 
             <RadioButton
-                android:id="@+id/radio_intermediate_tobramycin_1"
+                android:id="@+id/radio_tobramycin_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/resistant" />
 
             <RadioButton
-                android:id="@+id/radio_intermediate_tobramycin_2"
+                android:id="@+id/radio_tobramycin_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/intermediate" />
