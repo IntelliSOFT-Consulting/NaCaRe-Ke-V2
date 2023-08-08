@@ -1,14 +1,968 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".main.workflows.SurgicalFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-</FrameLayout>
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/surgical_site_infection_pathogen_information_0"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/typeOfBSIRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/type_of_laboratory_confirmed_bsi"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/radioButtonKnownPathogen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/known_pathogen" />
+
+            <RadioButton
+                android:id="@+id/radioButtonCommonCommensal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/common_commensal_from_2_cultures_from_different_sites_times" />
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/specimenRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/specimen"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/radioButtonPus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pus" />
+
+            <RadioButton
+                android:id="@+id/radioButtonExudate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/exudate" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTissue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tissue" />
+
+            <RadioButton
+                android:id="@+id/radioButtonPurulentDrainage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/purulent_drainage" />
+
+            <RadioButton
+                android:id="@+id/radioButtonBone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bone" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOther"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/other" />
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/specimenOtherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/action_other"
+            android:visibility="gone"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_specimen_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dateHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/collection_date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/receptionHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/reception_date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_reception_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/processingHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/processing_date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_processing_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/findingsHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/findings_date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_findings_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/culture_findings"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCulture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_culture_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No growth" />
+
+            <RadioButton
+                android:id="@+id/radio_culture_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Positive Culture" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/organism_isolated"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/microorganismRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoGrowth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_growth" />
+
+            <RadioButton
+                android:id="@+id/radioButtonStaphCoagNeg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/staphylococcus_coagulase_negative" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEnterococcusFaecium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enterococcus_faecium" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEnterococcusFaecalis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enterococcus_faecalis" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEnterococcusSpp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enterococcus_spp_no_species_identified" />
+
+            <RadioButton
+                android:id="@+id/radioButtonStaphAureus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/staphylococcus_aureus" />
+
+            <RadioButton
+                android:id="@+id/radioButtonAcinetobacterBaumannii"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/acinetobacter_baumannii" />
+
+            <RadioButton
+                android:id="@+id/radioButtonAcinetobacterSpp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/acinetobacter_spp_no_species_identified" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEscherichiaColi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/escherichia_coli" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEnterobacterSpp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enterobacter_spp" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOtherSpecify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/other_specify_0" />
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/secondaryHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/action_organism_other"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_organism_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/acinetobacterHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/action_acinetobacter_other"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_acinetobacter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/enterobacterHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/action_enterobacter_other"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_enterobacter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/pathogenHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/action_pathogen_other"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_pathogen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- Amoxicillin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/amoxicillin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupAmoxicillin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_amoxicillin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_amoxicillin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_amoxicillin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Amikacin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/amikacin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupAmikacin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_amikacin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_amikacin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_amikacin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Ampicillin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ampicillin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupAmpicillin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_ampicillin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_ampicillin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_ampicillin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Cloxacillin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cloxacillin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCloxacillin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_cloxacillin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_cloxacillin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_cloxacillin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+        <!-- Cotrimoxazole -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cotrimoxazole"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCotrimoxazole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_cotrimoxazole_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_cotrimoxazole_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_cotrimoxazole_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Cephalexin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cephalexin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCephalexin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_cephalexin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_cephalexin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_cephalexin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Ciprofloxacin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ciprofloxacin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCiprofloxacin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_ciprofloxacin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_ciprofloxacin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_ciprofloxacin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Colistin Sulphate -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/colistin_sulphate"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupColistinSulphate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_colistin_sulphate_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_colistin_sulphate_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_colistin_sulphate_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Cefotaxime -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cefotaxime"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCefotaxime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_cefotaxime_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_cefotaxime_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_cefotaxime_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Erythromycin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/erythromycin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupErythromycin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_erythromycin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_erythromycin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_erythromycin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+        <!-- Gentamycin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gentamycin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupGentamycin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_gentamycin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_gentamycin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_gentamycin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Nalidixic Acid -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nalidixic_acid"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupNalidixicAcid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_nalidixic_acid_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_nalidixic_acid_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_nalidixic_acid_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Norfloxacin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/norfloxacin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupNorfloxacin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_norfloxacin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_norfloxacin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_norfloxacin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Penicillin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/penicillin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupPenicillin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_penicillin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_penicillin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_penicillin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Intermediate Tobramycin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tobramycin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupIntermediateTobramycin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_intermediate_tobramycin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_intermediate_tobramycin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_intermediate_tobramycin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+        <!-- Vancomycin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vancomycin"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupVancomycin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_vancomycin_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_vancomycin_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_vancomycin_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Ceftazidime -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ceftazidime"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCeftazidime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_ceftazidime_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_ceftazidime_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_ceftazidime_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <!-- Ceftriaxone -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ceftriaxone"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCeftriaxone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_ceftriaxone_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/susceptible" />
+
+            <RadioButton
+                android:id="@+id/radio_ceftriaxone_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resistant" />
+
+            <RadioButton
+                android:id="@+id/radio_ceftriaxone_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/intermediate" />
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_submit"
+            app:cornerRadius="35dp" />
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>

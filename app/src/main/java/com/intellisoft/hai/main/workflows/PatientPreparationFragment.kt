@@ -1,11 +1,22 @@
 package com.intellisoft.hai.main.workflows
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.intellisoft.hai.R
+import com.intellisoft.hai.databinding.FragmentPatientBinding
+import com.intellisoft.hai.databinding.FragmentPatientPreparationBinding
+import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.listeners.OnFragmentInteractionListener
+import com.intellisoft.hai.room.MainViewModel
+import com.intellisoft.hai.room.PreparationData
+import com.intellisoft.hai.util.AppUtils
+import com.intellisoft.hai.util.AppUtils.controlData
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -18,43 +29,121 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class PatientPreparationFragment : Fragment() {
-  // TODO: Rename and change types of parameters
-  private var param1: String? = null
-  private var param2: String? = null
+  private lateinit var binding: FragmentPatientPreparationBinding
+  private lateinit var formatterClass: FormatterClass
+  private lateinit var mainViewModel: MainViewModel
+  private var mListener: OnFragmentInteractionListener? = null
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    arguments?.let {
-      param1 = it.getString(ARG_PARAM1)
-      param2 = it.getString(ARG_PARAM2)
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
+    if (context is OnFragmentInteractionListener) {
+      mListener = context
+    } else {
+      throw RuntimeException("$context must implement OnFragmentInteractionListener")
     }
   }
-
   override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
+    inflater: LayoutInflater,
+    container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_patient_preparation, container, false)
-  }
+    binding = FragmentPatientPreparationBinding.inflate(layoutInflater)
+    AppUtils.disableTextInputEditText(binding.edtDate)
+    mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+    formatterClass = FormatterClass()
+    binding.edtDate.apply {
+      setOnClickListener {
+        AppUtils.showDatePickerDialog(
+          requireContext(), binding.edtDate, setMaxNow = false, setMinNow = true)
+      }
+    }
+    binding.btnSubmit.apply {
+      setOnClickListener {
+        if (validate()) {
+          val user = formatterClass.getSharedPref("username", requireContext())
+          val patient = formatterClass.getSharedPref("patient", requireContext())
+          val date = binding.edtDate.text?.toString()
+          if (user != null) {
+            val pre_bath = if (binding.radioNo.isChecked) "No" else "Yes"
+            val soap_used = if (binding.radioAntibacterialNo.isChecked) "No" else "Yes"
+            val hair_removal =
+              if (binding.radioHairNo.isChecked) {
+                "No"
+              } else if (binding.radioHairRazor.isChecked) {
+                "Razor"
+              } else {
+                "Clippers"
+              }
 
-  companion object {
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PatientPreparationFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    @JvmStatic
-    fun newInstance(param1: String, param2: String) =
-      PatientPreparationFragment().apply {
-        arguments = Bundle().apply {
-          putString(ARG_PARAM1, param1)
-          putString(ARG_PARAM2, param2)
+            val peri =
+              PreparationData(
+                userId = user,
+                patientId = patient.toString(),
+                encounterId = AppUtils.generateUuid(),
+                pre_bath = pre_bath,
+                soap_used = soap_used,
+                hair_removal = hair_removal,
+                date_of_removal = date)
+            val added = mainViewModel.addPreparationData(peri)
+            if (added) {
+              Toast.makeText(requireContext(), "Record Successfully saved", Toast.LENGTH_SHORT)
+                .show()
+              clearData()
+            } else {
+              Toast.makeText(
+                requireContext(),
+                "Encountered problems registering patient",
+                Toast.LENGTH_SHORT)
+                .show()
+            }
+          } else {
+            Toast.makeText(requireContext(), "Please check user account", Toast.LENGTH_SHORT).show()
+          }
         }
       }
+    }
+
+    controlData(
+      binding.edtDate,
+      binding.dateHolder,
+      "Please provide date",
+      hasMin = false,
+      hasMax = false,
+      min = 0,
+      max = 0
+    )
+    return binding.root
+    //    return inflater.inflate(R.layout.fragment_patient, container, false)
+  }
+
+  private fun clearData() {
+    mListener?.launchAction()
+  }
+
+  private fun validate(): Boolean {
+    val date = binding.edtDate.text?.toString()
+    if (!binding.radioNo.isChecked && !binding.radioYes.isChecked) {
+      Toast.makeText(requireContext(), "please specify bath", Toast.LENGTH_SHORT).show()
+      return false
+    }
+    if (!binding.radioAntibacterialNo.isChecked && !binding.radioAntibacterialYes.isChecked) {
+      Toast.makeText(requireContext(), "please specify soap used", Toast.LENGTH_SHORT).show()
+      return false
+    }
+    if (!binding.radioHairNo.isChecked &&
+      !binding.radioHairClippers.isChecked &&
+      !binding.radioHairRazor.isChecked) {
+      Toast.makeText(requireContext(), "please specify hair removal", Toast.LENGTH_SHORT).show()
+      return false
+    }
+    if (binding.radioHairClippers.isChecked || binding.radioHairRazor.isChecked) {
+      if (date.isNullOrEmpty()) {
+        binding.dateHolder.error = "Please provide hair date"
+        binding.edtDate.requestFocus()
+        return false
+      }
+    }
+    return true
   }
 }

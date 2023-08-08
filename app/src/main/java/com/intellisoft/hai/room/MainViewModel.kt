@@ -19,9 +19,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   fun addPreparationData(data: PreparationData): Boolean {
     return repository.addPreparationData(data)
   }
+  fun addOutcomeData(data: OutcomeData): Boolean {
+    return repository.addOutcomeData(data)
+  }
 
   fun getPatients( context: Context) = runBlocking {
     repository.getPatients(context)
+  }
+
+  fun addSurgicalSiteData(data: SurgicalSiteData): Boolean {
+    return repository.addSurgicalSiteData(data)
   }
 
 

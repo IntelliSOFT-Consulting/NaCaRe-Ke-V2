@@ -1,14 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="15dp"
     tools:context=".main.workflows.OutcomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/outcome"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dateHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/date_of_outcome"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_outcome_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/patient_status_at_outcome"
+            android:textStyle="bold" />
+
+
+        <RadioGroup
+            android:id="@+id/radioGroupOutcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/radio_discharged"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/discharged_from_surgical_care" />
+
+            <RadioButton
+                android:id="@+id/radio_transferred_within"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transferred_to_another_ward_within_the_hospital" />
+
+            <RadioButton
+                android:id="@+id/radio_transferred_another"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transferred_to_another_hospital" />
+
+            <RadioButton
+                android:id="@+id/radio_died"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/died" />
+
+            <RadioButton
+                android:id="@+id/radio_absconded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/absconded" />
+
+            <RadioButton
+                android:id="@+id/radio_unknown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unknown" />
+
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_submit"
+            app:cornerRadius="35dp" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

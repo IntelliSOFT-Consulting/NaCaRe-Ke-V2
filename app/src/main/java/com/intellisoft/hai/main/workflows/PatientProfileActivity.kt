@@ -8,8 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.ActivityPatientProfileBinding
+import com.intellisoft.hai.listeners.OnFragmentInteractionListener
 
-class PatientProfileActivity : AppCompatActivity() {
+class PatientProfileActivity : AppCompatActivity(), OnFragmentInteractionListener {
   private lateinit var binding: ActivityPatientProfileBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,14 +66,7 @@ class PatientProfileActivity : AppCompatActivity() {
         replaceFragment(SurgicalFragment())
         true
       }
-      R.id.action_microbiology_findings_and_ast_testing_results -> {
-        replaceFragment(MicrobiologyFragment())
-        true
-      }
-      R.id.action_antimicrobial_susceptibility_testing -> {
-        replaceFragment(AntimicrobialFragment())
-        true
-      }
+
       R.id.action_outcome -> {
         replaceFragment(OutcomeFragment())
         true
@@ -96,5 +90,15 @@ class PatientProfileActivity : AppCompatActivity() {
 
   override fun onBackPressed() {
     super.onBackPressed()
+  }
+
+  override fun launchAction() {
+    val fragment = PatientFragment()
+    supportFragmentManager
+        .beginTransaction()
+        .replace(R.id.fragment_container, fragment)
+        .addToBackStack(null)
+        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+        .commit()
   }
 }

@@ -36,16 +36,7 @@
         android:orderInCategory="100"
         android:title="@string/surgical_site_infection_pathogen_information"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_microbiology_findings_and_ast_testing_results"
-        android:orderInCategory="100"
-        android:title="@string/microbiology_findings_and_ast_testing_results"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_antimicrobial_susceptibility_testing"
-        android:orderInCategory="100"
-        android:title="@string/antimicrobial_susceptibility_testing"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_outcome"
         android:orderInCategory="100"

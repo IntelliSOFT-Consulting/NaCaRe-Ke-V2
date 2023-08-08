@@ -13,6 +13,7 @@ interface RoomDao {
   fun checkPatientExists(id: String): Boolean
   @Query("SELECT * FROM registration WHERE userId =:userId")
   fun getPatients(userId: String): List<RegistrationData>?
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-   fun addPreparationData(data: PreparationData)
+  @Insert(onConflict = OnConflictStrategy.REPLACE) fun addPreparationData(data: PreparationData)
+  @Insert(onConflict = OnConflictStrategy.REPLACE) fun addOutcomeData(data: OutcomeData)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)  fun addSurgicalSiteData(data: SurgicalSiteData)
 }

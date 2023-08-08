@@ -10,13 +10,14 @@ class MainRepository(private val roomDao: RoomDao) {
 
     val userId = patientData.patientId
     val exist = roomDao.checkPatientExists(userId)
-    Log.e("TAG","addPatient $userId")
+    Log.e("TAG", "addPatient $userId")
     if (!exist) {
       roomDao.addPatient(patientData)
       return true
     }
     return false
-  }  fun addPreparationData(data: PreparationData): Boolean {
+  }
+  fun addPreparationData(data: PreparationData): Boolean {
 
     val userId = data.patientId
     val exist = roomDao.checkPatientExists(userId)
@@ -31,10 +32,29 @@ class MainRepository(private val roomDao: RoomDao) {
   fun getPatients(context: Context): List<RegistrationData>? {
     val userId = formatterClass.getSharedPref("username", context)
 
-      return roomDao.getPatients(userId.toString())
+    return roomDao.getPatients(userId.toString())
+  }
+  fun addOutcomeData(data: OutcomeData): Boolean {
 
+    val userId = data.patientId
+    val exist = roomDao.checkPatientExists(userId)
+
+    if (exist) {
+      roomDao.addOutcomeData(data)
+      return true
+    }
+    return false
   }
 
+  fun addSurgicalSiteData(data: SurgicalSiteData): Boolean {
 
+    val userId = data.patientId
+    val exist = roomDao.checkPatientExists(userId)
 
+    if (exist) {
+      roomDao.addSurgicalSiteData(data)
+      return true
+    }
+    return false
+  }
 }
