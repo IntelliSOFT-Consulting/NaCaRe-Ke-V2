@@ -1,14 +1,661 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="15dp"
     tools:context=".main.workflows.PostFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/post_operative_data"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/woundHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="Wound Check-up Date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_wound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Does the wound present signs of infection?" />
+
+        <RadioGroup
+            android:id="@+id/woundStatusRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes" />
+        </RadioGroup>
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/infection_information"
+            android:textStyle="normal" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/eventHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="Event Date"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_event_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="16dp"
+            android:text="Select the type of Surgical Site Infection (SSI):" />
+
+        <RadioGroup
+            android:id="@+id/ssiTypeRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start">
+
+            <RadioButton
+                android:id="@+id/radioButtonSIP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Superficial Incisional Primary (SIP)" />
+
+            <RadioButton
+                android:id="@+id/radioButtonDIP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deep Incisional Primary (DIP)" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOrganSpace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Organ/Space" />
+        </RadioGroup>
+        <!-- Was the infection present at the time of surgery? -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Was the infection present at the time of surgery?" />
+
+        <RadioGroup
+            android:id="@+id/infectionPresenceRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoInfection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesInfection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Symptoms"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drainage or material" />
+
+        <RadioGroup
+            android:id="@+id/drainageRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoDrainage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesDrainage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pain or tenderness" />
+
+        <RadioGroup
+            android:id="@+id/painRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoPain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesPain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes" />
+        </RadioGroup>
+        <!-- Erythema or redness -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Erythema or redness" />
+
+        <RadioGroup
+            android:id="@+id/erythemaRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoErythema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesErythema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Heat -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Heat" />
+
+        <RadioGroup
+            android:id="@+id/heatRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoHeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesHeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Fever -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fever" />
+
+        <RadioGroup
+            android:id="@+id/feverRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoFever"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesFever"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Incision deliberately opened/drained -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Incision deliberately opened/drained" />
+
+        <RadioGroup
+            android:id="@+id/incisionDrainedRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoIncisionDrained"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesIncisionDrained"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Wound spontaneously dehisces -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wound spontaneously dehisces" />
+
+        <RadioGroup
+            android:id="@+id/woundDehiscesRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoWoundDehisces"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesWoundDehisces"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Abscess -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Abscess" />
+
+        <RadioGroup
+            android:id="@+id/abscessRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoAbscess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesAbscess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Sinus tract -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sinus tract" />
+
+        <RadioGroup
+            android:id="@+id/sinusTractRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoSinusTract"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesSinusTract"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Hypothermia -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hypothermia" />
+
+        <RadioGroup
+            android:id="@+id/hypothermiaRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoHypothermia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesHypothermia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Apnea -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apnea" />
+
+        <RadioGroup
+            android:id="@+id/apneaRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoApnea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesApnea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Bradycardia -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bradycardia" />
+
+        <RadioGroup
+            android:id="@+id/bradycardiaRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoBradycardia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesBradycardia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Lethargy -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lethargy" />
+
+        <RadioGroup
+            android:id="@+id/lethargyRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoLethargy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesLethargy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Cough -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cough" />
+
+        <RadioGroup
+            android:id="@+id/coughRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoCough"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesCough"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Nausea -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nausea" />
+
+        <RadioGroup
+            android:id="@+id/nauseaRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoNausea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesNausea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Yes" />
+        </RadioGroup>
+
+        <!-- Vomiting -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vomiting" />
+
+        <RadioGroup
+            android:id="@+id/vomitingRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoVomiting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesVomiting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes" />
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/otherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Other Signs"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <!-- Samples sent for culture? -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Samples sent for culture?"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/samplesSentForCultureRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/radioButtonNoSamplesSent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesSamplesSent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Yes" />
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_next"
+            app:cornerRadius="35dp" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

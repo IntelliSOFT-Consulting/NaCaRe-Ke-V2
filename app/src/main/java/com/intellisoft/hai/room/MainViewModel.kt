@@ -47,5 +47,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
       return repository.addPrePostOperativeData(data)
     }
 
+    fun addPostOperativeData(data: PostOperativeData): Boolean {
+      return repository.addPostOperativeData(data)
+    }
+
 
 }

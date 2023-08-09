@@ -6,8 +6,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.helper_class.PinLockStatus
-import com.intellisoft.hai.navigation_drawer.MainActivity
-import com.intellisoft.hai.navigation_drawer.PinActivity
+import com.intellisoft.hai.main.DashboardActivity
 import com.intellisoft.hai.network_request.RetrofitCalls
 import kotlin.random.Random
 import kotlinx.coroutines.*
@@ -38,13 +37,13 @@ class SynchingPage : AppCompatActivity() {
         delay(1000)
         CoroutineScope(Dispatchers.Main).launch {
           val completed = formatterClass.getSharedPref(PinLockStatus.CONFIRMED.name, this@SynchingPage)
-          if (completed == null) {
-            val intent = Intent(this@SynchingPage, MainActivity::class.java)
+          /*if (completed == null) {*/
+            val intent = Intent(this@SynchingPage, DashboardActivity::class.java)
             startActivity(intent)
-          }else{
-            val intent = Intent(this@SynchingPage, PinActivity::class.java)
-            startActivity(intent)
-          }
+//          }else{
+//            val intent = Intent(this@SynchingPage, PinActivity::class.java)
+//            startActivity(intent)
+//          }
           this@SynchingPage.finish()
         }
       }

@@ -45,18 +45,7 @@
             android:exported="false"
             android:label="@string/title_activity_dashboard"
             android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".pdf.SheetActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".navigation_drawer.PinActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".navigation_drawer.MainActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
+
         <activity
             android:name=".SynchingPage"
             android:exported="false"
