@@ -199,5 +199,7 @@
     <string name="iodine_alcohol">Iodine+Alcohol</string>
     <string name="chlorhexidine_alcohol">Chlorhexidine+Alcohol</string>
     <string name="_1_minute"><![CDATA[0 < 1 minute]]></string>
+    <string name="other_antibiotic_given">Other Antibiotic Given</string>
+    <string name="other_reason">If other specify reason</string>
 
 </resources>

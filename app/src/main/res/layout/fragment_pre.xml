@@ -49,113 +49,142 @@
                 android:layout_weight="1"
                 android:text="Gentamicin" />
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
 
-        <CheckBox
-            android:id="@+id/checkBoxAmoxiclav"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Amoxi/clavulanic acid" />
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-        <CheckBox
-            android:id="@+id/checkBoxCiprofloxacin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Ciprofloxacin" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <CheckBox
-            android:id="@+id/checkBoxCefazolin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Cefazolin" />
+            <CheckBox
+                android:id="@+id/checkBoxAmoxiclav"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Amoxi/clavulanic acid" />
 
-        <CheckBox
-            android:id="@+id/checkBoxCloxacillin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Cloxacillin" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <CheckBox
-            android:id="@+id/checkBoxVancomycin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Vancomycin" />
+            <CheckBox
+                android:id="@+id/checkBoxCiprofloxacin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ciprofloxacin" />
+        </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/checkBoxMetronidazole"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Metronidazole" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <CheckBox
-            android:id="@+id/checkBoxPenicillin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Penicillin" />
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-        <CheckBox
-            android:id="@+id/checkBoxCeftriaxone"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Ceftriaxone" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <CheckBox
-            android:id="@+id/checkBoxCefuroxime"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Cefuroxime" />
+            <CheckBox
+                android:id="@+id/checkBoxCefazolin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cefazolin" />
 
-        <CheckBox
-            android:id="@+id/checkBoxOther"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            <CheckBox
+                android:id="@+id/checkBoxCloxacillin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cloxacillin" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Other (specify)" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxVancomycin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Vancomycin" />
+
+            <CheckBox
+                android:id="@+id/checkBoxMetronidazole"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Metronidazole" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxPenicillin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Penicillin" />
+
+            <CheckBox
+                android:id="@+id/checkBoxCeftriaxone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ceftriaxone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxCefuroxime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cefuroxime" />
+
+            <CheckBox
+                android:id="@+id/checkBoxOther"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Other (specify)" />
+        </LinearLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/preOtherHolder"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/other_specify"
+            android:visibility="gone"
             app:boxStrokeColor="@drawable/textinputlayout_border"
             app:hintTextColor="@color/purple_200">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_pre_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/preNonOtherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/other_antibiotic_given"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_pre_non_other"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textCapSentences"
@@ -175,7 +204,8 @@
         <RadioGroup
             android:id="@+id/antibioticsCeasedRadioGroup"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/radioButtonAntibioticsCeasedNo"
@@ -189,7 +219,290 @@
                 android:layout_height="wrap_content"
                 android:text="@string/yes" />
         </RadioGroup>
+        <!-- Post-Operation Antibiotic Prophylaxis -->
+        <TextView
+            android:id="@+id/postOpAntibioticTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Post-Operation Antibiotic Prophylaxis"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxNoneGivenPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="None given" />
+
+            <CheckBox
+                android:id="@+id/checkBoxGentamicinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gentamicin" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxAmoxiclavPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Amoxi/clavulanic acid" />
+
+            <CheckBox
+                android:id="@+id/checkBoxCiprofloxacinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ciprofloxacin" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxCefazolinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cefazolin" />
+
+            <CheckBox
+                android:id="@+id/checkBoxCloxacillinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cloxacillin" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxVancomycinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Vancomycin" />
+
+            <CheckBox
+                android:id="@+id/checkBoxMetronidazolePost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Metronidazole" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxPenicillinPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Penicillin" />
+
+            <CheckBox
+                android:id="@+id/checkBoxCeftriaxonePost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ceftriaxone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <CheckBox
+                android:id="@+id/checkBoxCefuroximePost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cefuroxime" />
+
+            <CheckBox
+                android:id="@+id/checkBoxOtherPost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Other (specify)" />
+        </LinearLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/postOtherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/other_specify"
+            android:visibility="gone"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_post_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/postNonOtherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/other_antibiotic_given"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_post_non_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <!-- Reason for giving post-operative antibiotics -->
+        <TextView
+            android:id="@+id/postOpAntibioticReasonTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Reason for giving post-operative antibiotics"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/postOpAntibioticReasonRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonProphylaxis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prophylaxis" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTreatingInfection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Treating suspected/known infection" />
+
+            <RadioButton
+                android:id="@+id/radioButtonDrainImplant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Drain/implant inserted" />
+
+
+            <RadioButton
+                android:id="@+id/radioButtonStandardPractice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Standard Practice" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOtherReason"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other" />
+
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reasonOtherHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/other_reason"
+            android:visibility="gone"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_reason_other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <!-- Drain inserted -->
+        <TextView
+            android:id="@+id/drainInsertedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Drain inserted"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/drainInsertedRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonDrainNotInserted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonDrainInserted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/drainHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Drain Location"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_drain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_submit"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"

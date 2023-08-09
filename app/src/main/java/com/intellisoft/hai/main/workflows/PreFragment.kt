@@ -109,14 +109,7 @@ class PreFragment : Fragment() {
   }
   private fun validate(): Boolean {
 
-    if (binding.estimatedTimeRadioGroup.checkedRadioButtonId == -1) {
-      Toast.makeText(
-        requireContext(),
-        "Please select Chlorhexidine+Alcohol",
-        Toast.LENGTH_SHORT
-      ).show()
-      return false
-    }
+
     return true
   }
 
