@@ -57,4 +57,16 @@ class MainRepository(private val roomDao: RoomDao) {
     }
     return false
   }
+
+    fun addPeriData(data: PeriData): Boolean {
+
+      val userId = data.patientId
+      val exist = roomDao.checkPatientExists(userId)
+
+      if (exist) {
+        roomDao.addPeriData(data)
+        return true
+      }
+      return false
+    }
 }

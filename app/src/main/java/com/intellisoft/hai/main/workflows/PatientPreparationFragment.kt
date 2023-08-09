@@ -89,7 +89,7 @@ class PatientPreparationFragment : Fragment() {
             if (added) {
               Toast.makeText(requireContext(), "Record Successfully saved", Toast.LENGTH_SHORT)
                 .show()
-              clearData()
+              mListener?.nextFragment(SkinPreparationFragment())
             } else {
               Toast.makeText(
                 requireContext(),
@@ -117,9 +117,7 @@ class PatientPreparationFragment : Fragment() {
     //    return inflater.inflate(R.layout.fragment_patient, container, false)
   }
 
-  private fun clearData() {
-    mListener?.launchAction()
-  }
+
 
   private fun validate(): Boolean {
     val date = binding.edtDate.text?.toString()

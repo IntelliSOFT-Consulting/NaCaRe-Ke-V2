@@ -101,4 +101,13 @@ class PatientProfileActivity : AppCompatActivity(), OnFragmentInteractionListene
         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
         .commit()
   }
+
+  override fun nextFragment(fragment: Fragment) {
+    supportFragmentManager
+      .beginTransaction()
+      .replace(R.id.fragment_container, fragment)
+      .addToBackStack(null)
+      .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+      .commit()
+  }
 }

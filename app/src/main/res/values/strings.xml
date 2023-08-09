@@ -182,5 +182,16 @@
     <string name="escherichia_coli">Escherichia coli</string>
     <string name="enterobacter_spp">Enterobacter spp</string>
     <string name="other_specify_0">Other (specify)</string>
+    <string name="action_next">Next</string>
+    <string name="healthy_person">Healthy person</string>
+    <string name="hypertension">Hypertension</string>
+    <string name="diabetes">Diabetes</string>
+    <string name="copd">COPD</string>
+    <string name="major_trauma">Major trauma</string>
+    <string name="age_75_yrs"><![CDATA[Age >75 yrs]]></string>
+    <string name="immunocompromised">Immunocompromised</string>
+    <string name="_7_multiple_fractures">7 Multiple fractures</string>
+    <string name="heart_failure">Heart Failure</string>
+    <string name="kidney_failure">Kidney failure</string>
 
 </resources>

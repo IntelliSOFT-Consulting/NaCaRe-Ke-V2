@@ -31,5 +31,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     return repository.addSurgicalSiteData(data)
   }
 
+    fun addPeriData(data: PeriData): Boolean {
+      return repository.addPeriData(data)
+    }
+
 
 }
