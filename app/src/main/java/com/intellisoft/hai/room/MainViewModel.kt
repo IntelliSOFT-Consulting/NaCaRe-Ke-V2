@@ -43,5 +43,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
       return repository.addHandPreparationData(data)
     }
 
+    fun addPrePostOperativeData(data: PrePostOperativeData): Boolean {
+      return repository.addPrePostOperativeData(data)
+    }
+
 
 }

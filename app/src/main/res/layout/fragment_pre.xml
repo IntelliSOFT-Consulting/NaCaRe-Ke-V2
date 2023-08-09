@@ -148,11 +148,11 @@
                 android:text="Cefuroxime" />
 
             <CheckBox
-                android:id="@+id/checkBoxOther"
+                android:id="@+id/checkBoxOtherPre"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Other (specify)" />
+                android:text="Other" />
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -352,7 +352,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Other (specify)" />
+                android:text="Other" />
         </LinearLayout>
 
 
@@ -491,7 +491,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Drain Location"
+            android:hint="@string/drain_location"
+            android:visibility="gone"
             app:boxStrokeColor="@drawable/textinputlayout_border"
             app:hintTextColor="@color/purple_200">
 
@@ -503,6 +504,99 @@
                 android:textSize="12sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
+        <!-- Antibiotic given in the presence of a drain but no infection -->
+        <TextView
+            android:id="@+id/antibioticGivenWithDrainTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/antibiotic_given_in_the_presence_of_a_drain_but_no_infection"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/antibioticGivenWithDrainRadioGroup"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoAntibioticWithDrain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonYesAntibioticWithDrain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+        <!-- Implant used -->
+        <TextView
+            android:id="@+id/implantUsedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Implant used"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/implantUsedRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonNoImplant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonMetalImplant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Metal (ortho)" />
+
+            <RadioButton
+                android:id="@+id/radioButtonSkinGraft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Skin graft" />
+
+            <RadioButton
+                android:id="@+id/radioButtonMeshImplant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mesh" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOtherImplant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other" />
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/implantTypeHolder"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/impant_type"
+            android:visibility="gone"
+            app:boxStrokeColor="@drawable/textinputlayout_border"
+            app:hintTextColor="@color/purple_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_implant_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_submit"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"

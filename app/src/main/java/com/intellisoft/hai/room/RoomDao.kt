@@ -19,4 +19,5 @@ interface RoomDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)  fun addPeriData(data: PeriData)
   @Insert(onConflict = OnConflictStrategy.REPLACE)  fun addSkinPreparationData(data: SkinPreparationData)
   @Insert(onConflict = OnConflictStrategy.REPLACE)   fun addHandPreparationData(data: HandPreparationData)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)  fun addPrePostOperativeData(data: PrePostOperativeData)
 }

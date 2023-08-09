@@ -92,4 +92,15 @@ class MainRepository(private val roomDao: RoomDao) {
       }
       return false
     }
+
+    fun addPrePostOperativeData(data: PrePostOperativeData): Boolean {
+      val userId = data.patientId
+      val exist = roomDao.checkPatientExists(userId)
+
+      if (exist) {
+        roomDao.addPrePostOperativeData(data)
+        return true
+      }
+      return false
+    }
 }

@@ -201,5 +201,8 @@
     <string name="_1_minute"><![CDATA[0 < 1 minute]]></string>
     <string name="other_antibiotic_given">Other Antibiotic Given</string>
     <string name="other_reason">If other specify reason</string>
+    <string name="drain_location">Drain Location</string>
+    <string name="antibiotic_given_in_the_presence_of_a_drain_but_no_infection">Antibiotic given in the presence of a drain but no infection</string>
+    <string name="impant_type">Implant type used</string>
 
 </resources>
