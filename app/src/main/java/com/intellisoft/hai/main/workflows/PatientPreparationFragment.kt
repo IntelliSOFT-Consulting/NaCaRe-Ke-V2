@@ -114,7 +114,6 @@ class PatientPreparationFragment : Fragment() {
       max = 0
     )
     return binding.root
-    //    return inflater.inflate(R.layout.fragment_patient, container, false)
   }
 
 

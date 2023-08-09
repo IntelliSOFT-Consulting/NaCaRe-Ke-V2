@@ -35,5 +35,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
       return repository.addPeriData(data)
     }
 
+    fun addSkinPreparationData(data: SkinPreparationData): Boolean {
+      return repository.addSkinPreparationData(data)
+    }
+
+    fun addHandPreparationData(data: HandPreparationData): Boolean {
+      return repository.addHandPreparationData(data)
+    }
+
 
 }

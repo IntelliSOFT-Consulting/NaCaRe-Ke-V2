@@ -1,14 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="15dp"
     tools:context=".main.workflows.HandPreparationFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/surgical_hand_preparation"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/estimatedTimeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Estimated Time Spent on the Procedure (minutes)"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-</FrameLayout>
+        <RadioGroup
+            android:id="@+id/estimatedTimeRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonTime0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_1_minute" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTime1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 minute-2 min" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTime2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">2 min-3 min" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTime3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">3 min-4 min" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTime4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">4 min-4 min" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTime5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">5 min" />
+        </RadioGroup>
+
+        <!-- Repeat the above structure for other categories -->
+
+        <TextView
+            android:id="@+id/plainSoapWaterTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Plain Soap + Water"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/plainSoapWaterRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonPlainSoapWaterNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonPlainSoapWaterYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+
+        <!-- Repeat the above structure for other categories -->
+
+        <TextView
+            android:id="@+id/antimicrobialSoapWaterTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Antimicrobial Soap + Water"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/antimicrobialSoapWaterRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonAntimicrobialSoapWaterNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonAntimicrobialSoapWaterYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+
+        <!-- Repeat the above structure for other categories -->
+
+        <TextView
+            android:id="@+id/alcoholBasedHandRubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Alcohol-based Hand Rub"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/alcoholBasedHandRubRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonAlcoholBasedHandRubNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no" />
+
+            <RadioButton
+                android:id="@+id/radioButtonAlcoholBasedHandRubYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/yes" />
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_next"
+            app:cornerRadius="35dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

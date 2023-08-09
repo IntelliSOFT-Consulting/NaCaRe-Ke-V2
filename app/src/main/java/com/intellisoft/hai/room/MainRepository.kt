@@ -69,4 +69,27 @@ class MainRepository(private val roomDao: RoomDao) {
       }
       return false
     }
+
+    fun addSkinPreparationData(data: SkinPreparationData): Boolean {
+
+      val userId = data.patientId
+      val exist = roomDao.checkPatientExists(userId)
+
+      if (exist) {
+        roomDao.addSkinPreparationData(data)
+        return true
+      }
+      return false
+    }
+
+    fun addHandPreparationData(data: HandPreparationData): Boolean {
+      val userId = data.patientId
+      val exist = roomDao.checkPatientExists(userId)
+
+      if (exist) {
+        roomDao.addHandPreparationData(data)
+        return true
+      }
+      return false
+    }
 }

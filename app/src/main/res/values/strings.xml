@@ -193,5 +193,11 @@
     <string name="_7_multiple_fractures">7 Multiple fractures</string>
     <string name="heart_failure">Heart Failure</string>
     <string name="kidney_failure">Kidney failure</string>
+    <string name="was_the_skin_allowed_to_fully_dry">Was the skin allowed to fully dry?</string>
+    <string name="iodine_aq">Iodine-aq</string>
+    <string name="chlorhexidine_aq">Chlorhexidine-aq</string>
+    <string name="iodine_alcohol">Iodine+Alcohol</string>
+    <string name="chlorhexidine_alcohol">Chlorhexidine+Alcohol</string>
+    <string name="_1_minute"><![CDATA[0 < 1 minute]]></string>
 
 </resources>
