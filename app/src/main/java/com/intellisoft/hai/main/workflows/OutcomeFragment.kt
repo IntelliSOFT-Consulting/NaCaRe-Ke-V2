@@ -85,11 +85,12 @@ class OutcomeFragment : Fragment() {
           val patient = formatterClass.getSharedPref("patient", requireContext())
           val date = binding.edtOutcomeDate.text?.toString()
           if (user != null) {
+            val enc = formatterClass.getSharedPref("encounter", requireContext())
             val outcome =
                 OutcomeData(
                     userId = user,
                     patientId = patient.toString(),
-                    encounterId = generateUuid(),
+                    encounterId = enc.toString(),
                     date = date.toString(),
                     status = selectedOutcome,
                 )

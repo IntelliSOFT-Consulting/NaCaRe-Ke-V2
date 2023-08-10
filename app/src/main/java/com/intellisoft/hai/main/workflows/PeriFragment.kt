@@ -66,11 +66,13 @@ class PeriFragment : Fragment() {
                             if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
                         val level = binding.edtGlucose.text.toString()
                         val intervention = binding.edtIntervention.text.toString()
+                        val enc = generateUuid()
+                        formatterClass.saveSharedPref("encounter", enc, requireContext())
                         val peri =
                             PeriData(
                                 userId = user,
                                 patientId = patient.toString(),
-                                encounterId = generateUuid(),
+                                encounterId = enc,
                                 risk_factors = commaSeparatedString,
                                 glucose_measured = measured,
                                 glucose_level = level,

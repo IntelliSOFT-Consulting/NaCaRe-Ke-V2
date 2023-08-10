@@ -22,7 +22,7 @@ class PatientProfileActivity : AppCompatActivity(), OnFragmentInteractionListene
     supportActionBar?.apply {
       setDisplayShowHomeEnabled(true)
       setDisplayHomeAsUpEnabled(true)
-      setHomeAsUpIndicator(R.drawable.ic_cancel)
+      setHomeAsUpIndicator(R.drawable.baseline_clear_24)
       title = ""
     }
 

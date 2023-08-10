@@ -63,12 +63,12 @@ class HandPreparationFragment : Fragment() {
                     val user = formatterClass.getSharedPref("username", requireContext())
                     if (user != null) {
                         val patient = formatterClass.getSharedPref("patient", requireContext())
-
+                        val enc = formatterClass.getSharedPref("encounter", requireContext())
                         val data =
                             HandPreparationData(
                                 userId = user,
                                 patientId = patient.toString(),
-                                encounterId = generateUuid(),
+                                encounterId = enc.toString(),
                                 practitioner= generateUuid(),
                                 time_spent = time_spent,
                                 plain_soap_water = plain_soap_water,

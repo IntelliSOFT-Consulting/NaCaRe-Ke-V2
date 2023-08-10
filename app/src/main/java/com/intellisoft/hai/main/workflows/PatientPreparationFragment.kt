@@ -75,12 +75,12 @@ class PatientPreparationFragment : Fragment() {
               } else {
                 "Clippers"
               }
-
+            val enc = formatterClass.getSharedPref("encounter", requireContext())
             val peri =
               PreparationData(
                 userId = user,
                 patientId = patient.toString(),
-                encounterId = AppUtils.generateUuid(),
+                encounterId = enc.toString(),
                 pre_bath = pre_bath,
                 soap_used = soap_used,
                 hair_removal = hair_removal,

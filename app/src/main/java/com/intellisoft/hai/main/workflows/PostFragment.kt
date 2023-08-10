@@ -105,11 +105,12 @@ class PostFragment : Fragment() {
             val patient = formatterClass.getSharedPref("patient", requireContext())
             val ssi =
                 if (binding.radioButtonSIP.isChecked) "Superficial Incisional Primary (SIP)" else (if (binding.radioButtonDIP.isChecked) "Deep Incisional Primary (DIP)" else "Organ/Space")
+            val enc = formatterClass.getSharedPref("encounter", requireContext())
             val data =
                 PostOperativeData(
                     userId = user,
                     patientId = patient.toString(),
-                    encounterId = generateUuid(),
+                    encounterId = enc.toString(),
                     check_up_date = binding.edtWound.text.toString(),
                     infection_signs = if (binding.radioButtonNo.isChecked) "No" else "Yes",
                     event_date = binding.edtEventDate.text.toString(),

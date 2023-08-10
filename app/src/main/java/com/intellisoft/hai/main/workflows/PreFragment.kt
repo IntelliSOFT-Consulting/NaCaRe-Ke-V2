@@ -77,12 +77,12 @@ class PreFragment : Fragment() {
                             if (binding.radioButtonAntibioticsCeasedNo.isChecked) "No" else "Yes"
                         val antibiotic =
                             if (binding.radioButtonNoAntibioticWithDrain.isChecked) "No" else "Yes"
-
+                        val enc = formatterClass.getSharedPref("encounter", requireContext())
                         val data =
                             PrePostOperativeData(
                                 userId = user,
                                 patientId = patient.toString(),
-                                encounterId = generateUuid(),
+                                encounterId = enc.toString(),
                                 pre_antibiotic_prophylaxis = preString,
                                 pre_antibiotic_prophylaxis_other = pre_other.toString(),
                                 pre_other_antibiotic_given = pre.toString(),

@@ -32,6 +32,7 @@
         <RadioGroup
             android:id="@+id/chlorhexidineAlcoholRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -61,6 +62,7 @@
         <RadioGroup
             android:id="@+id/iodineAlcoholRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -90,6 +92,7 @@
         <RadioGroup
             android:id="@+id/chlorhexidineAqRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -119,6 +122,7 @@
         <RadioGroup
             android:id="@+id/iodineAqRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -148,6 +152,7 @@
         <RadioGroup
             android:id="@+id/skinFullyDryRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton

@@ -83,6 +83,7 @@
         <RadioGroup
             android:id="@+id/plainSoapWaterRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -112,6 +113,7 @@
         <RadioGroup
             android:id="@+id/antimicrobialSoapWaterRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton
@@ -141,6 +143,7 @@
         <RadioGroup
             android:id="@+id/alcoholBasedHandRubRadioGroup"
             android:layout_width="wrap_content"
+            android:orientation="horizontal"
             android:layout_height="wrap_content">
 
             <RadioButton

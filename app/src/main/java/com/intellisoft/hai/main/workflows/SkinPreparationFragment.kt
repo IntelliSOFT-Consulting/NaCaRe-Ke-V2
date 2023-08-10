@@ -70,11 +70,12 @@ class SkinPreparationFragment : Fragment() {
                             if (binding.radioButtonIodineAqNo.isChecked) "No" else "Yes"
                         val skin_fully_dry =
                             if (binding.radioButtonSkinFullyDryNo.isChecked) "No" else "Yes"
+                        val enc = formatterClass.getSharedPref("encounter", requireContext())
                         val data =
                             SkinPreparationData(
                                 userId = user,
                                 patientId = patient.toString(),
-                                encounterId = generateUuid(),
+                                encounterId = enc.toString(),
                                 chlorhexidine_alcohol = chlorhexidine_alcohol,
                                 iodine_alcohol = iodine_alcohol,
                                 chlorhexidine_aq = chlorhexidine_aq,
