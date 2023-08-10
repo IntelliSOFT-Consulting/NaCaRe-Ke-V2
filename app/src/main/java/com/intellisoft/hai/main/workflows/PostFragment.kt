@@ -143,7 +143,7 @@ class PostFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                mListener?.launchAction()
+                mListener?.nextFragment(OutcomeFragment())
 
             } else {
                 Toast.makeText(

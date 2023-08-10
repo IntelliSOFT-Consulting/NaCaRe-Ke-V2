@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentPeriBinding
@@ -108,6 +109,14 @@ class PeriFragment : Fragment() {
             }
         }
         controlCheckBoxes()
+        binding.radioButtonBloodGlucoseYes.apply {
+            setOnCheckedChangeListener { _, isChecked ->
+                binding.glucoseHolder.isVisible = isChecked
+                if (isChecked) {
+                    binding.edtGlucose.text = null
+                }
+            }
+        }
         return binding.root
     }
 
@@ -176,10 +185,12 @@ class PeriFragment : Fragment() {
     private fun validate(): Boolean {
         val glucose = binding.edtGlucose.text?.toString()
         val intervention = binding.edtIntervention.text?.toString()
-        if (glucose.isNullOrEmpty()) {
-            binding.glucoseHolder.error = "Please provide glucose level"
-            binding.edtGlucose.requestFocus()
-            return false
+        if (binding.radioButtonBloodGlucoseYes.isChecked) {
+            if (glucose.isNullOrEmpty()) {
+                binding.glucoseHolder.error = "Please provide glucose level"
+                binding.edtGlucose.requestFocus()
+                return false
+            }
         }
         if (intervention.isNullOrEmpty()) {
             binding.interventionHolder.error = "Please provide intervention"
