@@ -41,7 +41,7 @@ class RegistrationActivity : AppCompatActivity() {
     supportActionBar?.apply {
       setDisplayShowHomeEnabled(true)
       setDisplayHomeAsUpEnabled(true)
-      setHomeAsUpIndicator(R.drawable.baseline_cancel_24)
+      setHomeAsUpIndicator(R.drawable.baseline_clear_24)
       title = ""
     }
     binding.checkBoxOther.apply {

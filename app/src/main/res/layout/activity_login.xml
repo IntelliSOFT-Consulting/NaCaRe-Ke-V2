@@ -4,17 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/purple_700"
     tools:context=".auth.Login">
 
-    <include layout="@layout/usaid_layout" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <!-- login_cardview.xml -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Hospital Acquired Infections\nSurveillance"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/white"
+            android:textSize="23sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Presbyterian church of east\nafrica kikuyu"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+
+    </LinearLayout>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/login_cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="16dp"
+        app:cardCornerRadius="@dimen/_15dp"
         app:cardElevation="8dp">
 
         <LinearLayout
@@ -27,11 +59,9 @@
                 android:id="@+id/title_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/primary"
                 android:gravity="center"
                 android:padding="8dp"
-                android:text="@string/pss_title"
-                android:textColor="@android:color/white"
+                android:text="Login In"
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -100,15 +130,15 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Login button -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/loginButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@color/secondary"
-                    android:text="@string/sign_in"
+                    android:text="@string/login"
                     android:textAllCaps="false"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="@dimen/_15dp" />
 
             </LinearLayout>
 
@@ -117,7 +147,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/accent" />
+                android:background="@color/purple_700" />
 
         </LinearLayout>
 

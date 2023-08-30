@@ -205,5 +205,7 @@
     <string name="antibiotic_given_in_the_presence_of_a_drain_but_no_infection">Antibiotic given in the presence of a drain but no infection</string>
     <string name="impant_type">Implant type used</string>
     <string name="infection_information">Infection Information</string>
+    <string name="login">Login</string>
+    <string name="welcome">Welcome Home</string>
 
 </resources>

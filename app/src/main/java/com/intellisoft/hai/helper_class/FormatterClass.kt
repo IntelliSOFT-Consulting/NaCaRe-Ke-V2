@@ -9,24 +9,34 @@ import com.intellisoft.hai.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class FormatterClass {
+    fun generateHomeData(context: Context): ArrayList<HomeItem> {
+        return arrayListOf(
+            HomeItem(R.drawable.cases, "Cases"),
+            HomeItem(R.drawable.cases, "Patients"),
+            HomeItem(R.drawable.cases, "Reports"),
+        )
+    }
 
-    fun saveSharedPref(key: String, value: String, context: Context){
+    fun saveSharedPref(key: String, value: String, context: Context) {
         val sharedPreferences: SharedPreferences =
             context.getSharedPreferences(context.getString(R.string.app_name), MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(key, value);
         editor.apply();
     }
+
     fun getSharedPref(key: String, context: Context): String? {
         val sharedPreferences: SharedPreferences =
             context.getSharedPreferences(context.getString(R.string.app_name), MODE_PRIVATE)
         return sharedPreferences.getString(key, null)
 
     }
-    fun deleteSharedPref(key:String, context: Context){
+
+    fun deleteSharedPref(key: String, context: Context) {
         val sharedPreferences: SharedPreferences =
             context.getSharedPreferences(context.getString(R.string.app_name), MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -34,6 +44,7 @@ class FormatterClass {
         editor.apply();
 
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun getCurrentDate(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
