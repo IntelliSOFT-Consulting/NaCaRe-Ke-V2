@@ -9,6 +9,11 @@ import androidx.fragment.app.FragmentTransaction
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.ActivityPatientProfileBinding
 import com.intellisoft.hai.listeners.OnFragmentInteractionListener
+import com.intellisoft.hai.main.workflows.peri.HandPreparationFragment
+import com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment
+import com.intellisoft.hai.main.workflows.peri.PeriFragment
+import com.intellisoft.hai.main.workflows.peri.PreFragment
+import com.intellisoft.hai.main.workflows.peri.SkinPreparationFragment
 
 class PatientProfileActivity : AppCompatActivity(), OnFragmentInteractionListener {
   private lateinit var binding: ActivityPatientProfileBinding

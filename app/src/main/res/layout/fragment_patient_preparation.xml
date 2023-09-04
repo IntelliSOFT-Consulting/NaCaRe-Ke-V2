@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    tools:context=".main.workflows.PatientPreparationFragment">
+    tools:context=".main.workflows.peri.PatientPreparationFragment">
 
 
     <LinearLayout
@@ -135,27 +135,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:gravity="center">
 
-            <ProgressBar
-                android:id="@+id/pb_loading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:indeterminateTint="@color/purple_200"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_submit"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/action_submit"
-                app:cornerRadius="35dp" />
-        </RelativeLayout>
     </LinearLayout>
 
 

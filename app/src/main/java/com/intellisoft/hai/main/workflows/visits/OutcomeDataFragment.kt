@@ -1,7 +1,5 @@
 package com.intellisoft.hai.main.workflows.visits
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,16 +8,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.intellisoft.hai.R
-import com.intellisoft.hai.adapter.EncounterAdapter
 import com.intellisoft.hai.adapter.OutcomeAdapter
 import com.intellisoft.hai.databinding.FragmentOutcomeDataBinding
-import com.intellisoft.hai.databinding.FragmentPatientBinding
 import com.intellisoft.hai.helper_class.FormatterClass
-import com.intellisoft.hai.listeners.OnFragmentInteractionListener
-import com.intellisoft.hai.main.workflows.PeriFragment
-import com.intellisoft.hai.main.workflows.VisitsActivity
-import com.intellisoft.hai.room.EncounterData
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.OutcomeData
 

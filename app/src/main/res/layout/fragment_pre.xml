@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    tools:context=".main.workflows.PreFragment">
+    tools:context=".main.workflows.peri.PreFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -597,13 +597,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_submit"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/action_next"
-            app:cornerRadius="35dp" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

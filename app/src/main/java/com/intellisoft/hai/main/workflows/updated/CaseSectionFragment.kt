@@ -9,13 +9,11 @@ import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.button.MaterialButton
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentCaseSectionBinding
-import com.intellisoft.hai.databinding.FragmentCasesBinding
-import com.intellisoft.hai.helper_class.FormatterClass
-import com.intellisoft.hai.main.workflows.HandPreparationFragment
-import com.intellisoft.hai.main.workflows.PatientPreparationFragment
-import com.intellisoft.hai.main.workflows.PeriFragment
-import com.intellisoft.hai.main.workflows.PreFragment
-import com.intellisoft.hai.main.workflows.SkinPreparationFragment
+import com.intellisoft.hai.main.workflows.peri.HandPreparationFragment
+import com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment
+import com.intellisoft.hai.main.workflows.peri.PeriFragment
+import com.intellisoft.hai.main.workflows.peri.PreFragment
+import com.intellisoft.hai.main.workflows.peri.SkinPreparationFragment
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

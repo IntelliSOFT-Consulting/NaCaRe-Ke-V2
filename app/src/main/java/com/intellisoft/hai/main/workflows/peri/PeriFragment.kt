@@ -1,0 +1,182 @@
+package com.intellisoft.hai.main.workflows.peri
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.intellisoft.hai.R
+import com.intellisoft.hai.databinding.FragmentPeriBinding
+import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.room.MainViewModel
+import com.intellisoft.hai.room.PeriData
+import com.intellisoft.hai.util.AppUtils
+
+/**
+ * A simple [Fragment] subclass.
+ * Use the [PeriFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class PeriFragment : Fragment() {
+    private lateinit var formatterClass: FormatterClass
+    private lateinit var mainViewModel: MainViewModel
+    private lateinit var binding: FragmentPeriBinding
+    private val risk_factors = HashSet<String>()
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        binding = FragmentPeriBinding.inflate(layoutInflater)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        formatterClass = FormatterClass()
+        handleListeners()
+       /* binding.btnSubmit.apply {
+            setOnClickListener {
+                if (validate()) {
+                    val user = formatterClass.getSharedPref("username", requireContext())
+                    if (user != null) {
+                        val patient = formatterClass.getSharedPref("patient", requireContext())
+                        val selectedLabels = risk_factors.toTypedArray()
+                        val commaSeparatedString = selectedLabels.joinToString(", ")
+                        val measured =
+                            if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
+                        val level = binding.edtGlucose.text.toString()
+                        val intervention = binding.edtIntervention.text.toString()
+                        val enc = AppUtils.generateUuid()
+                        formatterClass.saveSharedPref("encounter", enc, requireContext())
+                        val peri =
+                            PeriData(
+                                userId = user,
+                                patientId = patient.toString(),
+                                encounterId = enc,
+                                risk_factors = commaSeparatedString,
+                                glucose_measured = measured,
+                                glucose_level = level,
+                                intervention = intervention,
+                            )
+                        val added = mainViewModel.addPeriData(peri)
+                        if (added) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Record Successfully saved",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Encountered problems saving data",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Please check user account",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                }
+            }
+        }*/
+        controlCheckBoxes()
+        binding.radioButtonBloodGlucoseYes.apply {
+            setOnCheckedChangeListener { _, isChecked ->
+                binding.glucoseHolder.isVisible = isChecked
+                if (isChecked) {
+                    binding.edtGlucose.text = null
+                }
+            }
+        }
+        return binding.root
+    }
+
+    private fun controlCheckBoxes() {
+        binding.checkBoxHealthyPerson.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.healthy_person), isChecked)
+        }
+        binding.checkBoxHypertension.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.hypertension), isChecked)
+        }
+        binding.checkBoxDiabetes.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.diabetes), isChecked)
+        }
+        binding.checkBoxCOPD.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.copd), isChecked)
+        }
+        binding.checkBoxMajorTrauma.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.major_trauma), isChecked)
+        }
+        binding.checkBoxAgeOver75.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.age_75_yrs), isChecked)
+        }
+        binding.checkBoxImmunocompromised.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.immunocompromised), isChecked)
+        }
+        binding.checkBoxMultipleFractures.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string._7_multiple_fractures), isChecked)
+        }
+        binding.checkBoxHeartFailure.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.heart_failure), isChecked)
+        }
+        binding.checkBoxKidneyFailure.setOnCheckedChangeListener { _, isChecked ->
+            updateSelectedCheckboxes(getString(R.string.kidney_failure), isChecked)
+        }
+    }
+
+    private fun updateSelectedCheckboxes(checkboxName: String, isChecked: Boolean) {
+        if (isChecked) {
+            risk_factors.add(checkboxName)
+        } else {
+            risk_factors.remove(checkboxName)
+        }
+    }
+
+    private fun handleListeners() {
+        AppUtils.controlData(
+            binding.edtIntervention,
+            binding.interventionHolder,
+            "Please provide intervention",
+            hasMin = false,
+            hasMax = false,
+            min = 0,
+            max = 0
+        )
+        AppUtils.controlData(
+            binding.edtGlucose,
+            binding.glucoseHolder,
+            "Please provide glucose level",
+            hasMin = false,
+            hasMax = false,
+            min = 0,
+            max = 0
+        )
+    }
+
+    private fun validate(): Boolean {
+        val glucose = binding.edtGlucose.text?.toString()
+        val intervention = binding.edtIntervention.text?.toString()
+        if (binding.radioButtonBloodGlucoseYes.isChecked) {
+            if (glucose.isNullOrEmpty()) {
+                binding.glucoseHolder.error = "Please provide glucose level"
+                binding.edtGlucose.requestFocus()
+                return false
+            }
+        }
+        if (intervention.isNullOrEmpty()) {
+            binding.interventionHolder.error = "Please provide intervention"
+            binding.edtIntervention.requestFocus()
+            return false
+        }
+        return true
+    }
+}

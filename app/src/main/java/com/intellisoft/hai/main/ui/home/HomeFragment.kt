@@ -1,7 +1,5 @@
 package com.intellisoft.hai.main.ui.home
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,21 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.hai.R
 import com.intellisoft.hai.adapter.HomeAdapter
-import com.intellisoft.hai.adapter.PatientAdapter
 import com.intellisoft.hai.databinding.FragmentHomeBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.helper_class.HomeItem
-import com.intellisoft.hai.listeners.OnFragmentInteractionListener
-import com.intellisoft.hai.main.ui.cases.CasesFragment
-import com.intellisoft.hai.main.workflows.PatientProfileActivity
-import com.intellisoft.hai.main.workflows.PreFragment
 import com.intellisoft.hai.room.MainViewModel
-import com.intellisoft.hai.room.RegistrationData
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 class HomeFragment : Fragment() {
 

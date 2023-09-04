@@ -6,24 +6,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.hai.adapter.EncounterAdapter
-import com.intellisoft.hai.adapter.PatientAdapter
 import com.intellisoft.hai.databinding.FragmentPatientBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.listeners.OnFragmentInteractionListener
+import com.intellisoft.hai.main.workflows.peri.PeriFragment
 import com.intellisoft.hai.room.EncounterData
 import com.intellisoft.hai.room.MainViewModel
-import com.intellisoft.hai.room.PreparationData
-import com.intellisoft.hai.room.RegistrationData
-import com.intellisoft.hai.util.AppUtils
-import com.intellisoft.hai.util.AppUtils.controlData
-import com.intellisoft.hai.util.AppUtils.disableTextInputEditText
-import com.intellisoft.hai.util.AppUtils.generateUuid
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
