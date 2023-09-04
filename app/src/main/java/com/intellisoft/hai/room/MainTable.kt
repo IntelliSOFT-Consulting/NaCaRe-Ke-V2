@@ -5,6 +5,19 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
+@Entity(tableName = "patients")
+data class PatientData(
+    var userId: String,
+    val patientName: String,
+    val patientId: String,
+    val patientGender: String,
+    val secondaryId: String,
+    val patientDob: String,
+) : Serializable {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}
+
 @Entity(tableName = "registration")
 data class RegistrationData(
     var userId: String,
@@ -19,7 +32,8 @@ data class RegistrationData(
     val scheduling: String,
     val location: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "encounter")
@@ -29,7 +43,8 @@ data class EncounterData(
     val date: String,
     val type: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "peri_data")
@@ -42,7 +57,8 @@ data class PeriData(
     val glucose_level: String,
     val intervention: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "patient_preparation")
@@ -55,7 +71,8 @@ data class PreparationData(
     val hair_removal: String,
     val date_of_removal: String?
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "skin_preparation")
@@ -69,7 +86,8 @@ data class SkinPreparationData(
     val iodine_aq: String,
     val skin_fully_dry: String
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "hand_preparation")
@@ -83,7 +101,8 @@ data class HandPreparationData(
     val antimicrobial_soap_water: String,
     val hand_rub: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "pre_post_operative")
@@ -106,7 +125,8 @@ data class PrePostOperativeData(
     val implant_used: String,
     val implant_other: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "post_operative")
@@ -138,7 +158,8 @@ data class PostOperativeData(
     val symptom_other: String,
     val samples_sent: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "surgical_site")
@@ -178,7 +199,8 @@ data class SurgicalSiteData(
     val ceftazidime: String,
     val ceftriaxone: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "outcome")
@@ -189,5 +211,6 @@ data class OutcomeData(
     val date: String,
     val status: String,
 ) : Serializable {
-  @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }

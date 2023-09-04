@@ -7,89 +7,69 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.intellisoft.hai.R
 import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.room.PatientData
 import com.intellisoft.hai.room.RegistrationData
 
 class PatientAdapter(
-    private var patientList: List<RegistrationData>,
+    private var patientList: List<PatientData>,
     private val context: Context,
-    private val click: (RegistrationData) -> Unit
+    private val click: (PatientData) -> Unit
 ) : RecyclerView.Adapter<PatientAdapter.Pager2ViewHolder>() {
 
-  inner class Pager2ViewHolder(itemView: View) :
-      RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    inner class Pager2ViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
-    val formatterClass = FormatterClass()
+        val formatterClass = FormatterClass()
 
-    val tvPatientId: TextView = itemView.findViewById(R.id.tvPatientId)
-    val tvSecondaryId: TextView = itemView.findViewById(R.id.tvSecondaryId)
-    val tvGender: TextView = itemView.findViewById(R.id.tvGender)
-    val layoutExpanded: LinearLayout = itemView.findViewById(R.id.layoutExpanded)
-    val imgViewMore: ImageView = itemView.findViewById(R.id.imgViewMore)
-    val tvDateOfBirth: TextView = itemView.findViewById(R.id.tvDateOfBirth)
-    val tvDateOfAdmission: TextView = itemView.findViewById(R.id.tvDateOfAdmission)
-    val tvDateOfSurgery: TextView = itemView.findViewById(R.id.tvDateOfSurgery)
-    val tvProcedure: TextView = itemView.findViewById(R.id.tvProcedure)
-    val tvProcedureOther: TextView = itemView.findViewById(R.id.tvProcedureOther)
-    val tvScheduling: TextView = itemView.findViewById(R.id.tvScheduling)
-    val tvLocation: TextView = itemView.findViewById(R.id.tvLocation)
+        val tvPatientId: TextView = itemView.findViewById(R.id.tvPatientId)
+        val tvCaseId: TextView = itemView.findViewById(R.id.tvCaseId)
+        val tvOutcome: TextView = itemView.findViewById(R.id.tvOutcome)
+        val layoutExpanded: LinearLayout = itemView.findViewById(R.id.ln_parent)
+        val cardView: MaterialCardView = itemView.findViewById(R.id.card_parent)
+        val tvAction: TextView = itemView.findViewById(R.id.tvAction)
 
-    init {
-      layoutExpanded.setOnClickListener(this)
+        init {
+            tvAction.setOnClickListener(this)
+        }
+
+        override fun onClick(p0: View?) {
+            val patient = patientList[adapterPosition]
+            click(patient)
+        }
     }
 
-    override fun onClick(p0: View?) {
-      val patient = patientList[adapterPosition]
-      click(patient)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Pager2ViewHolder {
+        return Pager2ViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_patient, parent, false)
+        )
     }
-  }
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Pager2ViewHolder {
-    return Pager2ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.item_patient, parent, false))
-  }
+    override fun onBindViewHolder(holder: Pager2ViewHolder, position: Int) {
 
-  override fun onBindViewHolder(holder: Pager2ViewHolder, position: Int) {
+        val id = patientList[position].id
+        val patientId = patientList[position].patientId
+        holder.tvPatientId.text = patientId
+        holder.tvOutcome.text = ""
+        holder.tvAction.text = "View"
+        holder.tvCaseId.text = id.toString()
 
-    val patientId = patientList[position].patientId
-    val secondaryId = patientList[position].secondaryId
-    val gender = patientList[position].gender
-    val date_of_birth = patientList[position].date_of_birth
-    val date_of_admission = patientList[position].date_of_admission
-    val date_of_surgery = patientList[position].date_of_surgery
-    val procedure = patientList[position].procedure
-    val procedure_other = patientList[position].procedure_other
-    val scheduling = patientList[position].scheduling
-    val location = patientList[position].location
-    val newlineSeparatedString = procedure.replace(", ", "          \n")
-    holder.tvPatientId.text = "Patient ID: $patientId"
-    holder.tvSecondaryId.text = "Secondary ID: $secondaryId"
-    holder.tvGender.text = "Gender: $gender"
-    holder.tvDateOfBirth.text = "Date of Birth: $date_of_birth"
-    holder.tvDateOfAdmission.text = "Date of Admission: $date_of_admission"
-    holder.tvDateOfSurgery.text = "Date of Surgery: $date_of_surgery"
-    holder.tvProcedure.text = "Procedure: $newlineSeparatedString"
-    holder.tvProcedureOther.text = "Procedure Other: $procedure_other"
-    holder.tvScheduling.text = "Scheduling: $scheduling"
-    holder.tvLocation.text = "Location: $location"
-    holder.imgViewMore.setOnClickListener {
-      holder.layoutExpanded.visibility =
-          if (holder.layoutExpanded.visibility == View.VISIBLE) {
-            View.GONE
-          } else {
-            View.VISIBLE
-          }
-      if (holder.layoutExpanded.visibility == View.VISIBLE) {
-        holder.imgViewMore.rotation = 180F
-      } else {
-        holder.imgViewMore.rotation = 0F
-      }
+        // it's a possible divisible by 2 then background gray
+        if (position % 2 == 0) {
+            // Set the background color to gray for even positions
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
+        } else {
+            // Reset the background color for odd positions
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, android.R.color.transparent))
+        }
+
     }
-  }
 
-  override fun getItemCount(): Int {
-    return patientList.size
-  }
+    override fun getItemCount(): Int {
+        return patientList.size
+    }
 }

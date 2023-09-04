@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="8dp"
-                android:text="Login In"
+                android:text="Log In"
                 android:textSize="20sp" />
 
             <LinearLayout

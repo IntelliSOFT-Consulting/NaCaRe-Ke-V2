@@ -1,101 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="15dp"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="5dp">
 
     <LinearLayout
+        android:id="@+id/ln_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/_15dp">
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/_5dp"
+        android:weightSum="4">
+
+        <TextView
+            android:id="@+id/tvCaseId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Case ID"
+            android:textAlignment="center" />
 
         <TextView
             android:id="@+id/tvPatientId"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Patient ID: " />
+            android:layout_weight="1"
+            android:text="Patient ID"
+            android:textAlignment="center" />
 
         <TextView
-            android:id="@+id/tvSecondaryId"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvOutcome"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Secondary ID: " />
+            android:layout_weight="1"
+            android:text="Outcome"
+            android:textAlignment="center" />
 
         <TextView
-            android:id="@+id/tvGender"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvAction"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Gender: " />
+            android:layout_weight="1"
+            android:text="Actions"
+            android:textAlignment="center" />
 
-        <LinearLayout
-            android:id="@+id/layoutExpanded"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tvDateOfBirth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date of Birth: " />
-
-            <TextView
-                android:id="@+id/tvDateOfAdmission"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date of Admission: " />
-
-            <TextView
-                android:id="@+id/tvDateOfSurgery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date of Surgery: " />
-
-            <TextView
-                android:id="@+id/tvProcedure"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Procedure: " />
-
-            <TextView
-                android:id="@+id/tvProcedureOther"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Procedure Other: " />
-
-            <TextView
-                android:id="@+id/tvScheduling"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Scheduling: " />
-
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Location: " />
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/imgViewMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:contentDescription="View More"
-            android:focusable="true"
-            android:src="@drawable/baseline_keyboard_arrow_down_24"
-            app:tint="@color/purple_200" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

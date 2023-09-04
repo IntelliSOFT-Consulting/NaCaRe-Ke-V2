@@ -1,0 +1,119 @@
+package com.intellisoft.hai.main.workflows.updated
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.button.MaterialButton
+import com.intellisoft.hai.R
+import com.intellisoft.hai.databinding.FragmentCaseSectionBinding
+import com.intellisoft.hai.databinding.FragmentCasesBinding
+import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.main.workflows.HandPreparationFragment
+import com.intellisoft.hai.main.workflows.PatientPreparationFragment
+import com.intellisoft.hai.main.workflows.PeriFragment
+import com.intellisoft.hai.main.workflows.PreFragment
+import com.intellisoft.hai.main.workflows.SkinPreparationFragment
+
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"
+
+/**
+ * A simple [Fragment] subclass.
+ * Use the [CaseSectionFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class CaseSectionFragment : Fragment() {
+    private lateinit var binding: FragmentCaseSectionBinding
+    private var currentPage = 0
+    private val fragmentIds =
+        arrayOf(
+            R.id.periFragment,
+            R.id.patientPreparationFragment,
+            R.id.skinPreparationFragment,
+            R.id.handPreparationFragment,
+            R.id.preFragment
+        )
+
+    private lateinit var prevButton: MaterialButton
+    private lateinit var nextButton: MaterialButton
+    private lateinit var saveButton: MaterialButton
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentCaseSectionBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+        prevButton = binding.prevButton
+        nextButton = binding.nextButton
+        saveButton = binding.saveButton
+
+        prevButton.setOnClickListener {
+            showPreviousFragment()
+        }
+
+        nextButton.setOnClickListener {
+            showNextFragment()
+        }
+
+        // Initially, show the first fragment
+        showFragment(currentPage)
+
+        return root
+    }
+
+    private fun showFragment(position: Int) {
+        if (position >= 0 && position < fragmentIds.size) {
+            val transaction =
+                childFragmentManager.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+
+            for (i in fragmentIds.indices) {
+                val fragmentInstance = when (i) {
+                    0 -> PeriFragment()
+                    1 -> PatientPreparationFragment()
+                    2 -> SkinPreparationFragment()
+                    3 -> HandPreparationFragment()
+                    4 -> PreFragment()
+                    else -> null
+                }
+                if (i == position) {
+
+                    if (fragmentInstance != null) {
+                        transaction.replace(R.id.fragment_container, fragmentInstance)
+                    }
+
+                }
+            }
+            transaction.commit()
+            updateButtonsVisibility()
+        }
+    }
+
+    private fun showPreviousFragment() {
+        if (currentPage > 0) {
+            currentPage--
+            showFragment(currentPage)
+        }
+    }
+
+    private fun showNextFragment() {
+        if (currentPage < fragmentIds.size - 1) {
+            currentPage++
+            showFragment(currentPage)
+        }
+    }
+
+    private fun updateButtonsVisibility() {
+        prevButton.visibility = if (currentPage == 0) View.INVISIBLE else View.VISIBLE
+        nextButton.visibility =
+            if (currentPage == fragmentIds.size - 1) View.GONE else View.VISIBLE
+        saveButton.visibility =
+            if (currentPage == fragmentIds.size - 1) View.VISIBLE else View.GONE
+    }
+}

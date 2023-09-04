@@ -15,4 +15,6 @@
     <dimen name="default_dot_spacing">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="_15dp">15dp</dimen>
+    <dimen name="_2dp">2dp</dimen>
+    <dimen name="_8dp">8dp</dimen>
 </resources>

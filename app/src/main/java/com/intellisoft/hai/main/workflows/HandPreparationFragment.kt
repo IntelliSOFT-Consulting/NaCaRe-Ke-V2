@@ -35,19 +35,11 @@ class HandPreparationFragment : Fragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var binding: FragmentHandPreparationBinding
     private val risk_factors = HashSet<String>()
-    private var mListener: OnFragmentInteractionListener? = null
     private lateinit var time_spent: String
     private lateinit var plain_soap_water: String
     private lateinit var antimicrobial_soap_water: String
     private lateinit var hand_rub: String
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
-        }
-    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,7 +75,7 @@ class HandPreparationFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            mListener?.nextFragment(PreFragment())
+//                            mListener?.nextFragment(PreFragment())
 
                         } else {
                             Toast.makeText(

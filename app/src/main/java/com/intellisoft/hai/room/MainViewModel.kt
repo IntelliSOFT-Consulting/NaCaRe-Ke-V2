@@ -63,5 +63,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.getOutcomes(context, encounterId)
     }
 
+    fun addNewPatient(data: PatientData): Boolean {
+        return repository.addNewPatient(data)
+    }
+
+    fun getPatientsData(context: Context) = runBlocking {
+        repository.getPatientsData(context)
+    }
+
+    fun getCaseDetails(context: Context, caseId: String) = runBlocking {
+        repository.getCaseDetails(context, caseId)
+    }
+
 
 }

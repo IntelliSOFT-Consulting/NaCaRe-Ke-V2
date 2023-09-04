@@ -32,16 +32,7 @@ class PatientPreparationFragment : Fragment() {
     private lateinit var binding: FragmentPatientPreparationBinding
     private lateinit var formatterClass: FormatterClass
     private lateinit var mainViewModel: MainViewModel
-    private var mListener: OnFragmentInteractionListener? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,7 +87,7 @@ class PatientPreparationFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            mListener?.nextFragment(SkinPreparationFragment())
+//                            mListener?.nextFragment(SkinPreparationFragment())
                         } else {
                             Toast.makeText(
                                 requireContext(),

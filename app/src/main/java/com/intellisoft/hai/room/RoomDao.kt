@@ -14,8 +14,13 @@ interface RoomDao {
     @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE patientId =:id)")
     fun checkPatientExists(id: String): Boolean
 
+    @Query("SELECT EXISTS (SELECT 1 FROM patients WHERE patientId =:id)")
+    fun checkPatient(id: String): Boolean
+
     @Query("SELECT * FROM registration WHERE userId =:userId")
     fun getPatients(userId: String): List<RegistrationData>?
+    @Query("SELECT * FROM patients WHERE userId =:userId")
+    fun getPatientsData(userId: String): List<PatientData>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addPreparationData(data: PreparationData)
@@ -46,6 +51,12 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addEncounterData(enc: EncounterData)
+
     @Query("SELECT * FROM outcome WHERE patientId =:patientId AND encounterId =:encounterId")
     fun getOutcomes(patientId: String, encounterId: String): List<OutcomeData>?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addNewPatient(data: PatientData)
+    @Query("SELECT * FROM registration WHERE id =:caseId AND userId =:userId")
+    fun getCaseDetails(userId: String, caseId: String): RegistrationData
 }

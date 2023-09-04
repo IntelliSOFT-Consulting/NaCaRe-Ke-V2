@@ -35,18 +35,9 @@ class PreFragment : Fragment() {
     private lateinit var binding: FragmentPreBinding
     private val pre_operation = HashSet<String>()
     private val post_operation = HashSet<String>()
-    private var mListener: OnFragmentInteractionListener? = null
     private lateinit var reason: String
     private lateinit var drain: String
     private lateinit var implant: String
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -106,7 +97,7 @@ class PreFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            mListener?.nextFragment(PostFragment())
+//                            mListener?.nextFragment(PostFragment())
 
                         } else {
                             Toast.makeText(

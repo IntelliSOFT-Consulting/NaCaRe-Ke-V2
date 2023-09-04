@@ -9,17 +9,70 @@
         android:id="@+id/nav_home"
         android:name="com.intellisoft.hai.main.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_nav_home_to_nav_gallery"
+            app:destination="@id/nav_gallery" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_gallery"
         android:name="com.intellisoft.hai.main.ui.cases.CasesFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_cases" />
+        tools:layout="@layout/fragment_cases" >
+        <action
+            android:id="@+id/action_nav_gallery_to_nav_slideshow"
+            app:destination="@id/nav_slideshow" />
+        <action
+            android:id="@+id/action_nav_gallery_to_patientRegistrationFragment"
+            app:destination="@id/patientRegistrationFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_slideshow"
         android:name="com.intellisoft.hai.main.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_slideshow">
+        <argument
+            android:name="caseId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_nav_slideshow_to_caseSectionFragment"
+            app:destination="@id/caseSectionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientRegistrationFragment"
+        android:name="com.intellisoft.hai.main.workflows.PatientRegistrationFragment"
+        android:label="Register New Patient"
+        tools:layout="@layout/fragment_patient_registration" />
+    <fragment
+        android:id="@+id/periFragment"
+        android:name="com.intellisoft.hai.main.workflows.PeriFragment"
+        android:label="Peri-Operative"
+        tools:layout="@layout/fragment_peri" />
+    <fragment
+        android:id="@+id/caseSectionFragment"
+        android:name="com.intellisoft.hai.main.workflows.updated.CaseSectionFragment"
+        android:label="PERI-OPERATIVE DATA"
+        tools:layout="@layout/fragment_case_section" />
+    <fragment
+        android:id="@+id/patientPreparationFragment"
+        android:name="com.intellisoft.hai.main.workflows.PatientPreparationFragment"
+        android:label="Patient Preparation"
+        tools:layout="@layout/fragment_patient_preparation" />
+    <fragment
+        android:id="@+id/skinPreparationFragment"
+        android:name="com.intellisoft.hai.main.workflows.SkinPreparationFragment"
+        android:label="Surgical Skin Preparation"
+        tools:layout="@layout/fragment_skin_preparation" />
+    <fragment
+        android:id="@+id/handPreparationFragment"
+        android:name="com.intellisoft.hai.main.workflows.HandPreparationFragment"
+        android:label="Surgical Hand Preparation"
+        tools:layout="@layout/fragment_hand_preparation" />
+    <fragment
+        android:id="@+id/preFragment"
+        android:name="com.intellisoft.hai.main.workflows.PreFragment"
+        android:label="Pre and Post Operative Antibiotics"
+        tools:layout="@layout/fragment_pre" />
 </navigation>

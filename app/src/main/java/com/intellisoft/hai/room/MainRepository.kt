@@ -132,4 +132,27 @@ class MainRepository(private val roomDao: RoomDao) {
         val userId = formatterClass.getSharedPref("patient", context)
         return roomDao.getOutcomes(userId.toString(), encounterId)
     }
+
+    fun addNewPatient(data: PatientData): Boolean {
+        val userId = data.patientId
+        val exist = roomDao.checkPatient(userId)
+        if (!exist) {
+            roomDao.addNewPatient(data)
+            return true
+        }
+        return false
+    }
+
+
+    fun getPatientsData(context: Context): List<PatientData>? {
+        val userId = formatterClass.getSharedPref("username", context)
+
+        return roomDao.getPatientsData(userId.toString())
+    }
+
+    fun getCaseDetails(context: Context, caseId: String) :RegistrationData{
+        val userId = formatterClass.getSharedPref("username", context)
+
+        return roomDao.getCaseDetails(userId.toString(),caseId)
+    }
 }

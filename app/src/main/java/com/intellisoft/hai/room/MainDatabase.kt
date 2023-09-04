@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 @Database(
     entities =
         [
+            PatientData::class,
             RegistrationData::class,
             EncounterData::class,
             PeriData::class,

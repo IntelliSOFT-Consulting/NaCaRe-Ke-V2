@@ -67,3 +67,6 @@ data class SettingItemChild(
     val showEdittext: Boolean,
     val buttonName: String,
 )
+data class ParentItem(val name: String, val childItems: List<String>)
+
+data class ChildItem(val name: String)

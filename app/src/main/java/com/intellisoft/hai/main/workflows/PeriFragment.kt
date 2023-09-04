@@ -35,16 +35,7 @@ class PeriFragment : Fragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var binding: FragmentPeriBinding
     private val risk_factors = HashSet<String>()
-    private var mListener: OnFragmentInteractionListener? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -87,7 +78,6 @@ class PeriFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            mListener?.nextFragment(PatientPreparationFragment())
 
                         } else {
                             Toast.makeText(
