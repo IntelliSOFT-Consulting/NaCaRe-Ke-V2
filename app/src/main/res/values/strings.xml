@@ -215,5 +215,6 @@
     <string name="would_you_like_to_add_a_case_to_the_patient_s_record">Would you like to add a case to the patient\'s record?</string>
     <string name="add_case">Add Case</string>
     <string name="surgical">Surgical Procedure</string>
+    <string name="intervention">Intervention</string>
 
 </resources>

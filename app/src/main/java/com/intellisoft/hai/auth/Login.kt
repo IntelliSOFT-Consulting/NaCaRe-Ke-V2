@@ -114,7 +114,7 @@ class Login : AppCompatActivity() {
     }
 
     private fun populateInitial() {
-        serverUrlEdittext.setText("http://pssnational.intellisoftkenya.com/")
+        serverUrlEdittext.setText("http://findhai.intellisoftkenya.com/")
     }
 
     override fun onStart() {

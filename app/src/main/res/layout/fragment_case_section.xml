@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Save"
+            android:text="Next"
             android:visibility="gone"
             app:cornerRadius="@dimen/_2dp" />
     </LinearLayout>

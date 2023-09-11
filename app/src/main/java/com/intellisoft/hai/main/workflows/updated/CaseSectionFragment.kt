@@ -1,11 +1,13 @@
 package com.intellisoft.hai.main.workflows.updated
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentCaseSectionBinding
@@ -56,13 +58,29 @@ class CaseSectionFragment : Fragment() {
         }
 
         nextButton.setOnClickListener {
-            showNextFragment()
+            if (validateCurrentFragment()) {
+                showNextFragment()
+            }
+        }
+        saveButton.setOnClickListener {
+            showConfirmFragment()
         }
 
         // Initially, show the first fragment
         showFragment(currentPage)
 
         return root
+    }
+
+    private fun validateCurrentFragment(): Boolean {
+
+        return true // If the fragment doesn't implement validation, consider it as valid
+    }
+
+    private fun showConfirmFragment() {
+        val hostNavController =
+            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+        hostNavController.navigate(R.id.caseSummaryFragment)
     }
 
     private fun showFragment(position: Int) {
@@ -101,7 +119,9 @@ class CaseSectionFragment : Fragment() {
     }
 
     private fun showNextFragment() {
+
         if (currentPage < fragmentIds.size - 1) {
+            // show me the current fragment first before moving next
             currentPage++
             showFragment(currentPage)
         }

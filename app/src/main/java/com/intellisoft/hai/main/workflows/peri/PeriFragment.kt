@@ -14,6 +14,7 @@ import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.util.AppUtils
+import com.intellisoft.hai.util.AppUtils.controlData
 
 /**
  * A simple [Fragment] subclass.
@@ -25,6 +26,7 @@ class PeriFragment : Fragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var binding: FragmentPeriBinding
     private val risk_factors = HashSet<String>()
+    private var isValid: Boolean = false
 
 
     override fun onCreateView(
@@ -36,62 +38,63 @@ class PeriFragment : Fragment() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         formatterClass = FormatterClass()
         handleListeners()
-       /* binding.btnSubmit.apply {
-            setOnClickListener {
-                if (validate()) {
-                    val user = formatterClass.getSharedPref("username", requireContext())
-                    if (user != null) {
-                        val patient = formatterClass.getSharedPref("patient", requireContext())
-                        val selectedLabels = risk_factors.toTypedArray()
-                        val commaSeparatedString = selectedLabels.joinToString(", ")
-                        val measured =
-                            if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
-                        val level = binding.edtGlucose.text.toString()
-                        val intervention = binding.edtIntervention.text.toString()
-                        val enc = AppUtils.generateUuid()
-                        formatterClass.saveSharedPref("encounter", enc, requireContext())
-                        val peri =
-                            PeriData(
-                                userId = user,
-                                patientId = patient.toString(),
-                                encounterId = enc,
-                                risk_factors = commaSeparatedString,
-                                glucose_measured = measured,
-                                glucose_level = level,
-                                intervention = intervention,
-                            )
-                        val added = mainViewModel.addPeriData(peri)
-                        if (added) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Record Successfully saved",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
+        /* binding.btnSubmit.apply {
+             setOnClickListener {
+                 if (validate()) {
+                     val user = formatterClass.getSharedPref("username", requireContext())
+                     if (user != null) {
+                         val patient = formatterClass.getSharedPref("patient", requireContext())
+                         val selectedLabels = risk_factors.toTypedArray()
+                         val commaSeparatedString = selectedLabels.joinToString(", ")
+                         val measured =
+                             if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
+                         val level = binding.edtGlucose.text.toString()
+                         val intervention = binding.edtIntervention.text.toString()
+                         val enc = AppUtils.generateUuid()
+                         formatterClass.saveSharedPref("encounter", enc, requireContext())
+                         val peri =
+                             PeriData(
+                                 userId = user,
+                                 patientId = patient.toString(),
+                                 encounterId = enc,
+                                 risk_factors = commaSeparatedString,
+                                 glucose_measured = measured,
+                                 glucose_level = level,
+                                 intervention = intervention,
+                             )
+                         val added = mainViewModel.addPeriData(peri)
+                         if (added) {
+                             Toast.makeText(
+                                 requireContext(),
+                                 "Record Successfully saved",
+                                 Toast.LENGTH_SHORT
+                             )
+                                 .show()
 
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Encountered problems saving data",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Please check user account",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
-            }
-        }*/
+                         } else {
+                             Toast.makeText(
+                                 requireContext(),
+                                 "Encountered problems saving data",
+                                 Toast.LENGTH_SHORT
+                             )
+                                 .show()
+                         }
+                     } else {
+                         Toast.makeText(
+                             requireContext(),
+                             "Please check user account",
+                             Toast.LENGTH_SHORT
+                         )
+                             .show()
+                     }
+                 }
+             }
+         }*/
         controlCheckBoxes()
         binding.radioButtonBloodGlucoseYes.apply {
             setOnCheckedChangeListener { _, isChecked ->
                 binding.glucoseHolder.isVisible = isChecked
+                binding.interventionHolder.isVisible = isChecked
                 if (isChecked) {
                     binding.edtGlucose.text = null
                 }
@@ -142,27 +145,29 @@ class PeriFragment : Fragment() {
     }
 
     private fun handleListeners() {
-        AppUtils.controlData(
-            binding.edtIntervention,
-            binding.interventionHolder,
-            "Please provide intervention",
-            hasMin = false,
-            hasMax = false,
-            min = 0,
-            max = 0
-        )
-        AppUtils.controlData(
-            binding.edtGlucose,
-            binding.glucoseHolder,
-            "Please provide glucose level",
-            hasMin = false,
-            hasMax = false,
-            min = 0,
-            max = 0
-        )
+        if (binding.radioButtonBloodGlucoseYes.isChecked) {
+            controlData(
+                binding.edtIntervention,
+                binding.interventionHolder,
+                "Please provide intervention",
+                hasMin = false,
+                hasMax = false,
+                min = 0,
+                max = 0
+            )
+            controlData(
+                binding.edtGlucose,
+                binding.glucoseHolder,
+                "Please provide glucose level",
+                hasMin = false,
+                hasMax = false,
+                min = 0,
+                max = 0
+            )
+        }
     }
 
-    private fun validate(): Boolean {
+      fun validate(): Boolean {
         val glucose = binding.edtGlucose.text?.toString()
         val intervention = binding.edtIntervention.text?.toString()
         if (binding.radioButtonBloodGlucoseYes.isChecked) {
@@ -171,12 +176,14 @@ class PeriFragment : Fragment() {
                 binding.edtGlucose.requestFocus()
                 return false
             }
+            if (intervention.isNullOrEmpty()) {
+                binding.interventionHolder.error = "Please provide intervention"
+                binding.edtIntervention.requestFocus()
+                return false
+            }
         }
-        if (intervention.isNullOrEmpty()) {
-            binding.interventionHolder.error = "Please provide intervention"
-            binding.edtIntervention.requestFocus()
-            return false
-        }
+
         return true
     }
+
 }

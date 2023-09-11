@@ -53,8 +53,12 @@
     <fragment
         android:id="@+id/caseSectionFragment"
         android:name="com.intellisoft.hai.main.workflows.updated.CaseSectionFragment"
-        android:label="PERI-OPERATIVE DATA"
-        tools:layout="@layout/fragment_case_section" />
+        android:label="Peri-Operative"
+        tools:layout="@layout/fragment_case_section" >
+        <action
+            android:id="@+id/action_caseSectionFragment_to_caseSummaryFragment"
+            app:destination="@id/caseSummaryFragment" />
+    </fragment>
     <fragment
         android:id="@+id/patientPreparationFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment"
@@ -75,4 +79,9 @@
         android:name="com.intellisoft.hai.main.workflows.peri.PreFragment"
         android:label="Pre and Post Operative Antibiotics"
         tools:layout="@layout/fragment_pre" />
+    <fragment
+        android:id="@+id/caseSummaryFragment"
+        android:name="com.intellisoft.hai.main.workflows.updated.CaseSummaryFragment"
+        android:label="Peri Operative"
+        tools:layout="@layout/fragment_case_summary" />
 </navigation>
