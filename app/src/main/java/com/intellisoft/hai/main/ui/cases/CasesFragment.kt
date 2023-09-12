@@ -47,6 +47,7 @@ class CasesFragment : Fragment() {
     }
 
     private fun onclick(data: PatientData) {
+        formatterClass.saveSharedPref("patient", data.patientId, requireContext())
         val bundle = Bundle()
         bundle.putString("caseId", data.id.toString())
         val hostNavController =

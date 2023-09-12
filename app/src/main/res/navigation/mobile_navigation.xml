@@ -39,6 +39,9 @@
         <action
             android:id="@+id/action_nav_slideshow_to_caseSectionFragment"
             app:destination="@id/caseSectionFragment" />
+        <action
+            android:id="@+id/action_nav_slideshow_to_caseFragment"
+            app:destination="@id/caseFragment" />
     </fragment>
     <fragment
         android:id="@+id/patientRegistrationFragment"
@@ -84,4 +87,9 @@
         android:name="com.intellisoft.hai.main.workflows.updated.CaseSummaryFragment"
         android:label="Peri Operative"
         tools:layout="@layout/fragment_case_summary" />
+    <fragment
+        android:id="@+id/caseFragment"
+        android:name="com.intellisoft.hai.main.workflows.updated.CaseFragment"
+        android:label="Peri Operative"
+        tools:layout="@layout/fragment_case" />
 </navigation>

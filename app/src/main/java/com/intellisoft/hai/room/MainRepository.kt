@@ -71,8 +71,11 @@ class MainRepository(private val roomDao: RoomDao) {
                 date = currentTimestamp(),
                 type = data.encounterId,
             )
-            roomDao.addEncounterData(enc)
-            roomDao.addPeriData(data)
+            val single = roomDao.checkExistsPeri(data.userId, data.patientId)
+            if (!single) {
+                roomDao.addPeriData(data)
+                roomDao.addEncounterData(enc)
+            }
             return true
         }
         return false
@@ -150,9 +153,9 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.getPatientsData(userId.toString())
     }
 
-    fun getCaseDetails(context: Context, caseId: String) :RegistrationData{
+    fun getCaseDetails(context: Context, caseId: String): RegistrationData {
         val userId = formatterClass.getSharedPref("username", context)
 
-        return roomDao.getCaseDetails(userId.toString(),caseId)
+        return roomDao.getCaseDetails(userId.toString(), caseId)
     }
 }

@@ -1,26 +1,23 @@
 package com.intellisoft.hai.adapter
 
-import android.content.Context
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.intellisoft.hai.R
 import com.intellisoft.hai.helper_class.ParentItem
-import com.intellisoft.hai.room.PatientData
+import com.intellisoft.hai.room.MainViewModel
 
 class ParentAdapter(
     private val click: (ParentItem) -> Unit,
     private val parentItems: List<ParentItem>,
-    private val caseId: String
+    private val caseId: String,
+    private val viewModel: MainViewModel
 ) :
     RecyclerView.Adapter<ParentAdapter.ViewHolder>() {
 
@@ -33,6 +30,7 @@ class ParentAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val parentItem = parentItems[position]
         holder.bind(parentItem)
+
     }
 
     override fun getItemCount(): Int {
@@ -45,6 +43,7 @@ class ParentAdapter(
         private val ln_child = itemView.findViewById<LinearLayout>(R.id.ln_child)
         private val btnAdd = itemView.findViewById<MaterialButton>(R.id.btn_add)
         private val expandIcon = itemView.findViewById<ImageView>(R.id.expandIcon)
+
 
         init {
             parentTextView.setOnClickListener {
@@ -60,7 +59,6 @@ class ParentAdapter(
 
             }
         }
-
 
 
         private fun toggleExpandCollapse() {

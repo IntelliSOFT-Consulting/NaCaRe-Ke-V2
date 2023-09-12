@@ -30,7 +30,8 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addSurgicalSiteData(data: SurgicalSiteData)
-
+    @Query("SELECT EXISTS (SELECT 1 FROM peri_data WHERE userId =:user AND patientId =:id)")
+    fun checkExistsPeri(user: String,id: String): Boolean
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addPeriData(data: PeriData)
 
@@ -59,4 +60,6 @@ interface RoomDao {
     fun addNewPatient(data: PatientData)
     @Query("SELECT * FROM registration WHERE id =:caseId AND userId =:userId")
     fun getCaseDetails(userId: String, caseId: String): RegistrationData
+
+
 }

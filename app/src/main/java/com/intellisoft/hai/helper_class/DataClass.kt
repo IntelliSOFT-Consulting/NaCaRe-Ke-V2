@@ -4,51 +4,52 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.intellisoft.hai.R
 
 enum class NavigationValues {
-  NAVIGATION,
-  HOME,
-  SUBMISSION,
-  DATA_ENTRY
+    NAVIGATION,
+    HOME,
+    SUBMISSION,
+    DATA_ENTRY
 }
 
 enum class SubmissionsStatus {
-  SUBMITTED,
-  DRAFT,
-  REJECTED,
-  PUBLISHED
+    SUBMITTED,
+    DRAFT,
+    REJECTED,
+    PUBLISHED
 }
 
 enum class PositionStatus {
-  CURRENT
+    CURRENT
 }
 
 enum class PinLockStatus {
-  INITIAL,
-  CONFIRMED,
-  LOCK
+    INITIAL,
+    CONFIRMED,
+    LOCK
 }
 
 enum class SubmissionQueue {
-  INITIATED,
-  RESPONSE,
-  COMPLETED
+    INITIATED,
+    RESPONSE,
+    COMPLETED
 }
 
 enum class SettingsQueue {
-  SYNC,
-  CONFIGURATION,
-  RESERVED
+    SYNC,
+    CONFIGURATION,
+    RESERVED
 }
 
 enum class FileUpload {
-  USER,
-  INDICATOR,
-  SUBMISSION
+    USER,
+    INDICATOR,
+    SUBMISSION
 }
 
 enum class Information {
-  ABOUT,
-  CONTACT
+    ABOUT,
+    CONTACT
 }
+
 data class HomeItem(val iconResId: Int, val text: String)
 
 data class SettingItem(
@@ -67,6 +68,22 @@ data class SettingItemChild(
     val showEdittext: Boolean,
     val buttonName: String,
 )
+
 data class ParentItem(val name: String, val childItems: List<String>)
 
 data class ChildItem(val name: String)
+data class PeriItem(
+    val count: Int,
+    val data: List<DataItems>,
+)
+
+data class DataItems(
+    val name: String,
+    val elements: List<DataElements>,
+)
+data class DataElements(
+    val code: String,
+    val quiz: String,
+    val type: String,
+    val options: List<String>
+)

@@ -5,23 +5,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.hai.R
 import com.intellisoft.hai.adapter.ParentAdapter
-import com.intellisoft.hai.databinding.FragmentCasesBinding
 import com.intellisoft.hai.databinding.FragmentSlideshowBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.helper_class.ParentItem
 import com.intellisoft.hai.room.MainViewModel
-import com.intellisoft.hai.room.PatientData
+import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.room.RegistrationData
+import com.intellisoft.hai.util.AppUtils.generateUuid
 
 class SlideshowFragment : Fragment() {
     private lateinit var binding: FragmentSlideshowBinding
@@ -38,6 +35,7 @@ class SlideshowFragment : Fragment() {
             ViewModelProvider(this).get(MainViewModel::class.java)
         binding = FragmentSlideshowBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        formatterClass = FormatterClass()
         val args = arguments
         if (args != null) {
             caseId = args.getString("caseId").toString()
@@ -66,7 +64,7 @@ class SlideshowFragment : Fragment() {
             // Add more parent items as needed
         )
 
-        val parentAdapter = ParentAdapter(this::onclick, parentItems, caseId)
+        val parentAdapter = ParentAdapter(this::onclick, parentItems, caseId,viewModel)
         recyclerView.adapter = parentAdapter
         return root
     }
@@ -74,7 +72,7 @@ class SlideshowFragment : Fragment() {
     private fun onclick(data: ParentItem) {
         when (data.name) {
             "Peri-Operative" -> {
-                openSelected(R.id.caseSectionFragment, caseId)
+                openSelected(R.id.caseFragment, caseId)
             }
 
             "Post Operative" -> {
@@ -103,6 +101,23 @@ class SlideshowFragment : Fragment() {
     }
 
     private fun openSelected(fragment: Int, caseId: String) {
+        val user = formatterClass.getSharedPref("username", requireContext())
+        if (user != null) {
+            val patient = formatterClass.getSharedPref("patient", requireContext())
+            val enc = generateUuid()
+            formatterClass.saveSharedPref("encounter", enc, requireContext())
+            val peri =
+                PeriData(
+                    userId = user,
+                    patientId = patient.toString(),
+                    encounterId = enc,
+                    risk_factors = "",
+                    glucose_measured = "",
+                    glucose_level = "",
+                    intervention = "",
+                )
+            val added = viewModel.addPeriData(peri)
+        }
         val bundle = Bundle()
         bundle.putString("caseId", caseId)
         val hostNavController =
