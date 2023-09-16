@@ -69,7 +69,7 @@ data class SettingItemChild(
     val buttonName: String,
 )
 
-data class ParentItem(val name: String, val childItems: List<String>)
+data class ParentItem(val name: String, val pos: String, val childItems: List<String>)
 
 data class ChildItem(val name: String)
 data class PeriItem(
@@ -81,6 +81,7 @@ data class DataItems(
     val name: String,
     val elements: List<DataElements>,
 )
+
 data class DataElements(
     val code: String,
     val quiz: String,

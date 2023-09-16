@@ -18,7 +18,6 @@ import com.intellisoft.hai.helper_class.ParentItem
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.room.RegistrationData
-import com.intellisoft.hai.util.AppUtils.generateUuid
 
 class SlideshowFragment : Fragment() {
     private lateinit var binding: FragmentSlideshowBinding
@@ -57,14 +56,16 @@ class SlideshowFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         val parentItems = listOf(
-            ParentItem("Peri-Operative", listOf("Child 1", "Child 2")),
-            ParentItem("Post Operative", listOf("Child 3", "Child 4")),
-            ParentItem("Surgical Site Infection Information", listOf("Child 3", "Child 4")),
-            ParentItem("Outcome", listOf("Child 3", "Child 4"))
+            ParentItem("Peri-Operative", "0", listOf("Child 1", "Child 2")),
+            ParentItem("Post Operative", "1", listOf("Child 3", "Child 4")),
+            ParentItem("Surgical Site Infection Information", "2", listOf("Child 3", "Child 4")),
+            ParentItem("Outcome", "3", listOf("Child 3", "Child 4"))
             // Add more parent items as needed
         )
-
-        val parentAdapter = ParentAdapter(this::onclick, parentItems, caseId,viewModel)
+        val hostNavController =
+            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+        val parentAdapter =
+            ParentAdapter(requireContext(),hostNavController, this::onclick, parentItems, caseId)
         recyclerView.adapter = parentAdapter
         return root
     }
@@ -72,7 +73,7 @@ class SlideshowFragment : Fragment() {
     private fun onclick(data: ParentItem) {
         when (data.name) {
             "Peri-Operative" -> {
-                openSelected(R.id.caseFragment, caseId)
+                openSelected(R.id.periFragment, caseId)
             }
 
             "Post Operative" -> {
@@ -104,13 +105,12 @@ class SlideshowFragment : Fragment() {
         val user = formatterClass.getSharedPref("username", requireContext())
         if (user != null) {
             val patient = formatterClass.getSharedPref("patient", requireContext())
-            val enc = generateUuid()
-            formatterClass.saveSharedPref("encounter", enc, requireContext())
+            formatterClass.saveSharedPref("encounter", caseId, requireContext())
             val peri =
                 PeriData(
                     userId = user,
                     patientId = patient.toString(),
-                    encounterId = enc,
+                    encounterId = caseId,
                     risk_factors = "",
                     glucose_measured = "",
                     glucose_level = "",

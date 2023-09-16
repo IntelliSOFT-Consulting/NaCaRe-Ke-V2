@@ -1,12 +1,16 @@
 package com.intellisoft.hai.main.workflows.peri
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentPatientPreparationBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.MainViewModel
@@ -41,16 +45,26 @@ class PatientPreparationFragment : Fragment() {
                 )
             }
         }
-    /*    binding.btnSubmit.apply {
+        binding.prevButton.apply {
+            setOnClickListener {
+                val caseId = formatterClass.getSharedPref("caseId", requireContext())
+                val bundle = Bundle()
+                bundle.putString("caseId", caseId)
+                val hostNavController =
+                    requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                hostNavController.navigateUp()
+            }
+        }
+        binding.nextButton.apply {
             setOnClickListener {
                 if (validate()) {
                     val user = formatterClass.getSharedPref("username", requireContext())
                     val patient = formatterClass.getSharedPref("patient", requireContext())
-                    val date = binding.edtDate.text?.toString()
+
                     if (user != null) {
-                        val pre_bath = if (binding.radioNo.isChecked) "No" else "Yes"
-                        val soap_used = if (binding.radioAntibacterialNo.isChecked) "No" else "Yes"
-                        val hair_removal =
+                        val bath = if (binding.radioNo.isChecked) "No" else "Yes"
+                        val soap = if (binding.radioAntibacterialNo.isChecked) "No" else "Yes"
+                        val hair =
                             if (binding.radioHairNo.isChecked) {
                                 "No"
                             } else if (binding.radioHairRazor.isChecked) {
@@ -58,26 +72,26 @@ class PatientPreparationFragment : Fragment() {
                             } else {
                                 "Clippers"
                             }
-                        val enc = formatterClass.getSharedPref("encounter", requireContext())
+                        val date = binding.edtDate.text?.toString()
+                        if (binding.radioHairNo.isChecked) {
+                            binding.edtDate.setText("")
+                        }
+                        val enc = formatterClass.getSharedPref("caseId", requireContext())
                         val peri =
                             PreparationData(
                                 userId = user,
                                 patientId = patient.toString(),
                                 encounterId = enc.toString(),
-                                pre_bath = pre_bath,
-                                soap_used = soap_used,
-                                hair_removal = hair_removal,
+                                pre_bath = bath,
+                                soap_used = soap,
+                                hair_removal = hair,
                                 date_of_removal = date
                             )
                         val added = mainViewModel.addPreparationData(peri)
                         if (added) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Record Successfully saved",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-//                            mListener?.nextFragment(SkinPreparationFragment())
+                            val hostNavController =
+                                requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                            hostNavController.navigate(R.id.skinPreparationFragment)
                         } else {
                             Toast.makeText(
                                 requireContext(),
@@ -95,8 +109,16 @@ class PatientPreparationFragment : Fragment() {
                     }
                 }
             }
-        }*/
-
+        }
+        binding.radioGroupHairRemoval.setOnCheckedChangeListener { _, checkedId ->
+            val selectedRadioButton = binding.root.findViewById<RadioButton>(checkedId)
+            val micro = selectedRadioButton.text.toString()
+            if (micro == "No") {
+                binding.dateHolder.visibility = View.GONE
+            } else {
+                binding.dateHolder.visibility = View.VISIBLE
+            }
+        }
         AppUtils.controlData(
             binding.edtDate,
             binding.dateHolder,
@@ -106,7 +128,43 @@ class PatientPreparationFragment : Fragment() {
             min = 0,
             max = 0
         )
+        val data = formatterClass.getSharedPref("patient", requireContext())
+        if (data != null) {
+            loadInitialData(data)
+        }
         return binding.root
+    }
+
+    private fun loadInitialData(patient: String) {
+        val caseId = formatterClass.getSharedPref("caseId", requireContext())
+        val data = mainViewModel.loadPreparationData(requireContext(), patient, caseId)
+
+        binding.apply {
+            if (data != null) {
+                edtDate.setText(data.date_of_removal)
+                if (data.pre_bath == "No") {
+                    radioNo.isChecked = true
+                }
+                if (data.pre_bath == "Yes") {
+                    radioYes.isChecked = true
+                }
+                if (data.soap_used == "No") {
+                    radioAntibacterialNo.isChecked = true
+                }
+                if (data.soap_used == "Yes") {
+                    radioAntibacterialYes.isChecked = true
+                }
+                if (data.hair_removal == "No") {
+                    radioHairNo.isChecked = true
+                }
+                if (data.hair_removal == "Clippers") {
+                    radioHairClippers.isChecked = true
+                }
+                if (data.hair_removal == "Razor") {
+                    radioHairRazor.isChecked = true
+                }
+            }
+        }
     }
 
 

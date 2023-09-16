@@ -1,213 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="15dp"
     tools:context=".main.workflows.peri.PatientPreparationFragment">
 
-
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
-        <LinearLayout
-            android:id="@+id/ln_top"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="@dimen/_15dp">
-
-            <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/green_background"
-                android:contentDescription="Circular ImageView 1" />
-
-            <!-- Circular ImageView 2 -->
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/blue_background"
-                android:contentDescription="Circular ImageView 2" />
-
-            <!-- Circular ImageView 3 -->
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/circular_background"
-                android:contentDescription="Circular ImageView 3" />
-
-            <!-- Circular ImageView 4 -->
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/circular_background"
-                android:contentDescription="Circular ImageView 4" />
-
-            <!-- Circular ImageView 5 -->
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:background="@drawable/circular_background"
-                android:contentDescription="Circular ImageView 5" />
-        </LinearLayout>
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/ivPayLoans"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/round_basic_button"
-                android:padding="@dimen/_10dp"
-                android:text="2" />
-
-            <TextView
-                style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"      android:paddingLeft="@dimen/_15dp"
-                android:text="@string/patient_preparation"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="@string/pre_op_bath_shower"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupPreOpBath"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radio_no"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/no" />
-
-            <RadioButton
-                android:id="@+id/radio_yes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/yes" />
-
-        </RadioGroup>
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="@string/antibacterial_soap_used"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupAntibacterialSoap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radio_antibacterial_no"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No" />
-
-            <RadioButton
-                android:id="@+id/radio_antibacterial_yes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Yes" />
-
-        </RadioGroup>
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Hair removal"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupHairRemoval"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:padding="@dimen/_15dp"
             android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/radio_hair_no"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No" />
 
-            <RadioButton
-                android:id="@+id/radio_hair_clippers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Clippers" />
-
-            <RadioButton
-                android:id="@+id/radio_hair_razor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Razor" />
-
-        </RadioGroup>
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dateHolder"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:hint="@string/hair_removal_date"
-            app:boxStrokeColor="@drawable/textinputlayout_border"
-            app:endIconDrawable="@drawable/baseline_calendar_month_24"
-            app:endIconMode="custom"
-            app:hintTextColor="@color/purple_200">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edt_date"
+            <LinearLayout
+                android:id="@+id/ln_top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapSentences"
-                android:textSize="12sp" />
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/_15dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <ImageView
+                    android:id="@+id/imageView1"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/green_background"
+                    android:contentDescription="Circular ImageView 1" />
 
+                <!-- Circular ImageView 2 -->
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/blue_background"
+                    android:contentDescription="Circular ImageView 2" />
+
+                <!-- Circular ImageView 3 -->
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circular_background"
+                    android:contentDescription="Circular ImageView 3" />
+
+                <!-- Circular ImageView 4 -->
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circular_background"
+                    android:contentDescription="Circular ImageView 4" />
+
+                <!-- Circular ImageView 5 -->
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/circular_background"
+                    android:contentDescription="Circular ImageView 5" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/ivPayLoans"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/round_basic_button"
+                    android:padding="@dimen/_10dp"
+                    android:text="2" />
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingLeft="@dimen/_15dp"
+                    android:text="@string/patient_preparation"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/pre_op_bath_shower"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupPreOpBath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_yes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_10dp"
+                    android:text="@string/yes" />
+
+                <RadioButton
+                    android:id="@+id/radio_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10dp"
+                    android:text="@string/no" />
+
+
+            </RadioGroup>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/antibacterial_soap_used"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupAntibacterialSoap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_antibacterial_yes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_10dp"
+                    android:text="Yes" />
+
+                <RadioButton
+                    android:id="@+id/radio_antibacterial_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10dp"
+                    android:text="No" />
+
+
+            </RadioGroup>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="Hair removal"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupHairRemoval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_hair_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_10dp"
+                    android:text="No" />
+
+                <RadioButton
+                    android:id="@+id/radio_hair_clippers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_10dp"
+                    android:text="Clippers" />
+
+                <RadioButton
+                    android:id="@+id/radio_hair_razor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Razor" />
+
+            </RadioGroup>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dateHolder"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:hint="@string/hair_removal_date"
+                android:visibility="gone"
+                app:boxStrokeColor="@drawable/textinputlayout_border"
+                app:endIconDrawable="@drawable/baseline_calendar_month_24"
+                app:endIconMode="custom"
+                app:hintTextColor="@color/purple_200">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:textSize="12sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/_15dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/prev_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="Back"
+            app:cornerRadius="@dimen/_2dp" />
+
+        <!-- Filled "Save" Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/next_button"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Next"
+            app:cornerRadius="@dimen/_2dp" />
 
     </LinearLayout>
-
-
-</androidx.core.widget.NestedScrollView>
+</RelativeLayout>

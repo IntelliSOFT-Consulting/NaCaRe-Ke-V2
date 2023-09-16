@@ -22,9 +22,23 @@ class MainRepository(private val roomDao: RoomDao) {
 
         val userId = data.patientId
         val exist = roomDao.checkPatientExists(userId)
-
         if (exist) {
-            roomDao.addPreparationData(data)
+
+            val single =
+                roomDao.checkExistsPatientPreparation(data.userId, data.patientId, data.encounterId)
+            if (!single) {
+                roomDao.addPreparationData(data)
+            } else {
+                roomDao.updatePreparationData(
+                    userId = data.userId,
+                    patientId = data.patientId,
+                    encounterId = data.encounterId,
+                    pre_bath = data.pre_bath,
+                    soap_used = data.soap_used,
+                    hair_removal = data.hair_removal,
+                    date_of_removal = data.date_of_removal
+                )
+            }
             return true
         }
         return false
@@ -75,6 +89,16 @@ class MainRepository(private val roomDao: RoomDao) {
             if (!single) {
                 roomDao.addPeriData(data)
                 roomDao.addEncounterData(enc)
+            } else {
+                roomDao.updatePeriData(
+                    risk = data.risk_factors,
+                    measured = data.glucose_measured,
+                    level = data.glucose_level,
+                    intervention = data.intervention,
+                    userId = data.userId,
+                    patientId = data.patientId,
+                    encounterId = data.encounterId
+                )
             }
             return true
         }
@@ -87,7 +111,21 @@ class MainRepository(private val roomDao: RoomDao) {
         val exist = roomDao.checkPatientExists(userId)
 
         if (exist) {
-            roomDao.addSkinPreparationData(data)
+            val single = roomDao.checkExistsSkinData(data.userId, data.patientId, data.encounterId)
+            if (!single) {
+                roomDao.addSkinPreparationData(data)
+            } else {
+                roomDao.updateSkinPreparationData(
+                    userId = data.userId,
+                    patientId = data.patientId,
+                    encounterId = data.encounterId,
+                    chlorhexidine_alcohol = data.chlorhexidine_alcohol,
+                    iodine_alcohol = data.iodine_alcohol,
+                    chlorhexidine_aq = data.chlorhexidine_aq,
+                    iodine_aq = data.iodine_aq,
+                    skin_fully_dry = data.skin_fully_dry
+                )
+            }
             return true
         }
         return false
@@ -98,7 +136,21 @@ class MainRepository(private val roomDao: RoomDao) {
         val exist = roomDao.checkPatientExists(userId)
 
         if (exist) {
-            roomDao.addHandPreparationData(data)
+            val single = roomDao.checkExistsHandData(data.userId, data.patientId, data.encounterId)
+            if (!single) {
+                roomDao.addHandPreparationData(data)
+            } else {
+                roomDao.updateHandPreparationData(
+                    userId = data.userId,
+                    patientId = data.patientId,
+                    encounterId = data.encounterId,
+                    practitioner = data.practitioner,
+                    time_spent = data.time_spent,
+                    plain_soap_water = data.plain_soap_water,
+                    antimicrobial_soap_water = data.antimicrobial_soap_water,
+                    hand_rub = data.hand_rub,
+                )
+            }
             return true
         }
         return false
@@ -109,7 +161,35 @@ class MainRepository(private val roomDao: RoomDao) {
         val exist = roomDao.checkPatientExists(userId)
 
         if (exist) {
-            roomDao.addPrePostOperativeData(data)
+            val single = roomDao.checkExistsPrePostOperativeData(
+                data.userId,
+                data.patientId,
+                data.encounterId
+            )
+            if (!single) {
+                roomDao.addPrePostOperativeData(data)
+            } else {
+                roomDao.updatePrePostOperativeData(
+                    userId = data.userId,
+                    patientId = data.patientId,
+                    encounterId = data.encounterId,
+                    pre_antibiotic_prophylaxis = data.pre_antibiotic_prophylaxis,
+                    pre_antibiotic_prophylaxis_other = data.pre_antibiotic_prophylaxis_other,
+                    pre_other_antibiotic_given = data.pre_other_antibiotic_given,
+                    antibiotics_ceased = data.antibiotics_ceased,
+                    post_antibiotic_prophylaxis = data.post_antibiotic_prophylaxis,
+                    post_antibiotic_prophylaxis_other = data.post_antibiotic_prophylaxis_other,
+                    post_other_antibiotic_given = data.post_other_antibiotic_given,
+                    post_reason = data.post_reason,
+                    post_reason_other = data.post_reason_other,
+                    drain_inserted = data.drain_inserted,
+                    drain_location = data.drain_location,
+                    drain_antibiotic = data.drain_antibiotic,
+                    implant_used = data.implant_used,
+                    implant_other = data.implant_other,
+                )
+            }
+
             return true
         }
         return false
@@ -157,5 +237,42 @@ class MainRepository(private val roomDao: RoomDao) {
         val userId = formatterClass.getSharedPref("username", context)
 
         return roomDao.getCaseDetails(userId.toString(), caseId)
+    }
+
+    fun loadPeriData(context: Context, caseId: String): List<PeriData>? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadPeriData(userId.toString(), caseId)
+    }
+
+    fun loadPreparationData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): PreparationData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.getLatestPreparation(userId.toString(), patientId, caseId)
+    }
+
+    fun loadSkinPreparationData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): SkinPreparationData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadSkinPreparationData(userId.toString(), patientId, caseId)
+    }
+
+    fun loadHandPreparationData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): HandPreparationData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadHandPreparationData(userId.toString(), patientId, caseId)
+    }
+
+    fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String):PrePostOperativeData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadPrePostPreparationData(userId.toString(), patientId, caseId)
     }
 }

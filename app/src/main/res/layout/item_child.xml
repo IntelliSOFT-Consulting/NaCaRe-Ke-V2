@@ -1,15 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:elevation="15dp"
+    android:orientation="vertical"
+    android:padding="5dp">
 
-    <TextView
-        android:id="@+id/childTextView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/ln_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:text="Parent Item" />
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/_5dp"
+        android:weightSum="5">
 
-</LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_risk"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Risk Factors"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/tv_glucose"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Glucose Measured"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/tv_level"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Glucose Level"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/tv_intervention"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Intervention"
+            android:textAlignment="center" />
+
+
+        <TextView
+            android:id="@+id/tvAction"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Actions"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

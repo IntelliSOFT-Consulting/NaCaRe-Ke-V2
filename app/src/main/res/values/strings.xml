@@ -208,7 +208,7 @@
     <string name="login">Login</string>
     <string name="welcome">Welcome Home</string>
     <string name="new_case">Add New Case</string>
-    <string name="search_patient">Search a Patient</string>
+    <string name="search_patient">Search a surgeries using patient ID or Surgery ID</string>
     <string name="action_patient_name">Patient Name</string>
     <string name="success">Success!</string>
     <string name="patient_record_added_successfully">Patient record added successfully</string>

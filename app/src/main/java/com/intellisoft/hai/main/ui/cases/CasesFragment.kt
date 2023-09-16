@@ -7,18 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.hai.R
+import com.intellisoft.hai.adapter.DividerItemDecoration
 import com.intellisoft.hai.adapter.PatientAdapter
 import com.intellisoft.hai.databinding.FragmentCasesBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.PatientData
-import com.intellisoft.hai.room.RegistrationData
-import com.intellisoft.hai.util.AppUtils
-import com.intellisoft.hai.util.AppUtils.showDatePickerDialog
 
 class CasesFragment : Fragment() {
     private lateinit var binding: FragmentCasesBinding
@@ -39,6 +36,7 @@ class CasesFragment : Fragment() {
             if (dataList!!.isNotEmpty()) {
                 val dataEntryAdapter = PatientAdapter(dataList!!, requireContext(), this::onclick)
                 mRecyclerView.adapter = dataEntryAdapter
+                mRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), R.drawable.divider))
 
             }
         } catch (e: Exception) {
@@ -48,6 +46,7 @@ class CasesFragment : Fragment() {
 
     private fun onclick(data: PatientData) {
         formatterClass.saveSharedPref("patient", data.patientId, requireContext())
+        formatterClass.saveSharedPref("caseId", data.id.toString(), requireContext())
         val bundle = Bundle()
         bundle.putString("caseId", data.id.toString())
         val hostNavController =

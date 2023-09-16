@@ -52,7 +52,11 @@
         android:id="@+id/periFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.PeriFragment"
         android:label="Peri-Operative"
-        tools:layout="@layout/fragment_peri" />
+        tools:layout="@layout/fragment_peri" >
+        <action
+            android:id="@+id/action_periFragment_to_nav_slideshow"
+            app:destination="@id/nav_slideshow" />
+    </fragment>
     <fragment
         android:id="@+id/caseSectionFragment"
         android:name="com.intellisoft.hai.main.workflows.updated.CaseSectionFragment"
@@ -65,22 +69,22 @@
     <fragment
         android:id="@+id/patientPreparationFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment"
-        android:label="Patient Preparation"
+        android:label="Peri-Operative"
         tools:layout="@layout/fragment_patient_preparation" />
     <fragment
         android:id="@+id/skinPreparationFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.SkinPreparationFragment"
-        android:label="Surgical Skin Preparation"
+        android:label="Peri-Operative"
         tools:layout="@layout/fragment_skin_preparation" />
     <fragment
         android:id="@+id/handPreparationFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.HandPreparationFragment"
-        android:label="Surgical Hand Preparation"
+        android:label="Peri-Operative"
         tools:layout="@layout/fragment_hand_preparation" />
     <fragment
         android:id="@+id/preFragment"
         android:name="com.intellisoft.hai.main.workflows.peri.PreFragment"
-        android:label="Pre and Post Operative Antibiotics"
+        android:label="Peri-Operative"
         tools:layout="@layout/fragment_pre" />
     <fragment
         android:id="@+id/caseSummaryFragment"

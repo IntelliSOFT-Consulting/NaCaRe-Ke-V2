@@ -75,5 +75,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.getCaseDetails(context, caseId)
     }
 
+    fun loadPeriData(context: Context, caseId: String) = runBlocking {
+        repository.loadPeriData(context, caseId)
+    }
 
+    fun loadPreparationData(context: Context, patientId: String, caseId: String?) = runBlocking {
+        repository.loadPreparationData(context, patientId, caseId.toString())
+    }
+
+    fun loadSkinPreparationData(context: Context, patientId: String, caseId: String?) =
+        runBlocking {
+            repository.loadSkinPreparationData(context, patientId, caseId.toString())
+        }
+
+    fun loadHandPreparationData(context: Context, patientId: String, caseId: String?) =
+        runBlocking {
+            repository.loadHandPreparationData(context, patientId, caseId.toString())
+        }
+
+    fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String?)=
+        runBlocking {
+            repository.loadPrePostPreparationData(context, patientId, caseId.toString())
+    }
 }

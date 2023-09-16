@@ -13,6 +13,7 @@ import com.google.android.material.card.MaterialCardView
 import com.intellisoft.hai.R
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.PatientData
+import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.room.RegistrationData
 
 class PatientAdapter(
@@ -27,8 +28,9 @@ class PatientAdapter(
         val formatterClass = FormatterClass()
 
         val tvPatientId: TextView = itemView.findViewById(R.id.tvPatientId)
-        val tvCaseId: TextView = itemView.findViewById(R.id.tvCaseId)
-        val tvOutcome: TextView = itemView.findViewById(R.id.tvOutcome)
+        val tvSurgeryId: TextView = itemView.findViewById(R.id.tvSurgeryId)
+        val tvSurgeryDate: TextView = itemView.findViewById(R.id.tvSurgeryDate)
+        val tvSurgeryStatus: TextView = itemView.findViewById(R.id.tvSurgeryStatus)
         val layoutExpanded: LinearLayout = itemView.findViewById(R.id.ln_parent)
         val cardView: MaterialCardView = itemView.findViewById(R.id.card_parent)
         val tvAction: TextView = itemView.findViewById(R.id.tvAction)
@@ -53,19 +55,21 @@ class PatientAdapter(
 
         val id = patientList[position].id
         val patientId = patientList[position].patientId
+        val secondaryId = patientList[position].secondaryId
         holder.tvPatientId.text = patientId
-        holder.tvOutcome.text = ""
+        holder.tvSurgeryDate.text = ""
+        holder.tvSurgeryStatus.text = "Ongoing"
         holder.tvAction.text = "View"
-        holder.tvCaseId.text = id.toString()
+        holder.tvSurgeryId.text = secondaryId
 
-        // it's a possible divisible by 2 then background gray
-        if (position % 2 == 0) {
-            // Set the background color to gray for even positions
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
-        } else {
-            // Reset the background color for odd positions
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, android.R.color.transparent))
-        }
+//        // it's a possible divisible by 2 then background gray
+//        if (position % 2 == 0) {
+//            // Set the background color to gray for even positions
+//            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.gray))
+//        } else {
+//            // Reset the background color for odd positions
+//            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, android.R.color.transparent))
+//        }
 
     }
 

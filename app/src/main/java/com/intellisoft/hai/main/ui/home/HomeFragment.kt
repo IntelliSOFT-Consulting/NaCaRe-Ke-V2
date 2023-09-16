@@ -48,13 +48,9 @@ class HomeFragment : Fragment() {
 
     private fun onclick(data: HomeItem) {
         when (data.text) {
-            "Cases" -> {
+            "Data Entry" -> {
                 val hostNavController = requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
                 hostNavController.navigate(R.id.nav_gallery)
-            }
-
-            "Patients" -> {
-
             }
 
             "Reports" -> {
