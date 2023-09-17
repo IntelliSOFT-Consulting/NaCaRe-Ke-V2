@@ -35,7 +35,7 @@
         app:hintTextColor="@color/purple_200">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_dob"
+            android:id="@+id/edt_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapSentences"

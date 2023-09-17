@@ -20,7 +20,7 @@ interface RoomDao {
     @Query("SELECT * FROM registration WHERE userId =:userId")
     fun getPatients(userId: String): List<RegistrationData>?
 
-    @Query("SELECT * FROM patients WHERE userId =:userId")
+    @Query("SELECT * FROM patients WHERE userId =:userId ORDER BY id DESC")
     fun getPatientsData(userId: String): List<PatientData>?
 
     @Query("SELECT EXISTS (SELECT 1 FROM patient_preparation WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId)")

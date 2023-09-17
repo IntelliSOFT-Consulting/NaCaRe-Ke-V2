@@ -106,6 +106,7 @@ class SlideshowFragment : Fragment() {
         if (user != null) {
             val patient = formatterClass.getSharedPref("patient", requireContext())
             formatterClass.saveSharedPref("encounter", caseId, requireContext())
+            formatterClass.deleteSharedPref("peri",requireContext())
             val peri =
                 PeriData(
                     userId = user,

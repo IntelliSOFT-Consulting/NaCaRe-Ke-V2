@@ -1,9 +1,12 @@
 package com.intellisoft.hai.adapter
 
+import android.app.Application
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -12,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.intellisoft.hai.R
 import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.PatientData
 import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.room.RegistrationData
@@ -20,7 +24,7 @@ class PatientAdapter(
     private var patientList: List<PatientData>,
     private val context: Context,
     private val click: (PatientData) -> Unit
-) : RecyclerView.Adapter<PatientAdapter.Pager2ViewHolder>() {
+) : RecyclerView.Adapter<PatientAdapter.Pager2ViewHolder>(), Filterable {
 
     inner class Pager2ViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
@@ -52,12 +56,14 @@ class PatientAdapter(
     }
 
     override fun onBindViewHolder(holder: Pager2ViewHolder, position: Int) {
-
+        val viewModel = MainViewModel(context.applicationContext as Application)
         val id = patientList[position].id
+        val dos = viewModel.getCaseDetails(context, id.toString())
+
         val patientId = patientList[position].patientId
         val secondaryId = patientList[position].secondaryId
         holder.tvPatientId.text = patientId
-        holder.tvSurgeryDate.text = ""
+        holder.tvSurgeryDate.text = dos.date_of_surgery
         holder.tvSurgeryStatus.text = "Ongoing"
         holder.tvAction.text = "View"
         holder.tvSurgeryId.text = secondaryId
@@ -76,4 +82,32 @@ class PatientAdapter(
     override fun getItemCount(): Int {
         return patientList.size
     }
+
+
+
+    // Implement the Filterable interface
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val query = constraint.toString().trim()
+                val filteredList = if (query.isEmpty()) {
+                    patientList // Return the original list when the query is empty
+                } else {
+                    patientList.filter { item ->
+                        item.patientId.contains(query, ignoreCase = true)
+                    }
+                }
+
+                val results = FilterResults()
+                results.values = filteredList
+                return results
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                patientList = results?.values as List<PatientData>// as List<PatientData>
+                notifyDataSetChanged()
+            }
+        }
+    }
+
 }

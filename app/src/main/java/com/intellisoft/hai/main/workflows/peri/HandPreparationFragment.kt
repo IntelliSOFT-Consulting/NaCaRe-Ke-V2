@@ -84,7 +84,11 @@ class HandPreparationFragment : Fragment() {
         val data = mainViewModel.loadHandPreparationData(requireContext(), patient, caseId)
         binding.apply {
             if (data != null) {
-                aucTime.setText(data.time_spent)
+                val conditions = formatterClass.generateTimings(requireContext())
+                val adapter =
+                    ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, conditions)
+                binding.aucTime.setAdapter(adapter)
+                aucTime.setText(data.time_spent,false)
                 if (data.plain_soap_water == "No") {
                     radioButtonPlainSoapWaterNo.isChecked = true
                 }

@@ -44,7 +44,7 @@ class PeriFragment : Fragment() {
 
         val conditions = formatterClass.generateRiskFactors(requireContext())
         val adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, conditions)
+            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, conditions)
         binding.aucFactors.setAdapter(adapter)
         handleListeners()
         binding.prevButton.apply {
@@ -59,51 +59,7 @@ class PeriFragment : Fragment() {
         }
         binding.nextButton.apply {
             setOnClickListener {
-                if (validate()) {
-                    val user = formatterClass.getSharedPref("username", requireContext())
-                    if (user != null) {
-                        val patient = formatterClass.getSharedPref("patient", requireContext())
-                        val caseId = formatterClass.getSharedPref("caseId", requireContext())
-
-                        val measured =
-                            if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
-                        val level = binding.edtGlucose.text.toString()
-                        val intervention = binding.edtIntervention.text.toString()
-                        val risks = binding.aucFactors.text.toString()
-                        val peri =
-                            PeriData(
-                                userId = user,
-                                patientId = patient.toString(),
-                                encounterId = caseId.toString(),
-                                risk_factors = risks,
-                                glucose_measured = measured,
-                                glucose_level = level,
-                                intervention = intervention,
-                            )
-                        val added = mainViewModel.addPeriData(peri)
-                        if (added) {
-
-                            val hostNavController =
-                                requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-                            hostNavController.navigate(R.id.patientPreparationFragment)
-
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Encountered problems saving data",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Please check user account",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
+               saveData()
             }
         }
         binding.radioButtonBloodGlucoseYes.apply {
@@ -119,10 +75,62 @@ class PeriFragment : Fragment() {
         return binding.root
     }
 
+    private fun saveData() {
+        if (validate()) {
+            val user = formatterClass.getSharedPref("username", requireContext())
+            if (user != null) {
+                val patient = formatterClass.getSharedPref("patient", requireContext())
+                val caseId = formatterClass.getSharedPref("caseId", requireContext())
+
+                val measured =
+                    if (binding.radioButtonBloodGlucoseNo.isChecked) "No" else "Yes"
+                val level = binding.edtGlucose.text.toString()
+                val intervention = binding.edtIntervention.text.toString()
+                val risks = binding.aucFactors.text.toString()
+                val peri =
+                    PeriData(
+                        userId = user,
+                        patientId = patient.toString(),
+                        encounterId = caseId.toString(),
+                        risk_factors = risks,
+                        glucose_measured = measured,
+                        glucose_level = level,
+                        intervention = intervention,
+                    )
+                val added = mainViewModel.addPeriData(peri)
+                if (added) {
+
+                    val hostNavController =
+                        requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                    hostNavController.navigate(R.id.patientPreparationFragment)
+
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Encountered problems saving data",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Please check user account",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+        }
+    }
+
     private fun loadInitialData(data: String) {
         val converters = Converters()
         val periData: PeriData = converters.periFromJson(data)
-        binding.aucFactors.setText(periData.risk_factors)
+        val conditions = formatterClass.generateRiskFactors(requireContext())
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, conditions)
+        binding.aucFactors.setAdapter(adapter)
+        binding.aucFactors.setText(periData.risk_factors,false)
         binding.edtGlucose.setText(periData.glucose_level)
         binding.edtIntervention.setText(periData.intervention)
         if (periData.glucose_measured == "Yes") {

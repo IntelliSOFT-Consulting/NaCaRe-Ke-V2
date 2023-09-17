@@ -1,6 +1,8 @@
 package com.intellisoft.hai.main.ui.cases
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +25,7 @@ class CasesFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private var dataList: List<PatientData>? = null
     private lateinit var formatterClass: FormatterClass
+    private lateinit var adapter: PatientAdapter
     override fun onStart() {
         super.onStart()
         loadData()
@@ -34,10 +37,14 @@ class CasesFragment : Fragment() {
             dataList = viewModel.getPatientsData(requireContext())
 
             if (dataList!!.isNotEmpty()) {
-                val dataEntryAdapter = PatientAdapter(dataList!!, requireContext(), this::onclick)
-                mRecyclerView.adapter = dataEntryAdapter
-                mRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), R.drawable.divider))
-
+                adapter = PatientAdapter(dataList!!, requireContext(), this::onclick)
+                mRecyclerView.adapter = adapter
+                mRecyclerView.addItemDecoration(
+                    DividerItemDecoration(
+                        requireContext(),
+                        R.drawable.divider
+                    )
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -81,6 +88,16 @@ class CasesFragment : Fragment() {
                 hostNavController.navigate(R.id.patientRegistrationFragment)
             }
         }
+        binding.edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                adapter.filter(s.toString())
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
         return root
     }
 
