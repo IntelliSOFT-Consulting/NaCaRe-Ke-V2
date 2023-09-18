@@ -23,4 +23,12 @@ class Converters {
         // convert json to MyJsonData object
         return gson.fromJson(json, PeriData::class.java)
     }
+
+    fun toPostJson(data: PostOperativeData): String {
+        return gson.toJson(data)
+    }
+
+    fun postFromJson(data: String): PostOperativeData {
+        return gson.fromJson(data, PostOperativeData::class.java)
+    }
 }

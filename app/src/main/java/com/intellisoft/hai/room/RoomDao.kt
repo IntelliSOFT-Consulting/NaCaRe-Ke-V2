@@ -199,5 +199,45 @@ interface RoomDao {
         patientId: String,
         encounterId: String
     ): PrePostOperativeData?
+    @Query("SELECT * FROM post_operative  WHERE encounterId =:encounterId  ORDER BY id DESC LIMIT 1")
+    fun loadCurrentPostData(
+        encounterId: String
+    ): PostOperativeData?
+
+    @Query("SELECT * FROM post_operative WHERE caseId =:caseId AND userId =:userId ORDER BY id ")
+    fun loadPostData(userId: String, caseId: String): List<PostOperativeData>?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM post_operative WHERE encounterId =:encounterId)")
+    fun checkExistsPostOperativeData(encounterId: String): Boolean
+
+    @Query("UPDATE post_operative SET check_up_date =:checkUpDate,infection_signs =:infectionSigns WHERE encounterId =:encounterId")
+    fun updateInitialOperative(checkUpDate: String, infectionSigns: String, encounterId: String)
+    @Query("UPDATE post_operative SET event_date =:eventDate,infection_surgery_time =:infectionSurgeryTime,ssi =:ssi WHERE encounterId =:encounterId")
+    fun updateInfectionData(eventDate: String, infectionSurgeryTime: String, ssi: String, encounterId: String)
+    @Query("UPDATE post_operative SET drainage =:drainage,pain =:pain,erythema =:erythema ," +
+            "heat =:heat ,fever =:fever ,incision_opened =:incisionOpened ,wound_dehisces =:woundDehisces ," +
+            "abscess =:abscess ,sinus =:sinus ,hypothermia =:hypothermia ,apnea =:apnea ,bradycardia =:bradycardia," +
+            "lethargy =:lethargy,cough =:cough,nausea =:nausea,vomiting =:vomiting,symptom_other =:symptomOther ,samples_sent =:samplesSent WHERE encounterId =:encounterId")
+    fun updateSymptomsData(
+        drainage: String,
+        pain: String,
+        erythema: String,
+        heat: String,
+        fever: String,
+        incisionOpened: String,
+        woundDehisces: String,
+        abscess: String,
+        sinus: String,
+        hypothermia: String,
+        apnea: String,
+        bradycardia: String,
+        lethargy: String,
+        cough: String,
+        nausea: String,
+        vomiting: String,
+        symptomOther: String,
+        samplesSent: String,
+        encounterId: String
+    )
 
 }

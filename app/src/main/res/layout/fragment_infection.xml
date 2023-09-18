@@ -9,7 +9,9 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_container"
+        android:layout_alignParentTop="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -78,8 +80,99 @@
                     android:text="Infection Information"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/eventHolder"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15dp"
+                android:clickable="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:hint="Event Date"
+                app:boxStrokeColor="@drawable/textinputlayout_border"
+                app:endIconDrawable="@drawable/baseline_calendar_month_24"
+                app:endIconMode="custom"
+                app:hintTextColor="@color/purple_200">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_event_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:textSize="12sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15dp"
+                android:text="Was the infection present at the time of surgery?" />
+
+
+            <RadioGroup
+                android:id="@+id/infectionPresenceRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButtonYesInfection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_15dp"
+                    android:text="@string/yes" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonNoInfection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_15dp"
+                    android:text="@string/no" />
+
+
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="@dimen/_15dp"
+                android:layout_marginBottom="16dp"
+                android:text="Type of Surgical Site Infection (SSI):" />
+
+            <RadioGroup
+                android:id="@+id/ssiTypeRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start">
+
+                <RadioButton
+                    android:id="@+id/radioButtonSIP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Superficial Incisional Primary (SIP)" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonDIP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Deep Incisional Primary (DIP)" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonOrganSpace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Organ/Space" />
+            </RadioGroup>
+
         </LinearLayout>
+
+
     </androidx.core.widget.NestedScrollView>
+
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="match_parent"

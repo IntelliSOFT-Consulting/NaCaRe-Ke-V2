@@ -2,6 +2,7 @@ package com.intellisoft.hai.adapter
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,9 +52,16 @@ class ParentAdapter(
         private val btnAdd = itemView.findViewById<MaterialButton>(R.id.btn_add)
         private val ln_child_items = itemView.findViewById<LinearLayout>(R.id.ln_child_items)
         private val expandIcon = itemView.findViewById<ImageView>(R.id.expandIcon)
+
+//        Labels
+        private val l1 = itemView.findViewById<TextView>(R.id.tv_risk)
+        private val l2 = itemView.findViewById<TextView>(R.id.tv_glucose)
+        private val l3 = itemView.findViewById<TextView>(R.id.tv_level)
+        private val l4 = itemView.findViewById<TextView>(R.id.tv_intervention)
         val viewModel = MainViewModel(context.applicationContext as Application)
 
         init {
+
             parentTextView.setOnClickListener {
                 toggleExpandCollapse()
             }
@@ -104,6 +112,22 @@ class ParentAdapter(
                         btnAdd.visibility = View.GONE
                         ln_child_items.visibility = View.VISIBLE
                         val childAdapter = ChildAdapter(context,hostNavController, data)
+                        childRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+                        childRecyclerView.adapter = childAdapter
+                    }
+                }
+            }
+            if (parentItem.pos == "1") {
+                val post = viewModel.loadPostData(context, caseId)
+                if (post != null) {
+                    if (post.isNotEmpty()) {
+//                        btnAdd.visibility = View.GONE
+                        l1.text = "Wound Date"
+                        l2.text = "Signs Present"
+                        l3.text = "Event Date"
+                        l4.text = "Infection Present"
+                        ln_child_items.visibility = View.VISIBLE
+                        val childAdapter = PostDataAdapter(context,hostNavController, post)
                         childRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
                         childRecyclerView.adapter = childAdapter
                     }

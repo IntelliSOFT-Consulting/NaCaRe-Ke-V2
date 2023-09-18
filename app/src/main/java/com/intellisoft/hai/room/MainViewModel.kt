@@ -99,5 +99,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.loadPrePostPreparationData(context, patientId, caseId.toString())
         }
 
+    fun loadPostData(context: Context, caseId: String)= runBlocking{
+        repository.loadPostData(context, caseId)
+    }
+
+    fun getLatestPostData(context: Context, encounterId: String)= runBlocking {
+        repository.loadCurrentPostData(context, encounterId)
+    }
+
+    fun updateInfectionData( context: Context,date: String, initial: String, ssi: String, encounterId: String)=
+        runBlocking {
+            repository.updateInfectionData(context,date,initial,ssi, encounterId)
+    }
+
+    fun completePostOperative( context: Context,data: PostOperativeData)= runBlocking {
+        repository.completePostOperative(context,data)
+    }
+
 
 }

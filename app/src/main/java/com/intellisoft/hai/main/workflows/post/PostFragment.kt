@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentPostBinding
 import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.room.Converters
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.room.PostOperativeData
 import com.intellisoft.hai.util.AppUtils
@@ -24,7 +25,7 @@ class PostFragment : Fragment() {
     private lateinit var formatterClass: FormatterClass
     private lateinit var mainViewModel: MainViewModel
     private lateinit var binding: FragmentPostBinding
-
+    private lateinit var encounterId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,89 +46,198 @@ class PostFragment : Fragment() {
         }
         binding.nextButton.apply {
             setOnClickListener {
+                if (validate()) {
+                    saveData()
+                }
             }
         }
 
-        AppUtils.disableTextInputEditText(binding.edtEventDate)
-
-        binding.edtEventDate.apply {
-            setOnClickListener {
-                AppUtils.showDatePickerDialog(
-                    requireContext(), binding.edtEventDate, setMaxNow = false, setMinNow = false
-                )
-            }
+        val data = formatterClass.getSharedPref("post", requireContext())
+        if (data != null) {
+            loadInitialData(data)
+        } else {
+            encounterId = AppUtils.generateUuid()
         }
-        dataControl()
         return binding.root
     }
 
-    private fun dataControl() {
+    private fun loadInitialData(data: String) {
+        val converters = Converters()
+        val data: PostOperativeData = converters.postFromJson(data)
+        encounterId = data.encounterId
+        binding.apply {
+            edtOther.setText(data.symptom_other)
 
-        AppUtils.controlData(
-            binding.edtEventDate,
-            binding.eventHolder,
-            "Please provide date",
-            hasMin = false,
-            hasMax = false,
-            min = 0,
-            max = 0
-        )
+            //No Responses
+            if (data.drainage == "No") {
+                radioButtonNoDrainage.isChecked = true
+            }
+            if (data.pain == "No") {
+                radioButtonNoPain.isChecked = true
+            }
+            if (data.erythema == "No") {
+                radioButtonNoErythema.isChecked = true
+            }
+            if (data.heat == "No") {
+                radioButtonNoHeat.isChecked = true
+            }
+            if (data.fever == "No") {
+                radioButtonNoFever.isChecked = true
+            }
+            if (data.incision_opened == "No") {
+                radioButtonNoIncisionDrained.isChecked = true
+            }
+            if (data.wound_dehisces == "No") {
+                radioButtonNoWoundDehisces.isChecked = true
+            }
+            if (data.abscess == "No") {
+                radioButtonNoAbscess.isChecked = true
+            }
+            if (data.sinus == "No") {
+                radioButtonNoSinusTract.isChecked = true
+            }
+            if (data.hypothermia == "No") {
+                radioButtonNoHypothermia.isChecked = true
+            }
+            if (data.apnea == "No") {
+                radioButtonNoApnea.isChecked = true
+            }
+            if (data.bradycardia == "No") {
+                radioButtonNoBradycardia.isChecked = true
+            }
+            if (data.lethargy == "No") {
+                radioButtonNoLethargy.isChecked = true
+            }
+            if (data.cough == "No") {
+                radioButtonNoCough.isChecked = true
+            }
+            if (data.nausea == "No") {
+                radioButtonNoNausea.isChecked = true
+            }
+            if (data.vomiting == "No") {
+                radioButtonNoVomiting.isChecked = true
+            }
+            if (data.samples_sent == "No") {
+                radioButtonNoSamplesSent.isChecked = true
+            }
+
+
+            //Yes Responses
+            if (data.drainage == "Yes") {
+                radioButtonYesDrainage.isChecked = true
+            }
+            if (data.pain == "Yes") {
+                radioButtonYesPain.isChecked = true
+            }
+            if (data.erythema == "Yes") {
+                radioButtonYesErythema.isChecked = true
+            }
+            if (data.heat == "Yes") {
+                radioButtonYesHeat.isChecked = true
+            }
+            if (data.fever == "Yes") {
+                radioButtonYesFever.isChecked = true
+            }
+            if (data.incision_opened == "Yes") {
+                radioButtonYesIncisionDrained.isChecked = true
+            }
+            if (data.wound_dehisces == "Yes") {
+                radioButtonYesWoundDehisces.isChecked = true
+            }
+            if (data.abscess == "Yes") {
+                radioButtonYesAbscess.isChecked = true
+            }
+            if (data.sinus == "Yes") {
+                radioButtonYesSinusTract.isChecked = true
+            }
+            if (data.hypothermia == "Yes") {
+                radioButtonYesHypothermia.isChecked = true
+            }
+            if (data.apnea == "Yes") {
+                radioButtonYesApnea.isChecked = true
+            }
+            if (data.bradycardia == "Yes") {
+                radioButtonYesBradycardia.isChecked = true
+            }
+            if (data.lethargy == "Yes") {
+                radioButtonYesLethargy.isChecked = true
+            }
+            if (data.cough == "Yes") {
+                radioButtonYesCough.isChecked = true
+            }
+            if (data.nausea == "Yes") {
+                radioButtonYesNausea.isChecked = true
+            }
+            if (data.vomiting == "Yes") {
+                radioButtonYesVomiting.isChecked = true
+            }
+            if (data.samples_sent == "Yes") {
+                radioButtonYesSamplesSent.isChecked = true
+            }
+        }
     }
+
 
     private fun saveData() {
         val user = formatterClass.getSharedPref("username", requireContext())
         if (user != null) {
             val patient = formatterClass.getSharedPref("patient", requireContext())
             val caseId = formatterClass.getSharedPref("caseId", requireContext())
-            val ssi =
-                if (binding.radioButtonSIP.isChecked) "Superficial Incisional Primary (SIP)" else (if (binding.radioButtonDIP.isChecked) "Deep Incisional Primary (DIP)" else "Organ/Space")
-            val enc = formatterClass.getSharedPref("encounter", requireContext())
-            val data =
-                PostOperativeData(
-                    userId = user,
-                    patientId = patient.toString(),
-                    encounterId = enc.toString(),
-                    caseId = caseId.toString(),
-                    check_up_date = "",//binding.edtWound.text.toString(),
-                    infection_signs = "",//if (binding.radioButtonNo.isChecked) "No" else "Yes",
-                    event_date = binding.edtEventDate.text.toString(),
-                    ssi = ssi,
-                    infection_surgery_time = if (binding.radioButtonNoInfection.isChecked) "No" else "Yes",
-                    drainage = if (binding.radioButtonNoDrainage.isChecked) "No" else "Yes",
-                    pain = if (binding.radioButtonNoPain.isChecked) "No" else "Yes",
-                    erythema = if (binding.radioButtonNoErythema.isChecked) "No" else "Yes",
-                    heat = if (binding.radioButtonNoHeat.isChecked) "No" else "Yes",
-                    fever = if (binding.radioButtonNoFever.isChecked) "No" else "Yes",
-                    incision_opened = if (binding.radioButtonNoIncisionDrained.isChecked) "No" else "Yes",
-                    wound_dehisces = if (binding.radioButtonNoWoundDehisces.isChecked) "No" else "Yes",
-                    abscess = if (binding.radioButtonNoAbscess.isChecked) "No" else "Yes",
-                    sinus = if (binding.radioButtonNoSinusTract.isChecked) "No" else "Yes",
-                    hypothermia = if (binding.radioButtonNoHypothermia.isChecked) "No" else "Yes",
-                    apnea = if (binding.radioButtonNoApnea.isChecked) "No" else "Yes",
-                    bradycardia = if (binding.radioButtonNoBradycardia.isChecked) "No" else "Yes",
-                    lethargy = if (binding.radioButtonNoLethargy.isChecked) "No" else "Yes",
-                    cough = if (binding.radioButtonNoCough.isChecked) "No" else "Yes",
-                    nausea = if (binding.radioButtonNoNausea.isChecked) "No" else "Yes",
-                    vomiting = if (binding.radioButtonNoVomiting.isChecked) "No" else "Yes",
-                    symptom_other = binding.edtEventDate.text.toString(),
-                    samples_sent = if (binding.radioButtonNoSamplesSent.isChecked) "No" else "Yes",
-                )
-            val added = mainViewModel.addPostOperativeData(data)
-            if (added) {
-                Toast.makeText(
-                    requireContext(),
-                    "Record Successfully saved",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
 
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Encountered problems saving data",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+            val data = formatterClass.getSharedPref("post", requireContext())
+            if (data != null) {
+                val converters = Converters()
+                val data: PostOperativeData = converters.postFromJson(data)
+                val post =
+                    PostOperativeData(
+                        userId = user,
+                        patientId = patient.toString(),
+                        encounterId = encounterId,
+                        caseId = caseId.toString(),
+                        check_up_date = data.check_up_date,
+                        infection_signs = data.infection_signs,
+                        event_date = data.event_date,
+                        ssi = data.ssi,
+                        infection_surgery_time = data.infection_surgery_time,
+                        drainage = if (binding.radioButtonNoDrainage.isChecked) "No" else "Yes",
+                        pain = if (binding.radioButtonNoPain.isChecked) "No" else "Yes",
+                        erythema = if (binding.radioButtonNoErythema.isChecked) "No" else "Yes",
+                        heat = if (binding.radioButtonNoHeat.isChecked) "No" else "Yes",
+                        fever = if (binding.radioButtonNoFever.isChecked) "No" else "Yes",
+                        incision_opened = if (binding.radioButtonNoIncisionDrained.isChecked) "No" else "Yes",
+                        wound_dehisces = if (binding.radioButtonNoWoundDehisces.isChecked) "No" else "Yes",
+                        abscess = if (binding.radioButtonNoAbscess.isChecked) "No" else "Yes",
+                        sinus = if (binding.radioButtonNoSinusTract.isChecked) "No" else "Yes",
+                        hypothermia = if (binding.radioButtonNoHypothermia.isChecked) "No" else "Yes",
+                        apnea = if (binding.radioButtonNoApnea.isChecked) "No" else "Yes",
+                        bradycardia = if (binding.radioButtonNoBradycardia.isChecked) "No" else "Yes",
+                        lethargy = if (binding.radioButtonNoLethargy.isChecked) "No" else "Yes",
+                        cough = if (binding.radioButtonNoCough.isChecked) "No" else "Yes",
+                        nausea = if (binding.radioButtonNoNausea.isChecked) "No" else "Yes",
+                        vomiting = if (binding.radioButtonNoVomiting.isChecked) "No" else "Yes",
+                        symptom_other = binding.edtOther.text.toString(),
+                        samples_sent = if (binding.radioButtonNoSamplesSent.isChecked) "No" else "Yes",
+                    )
+                val added = mainViewModel.completePostOperative(requireContext(), post)
+                if (added) {
+                    val dt = mainViewModel.getLatestPostData(requireContext(), encounterId)
+                    if (dt != null) {
+                        val converters = Converters()
+                        val jeff = converters.toPostJson(dt)
+                        formatterClass.saveSharedPref("post", jeff, requireContext())
+                        val hostNavController =
+                            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                        hostNavController.navigate(R.id.postSummaryFragment)
+                    }
+
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Encountered problems saving data",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             }
         } else {
             Toast.makeText(
@@ -141,30 +251,6 @@ class PostFragment : Fragment() {
 
     private fun validate(): Boolean {
 
-
-
-        if (binding.edtEventDate.text?.toString().isNullOrEmpty()) {
-            binding.eventHolder.error = "Please provide date"
-            binding.edtEventDate.requestFocus()
-            return false
-        }
-        if (binding.ssiTypeRadioGroup.checkedRadioButtonId == -1) {
-            Toast.makeText(
-                requireContext(),
-                "Please select Type of SSI",
-                Toast.LENGTH_SHORT
-            ).show()
-            return false
-        }
-
-        if (binding.infectionPresenceRadioGroup.checkedRadioButtonId == -1) {
-            Toast.makeText(
-                requireContext(),
-                "Please select Infection Presence",
-                Toast.LENGTH_SHORT
-            ).show()
-            return false
-        }
 
         if (binding.drainageRadioGroup.checkedRadioButtonId == -1) {
             Toast.makeText(

@@ -100,6 +100,7 @@ class SlideshowFragment : Fragment() {
     }
 
     private fun openPost(fragment: Int, caseId: String) {
+        formatterClass.deleteSharedPref("post", requireContext())
         formatterClass.saveSharedPref("caseId", caseId, requireContext())
         val bundle = Bundle()
         bundle.putString("caseId", caseId)

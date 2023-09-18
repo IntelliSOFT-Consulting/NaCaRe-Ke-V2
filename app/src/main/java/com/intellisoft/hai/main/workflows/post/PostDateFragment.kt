@@ -1,6 +1,7 @@
 package com.intellisoft.hai.main.workflows.post
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,9 @@ import androidx.navigation.findNavController
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentPostDateBinding
 import com.intellisoft.hai.helper_class.FormatterClass
+import com.intellisoft.hai.room.Converters
 import com.intellisoft.hai.room.MainViewModel
+import com.intellisoft.hai.room.PeriData
 import com.intellisoft.hai.room.PostOperativeData
 import com.intellisoft.hai.util.AppUtils
 
@@ -29,6 +32,7 @@ class PostDateFragment : Fragment() {
     private lateinit var binding: FragmentPostDateBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var formatterClass: FormatterClass
+    private lateinit var encounterId: String
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,6 +41,7 @@ class PostDateFragment : Fragment() {
         binding = FragmentPostDateBinding.inflate(inflater, container, false)
         formatterClass = FormatterClass()
         AppUtils.disableTextInputEditText(binding.edtWound)
+
         binding.edtWound.apply {
             setOnClickListener {
                 AppUtils.showDatePickerDialog(
@@ -62,7 +67,28 @@ class PostDateFragment : Fragment() {
             }
         }
         dataControl()
+        val data = formatterClass.getSharedPref("post", requireContext())
+        if (data != null) {
+            loadInitialData(data)
+        } else {
+            encounterId = AppUtils.generateUuid()
+        }
         return binding.root
+    }
+
+    private fun loadInitialData(data: String) {
+        binding.apply {
+            val converters = Converters()
+            val data: PostOperativeData = converters.postFromJson(data)
+            encounterId = data.encounterId
+            edtWound.setText(data.check_up_date)
+            if (data.infection_signs == "No") {
+                radioButtonNo.isChecked = true
+            }
+            if (data.infection_signs == "Yes") {
+                radioButtonYes.isChecked = true
+            }
+        }
     }
 
     private fun saveData() {
@@ -70,13 +96,12 @@ class PostDateFragment : Fragment() {
         if (user != null) {
             val patient = formatterClass.getSharedPref("patient", requireContext())
             val caseId = formatterClass.getSharedPref("caseId", requireContext())
-            val post = AppUtils.generateUuid()
-            formatterClass.saveSharedPref("post-data", post, requireContext())
+            formatterClass.saveSharedPref("post-data", encounterId, requireContext())
             val data =
                 PostOperativeData(
                     userId = user,
                     patientId = patient.toString(),
-                    encounterId = post,
+                    encounterId = encounterId,
                     caseId = caseId.toString(),
                     check_up_date = binding.edtWound.text.toString(),
                     infection_signs = if (binding.radioButtonNo.isChecked) "No" else "Yes",
@@ -104,9 +129,24 @@ class PostDateFragment : Fragment() {
                 )
             val added = viewModel.addPostOperativeData(data)
             if (added) {
-                val hostNavController =
-                    requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-                hostNavController.navigate(R.id.infectionFragment)
+
+                /**Fetch the data **/
+                val dt = viewModel.getLatestPostData(requireContext(), encounterId)
+                if (dt != null) {
+                    val converters = Converters()
+                    val jeff = converters.toPostJson(dt)
+                    formatterClass.saveSharedPref("post", jeff, requireContext())
+                    val hostNavController =
+                        requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                    hostNavController.navigate(R.id.infectionFragment)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Encountered problems saving data",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
 
             } else {
                 Toast.makeText(

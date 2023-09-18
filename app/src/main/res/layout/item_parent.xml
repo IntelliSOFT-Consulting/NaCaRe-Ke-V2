@@ -58,7 +58,11 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <include layout="@layout/item_child" />
+                <include
+                    android:id="@+id/inc_label"
+                    layout="@layout/item_child"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/childRecyclerView"

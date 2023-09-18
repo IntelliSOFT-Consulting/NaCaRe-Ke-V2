@@ -198,9 +198,17 @@ class MainRepository(private val roomDao: RoomDao) {
     fun addPostOperativeData(data: PostOperativeData): Boolean {
         val userId = data.patientId
         val exist = roomDao.checkPatientExists(userId)
-
         if (exist) {
-            roomDao.addPostOperativeData(data)
+            val single = roomDao.checkExistsPostOperativeData(data.encounterId)
+            if (!single) {
+                roomDao.addPostOperativeData(data)
+            } else {
+                roomDao.updateInitialOperative(
+                    data.check_up_date,
+                    data.infection_signs,
+                    data.encounterId
+                )
+            }
             return true
         }
         return false
@@ -271,8 +279,69 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadHandPreparationData(userId.toString(), patientId, caseId)
     }
 
-    fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String):PrePostOperativeData? {
+    fun loadPrePostPreparationData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): PrePostOperativeData? {
         val userId = formatterClass.getSharedPref("username", context)
         return roomDao.loadPrePostPreparationData(userId.toString(), patientId, caseId)
+    }
+
+    fun loadPostData(context: Context, caseId: String): List<PostOperativeData>? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadPostData(userId.toString(), caseId)
+    }
+
+    fun loadCurrentPostData(context: Context, encounterId: String): PostOperativeData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            return roomDao.loadCurrentPostData(encounterId)
+        }
+        return null
+    }
+
+    fun updateInfectionData(
+        context: Context,
+        event_date: String,
+        infection_surgery_time: String,
+        ssi: String,
+        encounterId: String
+    ): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.updateInfectionData(event_date, infection_surgery_time, ssi, encounterId)
+            return true
+        }
+        return false
+    }
+
+    fun completePostOperative(context: Context, data: PostOperativeData): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.updateSymptomsData(
+                data.drainage,
+                data.pain,
+                data.erythema,
+                data.heat,
+                data.fever,
+                data.incision_opened,
+                data.wound_dehisces,
+                data.abscess,
+                data.sinus,
+                data.hypothermia,
+                data.apnea,
+                data.bradycardia,
+                data.lethargy,
+                data.cough,
+                data.nausea,
+                data.vomiting,
+                data.symptom_other,
+                data.samples_sent,
+                data.encounterId
+            )
+            return true
+        }
+        return false
     }
 }

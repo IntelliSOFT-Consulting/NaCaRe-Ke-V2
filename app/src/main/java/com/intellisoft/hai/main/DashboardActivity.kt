@@ -58,8 +58,8 @@ class DashboardActivity : AppCompatActivity() {
                     R.id.periFragment,
                     R.id.patientPreparationFragment,
                     R.id.skinPreparationFragment,
-                    R.id.handPreparationFragment,
-                    R.id.preFragment,
+                    R.id.handPreparationFragment,R.id.caseSummaryFragment,
+                    R.id.preFragment, R.id.postSummaryFragment,
                     R.id.postDateFragment, R.id.postFragment, R.id.infectionFragment
 
                 ), drawerLayout
