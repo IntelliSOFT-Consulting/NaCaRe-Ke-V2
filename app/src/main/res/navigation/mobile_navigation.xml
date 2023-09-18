@@ -96,4 +96,19 @@
         android:name="com.intellisoft.hai.main.workflows.updated.CaseFragment"
         android:label="Peri Operative"
         tools:layout="@layout/fragment_case" />
+    <fragment
+        android:id="@+id/postDateFragment"
+        android:name="com.intellisoft.hai.main.workflows.post.PostDateFragment"
+        android:label="Post Operative"
+        tools:layout="@layout/fragment_post_date" />
+    <fragment
+        android:id="@+id/infectionFragment"
+        android:name="com.intellisoft.hai.main.workflows.post.InfectionFragment"
+        android:label="Post Operative"
+        tools:layout="@layout/fragment_infection" />
+    <fragment
+        android:id="@+id/postFragment"
+        android:name="com.intellisoft.hai.main.workflows.post.PostFragment"
+        android:label="Post Operative"
+        tools:layout="@layout/fragment_post" />
 </navigation>

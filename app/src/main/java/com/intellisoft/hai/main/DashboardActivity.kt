@@ -1,8 +1,10 @@
 package com.intellisoft.hai.main
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,6 +19,7 @@ import com.intellisoft.hai.auth.Login
 import com.intellisoft.hai.databinding.ActivityDashboardBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.main.workflows.RegistrationActivity
+import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.util.AppUtils
 
 class DashboardActivity : AppCompatActivity() {
@@ -24,6 +27,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityDashboardBinding
     private var formatterClass = FormatterClass()
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +35,7 @@ class DashboardActivity : AppCompatActivity() {
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = MainViewModel((this.applicationContext as Application))
         setSupportActionBar(binding.appBarDashboard.toolbar)
         AppUtils.hideKeyboard(this@DashboardActivity)
 
@@ -54,7 +59,9 @@ class DashboardActivity : AppCompatActivity() {
                     R.id.patientPreparationFragment,
                     R.id.skinPreparationFragment,
                     R.id.handPreparationFragment,
-                    R.id.preFragment
+                    R.id.preFragment,
+                    R.id.postDateFragment, R.id.postFragment, R.id.infectionFragment
+
                 ), drawerLayout
             )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -129,6 +136,25 @@ class DashboardActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.dashboard, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                // Handle the first menu item click
+                // You can put your code here for the action you want to perform
+                true
+            }
+
+            R.id.action_clear -> {
+                // Handle the second menu item click
+//                viewModel.clearEntireDatabase()
+                true
+            }
+            // Add more cases for other menu items if needed
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

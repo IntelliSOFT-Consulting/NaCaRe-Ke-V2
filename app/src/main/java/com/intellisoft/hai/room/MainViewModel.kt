@@ -3,6 +3,7 @@ package com.intellisoft.hai.room
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import androidx.room.Room
 import kotlinx.coroutines.runBlocking
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -93,8 +94,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.loadHandPreparationData(context, patientId, caseId.toString())
         }
 
-    fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String?)=
+    fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String?) =
         runBlocking {
             repository.loadPrePostPreparationData(context, patientId, caseId.toString())
-    }
+        }
+
+
 }

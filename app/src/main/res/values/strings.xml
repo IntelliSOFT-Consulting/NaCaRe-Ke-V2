@@ -216,5 +216,6 @@
     <string name="add_case">Add Case</string>
     <string name="surgical">Surgical Procedure</string>
     <string name="intervention">Intervention</string>
+    <string name="action_clear">Clear Data</string>
 
 </resources>

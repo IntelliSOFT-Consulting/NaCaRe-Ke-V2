@@ -65,7 +65,7 @@ class SlideshowFragment : Fragment() {
         val hostNavController =
             requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
         val parentAdapter =
-            ParentAdapter(requireContext(),hostNavController, this::onclick, parentItems, caseId)
+            ParentAdapter(requireContext(), hostNavController, this::onclick, parentItems, caseId)
         recyclerView.adapter = parentAdapter
         return root
     }
@@ -77,9 +77,7 @@ class SlideshowFragment : Fragment() {
             }
 
             "Post Operative" -> {
-                // Handle the case when position is 1
-                // Add your code here
-                Log.e("Position", "Position 1")
+                openPost(R.id.postDateFragment, caseId)
             }
 
             "Surgical Site Infection Information" -> {
@@ -101,12 +99,21 @@ class SlideshowFragment : Fragment() {
         }
     }
 
+    private fun openPost(fragment: Int, caseId: String) {
+        formatterClass.saveSharedPref("caseId", caseId, requireContext())
+        val bundle = Bundle()
+        bundle.putString("caseId", caseId)
+        val hostNavController =
+            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+        hostNavController.navigate(fragment, bundle)
+    }
+
     private fun openSelected(fragment: Int, caseId: String) {
         val user = formatterClass.getSharedPref("username", requireContext())
         if (user != null) {
             val patient = formatterClass.getSharedPref("patient", requireContext())
             formatterClass.saveSharedPref("encounter", caseId, requireContext())
-            formatterClass.deleteSharedPref("peri",requireContext())
+            formatterClass.deleteSharedPref("peri", requireContext())
             val peri =
                 PeriData(
                     userId = user,

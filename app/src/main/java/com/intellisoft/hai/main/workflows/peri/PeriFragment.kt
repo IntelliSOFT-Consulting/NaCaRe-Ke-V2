@@ -136,6 +136,9 @@ class PeriFragment : Fragment() {
         if (periData.glucose_measured == "Yes") {
             binding.radioButtonBloodGlucoseYes.isChecked = true
         }
+        if (periData.glucose_measured == "No") {
+            binding.radioButtonBloodGlucoseNo.isChecked = true
+        }
     }
 
 

@@ -134,6 +134,7 @@ data class PostOperativeData(
     var userId: String,
     val patientId: String,
     val encounterId: String,
+    val caseId: String,
     val check_up_date: String,
     val infection_signs: String,
     val event_date: String,

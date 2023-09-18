@@ -14,6 +14,7 @@ import com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment
 import com.intellisoft.hai.main.workflows.peri.PeriFragment
 import com.intellisoft.hai.main.workflows.peri.PreFragment
 import com.intellisoft.hai.main.workflows.peri.SkinPreparationFragment
+import com.intellisoft.hai.main.workflows.post.PostFragment
 
 class PatientProfileActivity : AppCompatActivity(), OnFragmentInteractionListener {
   private lateinit var binding: ActivityPatientProfileBinding
