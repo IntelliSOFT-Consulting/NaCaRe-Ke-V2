@@ -41,6 +41,15 @@
             android:text="Date of Surgery"
             android:textAlignment="center" />
 
+        <TextView
+            android:id="@+id/tv_hidden"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Date of Surgery"
+            android:textAlignment="center"
+            android:visibility="gone" />
+
 
         <TextView
             android:id="@+id/tvSurgeryStatus"

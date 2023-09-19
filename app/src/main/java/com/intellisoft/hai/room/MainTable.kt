@@ -4,6 +4,21 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
+import java.util.Date
+
+@Entity(tableName = "practitioners")
+data class PractitionersData(
+    val name: String,
+    val code: String,
+    val role: String,
+    @ColumnInfo(name = "created_at")
+    val createdAt: Date = Date(),
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Date = Date(),
+) : Serializable {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}
 
 @Entity(tableName = "patients")
 data class PatientData(
@@ -21,6 +36,7 @@ data class PatientData(
 @Entity(tableName = "registration")
 data class RegistrationData(
     var userId: String,
+    val caseId: String,
     val patientId: String,
     val secondaryId: String,
     val gender: String,

@@ -38,6 +38,7 @@ class PatientAdapter(
         val layoutExpanded: LinearLayout = itemView.findViewById(R.id.ln_parent)
         val cardView: MaterialCardView = itemView.findViewById(R.id.card_parent)
         val tvAction: TextView = itemView.findViewById(R.id.tvAction)
+        val tvHidden: TextView = itemView.findViewById(R.id.tv_hidden)
 
         init {
             tvAction.setOnClickListener(this)
@@ -45,6 +46,7 @@ class PatientAdapter(
 
         override fun onClick(p0: View?) {
             val patient = patientList[adapterPosition]
+            patient.userId = tvHidden.text.toString()
             click(patient)
         }
     }
@@ -62,11 +64,13 @@ class PatientAdapter(
 
         val patientId = patientList[position].patientId
         val secondaryId = patientList[position].secondaryId
-        holder.tvPatientId.text = patientId
-        holder.tvSurgeryDate.text = dos.date_of_surgery
-        holder.tvSurgeryStatus.text = "Ongoing"
-        holder.tvAction.text = "View"
-        holder.tvSurgeryId.text = secondaryId
+        try {
+            holder.tvPatientId.text = patientId
+            holder.tvSurgeryDate.text = dos.date_of_surgery
+            holder.tvSurgeryStatus.text = "Ongoing"
+            holder.tvAction.text = "View"
+            holder.tvSurgeryId.text = secondaryId
+            holder.tvHidden.text = dos.caseId
 
 //        // it's a possible divisible by 2 then background gray
 //        if (position % 2 == 0) {
@@ -76,13 +80,19 @@ class PatientAdapter(
 //            // Reset the background color for odd positions
 //            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, android.R.color.transparent))
 //        }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            holder.tvSurgeryDate.text = ""
+            holder.tvSurgeryStatus.text = ""
+            holder.tvAction.text = "Add"
+            holder.tvSurgeryId.text = secondaryId
+        }
 
     }
 
     override fun getItemCount(): Int {
         return patientList.size
     }
-
 
 
     // Implement the Filterable interface

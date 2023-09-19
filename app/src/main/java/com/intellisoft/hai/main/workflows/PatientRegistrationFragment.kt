@@ -148,6 +148,7 @@ class PatientRegistrationFragment : Fragment() {
             LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_layout, null)
 
         val builder = AlertDialog.Builder(requireContext())
+            .setCancelable(false)
             .setView(dialogView)
         val alertDialog = builder.create()
         // Customize the dialog view
@@ -251,9 +252,9 @@ class PatientRegistrationFragment : Fragment() {
             max = 0
         )
         controlData(
-            dialogView.findViewById(R.id.edt_surgery),
-            dialogView.findViewById(R.id.sgrHolder),
-            "Please provide surgery location",
+            dialogView.findViewById(R.id.edt_surgery_other),
+            dialogView.findViewById(R.id.textInputOther),
+            "Please specify surgery",
             hasMin = false,
             hasMax = false,
             min = 0,
@@ -300,6 +301,21 @@ class PatientRegistrationFragment : Fragment() {
                 )
             }
         }
+
+        dialogView.findViewById<AutoCompleteTextView>(R.id.procedure).apply {
+            setOnItemClickListener { parent, view, position, id ->
+                val selectedItem = adapter.getItem(position)
+                if (selectedItem == "Other (Specify)") {
+                    dialogView.findViewById<TextInputLayout>(R.id.textInputOther).apply {
+                        visibility = View.VISIBLE
+                    }
+                } else {
+                    dialogView.findViewById<TextInputLayout>(R.id.textInputOther).apply {
+                        visibility = View.GONE
+                    }
+                }
+            }
+        }
         dialogView.findViewById<TextInputEditText>(R.id.edt_surgery).apply {
             setOnClickListener {
                 showDatePickerDialog(
@@ -328,6 +344,8 @@ class PatientRegistrationFragment : Fragment() {
                 val adm = dialogView.findViewById<TextInputEditText>(R.id.edt_adm).text?.toString()
                 val procedure =
                     dialogView.findViewById<AutoCompleteTextView>(R.id.procedure).text?.toString()
+                val other =
+                    dialogView.findViewById<TextInputEditText>(R.id.edt_surgery_other).text?.toString()
                 val loca =
                     dialogView.findViewById<AutoCompleteTextView>(R.id.location).text?.toString()
                 val sgr =
@@ -345,6 +363,15 @@ class PatientRegistrationFragment : Fragment() {
                         "Please provide procedure"
                     dialogView.findViewById<AutoCompleteTextView>(R.id.procedure).requestFocus()
                     return@setOnClickListener
+                }
+                if (procedure == "Other (Specify)") {
+                    if (other.isNullOrEmpty()) {
+                        dialogView.findViewById<TextInputLayout>(R.id.textInputOther).error =
+                            "Please specify procedure"
+                        dialogView.findViewById<TextInputEditText>(R.id.edt_surgery_other)
+                            .requestFocus()
+                        return@setOnClickListener
+                    }
                 }
                 if (loca.isNullOrEmpty()) {
                     dialogView.findViewById<TextInputLayout>(R.id.locationHolder).error =
@@ -367,40 +394,46 @@ class PatientRegistrationFragment : Fragment() {
 
                 val user = formatterClass.getSharedPref("username", requireContext())
                 if (user != null) {
-                    val patientData =
-                        RegistrationData(
-                            userId = user,
-                            patientId = binding.edtPatientId.text.toString(),
-                            secondaryId = binding.edtSecondaryId.text.toString(),
-                            gender = selectedGender.toString(),
-                            date_of_birth = binding.edtDob.text.toString(),
-                            date_of_admission = adm,
-                            date_of_surgery = sgr,
-                            procedure = procedure,
-                            procedure_other = null,
-                            scheduling = schedu,
-                            location = loca,
-                        )
-                    val added = mainViewModel.addPatient(patientData)
-                    if (added) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Case Successfully added",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        val hostNavController =
-                            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-                        hostNavController.navigate(R.id.nav_gallery)
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Encountered problems adding a case",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
+
+                    val latest = mainViewModel.getLatestPatientsData(requireContext())
+                    if (latest != null) {
+                        val patientData =
+                            RegistrationData(
+                                userId = user,
+                                caseId = latest.id.toString(),
+                                patientId = binding.edtPatientId.text.toString(),
+                                secondaryId = binding.edtSecondaryId.text.toString(),
+                                gender = selectedGender.toString(),
+                                date_of_birth = binding.edtDob.text.toString(),
+                                date_of_admission = adm,
+                                date_of_surgery = sgr,
+                                procedure = procedure,
+                                procedure_other = null,
+                                scheduling = schedu,
+                                location = loca,
+                            )
+                        val added = mainViewModel.addPatient(patientData)
+                        if (added) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Case Successfully added",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            val hostNavController =
+                                requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                            hostNavController.navigate(R.id.nav_gallery)
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Encountered problems adding a case",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+
+                        alertDialog.dismiss()
                     }
-                    alertDialog.dismiss()
                 } else {
                     Toast.makeText(
                         requireContext(), "Please check user account", Toast.LENGTH_SHORT

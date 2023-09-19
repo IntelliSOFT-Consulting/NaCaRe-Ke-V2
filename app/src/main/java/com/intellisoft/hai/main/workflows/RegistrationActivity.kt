@@ -70,6 +70,7 @@ class RegistrationActivity : AppCompatActivity() {
             val patientData =
                 RegistrationData(
                     user,
+                    caseId="",
                     binding.edtPatientId.text.toString(),
                     binding.edtSecondaryId.text.toString(),
                     gender,

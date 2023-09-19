@@ -3,7 +3,7 @@ package com.intellisoft.hai.room
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import androidx.room.Room
+import com.intellisoft.hai.main.DashboardActivity
 import kotlinx.coroutines.runBlocking
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -71,9 +71,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getPatientsData(context: Context) = runBlocking {
         repository.getPatientsData(context)
     }
+    fun getLatestPatientsData(context: Context) = runBlocking {
+        repository.getLatestPatientsData(context)
+    }
 
     fun getCaseDetails(context: Context, caseId: String) = runBlocking {
         repository.getCaseDetails(context, caseId)
+    }
+    fun getCaseDetailsFound(context: Context, caseId: String) = runBlocking {
+        repository.getCaseDetailsFound(context, caseId)
     }
 
     fun loadPeriData(context: Context, caseId: String) = runBlocking {
@@ -82,6 +88,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPreparationData(context: Context, patientId: String, caseId: String?) = runBlocking {
         repository.loadPreparationData(context, patientId, caseId.toString())
+    }
+    fun loadPeriOperativeData(context: Context, patientId: String, caseId: String?) = runBlocking {
+        repository.loadPeriOperativeData(context, patientId, caseId.toString())
     }
 
     fun loadSkinPreparationData(context: Context, patientId: String, caseId: String?) =
@@ -92,6 +101,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadHandPreparationData(context: Context, patientId: String, caseId: String?) =
         runBlocking {
             repository.loadHandPreparationData(context, patientId, caseId.toString())
+        }
+    fun loadAllHandPreparationData(context: Context, patientId: String, caseId: String?) =
+        runBlocking {
+            repository.loadAllHandPreparationData(context, patientId, caseId.toString())
         }
 
     fun loadPrePostPreparationData(context: Context, patientId: String, caseId: String?) =
@@ -114,6 +127,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun completePostOperative( context: Context,data: PostOperativeData)= runBlocking {
         repository.completePostOperative(context,data)
+    }
+
+    fun clearPractitioners(context: Context)= runBlocking {
+        repository.clearPractitioners(context)
+    }
+
+    fun insertPractitioners(context: Context, practitionersList: List<PractitionersData>)=
+        runBlocking {
+            repository.insertPractitioners(context,practitionersList)
+    }
+
+    fun loadPractitioners(context: Context)= runBlocking {
+        repository.loadPractitioners(context)
     }
 
 

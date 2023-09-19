@@ -57,57 +57,7 @@ class PatientPreparationFragment : Fragment() {
         }
         binding.nextButton.apply {
             setOnClickListener {
-                if (validate()) {
-                    val user = formatterClass.getSharedPref("username", requireContext())
-                    val patient = formatterClass.getSharedPref("patient", requireContext())
-
-                    if (user != null) {
-                        val bath = if (binding.radioNo.isChecked) "No" else "Yes"
-                        val soap = if (binding.radioAntibacterialNo.isChecked) "No" else "Yes"
-                        val hair =
-                            if (binding.radioHairNo.isChecked) {
-                                "No"
-                            } else if (binding.radioHairRazor.isChecked) {
-                                "Razor"
-                            } else {
-                                "Clippers"
-                            }
-                        val date = binding.edtDate.text?.toString()
-                        if (binding.radioHairNo.isChecked) {
-                            binding.edtDate.setText("")
-                        }
-                        val enc = formatterClass.getSharedPref("caseId", requireContext())
-                        val peri =
-                            PreparationData(
-                                userId = user,
-                                patientId = patient.toString(),
-                                encounterId = enc.toString(),
-                                pre_bath = bath,
-                                soap_used = soap,
-                                hair_removal = hair,
-                                date_of_removal = date
-                            )
-                        val added = mainViewModel.addPreparationData(peri)
-                        if (added) {
-                            val hostNavController =
-                                requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-                            hostNavController.navigate(R.id.skinPreparationFragment)
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Encountered problems registering patient",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Please check user account",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+               saveData()
             }
         }
         binding.radioGroupHairRemoval.setOnCheckedChangeListener { _, checkedId ->
@@ -133,6 +83,60 @@ class PatientPreparationFragment : Fragment() {
             loadInitialData(data)
         }
         return binding.root
+    }
+
+    private fun saveData() {
+        if (validate()) {
+            val user = formatterClass.getSharedPref("username", requireContext())
+            val patient = formatterClass.getSharedPref("patient", requireContext())
+
+            if (user != null) {
+                val bath = if (binding.radioNo.isChecked) "No" else "Yes"
+                val soap = if (binding.radioAntibacterialNo.isChecked) "No" else "Yes"
+                val hair =
+                    if (binding.radioHairNo.isChecked) {
+                        "No"
+                    } else if (binding.radioHairRazor.isChecked) {
+                        "Razor"
+                    } else {
+                        "Clippers"
+                    }
+                val date = binding.edtDate.text?.toString()
+                if (binding.radioHairNo.isChecked) {
+                    binding.edtDate.setText("")
+                }
+                val enc = formatterClass.getSharedPref("caseId", requireContext())
+                val peri =
+                    PreparationData(
+                        userId = user,
+                        patientId = patient.toString(),
+                        encounterId = enc.toString(),
+                        pre_bath = bath,
+                        soap_used = soap,
+                        hair_removal = hair,
+                        date_of_removal = date
+                    )
+                val added = mainViewModel.addPreparationData(peri)
+                if (added) {
+                    val hostNavController =
+                        requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+                    hostNavController.navigate(R.id.skinPreparationFragment)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Encountered problems registering patient",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Please check user account",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun loadInitialData(patient: String) {

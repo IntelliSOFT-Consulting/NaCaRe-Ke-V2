@@ -6,17 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import com.google.android.material.button.MaterialButton
 import com.intellisoft.hai.R
 import com.intellisoft.hai.databinding.FragmentHandPreparationBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.room.HandPreparationData
 import com.intellisoft.hai.room.MainViewModel
 import com.intellisoft.hai.util.AppUtils
+import org.w3c.dom.Text
 
 /**
  * A simple [Fragment] subclass.
@@ -72,11 +77,25 @@ class HandPreparationFragment : Fragment() {
             min = 0,
             max = 0
         )
+        loadPractitioners()
         val data = formatterClass.getSharedPref("patient", requireContext())
         if (data != null) {
             loadInitialData(data)
         }
         return binding.root
+    }
+
+    private fun loadPractitioners() {
+        val stringList = mutableListOf<String>()
+        mainViewModel.loadPractitioners(requireContext())?.forEach {
+            stringList.add(it.name)
+        }
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, stringList)
+        binding.aucPractitioner.setAdapter(adapter)
+        if (stringList.isNotEmpty()) {
+            binding.aucPractitioner.setText(stringList[0], false)
+        }
     }
 
     private fun loadInitialData(patient: String) {
@@ -86,9 +105,13 @@ class HandPreparationFragment : Fragment() {
             if (data != null) {
                 val conditions = formatterClass.generateTimings(requireContext())
                 val adapter =
-                    ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, conditions)
+                    ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        conditions
+                    )
                 binding.aucTime.setAdapter(adapter)
-                aucTime.setText(data.time_spent,false)
+                aucTime.setText(data.time_spent, false)
                 if (data.plain_soap_water == "No") {
                     radioButtonPlainSoapWaterNo.isChecked = true
                 }
@@ -120,12 +143,13 @@ class HandPreparationFragment : Fragment() {
                 val patient = formatterClass.getSharedPref("patient", requireContext())
                 val enc = formatterClass.getSharedPref("caseId", requireContext())
                 time_spent = binding.aucTime.text.toString()
+                val prac = binding.aucPractitioner.text.toString()
                 val data =
                     HandPreparationData(
                         userId = user,
                         patientId = patient.toString(),
                         encounterId = enc.toString(),
-                        practitioner = AppUtils.generateUuid(),
+                        practitioner = prac,
                         time_spent = time_spent,
                         plain_soap_water = plain_soap_water,
                         antimicrobial_soap_water = antimicrobial_soap_water,
@@ -133,9 +157,8 @@ class HandPreparationFragment : Fragment() {
                     )
                 val added = mainViewModel.addHandPreparationData(data)
                 if (added) {
-                    val hostNavController =
-                        requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-                    hostNavController.navigate(R.id.preFragment)
+
+                    showDialog()
 
                 } else {
                     Toast.makeText(
@@ -156,6 +179,72 @@ class HandPreparationFragment : Fragment() {
         }
     }
 
+    private fun showDialog() {
+        val dialogView: View =
+            LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_layout, null)
+
+        val builder = AlertDialog.Builder(requireContext())
+            .setCancelable(false)
+            .setView(dialogView)
+        val alertDialog = builder.create()
+        // Customize the dialog view
+        dialogView.findViewById<TextView>(R.id.tv_title).apply {
+            text = "Hand preparation details added"
+        }
+        dialogView.findViewById<TextView>(R.id.tv_message).apply {
+            text = "Do you wish to add another practitioner?"
+        }
+        dialogView.findViewById<ImageView>(R.id.dialog_cancel_image).apply {
+            setOnClickListener {
+                alertDialog.dismiss()
+                proceed()
+            }
+        }
+        dialogView.findViewById<MaterialButton>(R.id.cancelButton).apply {
+            setOnClickListener {
+                alertDialog.dismiss()
+                proceed()
+            }
+        }
+        dialogView.findViewById<MaterialButton>(R.id.saveButton).apply {
+            setOnClickListener {
+                alertDialog.dismiss()
+                onStart()
+                clearInputs()
+            }
+        }
+
+        alertDialog.show()
+    }
+
+    private fun clearInputs() {
+        binding.apply {
+            val conditions = formatterClass.generateTimings(requireContext())
+            val adapter =
+                ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    conditions
+                )
+
+            binding.aucTime.setAdapter(adapter)
+            radioButtonPlainSoapWaterNo.isChecked = false
+            radioButtonPlainSoapWaterYes.isChecked = false
+            radioButtonAntimicrobialSoapWaterNo.isChecked = false
+            radioButtonAntimicrobialSoapWaterYes.isChecked = false
+            radioButtonAlcoholBasedHandRubNo.isChecked = false
+            radioButtonAlcoholBasedHandRubYes.isChecked = false
+            loadPractitioners()
+        }
+    }
+
+    private fun proceed() {
+
+        val hostNavController =
+            requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
+        hostNavController.navigate(R.id.preFragment)
+    }
+
     private fun handleClicks() {
 
         binding.plainSoapWaterRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -174,6 +263,12 @@ class HandPreparationFragment : Fragment() {
 
     private fun validate(): Boolean {
 
+        val prac = binding.aucPractitioner.text.toString()
+        if (prac.isNullOrEmpty()) {
+            binding.aucPractitioner.requestFocus()
+            binding.practitionerHolder.error = "Please select practitioner"
+            return false
+        }
         time_spent = binding.aucTime.text.toString()
         if (time_spent.isNullOrEmpty()) {
             binding.aucTime.requestFocus()
@@ -204,7 +299,6 @@ class HandPreparationFragment : Fragment() {
             ).show()
             return false
         }
-
 
         return true
     }

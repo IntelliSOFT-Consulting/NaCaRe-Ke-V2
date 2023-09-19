@@ -136,7 +136,12 @@ class MainRepository(private val roomDao: RoomDao) {
         val exist = roomDao.checkPatientExists(userId)
 
         if (exist) {
-            val single = roomDao.checkExistsHandData(data.userId, data.patientId, data.encounterId)
+            val single = roomDao.checkExistsHandData(
+                data.userId,
+                data.patientId,
+                data.encounterId,
+                data.practitioner
+            )
             if (!single) {
                 roomDao.addHandPreparationData(data)
             } else {
@@ -241,10 +246,20 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.getPatientsData(userId.toString())
     }
 
+    fun getLatestPatientsData(context: Context): PatientData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.getLatestPatientsData(userId.toString())
+    }
+
     fun getCaseDetails(context: Context, caseId: String): RegistrationData {
         val userId = formatterClass.getSharedPref("username", context)
 
         return roomDao.getCaseDetails(userId.toString(), caseId)
+    }
+
+    fun getCaseDetailsFound(context: Context, caseId: String): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.getCaseDetailsFound(userId.toString(), caseId)
     }
 
     fun loadPeriData(context: Context, caseId: String): List<PeriData>? {
@@ -259,6 +274,15 @@ class MainRepository(private val roomDao: RoomDao) {
     ): PreparationData? {
         val userId = formatterClass.getSharedPref("username", context)
         return roomDao.getLatestPreparation(userId.toString(), patientId, caseId)
+    }
+
+    fun loadPeriOperativeData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): PeriData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadPeriOperativeData(userId.toString(), patientId, caseId)
     }
 
     fun loadSkinPreparationData(
@@ -277,6 +301,15 @@ class MainRepository(private val roomDao: RoomDao) {
     ): HandPreparationData? {
         val userId = formatterClass.getSharedPref("username", context)
         return roomDao.loadHandPreparationData(userId.toString(), patientId, caseId)
+    }
+
+    fun loadAllHandPreparationData(
+        context: Context,
+        patientId: String,
+        caseId: String
+    ): List<HandPreparationData>? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return roomDao.loadAllHandPreparationData(userId.toString(), patientId, caseId)
     }
 
     fun loadPrePostPreparationData(
@@ -343,5 +376,33 @@ class MainRepository(private val roomDao: RoomDao) {
             return true
         }
         return false
+    }
+
+    fun clearPractitioners(context: Context): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.clearPractitioners()
+            return true
+        }
+        return false
+    }
+
+    fun insertPractitioners(context: Context, practitionersList: List<PractitionersData>): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            practitionersList.forEach { data ->
+                roomDao.addPractitioner(data)
+            }
+            return true
+        }
+        return false
+    }
+
+    fun loadPractitioners(context: Context): List<PractitionersData>? {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            return roomDao.getPractitioners()
+        }
+        return emptyList()
     }
 }

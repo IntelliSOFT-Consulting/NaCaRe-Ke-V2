@@ -88,7 +88,7 @@
         tools:layout="@layout/fragment_pre" />
     <fragment
         android:id="@+id/caseSummaryFragment"
-        android:name="com.intellisoft.hai.main.workflows.updated.CaseSummaryFragment"
+        android:name="com.intellisoft.hai.main.workflows.peri.CaseSummaryFragment"
         android:label="Peri Operative"
         tools:layout="@layout/fragment_case_summary" />
     <fragment

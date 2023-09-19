@@ -40,6 +40,7 @@ class SlideshowFragment : Fragment() {
             caseId = args.getString("caseId").toString()
             detail = viewModel.getCaseDetails(requireContext(), caseId)
             binding.apply {
+
                 tvPatientId.text = detail.patientId
                 tvGender.text = detail.gender
                 tvSecondary.text = detail.secondaryId

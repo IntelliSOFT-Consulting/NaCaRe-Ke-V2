@@ -97,6 +97,33 @@
             </LinearLayout>
 
             <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Practitioner"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+
+            <!-- Year Edit Text -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/practitionerHolder"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:boxBackgroundMode="outline">
+
+                <AutoCompleteTextView
+                    android:id="@+id/auc_practitioner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
                 android:id="@+id/estimatedTimeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

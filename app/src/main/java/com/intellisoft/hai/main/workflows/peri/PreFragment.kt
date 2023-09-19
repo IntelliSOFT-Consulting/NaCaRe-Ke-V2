@@ -120,19 +120,27 @@ class PreFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        val data = formatterClass.getSharedPref("patient", requireContext())
+        if (data != null) {
+            loadInitialData(data)
+        }
+
+    }
+
     private fun loadInitialData(patient: String) {
         val caseId = formatterClass.getSharedPref("caseId", requireContext())
         val data = mainViewModel.loadPrePostPreparationData(requireContext(), patient, caseId)
 
         binding.apply {
             if (data != null) {
-                aucAntibiotic.setAdapter(
-                    loadAdapter(
-                        formatterClass.generateAntibiotics(
-                            requireContext()
-                        )
-                    )
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    formatterClass.generateAntibiotics(requireContext())
                 )
+                aucAntibiotic.setAdapter(adapter)
                 aucAntibiotic.setText(data.pre_antibiotic_prophylaxis, false)
 
                 if (data.pre_antibiotic_prophylaxis == "Other (specify)") {

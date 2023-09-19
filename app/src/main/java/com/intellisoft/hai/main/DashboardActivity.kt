@@ -20,6 +20,7 @@ import com.intellisoft.hai.databinding.ActivityDashboardBinding
 import com.intellisoft.hai.helper_class.FormatterClass
 import com.intellisoft.hai.main.workflows.RegistrationActivity
 import com.intellisoft.hai.room.MainViewModel
+import com.intellisoft.hai.room.PractitionersData
 import com.intellisoft.hai.util.AppUtils
 
 class DashboardActivity : AppCompatActivity() {
@@ -43,6 +44,7 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this@DashboardActivity, RegistrationActivity::class.java)
             startActivity(intent)
         }
+        syncData()
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_dashboard)
@@ -58,7 +60,7 @@ class DashboardActivity : AppCompatActivity() {
                     R.id.periFragment,
                     R.id.patientPreparationFragment,
                     R.id.skinPreparationFragment,
-                    R.id.handPreparationFragment,R.id.caseSummaryFragment,
+                    R.id.handPreparationFragment, R.id.caseSummaryFragment,
                     R.id.preFragment, R.id.postSummaryFragment,
                     R.id.postDateFragment, R.id.postFragment, R.id.infectionFragment
 
@@ -109,6 +111,18 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
+    }
+
+    private fun syncData() {
+        viewModel.clearPractitioners(this)
+        val practitionersList = listOf(
+            PractitionersData("Dr. John Smith", "DOC123", "Surgeon"),
+            PractitionersData("Dr. Sarah Johnson", "DOC456", "Pediatrician"),
+            PractitionersData("Dr. Michael Davis", "DOC789", "Cardiologist"),
+            PractitionersData("Dr. Emily Wilson", "DOC321", "Dermatologist"),
+            PractitionersData("Dr. David Miller", "DOC654", "Ophthalmologist")
+        )
+        viewModel.insertPractitioners(this,practitionersList)
     }
 
     private fun showLogoutConfirmationDialog() {

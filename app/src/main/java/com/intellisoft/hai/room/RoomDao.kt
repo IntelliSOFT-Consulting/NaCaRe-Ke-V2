@@ -11,7 +11,7 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addPatient(patientData: RegistrationData)
 
-    @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE patientId =:id)")
+    @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE caseId =:id)")
     fun checkPatientExists(id: String): Boolean
 
     @Query("SELECT EXISTS (SELECT 1 FROM patients WHERE patientId =:id)")
@@ -22,6 +22,8 @@ interface RoomDao {
 
     @Query("SELECT * FROM patients WHERE userId =:userId ORDER BY id DESC")
     fun getPatientsData(userId: String): List<PatientData>?
+    @Query("SELECT * FROM patients WHERE userId =:userId ORDER BY id DESC LIMIT 1")
+    fun getLatestPatientsData(userId: String): PatientData?
 
     @Query("SELECT EXISTS (SELECT 1 FROM patient_preparation WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId)")
     fun checkExistsPatientPreparation(
@@ -29,6 +31,7 @@ interface RoomDao {
         patientId: String,
         encounterId: String
     ): Boolean
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addPreparationData(data: PreparationData)
@@ -53,6 +56,13 @@ interface RoomDao {
         patientId: String,
         encounterId: String
     ): PreparationData?
+
+    @Query("SELECT * FROM peri_data  WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId  ORDER BY id DESC LIMIT 1")
+    fun loadPeriOperativeData(
+        userId: String,
+        patientId: String,
+        encounterId: String
+    ): PeriData?
 
 
     @Query("SELECT * FROM skin_preparation  WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId  ORDER BY id DESC LIMIT 1")
@@ -127,18 +137,28 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addNewPatient(data: PatientData)
 
-    @Query("SELECT * FROM registration WHERE id =:caseId AND userId =:userId")
+    @Query("SELECT * FROM registration WHERE caseId =:caseId AND userId =:userId")
     fun getCaseDetails(userId: String, caseId: String): RegistrationData
+
+
+    @Query("SELECT EXISTS (SELECT 1 FROM registration WHERE userId =:userId AND caseId =:caseId)")
+    fun getCaseDetailsFound(userId: String, caseId: String): Boolean
 
     @Query("SELECT * FROM peri_data WHERE id =:caseId AND userId =:userId")
     fun loadPeriData(userId: String, caseId: String): List<PeriData>?
 
-    @Query("SELECT EXISTS (SELECT 1 FROM hand_preparation WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId)")
-    fun checkExistsHandData(userId: String, patientId: String, encounterId: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM hand_preparation WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId AND practitioner =:practitioner)")
+    fun checkExistsHandData(
+        userId: String,
+        patientId: String,
+        encounterId: String,
+        practitioner: String
+    ): Boolean
 
     @Query(
         "UPDATE hand_preparation SET encounterId =:encounterId,practitioner =:practitioner,time_spent =:time_spent," +
-                "plain_soap_water =:plain_soap_water,antimicrobial_soap_water =:antimicrobial_soap_water,hand_rub =:hand_rub WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId"
+                "plain_soap_water =:plain_soap_water,antimicrobial_soap_water =:antimicrobial_soap_water,hand_rub =:hand_rub " +
+                "WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId AND practitioner =:practitioner"
     )
     fun updateHandPreparationData(
         userId: String,
@@ -157,6 +177,13 @@ interface RoomDao {
         patientId: String,
         encounterId: String
     ): HandPreparationData?
+
+    @Query("SELECT * FROM hand_preparation  WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId  ORDER BY id DESC")
+    fun loadAllHandPreparationData(
+        userId: String,
+        patientId: String,
+        encounterId: String
+    ): List<HandPreparationData>?
 
     @Query("SELECT EXISTS (SELECT 1 FROM pre_post_operative WHERE userId =:userId AND patientId =:patientId AND encounterId =:encounterId)")
     fun checkExistsPrePostOperativeData(
@@ -199,6 +226,7 @@ interface RoomDao {
         patientId: String,
         encounterId: String
     ): PrePostOperativeData?
+
     @Query("SELECT * FROM post_operative  WHERE encounterId =:encounterId  ORDER BY id DESC LIMIT 1")
     fun loadCurrentPostData(
         encounterId: String
@@ -212,12 +240,21 @@ interface RoomDao {
 
     @Query("UPDATE post_operative SET check_up_date =:checkUpDate,infection_signs =:infectionSigns WHERE encounterId =:encounterId")
     fun updateInitialOperative(checkUpDate: String, infectionSigns: String, encounterId: String)
+
     @Query("UPDATE post_operative SET event_date =:eventDate,infection_surgery_time =:infectionSurgeryTime,ssi =:ssi WHERE encounterId =:encounterId")
-    fun updateInfectionData(eventDate: String, infectionSurgeryTime: String, ssi: String, encounterId: String)
-    @Query("UPDATE post_operative SET drainage =:drainage,pain =:pain,erythema =:erythema ," +
-            "heat =:heat ,fever =:fever ,incision_opened =:incisionOpened ,wound_dehisces =:woundDehisces ," +
-            "abscess =:abscess ,sinus =:sinus ,hypothermia =:hypothermia ,apnea =:apnea ,bradycardia =:bradycardia," +
-            "lethargy =:lethargy,cough =:cough,nausea =:nausea,vomiting =:vomiting,symptom_other =:symptomOther ,samples_sent =:samplesSent WHERE encounterId =:encounterId")
+    fun updateInfectionData(
+        eventDate: String,
+        infectionSurgeryTime: String,
+        ssi: String,
+        encounterId: String
+    )
+
+    @Query(
+        "UPDATE post_operative SET drainage =:drainage,pain =:pain,erythema =:erythema ," +
+                "heat =:heat ,fever =:fever ,incision_opened =:incisionOpened ,wound_dehisces =:woundDehisces ," +
+                "abscess =:abscess ,sinus =:sinus ,hypothermia =:hypothermia ,apnea =:apnea ,bradycardia =:bradycardia," +
+                "lethargy =:lethargy,cough =:cough,nausea =:nausea,vomiting =:vomiting,symptom_other =:symptomOther ,samples_sent =:samplesSent WHERE encounterId =:encounterId"
+    )
     fun updateSymptomsData(
         drainage: String,
         pain: String,
@@ -239,5 +276,14 @@ interface RoomDao {
         samplesSent: String,
         encounterId: String
     )
+
+    @Query("DELETE FROM practitioners")
+    fun clearPractitioners()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addPractitioner(data: PractitionersData)
+
+    @Query("SELECT * FROM practitioners ORDER BY id DESC")
+    fun getPractitioners(): List<PractitionersData>?
 
 }
