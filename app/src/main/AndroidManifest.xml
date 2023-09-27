@@ -21,7 +21,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name=".App"
+        android:name="com.intellisoft.nacare.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -32,29 +32,14 @@
         android:theme="@style/Theme.Hai"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".main.workflows.VisitsActivity"
-            android:theme="@style/NoActionBar"
-            android:exported="false" />
-        <activity
-            android:name=".main.workflows.PatientProfileActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".main.workflows.RegistrationActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".main.DashboardActivity"
+            android:name="com.intellisoft.nacare.main.DashboardActivity"
             android:exported="false"
             android:label="@string/title_activity_dashboard"
             android:theme="@style/NoActionBar" />
         <activity
-            android:name=".SynchingPage"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
-        <activity
-            android:name=".auth.Login"
+            android:name="com.intellisoft.nacare.SynchingPage"
             android:exported="true"
             android:theme="@style/NoActionBar">
             <intent-filter>
@@ -63,9 +48,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.intellisoft.nacare.auth.Login"
+            android:exported="false"
+            android:theme="@style/NoActionBar">
+
+        </activity>
 
         <service
-            android:name=".sync.Dhis2"
+            android:name="com.intellisoft.nacare.sync.Dhis2"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

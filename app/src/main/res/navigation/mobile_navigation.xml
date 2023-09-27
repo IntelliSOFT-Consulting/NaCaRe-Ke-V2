@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.intellisoft.hai.main.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" >
+        android:name="com.intellisoft.nacare.main.ui.home.HomeFragment"
+        android:label="National Cancer Registry of Kenya"
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_nav_home_to_nav_gallery"
             app:destination="@id/nav_gallery" />
@@ -17,103 +17,24 @@
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.intellisoft.hai.main.ui.cases.CasesFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_cases" >
-        <action
-            android:id="@+id/action_nav_gallery_to_nav_slideshow"
-            app:destination="@id/nav_slideshow" />
-        <action
-            android:id="@+id/action_nav_gallery_to_patientRegistrationFragment"
-            app:destination="@id/patientRegistrationFragment" />
+        android:name="com.intellisoft.nacare.main.ui.cases.CasesFragment"
+        android:label="National Cancer Registry of Kenya"
+        tools:layout="@layout/fragment_cases">
+
     </fragment>
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.intellisoft.hai.main.ui.slideshow.SlideshowFragment"
+        android:name="com.intellisoft.nacare.main.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow">
-        <argument
-            android:name="caseId"
-            app:argType="string" />
-        <action
-            android:id="@+id/action_nav_slideshow_to_caseSectionFragment"
-            app:destination="@id/caseSectionFragment" />
-        <action
-            android:id="@+id/action_nav_slideshow_to_caseFragment"
-            app:destination="@id/caseFragment" />
+
+
     </fragment>
     <fragment
-        android:id="@+id/patientRegistrationFragment"
-        android:name="com.intellisoft.hai.main.workflows.PatientRegistrationFragment"
-        android:label="Register New Patient"
-        tools:layout="@layout/fragment_patient_registration" />
-    <fragment
-        android:id="@+id/periFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.PeriFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_peri" >
-        <action
-            android:id="@+id/action_periFragment_to_nav_slideshow"
-            app:destination="@id/nav_slideshow" />
-    </fragment>
-    <fragment
-        android:id="@+id/caseSectionFragment"
-        android:name="com.intellisoft.hai.main.workflows.updated.CaseSectionFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_case_section" >
-        <action
-            android:id="@+id/action_caseSectionFragment_to_caseSummaryFragment"
-            app:destination="@id/caseSummaryFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/patientPreparationFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.PatientPreparationFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_patient_preparation" />
-    <fragment
-        android:id="@+id/skinPreparationFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.SkinPreparationFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_skin_preparation" />
-    <fragment
-        android:id="@+id/handPreparationFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.HandPreparationFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_hand_preparation" />
-    <fragment
-        android:id="@+id/preFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.PreFragment"
-        android:label="Peri-Operative"
-        tools:layout="@layout/fragment_pre" />
-    <fragment
-        android:id="@+id/caseSummaryFragment"
-        android:name="com.intellisoft.hai.main.workflows.peri.CaseSummaryFragment"
-        android:label="Peri Operative"
-        tools:layout="@layout/fragment_case_summary" />
-    <fragment
-        android:id="@+id/caseFragment"
-        android:name="com.intellisoft.hai.main.workflows.updated.CaseFragment"
-        android:label="Peri Operative"
-        tools:layout="@layout/fragment_case" />
-    <fragment
-        android:id="@+id/postDateFragment"
-        android:name="com.intellisoft.hai.main.workflows.post.PostDateFragment"
-        android:label="Post Operative"
-        tools:layout="@layout/fragment_post_date" />
-    <fragment
-        android:id="@+id/infectionFragment"
-        android:name="com.intellisoft.hai.main.workflows.post.InfectionFragment"
-        android:label="Post Operative"
-        tools:layout="@layout/fragment_infection" />
-    <fragment
-        android:id="@+id/postFragment"
-        android:name="com.intellisoft.hai.main.workflows.post.PostFragment"
-        android:label="Post Operative"
-        tools:layout="@layout/fragment_post" />
-    <fragment
-        android:id="@+id/postSummaryFragment"
-        android:name="com.intellisoft.hai.main.workflows.post.PostSummaryFragment"
-        android:label="Post Operative"
-        tools:layout="@layout/fragment_post_summary" />
+        android:id="@+id/settingsFragment"
+        android:name="com.intellisoft.nacare.main.ui.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>

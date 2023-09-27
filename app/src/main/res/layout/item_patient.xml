@@ -1,71 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/card_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:elevation="15dp"
-    android:orientation="vertical"
-    android:padding="5dp">
+    android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/ln_parent"
+    <ImageView
+        android:id="@+id/shadow_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="@dimen/_5dp"
-        android:weightSum="5">
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/eventCard"
+        tools:visibility="visible" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/eventCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/shadow_top"
+        app:rippleColor="@color/rippleColor">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/shared_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/stage_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
 
-        <TextView
-            android:id="@+id/tvPatientId"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Patient ID"
-            android:textAlignment="center" />
-
-        <TextView
-            android:id="@+id/tvSurgeryId"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Surgery ID"
-            android:textAlignment="center" />
-
-        <TextView
-            android:id="@+id/tvSurgeryDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date of Surgery"
-            android:textAlignment="center" />
-
-        <TextView
-            android:id="@+id/tv_hidden"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date of Surgery"
-            android:textAlignment="center"
-            android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/eventStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_event_status_open"
+                    tools:ignore="ContentDescription" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        <TextView
-            android:id="@+id/tvSurgeryStatus"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Surgery Status"
-            android:textAlignment="center" />
+            <TextView
+                android:id="@+id/event_date"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:gravity="bottom"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="03/10/2017" />
 
-        <TextView
-            android:id="@+id/tvAction"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Actions"
-            android:textAlignment="center" />
+            <TextView
+                android:id="@+id/programStageName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@id/sync_icon"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/event_date"
+                tools:text="Program stage name" />
 
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/organisationUnit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/sync_icon"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/programStageName"
+                tools:text="Kono" />
+
+            <TextView
+                android:id="@+id/catCombo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@id/sync_icon"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/organisationUnit"
+                tools:text="Category Combo" />
+
+            <TextView
+                android:id="@+id/eventInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:visibility="gone"
+                android:singleLine="true"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/showValuesButton"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/catCombo"
+                tools:text="Negative P- Relapse Exclusive IPT 3 Dose2" />
+
+            <View
+                android:id="@+id/dataElementListGuideline"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="14dp"
+                android:background="#1F000000"
+                app:layout_constraintEnd_toStartOf="@id/showValuesButton"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/catCombo" />
+
+
+            <ImageView
+                android:id="@+id/showValuesButton"
+                style="@style/ActionIconSmallPadding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/dataElementListGuideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/dataElementListGuideline"
+                app:srcCompat="@drawable/ic_arrow_down"
+                app:tint="@color/gray" />
+
+            <LinearLayout
+                android:id="@+id/dataElementList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/stage_image"
+                app:layout_constraintTop_toBottomOf="@id/eventInfo" />
+
+            <ImageView
+                android:id="@+id/sync_icon"
+                style="@style/ActionIconSmallPadding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription"
+                tools:src="@drawable/ic_sync"
+                app:tint="@color/gray" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/stage_image" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

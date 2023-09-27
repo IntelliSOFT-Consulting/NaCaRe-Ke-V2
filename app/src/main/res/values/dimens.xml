@@ -19,4 +19,7 @@
     <dimen name="_8dp">8dp</dimen>
     <dimen name="_10dp">10dp</dimen>
     <dimen name="_20dp">20dp</dimen>
+    <dimen name="_100dp">200dp</dimen>
+    <dimen name="_100_dp">200dp</dimen>
+    <dimen name="default_top_margin">16dp</dimen>
 </resources>

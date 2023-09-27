@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".auth.Login">
+    android:background="@color/purple_700"
+    tools:context="com.intellisoft.nacare.auth.Login">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,24 +15,22 @@
         android:padding="10dp">
 
 
-        <TextView
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:gravity="center"
             android:padding="8dp"
-            android:text="Hospital Acquired Infections\nSurveillance"
-            android:textAllCaps="true"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textSize="23sp" />
+            android:src="@drawable/download" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="8dp"
-            android:text="Presbyterian church of east\nafrica kikuyu"
-            android:textAllCaps="true"
+            android:text="National Cancer Registry of Kenya\nNaCaRe-Ke"
+            android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/white"
             android:textSize="18sp" />
 
 
@@ -52,6 +51,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:src="@drawable/logo_front" />
             <!-- Title -->
             <TextView
                 android:id="@+id/title_textview"
@@ -91,7 +96,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/usernameLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -157,26 +161,13 @@
         android:layout_below="@+id/login_cardview"
         android:layout_alignParentBottom="true"
         android:gravity="bottom"
-        android:orientation="horizontal"
-        android:padding="@dimen/_20dp"
-        android:weightSum="2">
+        android:padding="@dimen/_20dp">
 
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:scaleType="fitXY"
-            android:src="@drawable/moh" />
-
-        <View
-            android:layout_width="@dimen/_10dp"
-            android:layout_height="@dimen/_10dp" />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:scaleType="fitXY"
-            android:src="@drawable/find" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="For assistance on the National Cancer Registry of\n Kenya System, click here or send an email to\n help@nacare.on.spiceworks.com"
+            android:textColor="@color/white" />
     </LinearLayout>
 </RelativeLayout>

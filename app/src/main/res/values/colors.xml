@@ -9,12 +9,14 @@
     <color name="white">#FFFFFFFF</color>
     <color name="gray">@android:color/darker_gray</color>
 
+    <color name="rippleColor">#42AAA9A9</color>
     <color name="primary">#002E6A</color>
     <color name="dataEntry">#F3F3F3</color>
     <color name="secondary">#0167B8</color>
     <color name="secondaryColor">#CBE0F0</color>
     <color name="accent">#B80E2F</color>
 
+    <color name="light_shadow">#1F000000</color>
     <color name="button_default_color">#2196F3</color>
     <color name="button_pressed_color">#1565C0</color>
     <color name="green">#4CAF50</color>

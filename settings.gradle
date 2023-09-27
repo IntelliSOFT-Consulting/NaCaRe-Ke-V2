@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "hai"
+rootProject.name = "nacare-ke"
 include ':app'
