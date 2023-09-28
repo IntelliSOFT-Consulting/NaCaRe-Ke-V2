@@ -1,5 +1,6 @@
 package com.intellisoft.nacare.main.ui.cases
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -21,6 +22,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.intellisoft.nacare.adapter.EventAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.main.DashboardActivity
+import com.intellisoft.nacare.main.registry.RegistryActivity
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
@@ -53,9 +56,14 @@ class CasesFragment : Fragment() {
                 val hostNavController =
                     requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
 //                hostNavController.navigate(R.id.patientRegistrationFragment)
+
+                val intent = Intent(requireContext(), RegistryActivity::class.java)
+                startActivity(intent)
             }
         }
         loadEventData()
+
+
 
         return root
     }

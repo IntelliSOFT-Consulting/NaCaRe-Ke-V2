@@ -47,7 +47,13 @@ enum class Information {
     CONTACT
 }
 
-data class HomeItem(val iconResId: Int, val text: String)
+data class ProgramCategory(
+    val iconResId: Int?,
+    val name: String,
+    val id: String,
+    val done: String?,
+    val total: String?,
+)
 
 data class SettingItem(
     val title: String,
@@ -66,13 +72,68 @@ data class SettingItemChild(
     val buttonName: String,
 )
 
+data class ProgramResponse(
+    val pager: Pager,
+    val programs: List<ProgramData>
+)
+
+data class Pager(
+    val page: Int,
+    val total: Int,
+    val pageSize: Int,
+    val pageCount: Int
+)
+
+data class ProgramData(
+    val id: String,
+    val name: String,
+    val programStages: List<ProgramStages>,
+    val programTrackedEntityAttributes: List<ProgramTrackedEntityAttributes>
+
+)
+
+data class ProgramStages(
+    val id: String,
+    val name: String,
+    val programStageDataElements: List<ProgramStageDataElements>
+)
+
+data class ProgramStageDataElements(
+    val dataElement: DataElement
+)
+
+data class DataElement(
+    val name: String,
+    val valueType: String,
+    val id: String,
+    val optionSet: OptionSet?
+)
+
+data class OptionSet(
+    val options: List<Options>
+)
+
+data class Options(
+    val code: String,
+    val name: String,
+    val id: String,
+)
+
+data class ProgramTrackedEntityAttributes(
+    val name: String,
+    val valueType: String,
+    val id: String
+)
+
 data class OrganizationResponse(
+
     val id: String,
     val username: String,
     val surname: String,
     val firstName: String,
     val organisationUnits: List<OrganisationUnit>
 )
+
 data class OrganisationUnit(val id: String, val name: String)
 
 data class DataItems(

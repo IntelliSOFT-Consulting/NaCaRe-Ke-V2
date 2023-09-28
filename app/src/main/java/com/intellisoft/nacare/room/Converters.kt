@@ -21,4 +21,8 @@ class Converters {
     fun toJsonOrganization(data: OrganizationResponse): String {
         return gson.toJson(data)
     }
+    @TypeConverter
+    fun toJsonProgram(data: ProgramResponse): String {
+        return gson.toJson(data)
+    }
 }

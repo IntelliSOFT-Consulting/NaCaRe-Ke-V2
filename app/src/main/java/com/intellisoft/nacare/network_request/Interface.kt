@@ -1,12 +1,15 @@
 package com.intellisoft.nacare.network_request
 
 import com.intellisoft.nacare.helper_class.OrganizationResponse
+import com.intellisoft.nacare.helper_class.ProgramResponse
 import retrofit2.Response
 import retrofit2.http.GET
 
 interface Interface {
-    @GET("/api/me.json?fields=id,username,surname,firstName,organisationUnits[name,id]")
+    @GET("/api/40/me.json?fields=id,username,surname,firstName,organisationUnits[name,id]")
     suspend fun loadOrganization(): Response<OrganizationResponse>
+    @GET("/api/40/programs?filter=name:ilike:notification&fields=name,id,programTrackedEntityAttributes[id,name,valueType],programStages[id,name,programStageDataElements[dataElement[name,id,valueType,optionSet[options[id,name,code]]]]")
+    suspend  fun loadPrograms(): Response<ProgramResponse>
 
 //  @POST("data-entry/response/save")
 //  suspend fun submitData(@Body dbSaveDataEntry: DbSaveDataEntry): Response<Any>

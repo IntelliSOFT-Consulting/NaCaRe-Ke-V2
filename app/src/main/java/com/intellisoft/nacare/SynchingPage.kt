@@ -26,7 +26,10 @@ class SynchingPage : AppCompatActivity() {
     }
 
     private fun loadInitialData() {
-        retrofitCalls.loadOrganization(this@SynchingPage)
+        CoroutineScope(Dispatchers.IO).launch {
+            retrofitCalls.loadOrganization(this@SynchingPage)
+            retrofitCalls.loadPrograms(this@SynchingPage)
+        }
     }
 
     override fun onStart() {

@@ -3,14 +3,18 @@ package com.intellisoft.nacare.network_request
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.OrganizationData
+import com.intellisoft.nacare.room.ProgramData
+import com.intellisoft.nacare.util.AppUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -135,11 +139,12 @@ class RetrofitCalls {
     }
 
     fun loadOrganization(context: Context) {
+
         CoroutineScope(Dispatchers.IO).launch {
             val viewModel = MainViewModel(context.applicationContext as Application)
             val formatterClass = FormatterClass()
             val baseUrl = formatterClass.getSharedPref("serverUrl", context)
-
+            Log.e("TAG", "Loading Organizations:::: $baseUrl")
             val username = formatterClass.getSharedPref("username", context)
             if (baseUrl != null && username != null) {
                 val apiService =
@@ -163,7 +168,8 @@ class RetrofitCalls {
                                                 name = name,
                                                 code = code
                                             )
-                                            viewModel.addOrganization(context,org)
+                                            viewModel.addOrganization(context, org)
+                                            handleChildOrganizationUnits(context, code)
                                         }
 
                                     }
@@ -181,5 +187,65 @@ class RetrofitCalls {
             }
         }
     }
+
+    private fun handleChildOrganizationUnits(context: Context, code: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            Log.e("TAG", "Organization $code")
+        }
+    }
+
+    fun loadPrograms(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val formatterClass = FormatterClass()
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                try {
+                    val apiInterface = apiService.loadPrograms()
+                    if (apiInterface.isSuccessful) {
+                        val statusCode = apiInterface.code()
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+                                Log.e("TAG", "json data:::: $body")
+                                val converters = Converters().toJsonProgram(body)
+                                try {
+                                    val json = Gson().fromJson(converters, JsonObject::class.java)
+                                    val data = json.getAsJsonArray("programs")
+                                    data.forEach {
+                                        Log.e("Data ","Data:::: $it")
+                                        if (it is JsonObject) {
+                                            val code = it.get("id").asString
+                                            val name = it.get("name").asString
+                                            val programStages = it.get("programStages").asJsonArray
+                                            val programTrackedEntityAttributes = it.get("programTrackedEntityAttributes").asJsonArray
+                                            val org = ProgramData(
+                                                name =name,
+                                                code = code,
+                                                programStages=programStages.toString(),
+                                                programTrackedEntityAttributes=programTrackedEntityAttributes.toString()
+                                            )
+                                            viewModel.addProgram(context, org)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Success Error:::: ${e.message}")
+
+                }
+            }
+        }
+    }
+
 
 }

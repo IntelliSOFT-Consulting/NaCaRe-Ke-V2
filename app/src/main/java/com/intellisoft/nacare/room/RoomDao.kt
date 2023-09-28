@@ -23,5 +23,19 @@ interface RoomDao {
     fun addEvent(data: EventData)
     @Query("SELECT * FROM events ORDER BY id DESC")
     fun loadEvents(): List<EventData>?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addProgram(data: ProgramData)
+
+    @Query("SELECT EXISTS (SELECT 1 FROM programs WHERE code =:code)")
+    fun checkProgramExists(code: String): Boolean
+    @Query("UPDATE programs SET name =:name,programTrackedEntityAttributes =:programTrackedEntityAttributes,programStages =:programStages WHERE code =:code")
+    fun updateProgram(
+        name: String,
+        programStages: String,
+        programTrackedEntityAttributes: String,
+        code: String
+    )
+    @Query("SELECT * FROM programs ORDER BY id DESC LIMIT 1")
+    fun loadProgram(): ProgramData?
 
 }

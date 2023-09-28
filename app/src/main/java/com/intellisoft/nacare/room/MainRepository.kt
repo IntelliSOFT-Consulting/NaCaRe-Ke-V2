@@ -2,7 +2,6 @@ package com.intellisoft.nacare.room
 
 import android.content.Context
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.util.AppUtils.currentTimestamp
 
 class MainRepository(private val roomDao: RoomDao) {
     private val formatterClass = FormatterClass()
@@ -41,6 +40,29 @@ class MainRepository(private val roomDao: RoomDao) {
             return roomDao.loadEvents()
         }
         return emptyList()
+    }
+
+    fun addProgram(context: Context, data: ProgramData) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            //if it exists update
+            val exists = roomDao.checkProgramExists(data.code)
+            if (!exists) {
+                roomDao.addProgram(data)
+            } else {
+                roomDao.updateProgram(data.name, data.programStages,data.programTrackedEntityAttributes,data.code)
+            }
+        }
+    }
+
+    fun loadProgram(context: Context): ProgramData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return if (userId != null) {
+            roomDao.loadProgram()
+        } else {
+            null
+
+        }
     }
 
 }

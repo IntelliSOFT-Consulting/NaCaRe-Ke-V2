@@ -46,12 +46,18 @@ class HomeFragment : Fragment() {
         }
         binding.btnNext.apply {
             setOnClickListener {
+                val code = generateCode(binding.actOrganization.text.toString())
+                val name = binding.actOrganization.text.toString()
+                val date = binding.edtDate.text.toString()
                 val data = EventData(
-                    date = binding.edtDate.text.toString(),
-                    orgUnitCode = generateCode(binding.actOrganization.text.toString()),
-                    orgUnitName = binding.actOrganization.text.toString()
+                    date = date,
+                    orgUnitCode = code,
+                    orgUnitName = name
                 )
-                viewModel.addEvent(requireContext(),data)
+//                viewModel.addEvent(requireContext(),data)
+                formatterClass.saveSharedPref("date", date, requireContext())
+                formatterClass.saveSharedPref("code", code, requireContext())
+                formatterClass.saveSharedPref("name", name, requireContext())
                 val hostNavController =
                     requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
                 hostNavController.navigate(R.id.nav_gallery)
