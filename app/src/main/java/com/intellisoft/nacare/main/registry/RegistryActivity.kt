@@ -6,14 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.intellisoft.nacare.adapter.ProgramAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramStages
-import com.intellisoft.nacare.main.DashboardActivity
+import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
 import com.nacare.ke.capture.R
@@ -63,7 +64,8 @@ class RegistryActivity : AppCompatActivity() {
                 name = it.name,
                 id = it.id,
                 done = "0",
-                total = it.programStageDataElements.size.toString()
+                total = it.programStageDataElements.size.toString(),
+                elements = it.programStageDataElements
             )
             dataList.add(pd)
         }
@@ -82,9 +84,13 @@ class RegistryActivity : AppCompatActivity() {
     }
 
     private fun handleClick(data: ProgramCategory) {
+
+        val converters = Converters().toJsonElements(data.elements)
+        val json = Gson().fromJson(converters, JsonArray::class.java)
         val bundle = Bundle()
         bundle.putString("code", data.id)
         bundle.putString("name", data.name)
+        bundle.putString("programStageDataElements", json.toString())
         val intent = Intent(this@RegistryActivity, ResponderActivity::class.java)
         intent.putExtra("data", bundle)
         startActivity(intent)

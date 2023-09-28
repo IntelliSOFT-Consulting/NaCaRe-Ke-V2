@@ -25,4 +25,8 @@ class Converters {
     fun toJsonProgram(data: ProgramResponse): String {
         return gson.toJson(data)
     }
+
+    fun toJsonElements(data: List<ProgramStageDataElements>): String {
+        return gson.toJson(data)
+    }
 }

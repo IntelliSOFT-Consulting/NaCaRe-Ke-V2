@@ -53,6 +53,7 @@ data class ProgramCategory(
     val id: String,
     val done: String?,
     val total: String?,
+    val elements: List<ProgramStageDataElements>
 )
 
 data class SettingItem(

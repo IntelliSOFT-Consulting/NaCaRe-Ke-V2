@@ -210,13 +210,11 @@ class RetrofitCalls {
                         val body = apiInterface.body()
                         if (statusCode == 200) {
                             if (body != null) {
-                                Log.e("TAG", "json data:::: $body")
                                 val converters = Converters().toJsonProgram(body)
                                 try {
                                     val json = Gson().fromJson(converters, JsonObject::class.java)
                                     val data = json.getAsJsonArray("programs")
                                     data.forEach {
-                                        Log.e("Data ","Data:::: $it")
                                         if (it is JsonObject) {
                                             val code = it.get("id").asString
                                             val name = it.get("name").asString
