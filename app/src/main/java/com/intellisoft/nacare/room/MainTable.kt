@@ -10,6 +10,8 @@ import java.util.Date
 data class OrganizationData(
     val name: String,
     val code: String,
+    @ColumnInfo(name = "children")
+    val children: String,
     @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
     @ColumnInfo(name = "updated_at")
@@ -36,6 +38,15 @@ data class ProgramData(
     var id: Int? = null
 }
 
+@Entity(tableName = "responses")
+data class ElementResponse(
+    var userId: String,
+    val eventId: String,
+    val indicatorId: String,
+    val value: String,
+) {
+    @PrimaryKey(autoGenerate = true) var id: Int? = null
+}
 
 @Entity(tableName = "events")
 data class EventData(

@@ -44,6 +44,11 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+        binding.actOrganization.apply {
+            setOnClickListener {
+               showOrganization()
+            }
+        }
         binding.btnNext.apply {
             setOnClickListener {
                 val code = generateCode(binding.actOrganization.text.toString())
@@ -54,7 +59,7 @@ class HomeFragment : Fragment() {
                     orgUnitCode = code,
                     orgUnitName = name
                 )
-//                viewModel.addEvent(requireContext(),data)
+                viewModel.addEvent(requireContext(),data)
                 formatterClass.saveSharedPref("date", date, requireContext())
                 formatterClass.saveSharedPref("code", code, requireContext())
                 formatterClass.saveSharedPref("name", name, requireContext())
@@ -64,6 +69,10 @@ class HomeFragment : Fragment() {
             }
         }
         return binding.root
+    }
+
+    private fun showOrganization() {
+
     }
 
     private fun generateCode(value: String): String {

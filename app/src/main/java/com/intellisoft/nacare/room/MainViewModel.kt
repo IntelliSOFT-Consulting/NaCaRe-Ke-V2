@@ -38,4 +38,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadProgram(context)
     }
 
+    fun loadLatestEvent(context: Context)= runBlocking {
+        repository.loadLatestEvent(context)
+    }
+
+    fun addResponse(context: Context, event: String, element: String, response: String)= runBlocking {
+        repository.addResponse(context,event,element,response)
+    }
+
+    fun deleteResponse(context: Context, event: String, element: String)= runBlocking {
+        repository.deleteResponse(context,event,element)
+    }
+
+    fun updateChildOrgUnits(context: Context, code: String, children: String)= runBlocking {
+        repository.updateChildOrgUnits(context,code,children)
+    }
+
 }

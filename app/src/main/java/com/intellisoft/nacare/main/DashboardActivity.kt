@@ -153,6 +153,11 @@ class DashboardActivity : AppCompatActivity() {
             R.id.action_clear -> {
                 // Handle the second menu item click
 //                viewModel.clearEntireDatabase()
+                formatterClass.deleteSharedPref("date", this@DashboardActivity)
+                formatterClass.deleteSharedPref("code", this@DashboardActivity)
+                formatterClass.deleteSharedPref("name", this@DashboardActivity)
+                val hostNavController = findNavController(R.id.nav_host_fragment_content_dashboard)
+                hostNavController.navigate(R.id.nav_gallery)
                 true
             }
             // Add more cases for other menu items if needed

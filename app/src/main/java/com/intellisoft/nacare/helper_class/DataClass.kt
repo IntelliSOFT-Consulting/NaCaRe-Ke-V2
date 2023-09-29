@@ -135,6 +135,41 @@ data class OrganizationResponse(
     val organisationUnits: List<OrganisationUnit>
 )
 
+data class OrganizationUnitResponse(
+    val name: String,
+    val children: List<CountyUnit>,
+    val id: String
+)
+
+data class CountyUnit(
+    val name: String,
+    val children: List<SubCountyUnit>,
+    val id: String
+)
+
+data class SubCountyUnit(
+    val name: String,
+    val children: List<WardUnit>,
+    val id: String
+)
+
+data class WardUnit(
+    val name: String,
+    val children: List<FacilityUnit>,
+    val id: String
+)
+
+data class FacilityUnit(
+    val name: String,
+    val children: List<OtherUnit>,
+    val id: String
+)
+
+data class OtherUnit(
+    val name: String,
+    val id: String
+)
+
 data class OrganisationUnit(val id: String, val name: String)
 
 data class DataItems(

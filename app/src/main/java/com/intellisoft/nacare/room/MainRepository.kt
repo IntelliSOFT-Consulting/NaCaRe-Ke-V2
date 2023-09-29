@@ -50,7 +50,12 @@ class MainRepository(private val roomDao: RoomDao) {
             if (!exists) {
                 roomDao.addProgram(data)
             } else {
-                roomDao.updateProgram(data.name, data.programStages,data.programTrackedEntityAttributes,data.code)
+                roomDao.updateProgram(
+                    data.name,
+                    data.programStages,
+                    data.programTrackedEntityAttributes,
+                    data.code
+                )
             }
         }
     }
@@ -62,6 +67,49 @@ class MainRepository(private val roomDao: RoomDao) {
         } else {
             null
 
+        }
+    }
+
+    fun loadLatestEvent(context: Context): EventData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return if (userId != null) {
+            roomDao.loadLatestEvent()
+        } else {
+            null
+
+        }
+    }
+
+    fun addResponse(context: Context, event: String, element: String, response: String) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val exists = roomDao.checkResponse(userId, event, element)
+            if (exists) {
+                roomDao.updateResponse(response, userId, event, element)
+            } else {
+                val res = ElementResponse(
+                    eventId = event,
+                    userId = userId,
+                    indicatorId = element,
+                    value = response
+                )
+                roomDao.addResponse(res)
+            }
+        }
+
+    }
+
+    fun deleteResponse(context: Context, event: String, element: String) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.deleteResponse(userId, event, element)
+        }
+    }
+
+    fun updateChildOrgUnits(context: Context, code: String, children: String) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.updateChildOrgUnits(code, children)
         }
     }
 

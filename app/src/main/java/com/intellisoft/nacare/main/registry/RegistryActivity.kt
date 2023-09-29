@@ -4,17 +4,16 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.intellisoft.nacare.adapter.ProgramAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.room.Converters
+import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
 import com.nacare.ke.capture.R
@@ -23,6 +22,8 @@ import com.nacare.ke.capture.databinding.ActivityRegistryBinding
 class RegistryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistryBinding
     private lateinit var program: ProgramData
+    private lateinit var eventData: EventData
+    private lateinit var event: String
     private lateinit var viewModel: MainViewModel
     private val formatterClass = FormatterClass()
     private val dataList: MutableList<ProgramCategory> = mutableListOf()
@@ -32,7 +33,17 @@ class RegistryActivity : AppCompatActivity() {
         binding = ActivityRegistryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-
+        val receivedIntent = intent
+        if (receivedIntent != null) {
+            val dataBundle = receivedIntent.getBundleExtra("data")
+            if (dataBundle != null) {
+                val ev = dataBundle.getString("event")
+                if (ev != null) {
+                    event = ev
+                    eventData = Gson().fromJson(event, EventData::class.java)
+                }
+            }
+        }
         viewModel = MainViewModel((this.applicationContext as Application))
         val data = viewModel.loadProgram(this)
 
@@ -69,7 +80,7 @@ class RegistryActivity : AppCompatActivity() {
             )
             dataList.add(pd)
         }
-        val ad = ProgramAdapter(this, dataList, this::handleClick)
+        val ad = ProgramAdapter(this, dataList, this::handleClick, eventData)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@RegistryActivity)
@@ -91,6 +102,7 @@ class RegistryActivity : AppCompatActivity() {
         bundle.putString("code", data.id)
         bundle.putString("name", data.name)
         bundle.putString("programStageDataElements", json.toString())
+        bundle.putString("event", event)
         val intent = Intent(this@RegistryActivity, ResponderActivity::class.java)
         intent.putExtra("data", bundle)
         startActivity(intent)

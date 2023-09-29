@@ -7,6 +7,7 @@ import java.util.Date
 
 class Converters {
     private val gson = Gson()
+
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {
         return value?.let { Date(it) }
@@ -21,6 +22,7 @@ class Converters {
     fun toJsonOrganization(data: OrganizationResponse): String {
         return gson.toJson(data)
     }
+
     @TypeConverter
     fun toJsonProgram(data: ProgramResponse): String {
         return gson.toJson(data)
@@ -29,4 +31,14 @@ class Converters {
     fun toJsonElements(data: List<ProgramStageDataElements>): String {
         return gson.toJson(data)
     }
+
+    fun toJsonEvent(data: EventData): String {
+        return gson.toJson(data)
+    }
+
+    fun toJsonOrgUnit(data: OrganizationUnitResponse): String {
+        return gson.toJson(data)
+    }
+
+
 }

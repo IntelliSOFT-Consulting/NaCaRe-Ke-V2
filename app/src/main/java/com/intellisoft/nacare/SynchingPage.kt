@@ -34,7 +34,7 @@ class SynchingPage : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        CoroutineScope(Dispatchers.IO).launch { test() }
+//        CoroutineScope(Dispatchers.IO).launch { test() }
     }
 
     private suspend fun test() {

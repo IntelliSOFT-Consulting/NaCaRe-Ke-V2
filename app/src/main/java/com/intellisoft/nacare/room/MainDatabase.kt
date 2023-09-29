@@ -8,8 +8,8 @@ import androidx.room.TypeConverters
 
 @Database(
     entities =
-    [OrganizationData::class, EventData::class, ProgramData::class],
-    version = 4,
+    [OrganizationData::class, EventData::class, ProgramData::class,ElementResponse::class],
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

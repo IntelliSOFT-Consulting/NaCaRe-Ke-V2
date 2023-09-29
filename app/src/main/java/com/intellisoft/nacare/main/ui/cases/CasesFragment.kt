@@ -24,6 +24,7 @@ import com.intellisoft.nacare.adapter.EventAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.main.DashboardActivity
 import com.intellisoft.nacare.main.registry.RegistryActivity
+import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
@@ -53,16 +54,25 @@ class CasesFragment : Fragment() {
 
         binding.addFab.apply {
             setOnClickListener {
-                val hostNavController =
-                    requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
-//                hostNavController.navigate(R.id.patientRegistrationFragment)
-
-                val intent = Intent(requireContext(), RegistryActivity::class.java)
-                startActivity(intent)
+//               Get Current Event
+                val event = viewModel.loadLatestEvent(requireContext())
+                if (event != null) {
+                    val bundle = Bundle()
+                    val converters = Converters().toJsonEvent(event)
+                    bundle.putString("event", converters)
+                    val intent = Intent(requireContext(), RegistryActivity::class.java)
+                    intent.putExtra("data", bundle)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Event Error, please try again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
-        loadEventData()
-
+//        loadEventData()
 
 
         return root

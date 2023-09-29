@@ -1,22 +1,23 @@
 package com.intellisoft.nacare.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramCategory
+import com.intellisoft.nacare.room.EventData
 import com.nacare.ke.capture.R
 
 
 class ProgramAdapter(
     private val context: Context,
-    private val dataList: List<ProgramCategory>, private val click: (ProgramCategory) -> Unit
+    private val dataList: List<ProgramCategory>,
+    private val click: (ProgramCategory) -> Unit,
+    private val eventData: EventData
 ) : RecyclerView.Adapter<ProgramAdapter.ProgramHolder>() {
 
     private val selectedItems = HashSet<Int>() // To keep track of selected item IDs
@@ -24,10 +25,11 @@ class ProgramAdapter(
     inner class ProgramHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         val formatterClass = FormatterClass()
-/*
-        val syncIcon: ImageView = itemView.findViewById(R.id.sync_icon)
-        val eventStatus: ImageView = itemView.findViewById(R.id.eventStatus)
-        val eventDate: TextView = itemView.findViewById(R.id.event_date)*/
+
+        /*
+                val syncIcon: ImageView = itemView.findViewById(R.id.sync_icon)
+                val eventStatus: ImageView = itemView.findViewById(R.id.eventStatus)
+                val eventDate: TextView = itemView.findViewById(R.id.event_date)*/
         val progressTextView: TextView = itemView.findViewById(R.id.progressTextView)
         val eventTextView: TextView = itemView.findViewById(R.id.eventTextView)
         private val materialCardView: MaterialCardView =
