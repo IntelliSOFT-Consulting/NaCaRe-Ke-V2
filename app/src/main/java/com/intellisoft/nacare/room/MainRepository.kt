@@ -126,7 +126,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun getEventResponse(context: Context, event: String, code: String): String? {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            roomDao.getEventResponse(userId, code, event)
+          return  roomDao.getEventResponse(userId, code, event)
         }
         return null
     }

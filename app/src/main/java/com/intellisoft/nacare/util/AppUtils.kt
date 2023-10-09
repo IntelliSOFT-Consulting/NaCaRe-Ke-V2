@@ -9,10 +9,13 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
 import android.widget.DatePicker
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.intellisoft.nacare.helper_class.CountyUnit
+import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.nacare.ke.capture.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -21,6 +24,35 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
+    fun showNoOrgUnits(context: Context) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("No Organization Units")
+            .setMessage("There are not organization units, pleas try again later!!")
+            .setPositiveButton("Okay") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+
+    }
+
+    fun generateChild(children: List<CountyUnit>): List<OrgTreeNode> {
+        val treeNodes = mutableListOf<OrgTreeNode>()
+        for (ch in children) {
+            val orgNode = OrgTreeNode(
+                label = ch.name,
+                code = ch.id,
+                children = generateChild(ch.children)
+            )
+            treeNodes.add(orgNode)
+
+        }
+
+        return treeNodes
+    }
+
     fun isOnline(context: Context): Boolean {
         var isOnline = false
         try {
@@ -35,8 +67,8 @@ object AppUtils {
         }
         return isOnline
     }
-    fun generateIcons(context: Context,iconName: String): Int
-    {
+
+    fun generateIcons(context: Context, iconName: String): Int {
         val iconDrawableMap = mapOf(
             "add" to R.drawable.add,
             "arrow_down" to R.drawable.arrowdown,
@@ -89,10 +121,12 @@ object AppUtils {
             "Treatment" to R.drawable.treatment
         )
 
-        return iconDrawableMap[iconName] ?: throw IllegalArgumentException("Icon not found: $iconName")
+        return iconDrawableMap[iconName]
+            ?: throw IllegalArgumentException("Icon not found: $iconName")
 
 
     }
+
     fun hideKeyboard(context: Context) {
         val inputMethodManager =
             context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -161,6 +195,7 @@ object AppUtils {
                 override fun afterTextChanged(s: Editable?) {}
             })
     }
+
     fun controlSelectionData(
         child: AutoCompleteTextView,
         parent: TextInputLayout,

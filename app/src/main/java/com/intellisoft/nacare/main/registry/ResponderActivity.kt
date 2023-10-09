@@ -53,7 +53,15 @@ class ResponderActivity : AppCompatActivity() {
 
             }
         }
+        binding.apply {
+            prevButton.setOnClickListener {
+                this@ResponderActivity.finish()
+            }
+            nextButton.setOnClickListener {
+                this@ResponderActivity.finish()
+            }
 
+        }
     }
 
     private fun displayDataElements(json: String, eventData: EventData) {
@@ -62,7 +70,7 @@ class ResponderActivity : AppCompatActivity() {
         items.forEach {
             dataList.add(it.dataElement)
         }
-        val ad = ElementAdapter(this@ResponderActivity, dataList, eventData.id.toString())
+        val ad = ElementAdapter(this@ResponderActivity,layoutInflater, dataList, eventData.id.toString())
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@ResponderActivity)
             adapter = ad

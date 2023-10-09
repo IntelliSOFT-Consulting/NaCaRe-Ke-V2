@@ -1,7 +1,6 @@
 package com.intellisoft.nacare.main.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.intellisoft.nacare.adapter.TreeAdapter
-import com.intellisoft.nacare.helper_class.CountyUnit
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.room.Converters
@@ -23,7 +19,9 @@ import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.OrganizationData
 import com.intellisoft.nacare.util.AppUtils.disableTextInputEditText
+import com.intellisoft.nacare.util.AppUtils.generateChild
 import com.intellisoft.nacare.util.AppUtils.showDatePickerDialog
+import com.intellisoft.nacare.util.AppUtils.showNoOrgUnits
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.FragmentHomeBinding
 
@@ -64,7 +62,7 @@ class HomeFragment : Fragment() {
                 if (!org.isNullOrEmpty()) {
                     showOrgUnitDialog(org)
                 } else {
-                    showNoOrgUnits()
+                    showNoOrgUnits(requireContext())
                 }
             }
         }
@@ -90,19 +88,6 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    private fun showNoOrgUnits() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("No Organization Units")
-            .setMessage("There are not organization units, pleas try again later!!")
-            .setPositiveButton("Okay") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-
-    }
 
     private fun showOrgUnitDialog(org: List<OrganizationData>) {
         val or = org.firstOrNull()
@@ -118,7 +103,6 @@ class HomeFragment : Fragment() {
                 treeNodes.add(orgNode)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("TAG", "child units error:::: ${e.message}")
             }
 
             val dialogBuilder = AlertDialog.Builder(requireActivity())
@@ -148,21 +132,6 @@ class HomeFragment : Fragment() {
                 dialog.dismiss()
             }
         }
-    }
-
-    private fun generateChild(children: List<CountyUnit>): List<OrgTreeNode> {
-        val treeNodes = mutableListOf<OrgTreeNode>()
-        for (ch in children) {
-            val orgNode = OrgTreeNode(
-                label = ch.name,
-                code = ch.id,
-                children = generateChild(ch.children)
-            )
-            treeNodes.add(orgNode)
-
-        }
-
-        return treeNodes
     }
 
 

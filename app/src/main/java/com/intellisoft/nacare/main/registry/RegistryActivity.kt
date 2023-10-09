@@ -11,6 +11,7 @@ import com.google.gson.JsonArray
 import com.intellisoft.nacare.adapter.ProgramAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramCategory
+import com.intellisoft.nacare.helper_class.ProgramStageDataElements
 import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
@@ -45,6 +46,11 @@ class RegistryActivity : AppCompatActivity() {
             }
         }
         viewModel = MainViewModel((this.applicationContext as Application))
+        loadInitialData()
+
+    }
+
+    private fun loadInitialData() {
         val data = viewModel.loadProgram(this)
 
         if (data != null) {
@@ -55,13 +61,16 @@ class RegistryActivity : AppCompatActivity() {
                 title = program.name
                 subtitle = "$date | $org"
                 setDisplayHomeAsUpEnabled(true)
-//            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
 
             }
             loadProgramData(program)
 
         }
+    }
 
+    override fun onResume() {
+        loadInitialData()
+        super.onResume()
     }
 
     private fun loadProgramData(program: ProgramData) {
@@ -69,12 +78,13 @@ class RegistryActivity : AppCompatActivity() {
         val json = program.programStages
         val gson = Gson()
         val items = gson.fromJson(json, Array<ProgramStages>::class.java)
+        dataList.clear()
         items.forEach {
             val pd = ProgramCategory(
                 iconResId = R.drawable.home,
                 name = it.name,
                 id = it.id,
-                done = "0",
+                done = retrieveUserResponses(it.programStageDataElements),
                 total = it.programStageDataElements.size.toString(),
                 elements = it.programStageDataElements
             )
@@ -85,13 +95,31 @@ class RegistryActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@RegistryActivity)
             adapter = ad
-        }
 
+        }
+        ad.notifyDataSetChanged()
 
         /*  } catch (e: Exception) {
               e.printStackTrace()
           }*/
 
+    }
+
+    private fun retrieveUserResponses(data: List<ProgramStageDataElements>): String {
+        var count = 0
+        data.forEach {
+            val response =
+                viewModel.getEventResponse(
+                    this@RegistryActivity,
+                    eventData.id.toString(),
+                    it.dataElement.id
+                )
+            if (response != null) {
+                count++
+            }
+        }
+
+        return "$count"
     }
 
     private fun handleClick(data: ProgramCategory) {

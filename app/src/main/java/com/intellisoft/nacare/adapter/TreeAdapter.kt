@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.nacare.helper_class.OrgTreeNode
-import com.intellisoft.nacare.room.EventData
 import com.nacare.ke.capture.R
 
 class TreeAdapter(
@@ -53,9 +52,10 @@ class TreeAdapter(
         arrowIcon.visibility = if (node.children.isNotEmpty()) View.VISIBLE else View.INVISIBLE
         // Handle visibility based on whether the node has children and is expanded
         if (node.children.isEmpty()) {
-            val patient = treeNodes[position]
-            click(patient)
-
+            labelTextView.setOnClickListener {
+                val patient = treeNodes[position]
+                click(patient)
+            }
         }
         // Handle expand/collapse state
         arrowIcon.rotation = if (node.isExpanded) 90f else 0f
