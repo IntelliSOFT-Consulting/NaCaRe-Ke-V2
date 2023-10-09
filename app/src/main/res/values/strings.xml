@@ -237,5 +237,6 @@
     <string name="settings_limit_ou_program">by org. unit and program</string>
     <string name="action_view">View</string>
     <string name="save_exit"><![CDATA[Save & Exit]]></string>
+    <string name="organization_unit">Organization Unit</string>
 
 </resources>

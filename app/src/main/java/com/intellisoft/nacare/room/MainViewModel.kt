@@ -18,40 +18,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addOrganization(context, data)
     }
 
-    fun loadOrganizations(context: Context)= runBlocking {
+    fun loadOrganizations(context: Context) = runBlocking {
         repository.loadOrganizations(context)
     }
 
-    fun addEvent(context: Context, data: EventData)= runBlocking {
-        repository.addEvent(context,data)
+    fun addEvent(context: Context, data: EventData) = runBlocking {
+        repository.addEvent(context, data)
     }
 
-    fun loadEvents(context: Context)= runBlocking {
+    fun loadEvents(context: Context) = runBlocking {
         repository.loadEvents(context)
     }
 
-    fun addProgram(context: Context, data: ProgramData)= runBlocking {
-        repository.addProgram(context,data)
+    fun addProgram(context: Context, data: ProgramData) = runBlocking {
+        repository.addProgram(context, data)
     }
 
-    fun loadProgram(context: Context)= runBlocking {
+    fun loadProgram(context: Context) = runBlocking {
         repository.loadProgram(context)
     }
 
-    fun loadLatestEvent(context: Context)= runBlocking {
+    fun loadLatestEvent(context: Context) = runBlocking {
         repository.loadLatestEvent(context)
     }
 
-    fun addResponse(context: Context, event: String, element: String, response: String)= runBlocking {
-        repository.addResponse(context,event,element,response)
+    fun loadCurrentEvent(context: Context, id: String) = runBlocking {
+        repository.loadCurrentEvent(context, id)
     }
 
-    fun deleteResponse(context: Context, event: String, element: String)= runBlocking {
-        repository.deleteResponse(context,event,element)
+    fun addResponse(context: Context, event: String, element: String, response: String) =
+        runBlocking {
+            repository.addResponse(context, event, element, response)
+        }
+
+    fun getEventResponse(context: Context, event: String, element: String) = runBlocking {
+        repository.getEventResponse(context, event, element)
     }
 
-    fun updateChildOrgUnits(context: Context, code: String, children: String)= runBlocking {
-        repository.updateChildOrgUnits(context,code,children)
+    fun deleteResponse(context: Context, event: String, element: String) = runBlocking {
+        repository.deleteResponse(context, event, element)
     }
+
+    fun updateChildOrgUnits(context: Context, code: String, children: String) = runBlocking {
+        repository.updateChildOrgUnits(context, code, children)
+    }
+
 
 }

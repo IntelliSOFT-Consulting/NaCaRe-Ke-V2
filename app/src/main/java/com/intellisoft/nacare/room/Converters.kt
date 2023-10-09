@@ -40,5 +40,11 @@ class Converters {
         return gson.toJson(data)
     }
 
+    @TypeConverter
+    fun fromJsonOrgUnit(json: String): OrganizationUnitResponse {
+        // convert json to MyJsonData object
+        return gson.fromJson(json, OrganizationUnitResponse::class.java)
+
+    }
 
 }

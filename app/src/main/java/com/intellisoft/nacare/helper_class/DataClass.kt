@@ -93,6 +93,13 @@ data class ProgramData(
 
 )
 
+data class OrgTreeNode(
+    val label: String, val code: String,
+    val children: List<OrgTreeNode> = emptyList(),
+    var isExpanded: Boolean = false
+)
+
+
 data class ProgramStages(
     val id: String,
     val name: String,
@@ -143,27 +150,10 @@ data class OrganizationUnitResponse(
 
 data class CountyUnit(
     val name: String,
-    val children: List<SubCountyUnit>,
+    val children: List<CountyUnit>,
     val id: String
 )
 
-data class SubCountyUnit(
-    val name: String,
-    val children: List<WardUnit>,
-    val id: String
-)
-
-data class WardUnit(
-    val name: String,
-    val children: List<FacilityUnit>,
-    val id: String
-)
-
-data class FacilityUnit(
-    val name: String,
-    val children: List<OtherUnit>,
-    val id: String
-)
 
 data class OtherUnit(
     val name: String,

@@ -15,6 +15,7 @@ import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -272,6 +273,7 @@ class ElementAdapter(
         val tvName = itemView.findViewById<TextView>(R.id.tv_name)
         val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+
         init {
             editText.apply {
                 addTextChangedListener(object : TextWatcher {
@@ -291,7 +293,12 @@ class ElementAdapter(
                         count: Int
                     ) {
                         if (s != null) {
-                            viewModel.addResponse(context, event, items[adapterPosition].id, s.toString())
+                            viewModel.addResponse(
+                                context,
+                                event,
+                                items[adapterPosition].id,
+                                s.toString()
+                            )
                         }
                     }
 
@@ -302,8 +309,15 @@ class ElementAdapter(
                 })
             }
         }
+
         fun bind(item: DataElement) {
             tvName.text = item.name
+            val response = viewModel.getEventResponse(context, event, item.id)
+            Log.e("Responses","Responses is ..... $response Code is .... ${item.id} Event $event")
+            if (response != null) {
+                editText.setText(response)
+            }
+
 
         }
     }
@@ -410,7 +424,12 @@ class ElementAdapter(
                         count: Int
                     ) {
                         if (s != null) {
-                            viewModel.addResponse(context, event, items[adapterPosition].id, s.toString())
+                            viewModel.addResponse(
+                                context,
+                                event,
+                                items[adapterPosition].id,
+                                s.toString()
+                            )
                         }
                     }
 
@@ -421,6 +440,7 @@ class ElementAdapter(
                 })
             }
         }
+
         fun bind(item: DataElement) {
             optionsList.clear()
             item.optionSet?.options?.forEach {

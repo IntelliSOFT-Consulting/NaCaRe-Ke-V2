@@ -80,6 +80,16 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
+    fun loadCurrentEvent(context: Context, id: String): EventData? {
+        val userId = formatterClass.getSharedPref("username", context)
+        return if (userId != null) {
+            roomDao.loadCurrentEvent(id)
+        } else {
+            null
+
+        }
+    }
+
     fun addResponse(context: Context, event: String, element: String, response: String) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
@@ -111,6 +121,14 @@ class MainRepository(private val roomDao: RoomDao) {
         if (userId != null) {
             roomDao.updateChildOrgUnits(code, children)
         }
+    }
+
+    fun getEventResponse(context: Context, event: String, code: String): String? {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            roomDao.getEventResponse(userId, code, event)
+        }
+        return null
     }
 
 }

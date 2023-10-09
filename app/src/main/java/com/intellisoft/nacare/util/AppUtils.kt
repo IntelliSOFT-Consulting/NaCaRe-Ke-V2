@@ -2,6 +2,7 @@ package com.intellisoft.nacare.util
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.net.ConnectivityManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.nacare.ke.capture.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -19,6 +21,78 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
+    fun isOnline(context: Context): Boolean {
+        var isOnline = false
+        try {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            if (cm != null) {
+                val netInfo = cm.activeNetworkInfo
+                //should check null because in airplane mode it will be null
+                isOnline = netInfo != null && netInfo.isConnectedOrConnecting
+            }
+        } catch (ex: Exception) {
+
+        }
+        return isOnline
+    }
+    fun generateIcons(context: Context,iconName: String): Int
+    {
+        val iconDrawableMap = mapOf(
+            "add" to R.drawable.add,
+            "arrow_down" to R.drawable.arrowdown,
+            "back" to R.drawable.back,
+            "Cancer Information" to R.drawable.cancerinfo,
+            "capture" to R.drawable.capture,
+            "cleaner" to R.drawable.cleaner,
+            "Comorbidities" to R.drawable.comorbidities,
+            "completed_doc" to R.drawable.completeddoc,
+            "dashb" to R.drawable.dashb,
+            "Discrimination" to R.drawable.discrimination,
+            "editdoc" to R.drawable.editdoc,
+            "edit_form" to R.drawable.editform,
+            "event_note_FILL0_wght400_GRAD0_opsz24" to R.drawable.event_note,
+            "event_vis" to R.drawable.eventvis,
+            "ev_viz_2" to R.drawable.evviz2,
+            "expand" to R.drawable.expand,
+            "facility" to R.drawable.facility,
+            "facility_2" to R.drawable.facility2,
+            "facility_cap" to R.drawable.facilitycap,
+            "filter" to R.drawable.filter,
+            "follow_up" to R.drawable.followup,
+            "follow_upp" to R.drawable.followupp,
+            "form" to R.drawable.form,
+            "form_complete" to R.drawable.formcomplete,
+            "helpdesk" to R.drawable.helpdesk,
+            "info" to R.drawable.info,
+            "interp" to R.drawable.interp,
+            "key" to R.drawable.key,
+            "maps" to R.drawable.maps,
+            "menu" to R.drawable.menu,
+            "menu_management" to R.drawable.menumanagement,
+            "more" to R.drawable.more,
+            "nci_form" to R.drawable.nciform,
+            "next_next" to R.drawable.nextnext,
+            "next_page" to R.drawable.nextpage,
+            "Patient Details" to R.drawable.patientdetails,
+            "Patient Status" to R.drawable.patientstatus,
+            "Post-cancer Treatment Rehabilitation" to R.drawable.posttreatment,
+            "remove_FILL0_wght400_GRAD0_opsz24" to R.drawable.remove_,
+            "risk" to R.drawable.risk,
+            "Risk Factors" to R.drawable.risk2,
+            "save" to R.drawable.save,
+            "search" to R.drawable.search,
+            "settings" to R.drawable.settings,
+            "star" to R.drawable.star,
+            "Survivorship" to R.drawable.survivorship,
+            "sync" to R.drawable.sync,
+            "synccc" to R.drawable.synccc,
+            "Treatment" to R.drawable.treatment
+        )
+
+        return iconDrawableMap[iconName] ?: throw IllegalArgumentException("Icon not found: $iconName")
+
+
+    }
     fun hideKeyboard(context: Context) {
         val inputMethodManager =
             context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
