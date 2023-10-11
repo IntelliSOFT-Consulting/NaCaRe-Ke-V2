@@ -28,7 +28,7 @@ class Converters {
         return gson.toJson(data)
     }
 
-    fun toJsonElements(data: List<ProgramStageDataElements>): String {
+    fun toJsonElements(data: List<ProgramStageSections>): String {
         return gson.toJson(data)
     }
 

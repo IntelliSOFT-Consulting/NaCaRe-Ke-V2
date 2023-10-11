@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.core.TreeNode
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.intellisoft.nacare.helper_class.DataElement
+import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.MainViewModel
@@ -32,10 +32,12 @@ import com.nacare.ke.capture.R
 class ElementAdapter(
     private val context: Context,
     private val layoutInflater: LayoutInflater,
-    private val items: List<DataElement>,
+    private val items: List<DataElementItem>,
     private val event: String
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -54,6 +56,10 @@ class ElementAdapter(
             VIEW_TYPE_NUMBER -> {
                 val view = inflater.inflate(R.layout.item_number_edittext, parent, false)
                 NumberEditTextViewHolder(view)
+            }
+            VIEW_TYPE_PHONE_NUMBER -> {
+                val view = inflater.inflate(R.layout.item_phone_number_edittext, parent, false)
+                PhoneNumberEditTextViewHolder(view)
             }
 
             VIEW_TYPE_DATE -> {
@@ -95,6 +101,12 @@ class ElementAdapter(
 
             VIEW_TYPE_NUMBER -> {
                 val numberTextHolder = holder as NumberEditTextViewHolder
+                numberTextHolder.bind(item)
+            }
+
+
+            VIEW_TYPE_PHONE_NUMBER -> {
+                val numberTextHolder = holder as PhoneNumberEditTextViewHolder
                 numberTextHolder.bind(item)
             }
 
@@ -150,6 +162,7 @@ class ElementAdapter(
             "INTEGER_POSITIVE" -> VIEW_TYPE_NUMBER
             "TRUE_ONLY" -> VIEW_TYPE_TRUE_ONLY
             "ORGANISATION_UNIT" -> VIEW_TYPE_ORGANIZATION
+            "PHONE_NUMBER" -> VIEW_TYPE_PHONE_NUMBER
             else -> throw IllegalArgumentException("Invalid data type")
         }
     }
@@ -163,15 +176,16 @@ class ElementAdapter(
         private const val VIEW_TYPE_NUMBER = 5
         private const val VIEW_TYPE_TRUE_ONLY = 6
         private const val VIEW_TYPE_ORGANIZATION = 7
+        private const val VIEW_TYPE_PHONE_NUMBER = 8
     }
 
     inner class DateEditTextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
             val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-            tvName.text = item.name
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 editText.setText(response)
@@ -224,11 +238,58 @@ class ElementAdapter(
 
     inner class NumberEditTextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
             val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-            tvName.text = item.name
+            tvName.text = item.displayName
+            val response = viewModel.getEventResponse(context, event, item.id)
+            if (response != null) {
+                editText.setText(response)
+            }
+            editText.apply {
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                        // This method is called before the text is changed.
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        // This method is called when the text is changing.
+
+                        if (s != null) {
+                            viewModel.addResponse(
+                                context,
+                                event, item.id, s.toString()
+                            )
+                        }
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        // This method is called after the text has changed.
+                        // You can perform actions here based on the updated text.
+                    }
+                })
+            }
+        }
+    }
+
+    inner class PhoneNumberEditTextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        fun bind(item: DataElementItem) {
+            val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+            val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+            val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 editText.setText(response)
@@ -271,10 +332,10 @@ class ElementAdapter(
 
     inner class CheckBoxViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-            tvName.text = item.name
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 if (response == "Yes") {
@@ -339,8 +400,8 @@ class ElementAdapter(
             }
         }
 
-        fun bind(item: DataElement) {
-            tvName.text = item.name
+        fun bind(item: DataElementItem) {
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 editText.setText(response)
@@ -438,8 +499,8 @@ class ElementAdapter(
             }
         }
 
-        fun bind(item: DataElement) {
-            tvName.text = item.name
+        fun bind(item: DataElementItem) {
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 editText.setText(response)
@@ -451,11 +512,11 @@ class ElementAdapter(
 
     inner class LongEditTextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
             val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-            tvName.text = item.name
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 editText.setText(response)
@@ -499,11 +560,11 @@ class ElementAdapter(
 
     inner class RadioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             val radioButtonYes = itemView.findViewById<RadioButton>(R.id.radioButtonYes)
             val radioButtonNo = itemView.findViewById<RadioButton>(R.id.radioButtonNo)
-            tvName.text = item.name
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 if (response == "Yes") {
@@ -581,12 +642,12 @@ class ElementAdapter(
             }
         }
 
-        fun bind(item: DataElement) {
+        fun bind(item: DataElementItem) {
             optionsList.clear()
             item.optionSet?.options?.forEach {
-                optionsList.add(it.name)
+                optionsList.add(it.displayName)
             }
-            tvName.text = item.name
+            tvName.text = item.displayName
             val response = viewModel.getEventResponse(context, event, item.id)
             if (response != null) {
                 autoCompleteTextView.setText(response, false)

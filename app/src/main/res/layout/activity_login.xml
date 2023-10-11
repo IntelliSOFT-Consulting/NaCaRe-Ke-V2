@@ -161,13 +161,22 @@
         android:layout_below="@+id/login_cardview"
         android:layout_alignParentBottom="true"
         android:gravity="bottom"
+        android:orientation="vertical"
         android:padding="@dimen/_20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="Account Recover"
             android:textAlignment="center"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="For assistance on the National Cancer Registry of\n Kenya System, click here or send an email to\n help@nacare.on.spiceworks.com"
+            android:textAlignment="center"
             android:textColor="@color/white" />
     </LinearLayout>
 </RelativeLayout>

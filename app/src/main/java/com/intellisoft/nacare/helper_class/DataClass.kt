@@ -53,7 +53,7 @@ data class ProgramCategory(
     val id: String,
     val done: String?,
     val total: String?,
-    val elements: List<ProgramStageDataElements>
+    val elements: List<ProgramStageSections>
 )
 
 data class SettingItem(
@@ -89,8 +89,19 @@ data class ProgramData(
     val id: String,
     val name: String,
     val programStages: List<ProgramStages>,
-    val programTrackedEntityAttributes: List<ProgramTrackedEntityAttributes>
+    val programSections: List<ProgramSections>
 
+)
+data class ProgramSections(
+    val name: String,
+    val trackedEntityAttributes: List<TrackedEntityAttributes>,
+)
+
+data class TrackedEntityAttributes(
+    val valueType: String,
+    val id: String,
+    val displayName: String,
+    val optionSet: OptionSet?
 )
 
 data class OrgTreeNode(
@@ -103,7 +114,20 @@ data class OrgTreeNode(
 data class ProgramStages(
     val id: String,
     val name: String,
-    val programStageDataElements: List<ProgramStageDataElements>
+    val programStageSections: List<ProgramStageSections>
+)
+
+data class ProgramStageSections(
+    val id: String,
+    val displayName: String,
+    val dataElements: List<DataElementItem>
+)
+
+data class DataElementItem(
+    val id: String,
+    val displayName: String,
+    val valueType: String,
+    val optionSet: OptionSet?
 )
 
 data class ProgramStageDataElements(
@@ -118,12 +142,21 @@ data class DataElement(
 )
 
 data class OptionSet(
+    val id: String?,
+    val displayName: String?,
     val options: List<Options>
+)
+data class Person(
+    val year: Int,
+    val firstName: String,
+    val middleName: String,
+    val lastName: String,
+    val document: String
 )
 
 data class Options(
     val code: String,
-    val name: String,
+    val displayName: String,
     val id: String,
 )
 

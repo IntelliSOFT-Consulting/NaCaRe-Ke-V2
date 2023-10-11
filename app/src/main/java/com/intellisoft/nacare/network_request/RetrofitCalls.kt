@@ -207,7 +207,7 @@ class RetrofitCalls {
                                 val converters = Converters().toJsonOrgUnit(body)
                                 try {
                                     val json = Gson().fromJson(converters, JsonObject::class.java)
-                                    viewModel.updateChildOrgUnits(context,code,json.toString())
+                                    viewModel.updateChildOrgUnits(context, code, json.toString())
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     Log.e("TAG", "child units error:::: ${e.message}")
@@ -247,13 +247,13 @@ class RetrofitCalls {
                                             val code = it.get("id").asString
                                             val name = it.get("name").asString
                                             val programStages = it.get("programStages").asJsonArray
-                                            val programTrackedEntityAttributes =
-                                                it.get("programTrackedEntityAttributes").asJsonArray
+                                            val programSections =
+                                                it.get("programSections").asJsonArray
                                             val org = ProgramData(
                                                 name = name,
                                                 code = code,
                                                 programStages = programStages.toString(),
-                                                programTrackedEntityAttributes = programTrackedEntityAttributes.toString()
+                                                programTrackedEntityAttributes = programSections.toString()
                                             )
                                             viewModel.addProgram(context, org)
                                         }

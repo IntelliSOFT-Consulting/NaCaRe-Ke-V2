@@ -4,14 +4,22 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.intellisoft.nacare.adapter.ProgramAdapter
+import com.intellisoft.nacare.helper_class.DataElement
+import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.helper_class.OptionSet
+import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.helper_class.ProgramCategory
+import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageDataElements
+import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
@@ -75,18 +83,56 @@ class RegistryActivity : AppCompatActivity() {
 
     private fun loadProgramData(program: ProgramData) {
 //        try {
+        val treeNodes = mutableListOf<ProgramStageSections>()
+        val elements = mutableListOf<DataElementItem>()
         val json = program.programStages
         val gson = Gson()
         val items = gson.fromJson(json, Array<ProgramStages>::class.java)
+
+        val json1 = program.programTrackedEntityAttributes
+        val items1 = gson.fromJson(json1, Array<ProgramSections>::class.java)
+        items1.forEach {
+
+            if (it.name == "SEARCH PATIENT") {
+                it.trackedEntityAttributes.forEach { k ->
+
+                    val del = DataElementItem(
+                        k.id,
+                        k.displayName,
+                        k.valueType,
+                        optionSet = k.optionSet
+                    )
+                    elements.add(del)
+                }
+
+                val pd = ProgramStageSections(
+                    id = it.name,
+                    displayName = it.name,
+                    dataElements = elements
+                )
+                treeNodes.add(pd)
+            }
+        }
+
         dataList.clear()
+        val pr = ProgramCategory(
+            iconResId = R.drawable.home,
+            name = "Patient Details",
+            id = "patient-detail",
+            done = retrieveUserResponses(treeNodes),
+            total = calculateTotalElements(treeNodes),
+            elements = treeNodes
+        )
+        dataList.add(pr)
+
         items.forEach {
             val pd = ProgramCategory(
                 iconResId = R.drawable.home,
                 name = it.name,
                 id = it.id,
-                done = retrieveUserResponses(it.programStageDataElements),
-                total = it.programStageDataElements.size.toString(),
-                elements = it.programStageDataElements
+                done = retrieveUserResponses(it.programStageSections),
+                total = calculateTotalElements(it.programStageSections),
+                elements = it.programStageSections
             )
             dataList.add(pd)
         }
@@ -105,17 +151,31 @@ class RegistryActivity : AppCompatActivity() {
 
     }
 
-    private fun retrieveUserResponses(data: List<ProgramStageDataElements>): String {
+    private fun calculateTotalElements(data: List<ProgramStageSections>): String {
         var count = 0
-        data.forEach {
-            val response =
-                viewModel.getEventResponse(
-                    this@RegistryActivity,
-                    eventData.id.toString(),
-                    it.dataElement.id
-                )
-            if (response != null) {
-                count++
+        if (data.isNotEmpty()) {
+            data.forEach {
+                val total = it.dataElements.size
+                count += total
+            }
+        }
+        return "$count"
+
+    }
+
+    private fun retrieveUserResponses(data: List<ProgramStageSections>): String {
+        var count = 0
+        if (data.isNotEmpty()) {
+            data.first().dataElements.forEach {
+                val response =
+                    viewModel.getEventResponse(
+                        this@RegistryActivity,
+                        eventData.id.toString(),
+                        it.id
+                    )
+                if (response != null) {
+                    count++
+                }
             }
         }
 
@@ -124,16 +184,30 @@ class RegistryActivity : AppCompatActivity() {
 
     private fun handleClick(data: ProgramCategory) {
 
-        val converters = Converters().toJsonElements(data.elements)
-        val json = Gson().fromJson(converters, JsonArray::class.java)
-        val bundle = Bundle()
-        bundle.putString("code", data.id)
-        bundle.putString("name", data.name)
-        bundle.putString("programStageDataElements", json.toString())
-        bundle.putString("event", event)
-        val intent = Intent(this@RegistryActivity, ResponderActivity::class.java)
-        intent.putExtra("data", bundle)
-        startActivity(intent)
+        if (data.total!! > 0.toString()) {
+            val converters = Converters().toJsonElements(data.elements)
+            val json = Gson().fromJson(converters, JsonArray::class.java)
+            val bundle = Bundle()
+            bundle.putString("code", data.id)
+            bundle.putString("name", data.name)
+            bundle.putString("programStageDataElements", json.toString())
+            bundle.putString("event", event)
+
+            val d = if (data.name == "Patient Details") {
+                PatientSearchActivity::class.java
+            } else {
+                ResponderActivity::class.java
+            }
+            val intent = Intent(this@RegistryActivity, d)
+            intent.putExtra("data", bundle)
+            startActivity(intent)
+        } else {
+            Toast.makeText(
+                this@RegistryActivity,
+                "No Indicator Elements, please try again later",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun onBackPressed() {

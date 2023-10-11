@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.intellisoft.nacare.adapter.ElementAdapter
 import com.intellisoft.nacare.helper_class.DataElement
+import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramStageDataElements
+import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.nacare.ke.capture.databinding.ActivityResponderBinding
@@ -20,8 +22,7 @@ class ResponderActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var eventData: EventData
     private val formatterClass = FormatterClass()
-
-    private val dataList: MutableList<DataElement> = mutableListOf()
+    private val dataList: MutableList<DataElementItem> = mutableListOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResponderBinding.inflate(layoutInflater)
@@ -66,11 +67,20 @@ class ResponderActivity : AppCompatActivity() {
 
     private fun displayDataElements(json: String, eventData: EventData) {
         val gson = Gson()
-        val items = gson.fromJson(json, Array<ProgramStageDataElements>::class.java)
+        val items = gson.fromJson(json, Array<ProgramStageSections>::class.java)
+        dataList.clear()
         items.forEach {
-            dataList.add(it.dataElement)
+            it.dataElements.forEach { t ->
+                dataList.add(t)
+            }
+
         }
-        val ad = ElementAdapter(this@ResponderActivity,layoutInflater, dataList, eventData.id.toString())
+        val ad = ElementAdapter(
+            this@ResponderActivity,
+            layoutInflater,
+            dataList,
+            eventData.id.toString()
+        )
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@ResponderActivity)
             adapter = ad

@@ -66,11 +66,20 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+        binding.orgHolder.apply {
+
+        }
         binding.btnNext.apply {
             setOnClickListener {
                 val code = generateCode(binding.edtOrg.text.toString())
                 val name = binding.edtOrg.text.toString()
                 val date = binding.edtDate.text.toString()
+
+                if (name.isEmpty()) {
+                    binding.orgHolder.error = "Please select unit"
+                    binding.edtOrg.requestFocus()
+                    return@setOnClickListener
+                }
                 val data = EventData(
                     date = date,
                     orgUnitCode = code,
@@ -101,6 +110,7 @@ class HomeFragment : Fragment() {
                     children = generateChild(converters.children)
                 )
                 treeNodes.add(orgNode)
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

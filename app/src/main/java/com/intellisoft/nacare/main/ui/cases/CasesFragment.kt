@@ -62,6 +62,7 @@ class CasesFragment : Fragment() {
             val bundle = Bundle()
             val converters = Converters().toJsonEvent(event)
             bundle.putString("event", converters)
+            formatterClass.saveSharedPref("event", converters, requireContext())
             val intent = Intent(requireContext(), RegistryActivity::class.java)
             intent.putExtra("data", bundle)
             startActivity(intent)

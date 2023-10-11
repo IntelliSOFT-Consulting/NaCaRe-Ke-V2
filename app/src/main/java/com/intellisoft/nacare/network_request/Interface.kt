@@ -15,7 +15,7 @@ interface Interface {
     suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
 
 
-    @GET("/api/40/programs?filter=name:ilike:notification&fields=name,id,programTrackedEntityAttributes[id,name,valueType],programStages[id,name,programStageDataElements[dataElement[name,id,valueType,optionSet[options[id,name,code]]]]")
+    @GET("/api/40/programs?fields=id,name,trackedEntityType, programStages[id,name,programStageSections[id,displayName,dataElements[id,displayName,description,compulsory,valueType,optionSet[id,displayName,options[id,displayName,code]]]]],programSections[name,trackedEntityAttributes[description,id,displayName,valueType,optionSet[options[id,displayName, code]]]&filter=name:ilike:notification")
     suspend fun loadPrograms(): Response<ProgramResponse>
 
 }

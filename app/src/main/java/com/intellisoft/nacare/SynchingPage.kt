@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.intellisoft.nacare.auth.Login
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.PinLockStatus
 import com.intellisoft.nacare.main.DashboardActivity
@@ -43,18 +44,18 @@ class SynchingPage : AppCompatActivity() {
                 delay(3000)
                 CoroutineScope(Dispatchers.Main).launch {
                     val completed = formatterClass.getSharedPref(
-                        PinLockStatus.CONFIRMED.name,
+                        "isLoggedIn",
                         this@SynchingPage
                     )
-                    /*if (completed == null) {*/
-                    val intent = Intent(this@SynchingPage, DashboardActivity::class.java)
-                    startActivity(intent)
+                    if (completed == "true") {
+                        val intent = Intent(this@SynchingPage, DashboardActivity::class.java)
+                        startActivity(intent)
+                        this@SynchingPage.finish()
+                    } else {
+                        val intent = Intent(this@SynchingPage, Login::class.java)
+                        startActivity(intent)
+                    }
                     this@SynchingPage.finish()
-//          }else{
-//            val intent = Intent(this@SynchingPage, PinActivity::class.java)
-//            startActivity(intent)
-//          }
-//          this@SynchingPage.finish()
                 }
             }
         }
