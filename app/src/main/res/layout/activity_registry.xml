@@ -25,14 +25,89 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/appBarLayout"
-            tools:listitem="@layout/item_program" />
+            android:orientation="vertical"
+            android:padding="@dimen/_15dp">
 
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Facility Details Capture Tool"
+                android:textAlignment="textStart" />
+
+            <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/materialCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15dp"
+                android:layout_marginBottom="@dimen/_15dp"
+                android:elevation="@dimen/_20dp"
+                app:cardCornerRadius="@dimen/_5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/leftIconImageView"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="@dimen/_8dp"
+                            android:src="@drawable/facilitycap" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/eventTextView"
+                                style="@style/TextAppearance.MaterialComponents.Body2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Facility Tool"
+                                android:textSize="14sp" />
+
+                            <TextView
+
+                                style="@style/TextAppearance.MaterialComponents.Body2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="View Only"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="National Cancer Registry of Kenya Notification Form"
+                android:textAlignment="textStart" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/item_program" />
+        </LinearLayout>
     </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

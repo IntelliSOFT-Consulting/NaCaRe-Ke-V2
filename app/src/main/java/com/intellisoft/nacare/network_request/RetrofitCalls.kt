@@ -5,19 +5,22 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ProgressBar
+import androidx.room.ColumnInfo
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.main.registry.PatientListActivity
 import com.intellisoft.nacare.main.registry.PatientSearchActivity
+import com.intellisoft.nacare.models.Constants.FACILITY_TOOL
 import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
+import com.intellisoft.nacare.room.FacilityEventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.OrganizationData
 import com.intellisoft.nacare.room.ProgramData
+import com.intellisoft.nacare.viewmodels.NetworkViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -266,6 +269,7 @@ class RetrofitCalls {
                                             val programSections =
                                                 it.get("programSections").asJsonArray
                                             val org = ProgramData(
+                                                type = "notification",
                                                 name = name,
                                                 code = code,
                                                 programStages = programStages.toString(),
@@ -290,14 +294,163 @@ class RetrofitCalls {
         }
     }
 
+    fun loadFacilityTool(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val formatterClass = FormatterClass()
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                try {
+                    val apiInterface = apiService.loadFacility()
+                    if (apiInterface.isSuccessful) {
+                        val statusCode = apiInterface.code()
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+
+                                val converters = Converters().toJsonFacilityProgram(body)
+                                try {
+                                    val json = Gson().fromJson(converters, JsonObject::class.java)
+                                    val data = json.getAsJsonArray("programs")
+                                    data.forEach {
+                                        if (it is JsonObject) {
+                                            val code = it.get("id").asString
+                                            val name = it.get("name").asString
+                                            formatterClass.saveSharedPref(
+                                                FACILITY_TOOL,
+                                                code, context
+                                            )
+                                            val programStages = it.get("programStages").asJsonArray
+                                            val org = ProgramData(
+                                                type = "facility",
+                                                name = name,
+                                                code = code,
+                                                programStages = programStages.toString(),
+                                                programTrackedEntityAttributes = programStages.toString()
+                                            )
+                                            viewModel.addProgram(context, org)
+                                            loadFacilityEvents(context, code)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Success Error:::: ${e.message}")
+
+                }
+            }
+        }
+    }
+
+
+    private fun loadFacilityEvents(context: Context, code: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val formatterClass = FormatterClass()
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                try {
+                    val apiInterface = apiService.loadEvents(code)
+                    if (apiInterface.isSuccessful) {
+                        val statusCode = apiInterface.code()
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+
+                                val converters = Converters().toJsonFacilityEventProgram(body)
+                                try {
+                                    val json = Gson().fromJson(converters, JsonObject::class.java)
+                                    val data = json.getAsJsonArray("instances")
+                                    data.forEach {
+                                        if (it is JsonObject) {
+                                            val event = it.get("event").asString
+                                            val status = it.get("status").asString
+                                            val programStage = it.get("programStage").asString
+                                            val orgUnit = it.get("orgUnit").asString
+                                            val dataValues = it.get("dataValues").asJsonArray
+                                            val org = FacilityEventData(
+                                                userId = "",
+                                                event = event,
+                                                status = status,
+                                                programStage = programStage,
+                                                orgUnit = orgUnit,
+                                                dataValues = dataValues.toString(),
+                                                responses = "",
+                                            )
+                                            viewModel.addFacilityEventData(context, org)
+                                            updateEventResponses(context, event)
+
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Facility Events Error:::: ${e.message}")
+
+                }
+            }
+        }
+    }
+
+    private fun updateEventResponses(context: Context, code: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val formatterClass = FormatterClass()
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                try {
+                    val apiInterface = apiService.loadEventData(code)
+                    if (apiInterface.isSuccessful) {
+                        val statusCode = apiInterface.code()
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+                                Log.e("TAG", "Event Data Responses $body")
+                                val converters = Converters().toJsonFacilityEventData(body)
+                                val json = Gson().fromJson(converters, JsonObject::class.java)
+                                viewModel.updateEventDataValues(context, code, json.toString())
+
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Facility Events Error:::: ${e.message}")
+
+                }
+            }
+        }
+    }
+
     fun performPatientSearch(
         context: Context,
         eventData: EventData,
         progressBar: ProgressBar,
-        searchParametersString: String
+        searchParametersString: String,
+        networkModel: NetworkViewModel
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val viewModel = MainViewModel(context.applicationContext as Application)
+        CoroutineScope(Dispatchers.Main).launch {
             val formatterClass = FormatterClass()
             val baseUrl = formatterClass.getSharedPref("serverUrl", context)
             val username = formatterClass.getSharedPref("username", context)
@@ -306,14 +459,14 @@ class RetrofitCalls {
                 val apiService =
                     RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
                 try {
-                    progressBar.visibility = View.VISIBLE
+
                     val apiInterface = apiService.searchPatient(filter = searchParametersString)
                     if (apiInterface.isSuccessful) {
                         val statusCode = apiInterface.code()
                         val body = apiInterface.body()
                         if (statusCode == 200) {
+                            networkModel.setBooleanValue(false)
                             if (body != null) {
-                                progressBar.visibility = View.GONE
                                 val converters = Converters().toJsonPatientSearch(body)
                                 try {
                                     val bundle = Bundle()
@@ -329,7 +482,6 @@ class RetrofitCalls {
                                     (context as PatientSearchActivity).finish()
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    progressBar.visibility = View.GONE
                                     Log.e("TAG", "json err:::: ${e.message}")
                                 }
                             }
@@ -338,7 +490,7 @@ class RetrofitCalls {
                 } catch (e: Exception) {
                     print(e)
                     Log.e("TAG", "Success Error:::: ${e.message}")
-                    progressBar.visibility = View.GONE
+                    networkModel.setBooleanValue(false)
 
                 }
             }

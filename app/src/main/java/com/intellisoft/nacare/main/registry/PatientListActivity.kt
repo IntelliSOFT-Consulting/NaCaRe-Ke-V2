@@ -138,7 +138,7 @@ class PatientListActivity : AppCompatActivity() {
     }
 
     private fun loadInitialData(): ProgramCategory? {
-        val data = viewModel.loadProgram(this)
+        val data = viewModel.loadProgram(this, "notification")
 
         if (data != null) {
             program = data

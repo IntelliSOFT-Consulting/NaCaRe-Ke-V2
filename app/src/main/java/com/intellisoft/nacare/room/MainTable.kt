@@ -23,6 +23,7 @@ data class OrganizationData(
 
 @Entity(tableName = "programs")
 data class ProgramData(
+    val type: String,
     val name: String,
     val code: String,
     @ColumnInfo(name = "programStages")
@@ -46,7 +47,24 @@ data class ElementResponse(
     val indicatorId: String,
     val value: String,
 ) {
-    @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}
+
+@Entity(tableName = "facility_event_data")
+data class FacilityEventData(
+    var userId: String,
+    val event: String,
+    var status: String,
+    val programStage: String,
+    val orgUnit: String,
+    @ColumnInfo(name = "dataValues")
+    val dataValues: String,
+    @ColumnInfo(name = "responses")
+    val responses: String,
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 @Entity(tableName = "events")

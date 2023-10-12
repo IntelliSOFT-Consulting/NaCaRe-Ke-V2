@@ -34,8 +34,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addProgram(context, data)
     }
 
-    fun loadProgram(context: Context) = runBlocking {
-        repository.loadProgram(context)
+    fun loadProgram(context: Context, type: String) = runBlocking {
+        repository.loadProgram(context, type)
     }
 
     fun loadLatestEvent(context: Context) = runBlocking {
@@ -61,6 +61,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateChildOrgUnits(context: Context, code: String, children: String) = runBlocking {
         repository.updateChildOrgUnits(context, code, children)
+    }
+
+    fun addFacilityEventData(context: Context, data: FacilityEventData) = runBlocking {
+        repository.addFacilityEventData(context, data)
+    }
+
+    fun updateEventDataValues(context: Context, event: String, responses: String)= runBlocking {
+        repository.updateEventDataValues(context, event,responses)
+    }
+
+    fun loadFacilityEvents(context: Context, code: String)= runBlocking {
+        repository.loadFacilityEvents(context, code)
     }
 
 

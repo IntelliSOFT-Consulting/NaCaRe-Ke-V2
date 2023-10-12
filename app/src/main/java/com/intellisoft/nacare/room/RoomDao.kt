@@ -39,8 +39,8 @@ interface RoomDao {
         code: String
     )
 
-    @Query("SELECT * FROM programs ORDER BY id DESC LIMIT 1")
-    fun loadProgram(): ProgramData?
+    @Query("SELECT * FROM programs where type=:type ORDER BY id DESC LIMIT 1")
+    fun loadProgram(type: String): ProgramData?
 
     @Query("SELECT * FROM events ORDER BY id DESC LIMIT 1")
     fun loadLatestEvent(): EventData?
@@ -52,10 +52,16 @@ interface RoomDao {
     fun addResponse(res: ElementResponse)
 
     @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE userId =:userId AND patientId=:patientId AND eventId =:event AND indicatorId =:element)")
-    fun checkResponse(userId: String,patientId: String, event: String, element: String): Boolean
+    fun checkResponse(userId: String, patientId: String, event: String, element: String): Boolean
 
     @Query("UPDATE responses SET value =:response WHERE  userId =:userId AND patientId =:patientId AND eventId =:event AND indicatorId =:element")
-    fun updateResponse(response: String, userId: String,patientId: String, event: String, element: String)
+    fun updateResponse(
+        response: String,
+        userId: String,
+        patientId: String,
+        event: String,
+        element: String
+    )
 
     @Query("DELETE FROM responses  WHERE  userId =:userId AND eventId =:event AND indicatorId =:element")
     fun deleteResponse(userId: String, event: String, element: String)
@@ -66,6 +72,22 @@ interface RoomDao {
     @Query(
         "SELECT value FROM responses WHERE userId =:userId AND patientId =:patientId AND indicatorId =:indicatorId AND eventId =:eventId"
     )
-    fun getEventResponse(userId: String, patientId: String, indicatorId: String, eventId: String): String?
+    fun getEventResponse(
+        userId: String,
+        patientId: String,
+        indicatorId: String,
+        eventId: String
+    ): String?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addFacilityEventData(data: FacilityEventData)
+    @Query("SELECT EXISTS (SELECT 1 FROM facility_event_data WHERE event =:event)")
+    fun checkFacility(event: String): Boolean
+    @Query("UPDATE facility_event_data SET dataValues =:dataValues WHERE  event =:event")
+    fun updateFacilityEventData(event: String, dataValues: String)
+    @Query("UPDATE facility_event_data SET responses =:responses WHERE  event =:event")
+    fun updateFacilityEventResponseData(event: String, responses: String)
+    @Query("SELECT * FROM facility_event_data where orgUnit =:orgUnit ORDER BY id DESC LIMIT 1")
+    fun loadFacilityEvents(orgUnit: String): FacilityEventData?
 
 }

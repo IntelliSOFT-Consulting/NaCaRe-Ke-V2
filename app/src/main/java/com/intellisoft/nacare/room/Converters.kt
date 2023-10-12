@@ -61,4 +61,18 @@ class Converters {
         return gson.toJson(data)
     }
 
+    fun toJsonFacilityProgram(data: FacilityProgramResponse): String {
+        return gson.toJson(data)
+    }
+
+    fun toJsonFacilityEventProgram(data: EventResponse): String {
+        return gson.toJson(data)
+    }
+
+    fun toJsonFacilityEventData(data: EventDataResponse): String {
+        return gson.toJson(data)
+    }
+
+
+
 }

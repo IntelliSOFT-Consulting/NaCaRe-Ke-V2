@@ -33,6 +33,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name="com.intellisoft.nacare.main.facility.FacilityActivity"
+            android:exported="false"
+            android:theme="@style/NoActionBar" />
+        <activity
             android:name="com.intellisoft.nacare.main.registry.PatientListActivity"
             android:exported="false"
             android:theme="@style/NoActionBar" />

@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/materialCardView"
-    android:layout_margin="@dimen/_5dp"
-    android:elevation="@dimen/_10dp"
+    android:elevation="@dimen/_20dp"
     app:cardCornerRadius="@dimen/_5dp">
 
     <LinearLayout

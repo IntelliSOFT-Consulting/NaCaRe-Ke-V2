@@ -16,6 +16,7 @@ import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.ProgramStages
+import com.intellisoft.nacare.main.facility.FacilityActivity
 import com.intellisoft.nacare.models.Constants.PATIENT_ID
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
@@ -52,10 +53,46 @@ class RegistryActivity : AppCompatActivity() {
         viewModel = MainViewModel((this.applicationContext as Application))
         loadInitialData()
 
+        binding.apply {
+            materialCardView.setOnClickListener {
+                val code = formatterClass.getSharedPref("code", this@RegistryActivity)
+                val name = formatterClass.getSharedPref("name", this@RegistryActivity)
+                if (code != null && name != null) {
+                    loadFacilityEvents(code, name)
+                } else {
+                    Toast.makeText(this@RegistryActivity, "Please try again", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+
+    }
+
+    private fun loadFacilityEvents(code: String, name: String) {
+        val data = viewModel.loadFacilityEvents(this@RegistryActivity, code)
+        if (data != null) {
+
+            if (data.dataValues.isNotEmpty()) {
+                val bundle = Bundle()
+                bundle.putString("code", code)
+                bundle.putString("name", name)
+                bundle.putString("dataValues", data.dataValues)
+                val intent = Intent(this@RegistryActivity, FacilityActivity::class.java)
+                intent.putExtra("data", bundle)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this@RegistryActivity, "Please try again", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        } else {
+            Toast.makeText(this@RegistryActivity, "Please try again", Toast.LENGTH_SHORT)
+                .show()
+        }
+
     }
 
     private fun loadInitialData() {
-        val data = viewModel.loadProgram(this)
+        val data = viewModel.loadProgram(this, "notification")
 
         if (data != null) {
             program = data

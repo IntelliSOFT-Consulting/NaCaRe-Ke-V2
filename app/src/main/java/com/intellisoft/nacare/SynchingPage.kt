@@ -30,6 +30,7 @@ class SynchingPage : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             retrofitCalls.loadOrganization(this@SynchingPage)
             retrofitCalls.loadPrograms(this@SynchingPage)
+            retrofitCalls.loadFacilityTool(this@SynchingPage)
         }
     }
 

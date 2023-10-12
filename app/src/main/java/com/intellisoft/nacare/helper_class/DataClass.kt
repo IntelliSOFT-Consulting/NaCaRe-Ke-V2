@@ -57,6 +57,16 @@ data class ProgramCategory(
     val position: String
 )
 
+data class FacilityProgramCategory(
+    val iconResId: Int?,
+    val name: String,
+    val id: String,
+    val done: String?,
+    val total: String?,
+    val elements: List<DataElementItem>,
+    val position: String
+)
+
 data class SettingItem(
     val title: String,
     val innerList: SettingItemChild,
@@ -74,9 +84,57 @@ data class SettingItemChild(
     val buttonName: String,
 )
 
+data class EventResponse(
+    val page: String,
+    val pageSizeval: String,
+    val instances: List<InstanceData>
+)
+
+data class EventDataResponse(
+    val event: String,
+    val status: String,
+    val program: String,
+    val programStage: String,
+    val enrollment: String,
+    val orgUnit: String,
+    val orgUnitName: String,
+    val dataValues: List<DataValueData>
+
+)
+
+data class InstanceData(
+    val event: String,
+    val status: String,
+    val programStage: String,
+    val orgUnit: String,
+    val occurredAt: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val dataValues: List<DataValueData>
+)
+
+data class DataValueData(
+    val createdAt: String,
+    val updatedAt: String,
+    val dataElement: String,
+    val value: String,
+    val providedElsewhere: Boolean = false
+)
+
 data class ProgramResponse(
     val pager: Pager,
     val programs: List<ProgramData>
+)
+
+data class FacilityProgramResponse(
+    val pager: Pager,
+    val programs: List<FacilityProgramData>
+)
+
+data class FacilityProgramData(
+    val name: String,
+    val id: String,
+    val programStages: List<ProgramStages>
 )
 
 data class SearchPatientResponse(

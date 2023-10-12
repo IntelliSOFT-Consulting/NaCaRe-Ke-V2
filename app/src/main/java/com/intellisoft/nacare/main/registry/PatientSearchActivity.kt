@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -22,8 +23,11 @@ import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils.isOnline
 import com.intellisoft.nacare.util.AppUtils.noConnection
+import com.intellisoft.nacare.viewmodels.NetworkViewModel
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityPatientSearchBinding
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 
 class PatientSearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientSearchBinding
@@ -34,6 +38,7 @@ class PatientSearchActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
     private val retrofitCalls = RetrofitCalls()
     private val collectedInputs = mutableListOf<CodeValue>()
+    private lateinit var networkModel: NetworkViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientSearchBinding.inflate(layoutInflater)
@@ -106,19 +111,30 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
             }
         }
+        networkModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
+
+        // Observe boolean data changes
+        networkModel.booleanData.observe(this, Observer { boolean ->
+            if (boolean) {
+                binding.progressBar.visibility = View.VISIBLE
+            } else {
+                binding.progressBar.visibility = View.GONE
+            }
+        })
     }
 
     private fun performPatientSearch(collectedInputs: MutableList<CodeValue>) {
         if (isOnline(this@PatientSearchActivity)) {
-
             val searchParametersString =
                 collectedInputs.joinToString(separator = ",") { filterItem ->
                     "${filterItem.id}:ilike:${filterItem.value}"
                 }
+            binding.progressBar.visibility = View.VISIBLE
+            networkModel.setBooleanValue(true)
             retrofitCalls.performPatientSearch(
                 this@PatientSearchActivity,
                 eventData,
-                binding.progressBar,searchParametersString
+                binding.progressBar, searchParametersString,networkModel
             )
         } else {
             noConnection(this@PatientSearchActivity)
