@@ -6,22 +6,24 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.intellisoft.nacare.adapter.ElementAdapter
-import com.intellisoft.nacare.adapter.TreeAdapter
+import com.intellisoft.nacare.helper_class.CodeValue
 import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramStageSections
+import com.intellisoft.nacare.network_request.RetrofitCalls
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
+import com.intellisoft.nacare.util.AppUtils.isOnline
+import com.intellisoft.nacare.util.AppUtils.noConnection
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityPatientSearchBinding
-import com.nacare.ke.capture.databinding.ActivityResponderBinding
 
 class PatientSearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientSearchBinding
@@ -30,6 +32,8 @@ class PatientSearchActivity : AppCompatActivity() {
     private val formatterClass = FormatterClass()
     private val dataList: MutableList<DataElementItem> = mutableListOf()
     private lateinit var dialog: AlertDialog
+    private val retrofitCalls = RetrofitCalls()
+    private val collectedInputs = mutableListOf<CodeValue>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientSearchBinding.inflate(layoutInflater)
@@ -53,9 +57,7 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
                 supportActionBar?.apply {
                     title = name
-//                    subtitle = "$date | $org"
                     setDisplayHomeAsUpEnabled(true)
-//            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
 
                 }
 
@@ -64,9 +66,62 @@ class PatientSearchActivity : AppCompatActivity() {
         binding.apply {
 
             nextButton.setOnClickListener {
-//                this@ResponderActivity.finish()
-                showPatientSearchWarning()
+
+                for (i in 0 until binding.recyclerView.adapter!!.itemCount) {
+                    when (val viewHolder = recyclerView.findViewHolderForAdapterPosition(i)) {
+                        is ElementAdapter.EditTextViewHolder -> {
+                            val input = viewHolder.editText.text.toString()
+                            val code = viewHolder.tvElement.text.toString()
+                            if (input.isNotEmpty()) {
+                                val dt = CodeValue(
+                                    id = code,
+                                    value = input
+                                )
+                                collectedInputs.add(dt)
+                            }
+                        }
+
+                        is ElementAdapter.AutoCompleteViewHolder -> {
+                            val input = viewHolder.autoCompleteTextView.text.toString()
+                            val code = viewHolder.tvElement.text.toString()
+                            if (input.isNotEmpty()) {
+                                val dt = CodeValue(
+                                    id = code,
+                                    value = input
+                                )
+                                collectedInputs.add(dt)
+                            }
+                        }
+                    }
+                }
+
+                if (collectedInputs.size > 0) {
+                    performPatientSearch(collectedInputs)
+                } else {
+                    Toast.makeText(
+                        this@PatientSearchActivity,
+                        "Please provide and input",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+        }
+    }
+
+    private fun performPatientSearch(collectedInputs: MutableList<CodeValue>) {
+        if (isOnline(this@PatientSearchActivity)) {
+
+            val searchParametersString =
+                collectedInputs.joinToString(separator = ",") { filterItem ->
+                    "${filterItem.id}:ilike:${filterItem.value}"
+                }
+            retrofitCalls.performPatientSearch(
+                this@PatientSearchActivity,
+                eventData,
+                binding.progressBar,searchParametersString
+            )
+        } else {
+            noConnection(this@PatientSearchActivity)
         }
     }
 
@@ -102,7 +157,6 @@ class PatientSearchActivity : AppCompatActivity() {
             it.dataElements.forEach { t ->
                 dataList.add(t)
             }
-
         }
         val ad = ElementAdapter(
             this@PatientSearchActivity, layoutInflater, dataList, eventData.id.toString()

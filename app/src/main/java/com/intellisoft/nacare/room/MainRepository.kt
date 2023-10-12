@@ -2,6 +2,8 @@ package com.intellisoft.nacare.room
 
 import android.content.Context
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.models.Constants
+import com.intellisoft.nacare.models.Constants.PATIENT_ID
 
 class MainRepository(private val roomDao: RoomDao) {
     private val formatterClass = FormatterClass()
@@ -93,20 +95,23 @@ class MainRepository(private val roomDao: RoomDao) {
     fun addResponse(context: Context, event: String, element: String, response: String) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            val exists = roomDao.checkResponse(userId, event, element)
-            if (exists) {
-                roomDao.updateResponse(response, userId, event, element)
-            } else {
-                val res = ElementResponse(
-                    eventId = event,
-                    userId = userId,
-                    indicatorId = element,
-                    value = response
-                )
-                roomDao.addResponse(res)
+            val patient = formatterClass.getSharedPref(PATIENT_ID, context)
+            if (patient != null) {
+                val exists = roomDao.checkResponse(userId, patient.toString(), event, element)
+                if (exists) {
+                    roomDao.updateResponse(response, userId, patient.toString(), event, element)
+                } else {
+                    val res = ElementResponse(
+                        eventId = event,
+                        userId = userId,
+                        indicatorId = element,
+                        value = response,
+                        patientId = patient.toString()
+                    )
+                    roomDao.addResponse(res)
+                }
             }
         }
-
     }
 
     fun deleteResponse(context: Context, event: String, element: String) {
@@ -126,7 +131,8 @@ class MainRepository(private val roomDao: RoomDao) {
     fun getEventResponse(context: Context, event: String, code: String): String? {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-          return  roomDao.getEventResponse(userId, code, event)
+            val patientId = formatterClass.getSharedPref(PATIENT_ID, context)
+            return roomDao.getEventResponse(userId, patientId.toString(), code, event)
         }
         return null
     }

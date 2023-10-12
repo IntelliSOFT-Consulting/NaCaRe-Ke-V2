@@ -42,6 +42,7 @@ data class ProgramData(
 data class ElementResponse(
     var userId: String,
     val eventId: String,
+    var patientId: String,
     val indicatorId: String,
     val value: String,
 ) {

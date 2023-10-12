@@ -2,25 +2,21 @@ package com.intellisoft.nacare.main.registry
 
 import android.app.Application
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.intellisoft.nacare.adapter.ProgramAdapter
-import com.intellisoft.nacare.helper_class.DataElement
 import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.helper_class.OptionSet
-import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramSections
-import com.intellisoft.nacare.helper_class.ProgramStageDataElements
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.ProgramStages
+import com.intellisoft.nacare.models.Constants.PATIENT_ID
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
@@ -84,7 +80,8 @@ class RegistryActivity : AppCompatActivity() {
     private fun loadProgramData(program: ProgramData) {
 //        try {
         val treeNodes = mutableListOf<ProgramStageSections>()
-        val elements = mutableListOf<DataElementItem>()
+        val allTreeNodes = mutableListOf<ProgramStageSections>()
+
         val json = program.programStages
         val gson = Gson()
         val items = gson.fromJson(json, Array<ProgramStages>::class.java)
@@ -92,47 +89,69 @@ class RegistryActivity : AppCompatActivity() {
         val json1 = program.programTrackedEntityAttributes
         val items1 = gson.fromJson(json1, Array<ProgramSections>::class.java)
         items1.forEach {
-
+            val combined = mutableListOf<DataElementItem>()
+            val elements = mutableListOf<DataElementItem>()
             if (it.name == "SEARCH PATIENT") {
                 it.trackedEntityAttributes.forEach { k ->
-
                     val del = DataElementItem(
                         k.id,
                         k.displayName,
                         k.valueType,
                         optionSet = k.optionSet
                     )
-                    elements.add(del)
+                    combined.add(del)
                 }
 
                 val pd = ProgramStageSections(
                     id = it.name,
                     displayName = it.name,
-                    dataElements = elements
+                    dataElements = combined
                 )
-                treeNodes.add(pd)
+                allTreeNodes.add(pd)
             }
+            it.trackedEntityAttributes.forEach { k ->
+                val del = DataElementItem(
+                    k.id,
+                    k.displayName,
+                    k.valueType,
+                    optionSet = k.optionSet
+                )
+                elements.add(del)
+            }
+
+            val pd = ProgramStageSections(
+                id = it.name,
+                displayName = it.name,
+                dataElements = elements
+            )
+            treeNodes.add(pd)
         }
 
         dataList.clear()
+
+//        val combinedList = (treeNodes + allTreeNodes).toMutableList()
+
         val pr = ProgramCategory(
             iconResId = R.drawable.home,
             name = "Patient Details",
             id = "patient-detail",
             done = retrieveUserResponses(treeNodes),
             total = calculateTotalElements(treeNodes),
-            elements = treeNodes
+            elements = allTreeNodes,
+            position = "0"
         )
         dataList.add(pr)
 
-        items.forEach {
+        items.forEachIndexed { index, it ->
             val pd = ProgramCategory(
                 iconResId = R.drawable.home,
                 name = it.name,
                 id = it.id,
-                done = retrieveUserResponses(it.programStageSections),
+                done = retrievePatientResponses(it.programStageSections),
                 total = calculateTotalElements(it.programStageSections),
-                elements = it.programStageSections
+                elements = it.programStageSections,
+                position = index.toString()
+
             )
             dataList.add(pd)
         }
@@ -149,6 +168,25 @@ class RegistryActivity : AppCompatActivity() {
               e.printStackTrace()
           }*/
 
+    }
+
+    private fun retrievePatientResponses(data: List<ProgramStageSections>): String? {
+        var count = 0
+        if (data.isNotEmpty()) {
+            data.last().dataElements.forEach {
+                val response =
+                    viewModel.getEventResponse(
+                        this@RegistryActivity,
+                        eventData.id.toString(),
+                        it.id
+                    )
+                if (response != null) {
+                    count++
+                }
+            }
+        }
+
+        return "$count"
     }
 
     private fun calculateTotalElements(data: List<ProgramStageSections>): String {
@@ -192,11 +230,25 @@ class RegistryActivity : AppCompatActivity() {
             bundle.putString("name", data.name)
             bundle.putString("programStageDataElements", json.toString())
             bundle.putString("event", event)
+            controlNavigation(data)
 
             val d = if (data.name == "Patient Details") {
                 PatientSearchActivity::class.java
             } else {
                 ResponderActivity::class.java
+            }
+
+            if (data.name != "Patient Details") {
+                val patient = formatterClass.getSharedPref(PATIENT_ID, this@RegistryActivity)
+                if (patient.isNullOrEmpty()) {
+                    Toast.makeText(
+                        this@RegistryActivity,
+                        "Please specify patient details",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    return
+                }
             }
             val intent = Intent(this@RegistryActivity, d)
             intent.putExtra("data", bundle)
@@ -208,6 +260,14 @@ class RegistryActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun controlNavigation(data: ProgramCategory) {
+        formatterClass.saveSharedPref("program", data.name, this@RegistryActivity)
+        if (data.name == "Patient Details") {
+            formatterClass.deleteSharedPref(PATIENT_ID, this@RegistryActivity)
+        }
+
     }
 
     override fun onBackPressed() {

@@ -51,11 +51,11 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addResponse(res: ElementResponse)
 
-    @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE userId =:userId AND eventId =:event AND indicatorId =:element)")
-    fun checkResponse(userId: String, event: String, element: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE userId =:userId AND patientId=:patientId AND eventId =:event AND indicatorId =:element)")
+    fun checkResponse(userId: String,patientId: String, event: String, element: String): Boolean
 
-    @Query("UPDATE responses SET value =:response WHERE  userId =:userId AND eventId =:event AND indicatorId =:element")
-    fun updateResponse(response: String, userId: String, event: String, element: String)
+    @Query("UPDATE responses SET value =:response WHERE  userId =:userId AND patientId =:patientId AND eventId =:event AND indicatorId =:element")
+    fun updateResponse(response: String, userId: String,patientId: String, event: String, element: String)
 
     @Query("DELETE FROM responses  WHERE  userId =:userId AND eventId =:event AND indicatorId =:element")
     fun deleteResponse(userId: String, event: String, element: String)
@@ -64,8 +64,8 @@ interface RoomDao {
     fun updateChildOrgUnits(code: String, children: String)
 
     @Query(
-        "SELECT value FROM responses WHERE userId =:userId AND indicatorId =:indicatorId AND eventId =:eventId"
+        "SELECT value FROM responses WHERE userId =:userId AND patientId =:patientId AND indicatorId =:indicatorId AND eventId =:eventId"
     )
-    fun getEventResponse(userId: String, indicatorId: String, eventId: String): String?
+    fun getEventResponse(userId: String, patientId: String, indicatorId: String, eventId: String): String?
 
 }

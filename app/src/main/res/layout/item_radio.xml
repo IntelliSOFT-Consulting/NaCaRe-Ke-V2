@@ -12,6 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/_10dp" />
 
+    <TextView
+        android:id="@+id/tv_element"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_10dp" />
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

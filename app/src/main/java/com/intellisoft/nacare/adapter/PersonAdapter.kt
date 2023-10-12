@@ -32,7 +32,7 @@ class PersonAdapter(
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
         val person = people[position]
 
-        holder.yearTextView.text = person.year.toString()
+        holder.yearTextView.text = person.trackedEntityInstance
         holder.firstNameTextView.text = person.firstName
         holder.middleNameTextView.text = person.middleName
         holder.lastNameTextView.text = person.lastName

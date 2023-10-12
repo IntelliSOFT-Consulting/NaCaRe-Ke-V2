@@ -53,7 +53,8 @@ data class ProgramCategory(
     val id: String,
     val done: String?,
     val total: String?,
-    val elements: List<ProgramStageSections>
+    val elements: List<ProgramStageSections>,
+    val position: String
 )
 
 data class SettingItem(
@@ -78,6 +79,30 @@ data class ProgramResponse(
     val programs: List<ProgramData>
 )
 
+data class SearchPatientResponse(
+    val trackedEntityInstances: List<TrackedEntityInstances>
+)
+
+data class TrackedEntityInstances(
+    val trackedEntityType: String,
+    val trackedEntityInstance: String,
+    val attributes: List<EntityAttributes>,
+    val enrollments: List<EntityEnrollments>
+)
+
+data class EntityEnrollments(
+    val storedBy: String,
+    val createdAtClient: String,
+    val program: String
+)
+
+data class EntityAttributes(
+    val displayName: String,
+    val attribute: String,
+    val value: String
+)
+
+
 data class Pager(
     val page: Int,
     val total: Int,
@@ -88,10 +113,16 @@ data class Pager(
 data class ProgramData(
     val id: String,
     val name: String,
+    val trackedEntityType: TrackedEntityType,
     val programStages: List<ProgramStages>,
     val programSections: List<ProgramSections>
 
 )
+
+data class TrackedEntityType(
+    val id: String,
+)
+
 data class ProgramSections(
     val name: String,
     val trackedEntityAttributes: List<TrackedEntityAttributes>,
@@ -130,6 +161,11 @@ data class DataElementItem(
     val optionSet: OptionSet?
 )
 
+data class CodeValue(
+    val id: String,
+    val value: String,
+)
+
 data class ProgramStageDataElements(
     val dataElement: DataElement
 )
@@ -146,12 +182,14 @@ data class OptionSet(
     val displayName: String?,
     val options: List<Options>
 )
+
 data class Person(
-    val year: Int,
+    val trackedEntityInstance: String,
     val firstName: String,
     val middleName: String,
     val lastName: String,
-    val document: String
+    val document: String,
+    val attribute: List<EntityAttributes>
 )
 
 data class Options(

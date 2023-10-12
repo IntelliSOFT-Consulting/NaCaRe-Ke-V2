@@ -28,13 +28,31 @@
         android:layout_alignParentTop="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_above="@id/button_container"
             android:layout_alignParentTop="true"
-            tools:listitem="@layout/item_edittext" />
+            android:layout_margin="@dimen/_10dp"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:indeterminateTint="@color/purple_700"
+                android:max="100"
+                android:progress="0" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/item_edittext" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/button_container"

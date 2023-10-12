@@ -2,11 +2,19 @@ package com.intellisoft.nacare.network_request
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.main.registry.PatientListActivity
+import com.intellisoft.nacare.main.registry.PatientSearchActivity
+import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.room.Converters
+import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.OrganizationData
 import com.intellisoft.nacare.room.ProgramData
@@ -246,6 +254,14 @@ class RetrofitCalls {
                                         if (it is JsonObject) {
                                             val code = it.get("id").asString
                                             val name = it.get("name").asString
+                                            val trackedEntityType =
+                                                it.getAsJsonObject("trackedEntityType")
+                                            val attribute =
+                                                trackedEntityType.getAsJsonPrimitive("id").asString
+                                            formatterClass.saveSharedPref(
+                                                TRACKED_ENTITY_TYPE,
+                                                attribute, context
+                                            )
                                             val programStages = it.get("programStages").asJsonArray
                                             val programSections =
                                                 it.get("programSections").asJsonArray
@@ -268,6 +284,61 @@ class RetrofitCalls {
                 } catch (e: Exception) {
                     print(e)
                     Log.e("TAG", "Success Error:::: ${e.message}")
+
+                }
+            }
+        }
+    }
+
+    fun performPatientSearch(
+        context: Context,
+        eventData: EventData,
+        progressBar: ProgressBar,
+        searchParametersString: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val formatterClass = FormatterClass()
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                try {
+                    progressBar.visibility = View.VISIBLE
+                    val apiInterface = apiService.searchPatient(filter = searchParametersString)
+                    if (apiInterface.isSuccessful) {
+                        val statusCode = apiInterface.code()
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+                                progressBar.visibility = View.GONE
+                                val converters = Converters().toJsonPatientSearch(body)
+                                try {
+                                    val bundle = Bundle()
+                                    val cc = Converters().toJsonEvent(eventData)
+                                    bundle.putString("event", cc)
+                                    bundle.putString("patients", converters)
+                                    val intent = Intent(
+                                        context,
+                                        PatientListActivity::class.java
+                                    )
+                                    intent.putExtra("data", bundle)
+                                    context.startActivity(intent)
+                                    (context as PatientSearchActivity).finish()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    progressBar.visibility = View.GONE
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Success Error:::: ${e.message}")
+                    progressBar.visibility = View.GONE
 
                 }
             }

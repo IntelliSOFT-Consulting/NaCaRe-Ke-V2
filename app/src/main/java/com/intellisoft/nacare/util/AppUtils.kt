@@ -2,6 +2,7 @@ package com.intellisoft.nacare.util
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.intellisoft.nacare.auth.Login
 import com.intellisoft.nacare.helper_class.CountyUnit
 import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.helper_class.Person
@@ -25,20 +27,7 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
-      fun generateDummyData(): List<Person> {
-        val people = mutableListOf<Person>()
-        for (i in 1..10) {
-            val person = Person(
-                12345,
-                "Japheth",
-                "Keter",
-                "Kiprotich",
-                "B Cert"
-            )
-            people.add(person)
-        }
-        return people
-    }
+
 
     fun showNoOrgUnits(context: Context) {
         val builder = AlertDialog.Builder(context)
@@ -67,6 +56,19 @@ object AppUtils {
         }
 
         return treeNodes.sortedBy { it.label }
+    }
+
+    fun noConnection(context: Context) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("No Connection")
+            .setMessage("You need active internet to perform global search")
+            .setPositiveButton("Okay") { dd, _ ->
+                dd.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     fun isOnline(context: Context): Boolean {

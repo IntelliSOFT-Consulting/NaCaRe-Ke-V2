@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,16 +12,18 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.intellisoft.nacare.adapter.PersonAdapter
 import com.intellisoft.nacare.helper_class.DataElementItem
+import com.intellisoft.nacare.helper_class.EntityAttributes
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.Person
 import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageSections
+import com.intellisoft.nacare.helper_class.SearchPatientResponse
+import com.intellisoft.nacare.models.Constants.PATIENT_ID
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
-import com.intellisoft.nacare.util.AppUtils.generateDummyData
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityPatientListBinding
 
@@ -28,10 +31,12 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientListBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var eventData: EventData
+    private lateinit var seachData: SearchPatientResponse
     private val formatterClass = FormatterClass()
     private lateinit var dialog: AlertDialog
     private lateinit var event: String
     private lateinit var program: ProgramData
+    private val patientList: MutableList<Person> = mutableListOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientListBinding.inflate(layoutInflater)
@@ -44,29 +49,76 @@ class PatientListActivity : AppCompatActivity() {
                 val code = dataBundle.getString("code")
                 val name = dataBundle.getString("name")
                 val ev = dataBundle.getString("event")
+                val patients = dataBundle.getString("patients")
                 if (ev != null) {
                     eventData = Gson().fromJson(ev, EventData::class.java)
+                }
+                if (patients != null) {
+                    seachData = Gson().fromJson(patients, SearchPatientResponse::class.java)
+                    generatePatientList(seachData)
                 }
             }
         }
         viewModel = MainViewModel((this.applicationContext as Application))
-        val people = generateDummyData()
-        val adapter = PersonAdapter(people, this::handlePatient)
+
+        val adapter = PersonAdapter(patientList, this::handlePatient)
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        supportActionBar?.apply {
+            title = "Patient List"
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                // Handle the back button click (if needed)
+                onBackPressed()
+                return true
+            }
+            // Handle other menu item clicks if you have any
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun generatePatientList(data: SearchPatientResponse) {
+        data.trackedEntityInstances.forEach {
+            val person = Person(
+                trackedEntityInstance = retrieveAttribute("AP13g7NcBOf", it.attributes),
+                firstName = retrieveAttribute("R1vaUuILrDy", it.attributes),
+                middleName = retrieveAttribute("hn8hJsBAKrh", it.attributes),
+                lastName = retrieveAttribute("hzVijy6tEUF", it.attributes),
+                document = retrieveAttribute("oob3a4JM7H6", it.attributes),
+                attribute = it.attributes
+            )
+            patientList.add(person)
+        }
+
+    }
+
+    private fun retrieveAttribute(s: String, attributes: List<EntityAttributes>): String {
+        if (attributes.isNotEmpty()) {
+            val matchingAttribute = attributes.find { it.attribute == s }
+            return matchingAttribute?.value ?: ""
+        }
+        return ""
     }
 
     private fun handlePatient(person: Person) {
         val data = loadInitialData()
+        formatterClass.saveSharedPref(PATIENT_ID, person.trackedEntityInstance, this@PatientListActivity)
 
         if (data != null) {
+            val attribute = Converters().toJsonEntityAttributes(person.attribute)
             val converters = Converters().toJsonElements(data.elements)
             val json = Gson().fromJson(converters, JsonArray::class.java)
+            val jsonAttribute = Gson().fromJson(attribute, JsonArray::class.java)
             val bundle = Bundle()
             bundle.putString("code", data.id)
             bundle.putString("name", data.name)
             bundle.putString("programStageDataElements", json.toString())
+            bundle.putString("attribute", jsonAttribute.toString())
 
             val cc = Converters().toJsonEvent(eventData)
             bundle.putString("event", cc)
@@ -134,7 +186,8 @@ class PatientListActivity : AppCompatActivity() {
             id = "patient-detail",
             done = retrieveUserResponses(treeNodes),
             total = calculateTotalElements(treeNodes),
-            elements = treeNodes
+            elements = treeNodes,
+            position = "0"
         )
     }
 

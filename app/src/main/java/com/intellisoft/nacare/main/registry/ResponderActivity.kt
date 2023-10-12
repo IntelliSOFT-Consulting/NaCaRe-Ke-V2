@@ -3,6 +3,7 @@ package com.intellisoft.nacare.main.registry
 import android.app.Application
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,6 +11,7 @@ import com.google.gson.Gson
 import com.intellisoft.nacare.adapter.ElementAdapter
 import com.intellisoft.nacare.helper_class.DataElement
 import com.intellisoft.nacare.helper_class.DataElementItem
+import com.intellisoft.nacare.helper_class.EntityAttributes
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramStageDataElements
 import com.intellisoft.nacare.helper_class.ProgramStageSections
@@ -44,6 +46,10 @@ class ResponderActivity : AppCompatActivity() {
                 if (programStageDataElements != null) {
                     displayDataElements(programStageDataElements, eventData)
                 }
+                val attribute = dataBundle.getString("attribute")
+                if (attribute != null) {
+                    manipulateRetrievedAttribute(attribute, eventData)
+                }
                 supportActionBar?.apply {
                     title = name
 //                    subtitle = "$date | $org"
@@ -61,7 +67,25 @@ class ResponderActivity : AppCompatActivity() {
             nextButton.setOnClickListener {
                 this@ResponderActivity.finish()
             }
+            val program = formatterClass.getSharedPref("program", this@ResponderActivity)
+            val org = formatterClass.getSharedPref("name", this@ResponderActivity)
 
+            val formattedText = "Saving to <b>$program</b> in <b>$org</b>"
+            textView.text = Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY)
+
+        }
+    }
+
+    private fun manipulateRetrievedAttribute(json: String, eventData: EventData) {
+        val gson = Gson()
+        val items = gson.fromJson(json, Array<EntityAttributes>::class.java)
+        items.forEach {
+            viewModel.addResponse(
+                this@ResponderActivity,
+                eventData.id.toString(),
+                it.attribute,
+                it.value
+            )
         }
     }
 
@@ -73,7 +97,6 @@ class ResponderActivity : AppCompatActivity() {
             it.dataElements.forEach { t ->
                 dataList.add(t)
             }
-
         }
         val ad = ElementAdapter(
             this@ResponderActivity,

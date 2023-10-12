@@ -3,6 +3,7 @@ package com.intellisoft.nacare.room
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.intellisoft.nacare.helper_class.*
+import org.hisp.dhis.model.TrackedEntityAttribute
 import java.util.Date
 
 class Converters {
@@ -28,6 +29,15 @@ class Converters {
         return gson.toJson(data)
     }
 
+    @TypeConverter
+    fun toJsonTrackedEntityType(data: TrackedEntityAttribute): String {
+        return gson.toJson(data)
+    }
+    @TypeConverter
+    fun toJsonEntityAttributes(data: List<EntityAttributes>): String {
+        return gson.toJson(data)
+    }
+
     fun toJsonElements(data: List<ProgramStageSections>): String {
         return gson.toJson(data)
     }
@@ -45,6 +55,10 @@ class Converters {
         // convert json to MyJsonData object
         return gson.fromJson(json, OrganizationUnitResponse::class.java)
 
+    }
+
+    fun toJsonPatientSearch(data: SearchPatientResponse): String {
+        return gson.toJson(data)
     }
 
 }
