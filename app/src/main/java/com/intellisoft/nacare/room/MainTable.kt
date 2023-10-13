@@ -73,6 +73,7 @@ data class EventData(
     val date: String,
     val orgUnitCode: String,
     val orgUnitName: String,
+    val patientId: String,
     val saved: Boolean = false,
     val synced: Boolean = false,
     @ColumnInfo(name = "created_at")

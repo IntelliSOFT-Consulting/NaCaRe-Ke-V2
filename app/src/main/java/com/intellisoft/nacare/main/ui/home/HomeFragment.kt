@@ -83,7 +83,8 @@ class HomeFragment : Fragment() {
                 val data = EventData(
                     date = date,
                     orgUnitCode = code,
-                    orgUnitName = name
+                    orgUnitName = name,
+                    patientId = ""
                 )
                 viewModel.addEvent(requireContext(), data)
                 formatterClass.saveSharedPref("date", date, requireContext())

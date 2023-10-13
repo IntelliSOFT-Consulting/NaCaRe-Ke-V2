@@ -2,6 +2,7 @@ package com.intellisoft.nacare.room
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.runBlocking
 
@@ -67,29 +68,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addFacilityEventData(context, data)
     }
 
-    fun updateEventDataValues(context: Context, event: String, responses: String)= runBlocking {
-        repository.updateEventDataValues(context, event,responses)
+    fun updateEventDataValues(context: Context, event: String, responses: String) = runBlocking {
+        repository.updateEventDataValues(context, event, responses)
     }
 
-    fun loadFacilityEvents(context: Context, code: String)= runBlocking {
+    fun loadFacilityEvents(context: Context, code: String) = runBlocking {
         repository.loadFacilityEvents(context, code)
     }
 
-    fun getFacilityResponse(context: Context,org: String,code: String)= runBlocking {
-        repository.getFacilityResponse(context,org, code)
+    fun getFacilityResponse(context: Context, org: String, code: String) = runBlocking {
+        repository.getFacilityResponse(context, org, code)
     }
 
-    fun getAllPatientsData(context: Context)= runBlocking {
+    fun getAllPatientsData(context: Context) = runBlocking {
         repository.getAllPatientsData(context)
     }
 
-    fun getPatientDetails(context: Context, eventData: EventData)= runBlocking {
-        repository.getPatientDetails(context,eventData.id.toString())
+    fun getPatientDetails(context: Context, eventData: EventData) = runBlocking {
+        repository.getPatientDetails(context, eventData.id.toString())
     }
 
-    fun competeEvent(context: Context, eventData: EventData)= runBlocking {
-        repository.competeEvent(context,eventData.id.toString())
+    fun competeEvent(context: Context, eventData: EventData) = runBlocking {
+        repository.competeEvent(context, eventData.id.toString())
     }
+
+    fun updatePatientEventResponse(context: Context, event: String, reference: String) =
+        runBlocking {
+            Log.e("TAG","updating patient...... $event \nPatient $reference")
+            repository.updatePatientEventResponse(context, event, reference)
+        }
 
 
 }

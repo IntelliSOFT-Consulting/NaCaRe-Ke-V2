@@ -15,10 +15,11 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.intellisoft.nacare.helper_class.DataElementItem
+import com.intellisoft.nacare.helper_class.EntityEnrollments
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.helper_class.PatientEnrollmentResponse
 import com.intellisoft.nacare.helper_class.PatientPayload
 import com.intellisoft.nacare.helper_class.ProgramCategory
+import com.intellisoft.nacare.helper_class.ProgramEnrollment
 import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.main.registry.PatientListActivity
@@ -40,10 +41,7 @@ import com.nacare.ke.capture.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -554,25 +552,115 @@ class RetrofitCalls {
             val formatterClass = FormatterClass()
             val baseUrl = formatterClass.getSharedPref("serverUrl", context)
             val username = formatterClass.getSharedPref("username", context)
-            Log.e("TAG", "status code:::: $payload")
+
             if (baseUrl != null && username != null) {
                 val apiService =
                     RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
-                /*  try {*/
-                val apiInterface = apiService.registerPatient(payload)
+                try {
+                    val apiInterface = apiService.registerPatient(payload)
+                    val statusCode = apiInterface.code()
+                    if (apiInterface.isSuccessful) {
+                        val body = apiInterface.body()
+                        if (statusCode == 200) {
+                            if (body != null) {
+                                val converters = Converters().toJsonPatientRegister(body)
+                                try {
+                                    val json = Gson().fromJson(converters, JsonObject::class.java)
+
+                                    val jsonObject = JSONObject(json.toString())
+                                    val importSummariesArray = jsonObject.getJSONObject("response")
+                                        .getJSONArray("importSummaries")
+
+                                    if (importSummariesArray.length() > 0) {
+                                        val firstImportSummary =
+                                            importSummariesArray.getJSONObject(0)
+                                        val href = firstImportSummary.getString("href")
+                                        val reference = firstImportSummary.getString("reference")
+                                        enrollPatient(
+                                            context,
+                                            reference,
+                                            event,
+                                            payload.orgUnit,
+                                            payload.enrollments.first().program
+                                        )
+                                    } else {
+                                        println("No import summaries found.")
+                                    }
+
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        } else {
+                            Log.e("TAG", "json data:::: error $statusCode")
+                        }
+                    }
+                } catch (e: Exception) {
+                    print(e)
+                    Log.e("TAG", "Exception Error:::: ${e.message}")
+                }
+            }
+        }
+
+    }
+
+    private fun enrollPatient(
+        context: Context,
+        reference: String,
+        event: EventData,
+        orgUnit: String,
+        program: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val formatterClass = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+
+            val baseUrl = formatterClass.getSharedPref("serverUrl", context)
+            val username = formatterClass.getSharedPref("username", context)
+            val payload = ProgramEnrollment(
+                trackedEntityInstance = reference,
+                orgUnit = orgUnit,
+                program = program,
+                enrollmentDate = FormatterClass().getFormattedDateMonth(),
+                incidentDate = FormatterClass().getFormattedDateMonth()
+            )
+            if (baseUrl != null && username != null) {
+                val apiService =
+                    RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface::class.java)
+                /*try {*/
+                val apiInterface = apiService.enrollPatient(payload)
                 val statusCode = apiInterface.code()
-                Log.e("TAG", "Done Posting:::: $statusCode")
-//                    if (apiInterface.isSuccessful) {
-//
-//                        val body = apiInterface.body()
-//                        if (statusCode == 200) {
-//                            if (body != null) {
-//                                Log.e("TAG", "json data:::: $body")
-//                            }
-//                        } else {
-//                            Log.e("TAG", "json data:::: error $statusCode")
-//                        }
-//                    }
+                if (apiInterface.isSuccessful) {
+                    val body = apiInterface.body()
+                    if (statusCode == 200 || statusCode == 201) {
+                        if (body != null) {
+                            val converters = Converters().toJsonPatientRegister(body)
+                            try {
+                                val json = Gson().fromJson(converters, JsonObject::class.java)
+
+                                val jsonObject = JSONObject(json.toString())
+                                val status = jsonObject.getString("status")
+                                Log.e("TAG", "json status:::: $status")
+                                if (status == "OK") {
+                                    viewModel.updatePatientEventResponse(
+                                        context,
+                                        event.id.toString(),
+                                        reference
+                                    )
+                                } else {
+                                    println("No import summaries found.")
+                                }
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                Log.e("TAG", "json err:::: ${e.message}")
+                            }
+                        }
+                    } else {
+                        Log.e("TAG", "json data:::: error $statusCode")
+                    }
+                }
                 /*   } catch (e: Exception) {
                        print(e)
                        Log.e("TAG", "Exception Error:::: ${e.message}")

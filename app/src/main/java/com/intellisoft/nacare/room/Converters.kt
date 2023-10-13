@@ -73,6 +73,9 @@ class Converters {
         return gson.toJson(data)
     }
 
+    fun toJsonPatientRegister(data: PatientEnrollmentResponse): String {
+        return gson.toJson(data)
+    }
 
 
 }

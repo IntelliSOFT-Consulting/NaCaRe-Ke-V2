@@ -51,6 +51,11 @@ class FormatterClass {
         return Calendar.getInstance().get(Calendar.YEAR).toString()
     }
 
+    fun getFormattedDateMonth(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+    }
     fun getFormattedDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-dd-MM", Locale.getDefault())

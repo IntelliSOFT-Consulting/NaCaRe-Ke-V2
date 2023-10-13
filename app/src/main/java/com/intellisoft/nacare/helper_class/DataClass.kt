@@ -91,6 +91,15 @@ data class EventResponse(
     val instances: List<InstanceData>
 )
 
+data class ProgramEnrollment(
+    val trackedEntityInstance: String,
+    val orgUnit: String,
+    val program: String,
+    val enrollmentDate: String,
+    val incidentDate: String,
+
+    )
+
 data class PatientEnrollmentResponse(
     val httpStatus: String,
     val httpStatusCode: String,

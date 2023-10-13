@@ -101,6 +101,7 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_about -> {
                     // Handle About item click
 //          navController.navigate(R.id.nav_about)
+                    syncData()
                 }
 
                 R.id.nav_help -> {

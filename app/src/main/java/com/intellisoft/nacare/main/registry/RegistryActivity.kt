@@ -389,6 +389,11 @@ class RegistryActivity : AppCompatActivity() {
 
     private fun generatePath(name: String): Class<*>? {
         return if (name == "Patient Details") {
+
+            formatterClass.saveSharedPref(
+                PATIENT_REGISTRATION, "true",
+                this@RegistryActivity
+            )
             val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
             if (!exists) {
                 PatientSearchActivity::class.java

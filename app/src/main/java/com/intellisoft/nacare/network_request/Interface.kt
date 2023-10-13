@@ -7,6 +7,7 @@ import com.intellisoft.nacare.helper_class.OrganizationResponse
 import com.intellisoft.nacare.helper_class.OrganizationUnitResponse
 import com.intellisoft.nacare.helper_class.PatientEnrollmentResponse
 import com.intellisoft.nacare.helper_class.PatientPayload
+import com.intellisoft.nacare.helper_class.ProgramEnrollment
 import com.intellisoft.nacare.helper_class.ProgramResponse
 import com.intellisoft.nacare.helper_class.SearchPatientResponse
 import retrofit2.Call
@@ -58,8 +59,11 @@ interface Interface {
         @Path("eventId") eventId: String,
     ): Response<EventDataResponse>
 
-    @POST("/api/40/trackedEntityInstances.json")
+    @POST("/api/40/trackedEntityInstances")
     @Headers("Content-Type: application/json")
     suspend fun registerPatient(@Body payload: PatientPayload): Response<PatientEnrollmentResponse>
+    @POST("/api/40/enrollments.json")
+    @Headers("Content-Type: application/json")
+    suspend fun enrollPatient(@Body payload: ProgramEnrollment): Response<PatientEnrollmentResponse>
 
 }

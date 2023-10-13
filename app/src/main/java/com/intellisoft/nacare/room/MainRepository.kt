@@ -104,7 +104,14 @@ class MainRepository(private val roomDao: RoomDao) {
                 if (patient != null) {
                     val exists = roomDao.checkResponse(userId, patient.toString(), event, element)
                     if (exists) {
-                        roomDao.updateResponse(response, userId,false, patient.toString(), event, element)
+                        roomDao.updateResponse(
+                            response,
+                            userId,
+                            false,
+                            patient.toString(),
+                            event,
+                            element
+                        )
                     } else {
                         val res = ElementResponse(
                             eventId = event,
@@ -119,7 +126,7 @@ class MainRepository(private val roomDao: RoomDao) {
             } else {
                 val exists = roomDao.checkResponse(userId, "new", event, element)
                 if (exists) {
-                    roomDao.updateResponse(response, userId, true,"new", event, element)
+                    roomDao.updateResponse(response, userId, true, "new", event, element)
                 } else {
                     val res = ElementResponse(
                         eventId = event,
@@ -227,6 +234,16 @@ class MainRepository(private val roomDao: RoomDao) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
             val data = roomDao.competeEvent(eventId, true)
+            return true
+        }
+        return false
+    }
+
+    fun updatePatientEventResponse(context: Context, eventId: String, reference: String): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val ev = roomDao.updatePatientToEventResponse(eventId, reference, )
+            val data = roomDao.updatePatientEventResponse(eventId, reference, true)
             return true
         }
         return false
