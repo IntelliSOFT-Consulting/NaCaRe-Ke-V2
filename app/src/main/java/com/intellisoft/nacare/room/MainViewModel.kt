@@ -79,5 +79,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.getFacilityResponse(context,org, code)
     }
 
+    fun getAllPatientsData(context: Context)= runBlocking {
+        repository.getAllPatientsData(context)
+    }
+
+    fun getPatientDetails(context: Context, eventData: EventData)= runBlocking {
+        repository.getPatientDetails(context,eventData.id.toString())
+    }
+
+    fun competeEvent(context: Context, eventData: EventData)= runBlocking {
+        repository.competeEvent(context,eventData.id.toString())
+    }
+
 
 }

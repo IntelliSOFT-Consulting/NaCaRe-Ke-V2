@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,7 +40,7 @@ class TreeAdapter(
         itemView.setPadding(paddingLeft, 0, 0, 0)
 
         // Set label text
-        val labelTextView: TextView = itemView.findViewById(R.id.labelTextView)
+        val labelTextView: TextView = itemView.findViewById(R.id.org_unit_name)
         labelTextView.text = node.label
 
         // Handle click to expand/collapse
@@ -48,17 +49,22 @@ class TreeAdapter(
         }
 
         // Handle visibility based on whether the node has children and is expanded
-        val arrowIcon: ImageView = itemView.findViewById(R.id.arrowIcon)
+        val arrowIcon: ImageView = itemView.findViewById(R.id.org_unit_icon)
         arrowIcon.visibility = if (node.children.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+
+        // Set label text
+        val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
+        checkbox.visibility = if (node.children.isNotEmpty()) View.INVISIBLE else View.VISIBLE
         // Handle visibility based on whether the node has children and is expanded
         if (node.children.isEmpty()) {
-            labelTextView.setOnClickListener {
+            checkbox.setOnClickListener {
                 val patient = treeNodes[position]
                 click(patient)
             }
         }
         // Handle expand/collapse state
-        arrowIcon.rotation = if (node.isExpanded) 90f else 0f
+//        arrowIcon.rotation = if (node.isExpanded) 90f else 0f
+        arrowIcon.setImageResource(if (node.isExpanded) R.drawable.baseline_remove_circle_24 else R.drawable.ic_add_circle)
 
         // Set up child RecyclerView
         val childRecyclerView: RecyclerView = itemView.findViewById(R.id.childRecyclerView)

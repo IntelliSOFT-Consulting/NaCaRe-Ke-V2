@@ -1,12 +1,11 @@
 package com.intellisoft.nacare.room
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.intellisoft.nacare.helper_class.DataValueData
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.models.Constants.PATIENT_ID
+import com.intellisoft.nacare.models.Constants.PATIENT_REGISTRATION
 
 class MainRepository(private val roomDao: RoomDao) {
     private val formatterClass = FormatterClass()
@@ -98,18 +97,37 @@ class MainRepository(private val roomDao: RoomDao) {
     fun addResponse(context: Context, event: String, element: String, response: String) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            val patient = formatterClass.getSharedPref(PATIENT_ID, context)
-            if (patient != null) {
-                val exists = roomDao.checkResponse(userId, patient.toString(), event, element)
+
+            val registration = formatterClass.getSharedPref(PATIENT_REGISTRATION, context)
+            if (registration == null) {
+                val patient = formatterClass.getSharedPref(PATIENT_ID, context)
+                if (patient != null) {
+                    val exists = roomDao.checkResponse(userId, patient.toString(), event, element)
+                    if (exists) {
+                        roomDao.updateResponse(response, userId,false, patient.toString(), event, element)
+                    } else {
+                        val res = ElementResponse(
+                            eventId = event,
+                            userId = userId,
+                            indicatorId = element,
+                            value = response,
+                            patientId = patient.toString()
+                        )
+                        roomDao.addResponse(res)
+                    }
+                }
+            } else {
+                val exists = roomDao.checkResponse(userId, "new", event, element)
                 if (exists) {
-                    roomDao.updateResponse(response, userId, patient.toString(), event, element)
+                    roomDao.updateResponse(response, userId, true,"new", event, element)
                 } else {
                     val res = ElementResponse(
                         eventId = event,
                         userId = userId,
                         indicatorId = element,
                         value = response,
-                        patientId = patient.toString()
+                        patientId = "new",
+                        isPatient = true
                     )
                     roomDao.addResponse(res)
                 }
@@ -187,6 +205,31 @@ class MainRepository(private val roomDao: RoomDao) {
             return ""
         }
         return ""
+    }
+
+    fun getAllPatientsData(context: Context): List<ElementResponse>? {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            return roomDao.getAllPatientsData(true, "new")
+        }
+        return emptyList()
+    }
+
+    fun getPatientDetails(context: Context, eventId: String): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            return roomDao.getEventPatientDetails(eventId, true)
+        }
+        return false
+    }
+
+    fun competeEvent(context: Context, eventId: String): Boolean {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val data = roomDao.competeEvent(eventId, true)
+            return true
+        }
+        return false
     }
 
 }

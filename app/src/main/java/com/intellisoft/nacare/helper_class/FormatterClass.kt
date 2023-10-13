@@ -53,7 +53,7 @@ class FormatterClass {
 
     fun getFormattedDate(): String {
         val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-dd-MM", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
 

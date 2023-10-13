@@ -4,9 +4,12 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.intellisoft.nacare.adapter.ProgramAdapter
@@ -17,7 +20,9 @@ import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.main.facility.FacilityActivity
+import com.intellisoft.nacare.models.Constants
 import com.intellisoft.nacare.models.Constants.PATIENT_ID
+import com.intellisoft.nacare.models.Constants.PATIENT_REGISTRATION
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
@@ -66,6 +71,53 @@ class RegistryActivity : AppCompatActivity() {
             }
         }
 
+        binding.fab.apply {
+            setOnClickListener {
+
+                val bottomSheetView: View =
+                    layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+                val bottomSheetDialog = BottomSheetDialog(this@RegistryActivity)
+                bottomSheetDialog.setContentView(bottomSheetView)
+                bottomSheetDialog.show()
+                val btnCancel = bottomSheetDialog.findViewById<MaterialButton>(R.id.btn_cancel)
+                btnCancel.apply {
+                    setOnClickListener {
+                        bottomSheetDialog.dismiss()
+                    }
+                }
+                val btnComplete = bottomSheetDialog.findViewById<MaterialButton>(R.id.bnt_complete)
+
+                btnComplete.apply {
+                    setOnClickListener {
+                        try {
+                            val saved = viewModel.competeEvent(this@RegistryActivity, eventData)
+                            if (saved) {
+                                Toast.makeText(
+                                    this@RegistryActivity,
+                                    "Event saved",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    this@RegistryActivity,
+                                    "Error Encountered saving event, please try again later",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                this@RegistryActivity,
+                                "Error Encountered saving event, please try again later",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        bottomSheetDialog.dismiss()
+                    }
+                }
+
+            }
+        }
+
     }
 
     private fun loadFacilityEvents(code: String, name: String) {
@@ -81,11 +133,19 @@ class RegistryActivity : AppCompatActivity() {
                 intent.putExtra("data", bundle)
                 startActivity(intent)
             } else {
-                Toast.makeText(this@RegistryActivity, "No Facility details found. Please try again later!!", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this@RegistryActivity,
+                    "No Facility details found. Please try again later!!",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
         } else {
-            Toast.makeText(this@RegistryActivity, "No Facility details found. Please try again later!!", Toast.LENGTH_SHORT)
+            Toast.makeText(
+                this@RegistryActivity,
+                "No Facility details found. Please try again later!!",
+                Toast.LENGTH_SHORT
+            )
                 .show()
         }
 
@@ -99,10 +159,12 @@ class RegistryActivity : AppCompatActivity() {
             val org = formatterClass.getSharedPref("name", this)
             val date = formatterClass.getSharedPref("date", this)
             supportActionBar?.apply {
-                title = program.name
-                subtitle = "$date | $org"
                 setDisplayHomeAsUpEnabled(true)
 
+            }
+            binding.apply {
+                tvTitle.text = program.name
+                tvSubTitle.text = "$date | $org"
             }
             loadProgramData(program)
 
@@ -166,16 +228,15 @@ class RegistryActivity : AppCompatActivity() {
 
         dataList.clear()
 
-//        val combinedList = (treeNodes + allTreeNodes).toMutableList()
-
         val pr = ProgramCategory(
             iconResId = R.drawable.home,
             name = "Patient Details",
             id = "patient-detail",
-            done = retrieveUserResponses(treeNodes),
+            done = retrievePatientResponses(treeNodes),
             total = calculateTotalElements(treeNodes),
             elements = allTreeNodes,
-            position = "0"
+            position = "0",
+            altElements = treeNodes
         )
         dataList.add(pr)
 
@@ -184,10 +245,11 @@ class RegistryActivity : AppCompatActivity() {
                 iconResId = R.drawable.home,
                 name = it.name,
                 id = it.id,
-                done = retrievePatientResponses(it.programStageSections),
+                done = retrieveUserResponses(it.programStageSections),
                 total = calculateTotalElements(it.programStageSections),
                 elements = it.programStageSections,
-                position = index.toString()
+                position = index.toString(),
+                altElements = emptyList()
 
             )
             dataList.add(pd)
@@ -201,25 +263,27 @@ class RegistryActivity : AppCompatActivity() {
         }
         ad.notifyDataSetChanged()
 
-        /*  } catch (e: Exception) {
-              e.printStackTrace()
-          }*/
 
     }
 
     private fun retrievePatientResponses(data: List<ProgramStageSections>): String? {
         var count = 0
         if (data.isNotEmpty()) {
-            data.last().dataElements.forEach {
-                val response =
-                    viewModel.getEventResponse(
-                        this@RegistryActivity,
-                        eventData.id.toString(),
-                        it.id
-                    )
-                if (response != null) {
-                    count++
+            data.forEach {
+                var each = 0
+                it.dataElements.forEach {
+                    val response =
+                        viewModel.getEventResponse(
+                            this@RegistryActivity,
+                            eventData.id.toString(),
+                            it.id
+                        )
+
+                    if (response != null) {
+                        each++
+                    }
                 }
+                count += each
             }
         }
 
@@ -260,20 +324,22 @@ class RegistryActivity : AppCompatActivity() {
     private fun handleClick(data: ProgramCategory) {
 
         if (data.total!! > 0.toString()) {
+
             val converters = Converters().toJsonElements(data.elements)
             val json = Gson().fromJson(converters, JsonArray::class.java)
             val bundle = Bundle()
             bundle.putString("code", data.id)
             bundle.putString("name", data.name)
-            bundle.putString("programStageDataElements", json.toString())
-            bundle.putString("event", event)
+            bundle.putString(
+                "programStageDataElements",
+                checkOptions(data.name, json.toString(), data.altElements)
+            )
+            bundle.putString(
+                "event", event
+            )
             controlNavigation(data)
 
-            val d = if (data.name == "Patient Details") {
-                PatientSearchActivity::class.java
-            } else {
-                ResponderActivity::class.java
-            }
+            val d = generatePath(data.name)
 
             if (data.name != "Patient Details") {
                 val patient = formatterClass.getSharedPref(PATIENT_ID, this@RegistryActivity)
@@ -299,10 +365,53 @@ class RegistryActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkOptions(
+        name: String,
+        initial: String,
+        altElements: List<ProgramStageSections>?
+    ): String {
+        if (name == "Patient Details") {
+            val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
+            return if (!exists) {
+                initial
+            } else {
+                if (altElements != null) {
+                    val converters = Converters().toJsonElements(altElements)
+                    val json = Gson().fromJson(converters, JsonArray::class.java)
+                    json.toString()
+                } else {
+                    initial
+                }
+            }
+        }
+        return initial
+    }
+
+    private fun generatePath(name: String): Class<*>? {
+        return if (name == "Patient Details") {
+            val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
+            if (!exists) {
+                PatientSearchActivity::class.java
+            } else {
+                ResponderActivity::class.java
+            }
+        } else {
+            formatterClass.deleteSharedPref(
+                PATIENT_REGISTRATION,
+                this@RegistryActivity
+            )
+            ResponderActivity::class.java
+        }
+
+    }
+
     private fun controlNavigation(data: ProgramCategory) {
         formatterClass.saveSharedPref("program", data.name, this@RegistryActivity)
         if (data.name == "Patient Details") {
-            formatterClass.deleteSharedPref(PATIENT_ID, this@RegistryActivity)
+            val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
+            if (!exists) {
+                formatterClass.deleteSharedPref(PATIENT_ID, this@RegistryActivity)
+            }
         }
 
     }

@@ -54,10 +54,11 @@ interface RoomDao {
     @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE userId =:userId AND patientId=:patientId AND eventId =:event AND indicatorId =:element)")
     fun checkResponse(userId: String, patientId: String, event: String, element: String): Boolean
 
-    @Query("UPDATE responses SET value =:response WHERE  userId =:userId AND patientId =:patientId AND eventId =:event AND indicatorId =:element")
+    @Query("UPDATE responses SET value =:response, isPatient =:isPatient WHERE  userId =:userId AND patientId =:patientId AND eventId =:event AND indicatorId =:element")
     fun updateResponse(
         response: String,
         userId: String,
+        isPatient: Boolean,
         patientId: String,
         event: String,
         element: String
@@ -94,5 +95,13 @@ interface RoomDao {
     @Query("SELECT * FROM facility_event_data where orgUnit =:orgUnit ORDER BY id DESC LIMIT 1")
     fun loadFacilityEvents(orgUnit: String): FacilityEventData?
 
+    @Query("SELECT * FROM responses  WHERE  isPatient =:b AND patientId =:id ORDER BY id DESC ")
+    fun getAllPatientsData(b: Boolean, id: String): List<ElementResponse>?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE isPatient =:b AND eventId =:code)")
+    fun getEventPatientDetails(code: String, b: Boolean): Boolean
+
+    @Query("UPDATE events SET saved =:saved WHERE  id =:eventId")
+    fun competeEvent(eventId: String, saved: Boolean)
 
 }

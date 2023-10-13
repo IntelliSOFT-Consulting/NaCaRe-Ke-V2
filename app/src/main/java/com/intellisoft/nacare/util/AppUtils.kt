@@ -15,10 +15,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
 import com.intellisoft.nacare.auth.Login
 import com.intellisoft.nacare.helper_class.CountyUnit
+import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.helper_class.Person
+import com.intellisoft.nacare.helper_class.ProgramCategory
+import com.intellisoft.nacare.helper_class.ProgramSections
+import com.intellisoft.nacare.helper_class.ProgramStageSections
+import com.intellisoft.nacare.room.ProgramData
 import com.nacare.ke.capture.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -27,7 +33,6 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
-
 
     fun showNoOrgUnits(context: Context) {
         val builder = AlertDialog.Builder(context)
@@ -265,8 +270,10 @@ object AppUtils {
             DatePickerDialog(
                 context,
                 { _: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int ->
-                    val selectedDate =
-                        String.format("%02d/%02d/%04d", dayOfMonth, monthOfYear + 1, year)
+//                    val selectedDate =                        String.format("%02d/%02d/%04d", dayOfMonth, monthOfYear + 1, year)
+                    val dateFormat = SimpleDateFormat("yyyy-dd-MM", Locale.getDefault())
+                    val selectedDate = dateFormat.format(Date(year - 1900, monthOfYear, dayOfMonth))
+
                     textInputEditText.setText(selectedDate)
                 },
                 year,

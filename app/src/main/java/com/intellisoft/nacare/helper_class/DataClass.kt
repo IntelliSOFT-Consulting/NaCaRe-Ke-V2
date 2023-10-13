@@ -54,6 +54,7 @@ data class ProgramCategory(
     val done: String?,
     val total: String?,
     val elements: List<ProgramStageSections>,
+    val altElements: List<ProgramStageSections>?,
     val position: String
 )
 
@@ -88,6 +89,26 @@ data class EventResponse(
     val page: String,
     val pageSizeval: String,
     val instances: List<InstanceData>
+)
+
+data class PatientEnrollmentResponse(
+    val httpStatus: String,
+    val httpStatusCode: String,
+    val status: String,
+    val message: String,
+    val response: PatientResponse,
+)
+
+data class PatientResponse(
+    val responseType: String,
+    val status: String,
+    val importSummaries: List<ImportSummaries>
+)
+
+data class ImportSummaries(
+    val status: String,
+    val reference: String,
+    val href: String,
 )
 
 data class EventDataResponse(
@@ -135,6 +156,13 @@ data class FacilityProgramData(
     val name: String,
     val id: String,
     val programStages: List<ProgramStages>
+)
+
+data class PatientPayload(
+    val trackedEntityType: String,
+    val orgUnit: String,
+    val attributes: List<EntityAttributes>,
+    val enrollments: List<EntityEnrollments>,
 )
 
 data class SearchPatientResponse(

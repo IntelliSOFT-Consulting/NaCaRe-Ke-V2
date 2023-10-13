@@ -46,6 +46,7 @@ data class ElementResponse(
     var patientId: String,
     val indicatorId: String,
     val value: String,
+    val isPatient: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -28,6 +29,7 @@ import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityPatientSearchBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.intellisoft.nacare.models.Constants
 
 class PatientSearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientSearchBinding
@@ -71,7 +73,7 @@ class PatientSearchActivity : AppCompatActivity() {
         binding.apply {
 
             nextButton.setOnClickListener {
-
+                collectedInputs.clear()
                 for (i in 0 until binding.recyclerView.adapter!!.itemCount) {
                     when (val viewHolder = recyclerView.findViewHolderForAdapterPosition(i)) {
                         is ElementAdapter.EditTextViewHolder -> {
@@ -101,7 +103,7 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
 
                 if (collectedInputs.size > 0) {
-                    performPatientSearch(collectedInputs)
+                    performPatientSearch(collectedInputs, layoutInflater, eventData)
                 } else {
                     Toast.makeText(
                         this@PatientSearchActivity,
@@ -123,7 +125,11 @@ class PatientSearchActivity : AppCompatActivity() {
         })
     }
 
-    private fun performPatientSearch(collectedInputs: MutableList<CodeValue>) {
+    private fun performPatientSearch(
+        collectedInputs: MutableList<CodeValue>,
+        layoutInflater: LayoutInflater,
+        eventData: EventData
+    ) {
         if (isOnline(this@PatientSearchActivity)) {
             val searchParametersString =
                 collectedInputs.joinToString(separator = ",") { filterItem ->
@@ -131,11 +137,22 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
             binding.progressBar.visibility = View.VISIBLE
             networkModel.setBooleanValue(true)
-            retrofitCalls.performPatientSearch(
-                this@PatientSearchActivity,
-                eventData,
-                binding.progressBar, searchParametersString,networkModel
-            )
+            val programCode =
+                formatterClass.getSharedPref(
+                    Constants.PROGRAM_TRACKED_ENTITY_TYPE,
+                    this@PatientSearchActivity
+                )
+            if (programCode != null) {
+                retrofitCalls.performPatientSearch(
+                    this@PatientSearchActivity,
+                    this.eventData,
+                    binding.progressBar,
+                    searchParametersString,
+                    networkModel,
+                    layoutInflater,
+                    eventData, programCode
+                )
+            }
         } else {
             noConnection(this@PatientSearchActivity)
         }

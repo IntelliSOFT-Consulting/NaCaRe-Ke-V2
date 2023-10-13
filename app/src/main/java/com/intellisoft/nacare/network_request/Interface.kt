@@ -5,10 +5,16 @@ import com.intellisoft.nacare.helper_class.EventResponse
 import com.intellisoft.nacare.helper_class.FacilityProgramResponse
 import com.intellisoft.nacare.helper_class.OrganizationResponse
 import com.intellisoft.nacare.helper_class.OrganizationUnitResponse
+import com.intellisoft.nacare.helper_class.PatientEnrollmentResponse
+import com.intellisoft.nacare.helper_class.PatientPayload
 import com.intellisoft.nacare.helper_class.ProgramResponse
 import com.intellisoft.nacare.helper_class.SearchPatientResponse
+import retrofit2.Call
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -41,7 +47,7 @@ interface Interface {
 
     @GET("/api/40/trackedEntityInstances.json")
     suspend fun searchPatient(
-        @Query("program") program: String = "pZSnyiO9EF7",
+        @Query("program") program: String,
         @Query("ouMode") ouMode: String = "ALL",
         @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]",
         @Query("filter") filter: String
@@ -51,5 +57,9 @@ interface Interface {
     suspend fun loadEventData(
         @Path("eventId") eventId: String,
     ): Response<EventDataResponse>
+
+    @POST("/api/40/trackedEntityInstances.json")
+    @Headers("Content-Type: application/json")
+    suspend fun registerPatient(@Body payload: PatientPayload): Response<PatientEnrollmentResponse>
 
 }

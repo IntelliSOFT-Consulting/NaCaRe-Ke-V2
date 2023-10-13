@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="checkBox" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">?colorPrimary</item>
+        <item name="android:colorAccent">?colorPrimary</item>
+        <item name="android:textColorSecondary">?colorPrimary</item> <!-- for check state -->
+    </style>
+</resources>

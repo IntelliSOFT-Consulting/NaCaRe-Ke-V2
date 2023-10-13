@@ -107,7 +107,11 @@ class PatientListActivity : AppCompatActivity() {
 
     private fun handlePatient(person: Person) {
         val data = loadInitialData()
-        formatterClass.saveSharedPref(PATIENT_ID, person.trackedEntityInstance, this@PatientListActivity)
+        formatterClass.saveSharedPref(
+            PATIENT_ID,
+            person.trackedEntityInstance,
+            this@PatientListActivity
+        )
 
         if (data != null) {
             val attribute = Converters().toJsonEntityAttributes(person.attribute)
@@ -187,7 +191,8 @@ class PatientListActivity : AppCompatActivity() {
             done = retrieveUserResponses(treeNodes),
             total = calculateTotalElements(treeNodes),
             elements = treeNodes,
-            position = "0"
+            position = "0",
+            altElements = treeNodes
         )
     }
 
