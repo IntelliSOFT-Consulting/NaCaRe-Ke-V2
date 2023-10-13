@@ -81,11 +81,11 @@ class RegistryActivity : AppCompatActivity() {
                 intent.putExtra("data", bundle)
                 startActivity(intent)
             } else {
-                Toast.makeText(this@RegistryActivity, "Please try again", Toast.LENGTH_SHORT)
+                Toast.makeText(this@RegistryActivity, "No Facility details found. Please try again later!!", Toast.LENGTH_SHORT)
                     .show()
             }
         } else {
-            Toast.makeText(this@RegistryActivity, "Please try again", Toast.LENGTH_SHORT)
+            Toast.makeText(this@RegistryActivity, "No Facility details found. Please try again later!!", Toast.LENGTH_SHORT)
                 .show()
         }
 

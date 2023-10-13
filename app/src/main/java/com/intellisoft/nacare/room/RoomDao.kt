@@ -81,13 +81,18 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addFacilityEventData(data: FacilityEventData)
+
     @Query("SELECT EXISTS (SELECT 1 FROM facility_event_data WHERE event =:event)")
     fun checkFacility(event: String): Boolean
+
     @Query("UPDATE facility_event_data SET dataValues =:dataValues WHERE  event =:event")
     fun updateFacilityEventData(event: String, dataValues: String)
+
     @Query("UPDATE facility_event_data SET responses =:responses WHERE  event =:event")
     fun updateFacilityEventResponseData(event: String, responses: String)
+
     @Query("SELECT * FROM facility_event_data where orgUnit =:orgUnit ORDER BY id DESC LIMIT 1")
     fun loadFacilityEvents(orgUnit: String): FacilityEventData?
+
 
 }

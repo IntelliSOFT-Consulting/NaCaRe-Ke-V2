@@ -3,6 +3,9 @@ package com.intellisoft.nacare.main.ui.cases
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -16,6 +19,7 @@ import com.intellisoft.nacare.main.registry.RegistryActivity
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
+import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.FragmentCasesBinding
 
 class CasesFragment : Fragment() {
@@ -41,15 +45,38 @@ class CasesFragment : Fragment() {
 
         binding.addFab.apply {
             setOnClickListener {
-//               Get Current Event
                 val event = viewModel.loadLatestEvent(requireContext())
                 loadCurrentEvent(event)
             }
         }
         loadEventData()
-
-
+        setHasOptionsMenu(true)
         return root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_search, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.action_filter -> {
+                // Do something when the menu item is clicked
+                showFilterBottomSheet()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showFilterBottomSheet() {
+        val bottomSheetFragment = FilterBottomSheetFragment()
+        bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
+
     }
 
     private fun loadCurrentEvent(event: EventData?) {

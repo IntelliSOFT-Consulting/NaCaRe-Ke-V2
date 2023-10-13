@@ -2,8 +2,6 @@ package com.intellisoft.nacare.adapter
 
 import android.app.Application
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,20 +11,17 @@ import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.intellisoft.nacare.helper_class.DataElementItem
-import com.intellisoft.nacare.helper_class.OrgTreeNode
-import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.MainViewModel
-import com.intellisoft.nacare.util.AppUtils
 import com.nacare.ke.capture.R
 
 class FacilityElementAdapter(
     private val context: Context,
     private val items: List<DataElementItem>,
+    private val code: String
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -85,51 +80,53 @@ class FacilityElementAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = items[position]
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        val answer = viewModel.getFacilityResponse(context, code,item.id)
         when (holder.itemViewType) {
             VIEW_TYPE_EDITTEXT -> {
                 val editTextHolder = holder as EditTextViewHolder
-                editTextHolder.bind(item)
+                editTextHolder.bind(item, answer)
             }
 
             VIEW_TYPE_NUMBER -> {
                 val numberTextHolder = holder as NumberEditTextViewHolder
-                numberTextHolder.bind(item)
+                numberTextHolder.bind(item, answer)
             }
 
 
             VIEW_TYPE_PHONE_NUMBER -> {
                 val numberTextHolder = holder as PhoneNumberEditTextViewHolder
-                numberTextHolder.bind(item)
+                numberTextHolder.bind(item, answer)
             }
 
             VIEW_TYPE_RADIO -> {
                 val radioViewHolder = holder as RadioViewHolder
-                radioViewHolder.bind(item)
+                radioViewHolder.bind(item, answer)
             }
 
             VIEW_TYPE_AUTOCOMPLETE -> {
                 val autoCompleteViewHolder = holder as AutoCompleteViewHolder
-                autoCompleteViewHolder.bind(item)
+                autoCompleteViewHolder.bind(item, answer)
             }
 
             VIEW_TYPE_LONG_TEXT -> {
                 val longHolder = holder as LongEditTextViewHolder
-                longHolder.bind(item)
+                longHolder.bind(item, answer)
             }
 
             VIEW_TYPE_DATE -> {
                 val dateHolder = holder as DateEditTextViewHolder
-                dateHolder.bind(item)
+                dateHolder.bind(item, answer)
             }
 
             VIEW_TYPE_TRUE_ONLY -> {
                 val checkBoxHolder = holder as CheckBoxViewHolder
-                checkBoxHolder.bind(item)
+                checkBoxHolder.bind(item, answer)
             }
 
             VIEW_TYPE_ORGANIZATION -> {
                 val orgHolder = holder as OrgUnitViewHolder
-                orgHolder.bind(item)
+                orgHolder.bind(item, answer)
             }
         }
     }
@@ -171,7 +168,7 @@ class FacilityElementAdapter(
         val tvName = itemView.findViewById<TextView>(R.id.tv_name)
         val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
         }
 
@@ -187,7 +184,7 @@ class FacilityElementAdapter(
         val tvName = itemView.findViewById<TextView>(R.id.tv_name)
         val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
             editText.isEnabled = false
 
@@ -199,7 +196,7 @@ class FacilityElementAdapter(
         val tvName = itemView.findViewById<TextView>(R.id.tv_name)
         val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
             editText.isEnabled = false
         }
@@ -207,11 +204,12 @@ class FacilityElementAdapter(
 
     inner class CheckBoxViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             tvName.text = item.displayName
             checkBox.isEnabled = false
+
 
         }
     }
@@ -224,10 +222,11 @@ class FacilityElementAdapter(
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
 
 
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
             tvElement.text = item.id
             editText.isEnabled = false
+            editText.setText(answer)
         }
     }
 
@@ -239,7 +238,7 @@ class FacilityElementAdapter(
         private lateinit var dialog: AlertDialog
 
 
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
         }
     }
@@ -249,7 +248,7 @@ class FacilityElementAdapter(
         val tvName = itemView.findViewById<TextView>(R.id.tv_name)
         val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
         val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvName.text = item.displayName
             editText.isEnabled = false
         }
@@ -257,13 +256,21 @@ class FacilityElementAdapter(
 
     inner class RadioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val viewModel = MainViewModel(context.applicationContext as Application)
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             val tvName = itemView.findViewById<TextView>(R.id.tv_name)
             val radioButtonYes = itemView.findViewById<RadioButton>(R.id.radioButtonYes)
             val radioButtonNo = itemView.findViewById<RadioButton>(R.id.radioButtonNo)
             tvName.text = item.displayName
             radioButtonNo.isEnabled = false
             radioButtonYes.isEnabled = false
+            when (answer) {
+                "true" -> {
+                    radioButtonYes.isChecked = true
+                }
+                "false" -> {
+                    radioButtonNo.isChecked = true
+                }
+            }
 
         }
     }
@@ -278,7 +285,7 @@ class FacilityElementAdapter(
             itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
 
 
-        fun bind(item: DataElementItem) {
+        fun bind(item: DataElementItem, answer: String) {
             tvElement.text = item.id
             autoCompleteTextView.isEnabled = false
 

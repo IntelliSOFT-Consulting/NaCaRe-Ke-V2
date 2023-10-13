@@ -18,6 +18,7 @@ import com.nacare.ke.capture.R
 class FacilityAdapter(
     private val context: Context,
     private val dataList: List<FacilityProgramCategory>,
+    private val code: String
 ) : RecyclerView.Adapter<FacilityAdapter.ProgramHolder>() {
 
     inner class ProgramHolder(itemView: View) :
@@ -49,12 +50,12 @@ class FacilityAdapter(
 
 //        try {
 
-            val ad = FacilityElementAdapter(context, item.elements)
-            holder.recyclerView.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = ad
+        val ad = FacilityElementAdapter(context, item.elements,code)
+        holder.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = ad
 
-            }
+        }
 //        } catch (e: Exception) {
 //
 //        }

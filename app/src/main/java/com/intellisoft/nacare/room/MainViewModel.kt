@@ -75,5 +75,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadFacilityEvents(context, code)
     }
 
+    fun getFacilityResponse(context: Context,org: String,code: String)= runBlocking {
+        repository.getFacilityResponse(context,org, code)
+    }
+
 
 }

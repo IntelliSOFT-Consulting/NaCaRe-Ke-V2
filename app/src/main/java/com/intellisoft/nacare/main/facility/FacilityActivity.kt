@@ -7,24 +7,14 @@ import android.text.Html
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
-import com.intellisoft.nacare.adapter.ElementAdapter
 import com.intellisoft.nacare.adapter.FacilityAdapter
-import com.intellisoft.nacare.adapter.FacilityElementAdapter
-import com.intellisoft.nacare.adapter.ProgramAdapter
-import com.intellisoft.nacare.helper_class.DataElementItem
-import com.intellisoft.nacare.helper_class.DataValueData
-import com.intellisoft.nacare.helper_class.EntityAttributes
 import com.intellisoft.nacare.helper_class.FacilityProgramCategory
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.helper_class.ProgramCategory
-import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.ProgramStages
-import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityFacilityBinding
-import com.nacare.ke.capture.databinding.ActivityResponderBinding
 
 class FacilityActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFacilityBinding
@@ -76,6 +66,7 @@ class FacilityActivity : AppCompatActivity() {
         val data = viewModel.loadProgram(this, "facility")
         if (data != null) {
             val org = formatterClass.getSharedPref("name", this)
+            val code = formatterClass.getSharedPref("code", this)
             val date = formatterClass.getSharedPref("date", this)
             supportActionBar?.apply {
                 title = data.name
@@ -83,12 +74,12 @@ class FacilityActivity : AppCompatActivity() {
                 setDisplayHomeAsUpEnabled(true)
 
             }
-            loadProgramData(data)
+            loadProgramData(data,code)
 
         }
     }
 
-    private fun loadProgramData(program: ProgramData) {
+    private fun loadProgramData(program: ProgramData, code: String?) {
         val json = program.programStages
         val gson = Gson()
         val items = gson.fromJson(json, Array<ProgramStages>::class.java)
@@ -110,7 +101,7 @@ class FacilityActivity : AppCompatActivity() {
             dataList.addAll(dataListInner)
         }
 
-        val ad = FacilityAdapter(this, dataList)
+        val ad = FacilityAdapter(this, dataList,code.toString())
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@FacilityActivity)

@@ -54,12 +54,6 @@ class DashboardActivity : AppCompatActivity() {
                     R.id.nav_gallery,
                     R.id.nav_slideshow,
                     R.id.settingsFragment,
-//                    R.id.periFragment,
-//                    R.id.patientPreparationFragment,
-//                    R.id.skinPreparationFragment,
-//                    R.id.handPreparationFragment, R.id.caseSummaryFragment,
-//                    R.id.preFragment, R.id.postSummaryFragment,
-//                    R.id.postDateFragment, R.id.postFragment, R.id.infectionFragment
 
                 ), drawerLayout
             )
@@ -80,6 +74,12 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_set_pin -> {
                     // Handle Set PIN item click
 //          navController.navigate(R.id.nav_set_pin)
+
+                    formatterClass.deleteSharedPref("date", this@DashboardActivity)
+                    formatterClass.deleteSharedPref("code", this@DashboardActivity)
+                    formatterClass.deleteSharedPref("name", this@DashboardActivity)
+                    val hostNavController = findNavController(R.id.nav_host_fragment_content_dashboard)
+                    hostNavController.navigate(R.id.nav_gallery)
                 }
 
                 R.id.nav_logout -> {
@@ -135,11 +135,11 @@ class DashboardActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.dashboard, menu)
-        return true
-    }
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        menuInflater.inflate(R.menu.dashboard, menu)
+//        return true
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection

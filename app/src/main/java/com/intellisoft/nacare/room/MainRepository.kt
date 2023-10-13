@@ -1,7 +1,11 @@
 package com.intellisoft.nacare.room
 
 import android.content.Context
+import android.util.Log
+import com.google.gson.Gson
+import com.intellisoft.nacare.helper_class.DataValueData
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.models.Constants.PATIENT_ID
 
 class MainRepository(private val roomDao: RoomDao) {
@@ -165,6 +169,24 @@ class MainRepository(private val roomDao: RoomDao) {
             return roomDao.loadFacilityEvents(code)
         }
         return null
+    }
+
+    fun getFacilityResponse(context: Context, org: String, code: String): String {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            try {
+                val event = roomDao.loadFacilityEvents(org)
+                if (event != null) {
+                    val gson = Gson()
+                    val items = gson.fromJson(event.dataValues, Array<DataValueData>::class.java)
+                    return items.find { it.dataElement == code }?.value ?: ""
+                }
+            } catch (e: Exception) {
+                return ""
+            }
+            return ""
+        }
+        return ""
     }
 
 }
