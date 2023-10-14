@@ -8,16 +8,17 @@
 
     <TextView
         android:id="@+id/tv_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_10dp" />
+        android:layout_marginBottom="@dimen/_10dp"  />
 
     <TextView
         android:id="@+id/tv_element"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_10dp" />
+        android:layout_marginBottom="@dimen/_10dp"
+        android:visibility="gone" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

@@ -42,16 +42,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:indeterminate="true"
-                android:visibility="gone"
                 android:indeterminateTint="@color/purple_700"
                 android:max="100"
-                android:progress="0" />
+                android:progress="0"
+                android:visibility="gone" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/item_edittext" />
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/ln_parent_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
         </LinearLayout>
 
         <LinearLayout

@@ -59,7 +59,7 @@ interface Interface {
         @Path("eventId") eventId: String,
     ): Response<EventDataResponse>
 
-    @POST("/api/40/trackedEntityInstances")
+    @POST("/api/40/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
     @Headers("Content-Type: application/json")
     suspend fun registerPatient(@Body payload: PatientPayload): Response<PatientEnrollmentResponse>
     @POST("/api/40/enrollments.json")

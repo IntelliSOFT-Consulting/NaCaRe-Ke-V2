@@ -33,7 +33,9 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
-
+      fun containsAnyKeyword(displayName: String, keywords: List<String>): Boolean {
+        return keywords.any { keyword -> displayName.contains(keyword) }
+    }
     fun showNoOrgUnits(context: Context) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("No Organization Units")

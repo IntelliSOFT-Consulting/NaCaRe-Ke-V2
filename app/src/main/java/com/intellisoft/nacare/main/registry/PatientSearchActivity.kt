@@ -4,9 +4,17 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -29,6 +37,9 @@ import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityPatientSearchBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.reflect.TypeToken
 import com.intellisoft.nacare.models.Constants
 
 class PatientSearchActivity : AppCompatActivity() {
@@ -41,6 +52,9 @@ class PatientSearchActivity : AppCompatActivity() {
     private val retrofitCalls = RetrofitCalls()
     private val collectedInputs = mutableListOf<CodeValue>()
     private lateinit var networkModel: NetworkViewModel
+    private val inputFieldMap = mutableMapOf<String, View>()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientSearchBinding.inflate(layoutInflater)
@@ -71,47 +85,77 @@ class PatientSearchActivity : AppCompatActivity() {
             }
         }
         binding.apply {
-
             nextButton.setOnClickListener {
                 collectedInputs.clear()
-                for (i in 0 until binding.recyclerView.adapter!!.itemCount) {
-                    when (val viewHolder = recyclerView.findViewHolderForAdapterPosition(i)) {
-                        is ElementAdapter.EditTextViewHolder -> {
-                            val input = viewHolder.editText.text.toString()
-                            val code = viewHolder.tvElement.text.toString()
+                for ((id, view) in inputFieldMap) {
+                    when (view) {
+                        is TextInputEditText -> {
+                            val input = view.text.toString()
                             if (input.isNotEmpty()) {
                                 val dt = CodeValue(
-                                    id = code,
+                                    id = id,
                                     value = input
                                 )
                                 collectedInputs.add(dt)
                             }
                         }
-
-                        is ElementAdapter.AutoCompleteViewHolder -> {
-                            val input = viewHolder.autoCompleteTextView.text.toString()
-                            val code = viewHolder.tvElement.text.toString()
-                            if (input.isNotEmpty()) {
-                                val dt = CodeValue(
-                                    id = code,
-                                    value = input
-                                )
-                                collectedInputs.add(dt)
-                            }
-                        }
+                        // Handle other view types if needed
                     }
                 }
 
                 if (collectedInputs.size > 0) {
                     performPatientSearch(collectedInputs, layoutInflater, eventData)
+//                    Toast.makeText(
+//                        this@PatientSearchActivity,
+//                        "Found Inputs\nCode -> $collectedInputs",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
                 } else {
                     Toast.makeText(
-                        this@PatientSearchActivity,
-                        "Please provide and input",
-                        Toast.LENGTH_SHORT
+                        this@PatientSearchActivity, "Please provide and input", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
+            /*  nextButton.setOnClickListener {
+                  collectedInputs.clear()
+                  for (i in 0 until binding.recyclerView.adapter!!.itemCount) {
+                      when (val viewHolder = recyclerView.findViewHolderForAdapterPosition(i)) {
+                          is ElementAdapter.EditTextViewHolder -> {
+                              val input =
+                                  viewHolder.itemView.findViewById<TextInputEditText>(R.id.editText).text.toString()                           //editText.text.toString()
+                              val code =
+                                  viewHolder.itemView.findViewById<TextView>(R.id.tv_element).text.toString()
+                              if (input.isNotEmpty()) {
+                                  val dt = CodeValue(
+                                      id = code, value = input
+                                  )
+                                  collectedInputs.add(dt)
+                              }
+                          }
+
+                          is ElementAdapter.AutoCompleteViewHolder -> {
+                              val input =
+                                  viewHolder.itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView).text.toString()
+                              val code =
+                                  viewHolder.itemView.findViewById<TextView>(R.id.tv_element).text.toString()
+                              if (input.isNotEmpty()) {
+                                  val dt = CodeValue(
+                                      id = code, value = input
+                                  )
+                                  collectedInputs.add(dt)
+                              }
+                          }
+                      }
+                  }
+
+                  if (collectedInputs.size > 0) {
+                      performPatientSearch(collectedInputs, layoutInflater, eventData)
+                  } else {
+                      Toast.makeText(
+                          this@PatientSearchActivity, "Please provide and input", Toast.LENGTH_SHORT
+                      ).show()
+                  }
+              }*/
         }
         networkModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
 
@@ -137,11 +181,9 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
             binding.progressBar.visibility = View.VISIBLE
             networkModel.setBooleanValue(true)
-            val programCode =
-                formatterClass.getSharedPref(
-                    Constants.PROGRAM_TRACKED_ENTITY_TYPE,
-                    this@PatientSearchActivity
-                )
+            val programCode = formatterClass.getSharedPref(
+                Constants.PROGRAM_TRACKED_ENTITY_TYPE, this@PatientSearchActivity
+            )
             if (programCode != null) {
                 retrofitCalls.performPatientSearch(
                     this@PatientSearchActivity,
@@ -150,7 +192,8 @@ class PatientSearchActivity : AppCompatActivity() {
                     searchParametersString,
                     networkModel,
                     layoutInflater,
-                    eventData, programCode
+                    eventData,
+                    programCode
                 )
             }
         } else {
@@ -191,13 +234,166 @@ class PatientSearchActivity : AppCompatActivity() {
                 dataList.add(t)
             }
         }
+        Log.e("TAG", "Search Data $dataList")
+        for (dataElement in dataList) {
+            createInputField(dataElement)
+        }
+
+    }
+
+    private fun createInputField(item: DataElementItem) {
+        val valueType = item.valueType
+        val label = item.displayName
+        val inflater = LayoutInflater.from(this)
+        when (valueType) {
+            "TEXT" -> {
+                if (item.optionSet == null) {
+                    val itemView = inflater.inflate(
+                        R.layout.item_edittext,
+                        binding.lnParentView,
+                        false
+                    ) as LinearLayout
+
+                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                    val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                    tvName.text = item.displayName
+                    tvElement.text = item.id
+                    val response = viewModel.getEventResponse(
+                        this@PatientSearchActivity,
+                        eventData.id.toString(),
+                        item.id
+                    )
+                    if (response != null) {
+                        editText.setText(response)
+                    }
+                    inputFieldMap[item.id] = editText
+                    editText.apply {
+                        addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence?,
+                                start: Int,
+                                count: Int,
+                                after: Int
+                            ) {
+                                // This method is called before the text is changed.
+                            }
+
+                            override fun onTextChanged(
+                                s: CharSequence?,
+                                start: Int,
+                                before: Int,
+                                count: Int
+                            ) {
+                                if (s != null) {
+                                    viewModel.addResponse(
+                                        context,
+                                        eventData.id.toString(),
+                                        item.id,
+                                        s.toString()
+                                    )
+                                }
+                            }
+
+                            override fun afterTextChanged(s: Editable?) {
+                                // This method is called after the text has changed.
+                                // You can perform actions here based on the updated text.
+                            }
+                        })
+                    }
+                    binding.lnParentView.addView(itemView)
+                } else {
+                    val itemView = inflater.inflate(
+                        R.layout.item_autocomplete,
+                        binding.lnParentView,
+                        false
+                    ) as LinearLayout
+
+                    val optionsList: MutableList<String> = mutableListOf()
+                    val adp = ArrayAdapter(
+                        this@PatientSearchActivity,
+                        android.R.layout.simple_list_item_1,
+                        optionsList
+                    )
+                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                    val autoCompleteTextView =
+                        itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+
+                    tvElement.text = item.id
+                    optionsList.clear()
+                    item.optionSet?.options?.forEach {
+                        optionsList.add(it.displayName)
+                    }
+                    tvName.text = item.displayName
+                    autoCompleteTextView.setAdapter(adp)
+                    adp.notifyDataSetChanged()
+                    inputFieldMap[item.id] = autoCompleteTextView
+                    autoCompleteTextView.apply {
+
+                        addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence?,
+                                start: Int,
+                                count: Int,
+                                after: Int
+                            ) {
+                                // This method is called before the text is changed.
+                            }
+
+                            override fun onTextChanged(
+                                s: CharSequence?,
+                                start: Int,
+                                before: Int,
+                                count: Int
+                            ) {
+                                if (s != null) {
+                                    viewModel.addResponse(
+                                        context,
+                                        eventData.id.toString(),
+                                        item.id,
+                                        s.toString()
+                                    )
+                                }
+                            }
+
+                            override fun afterTextChanged(s: Editable?) {
+                                // This method is called after the text has changed.
+                                // You can perform actions here based on the updated text.
+                            }
+                        })
+                    }
+                    binding.lnParentView.addView(itemView)
+                }
+            }
+        }
+    }
+
+    private fun displayDataElementsOld(json: String, eventData: EventData) {
+        val gson = Gson()
+        val items = gson.fromJson(json, Array<ProgramStageSections>::class.java)
+        items.forEach {
+            it.dataElements.forEach { t ->
+                dataList.add(t)
+            }
+        }
         val ad = ElementAdapter(
             this@PatientSearchActivity, layoutInflater, dataList, eventData.id.toString()
         )
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(this@PatientSearchActivity)
-            adapter = ad
-        }
+
+//        binding.recyclerView.apply {
+//            layoutManager = LinearLayoutManager(this@PatientSearchActivity)
+//            adapter = ad
+//        }
+
+        /*  for (i in 0 until dataList.size) {
+              val jsonObject = jsonArray.getJSONObject(i)
+              createInputField(jsonObject)
+          }*/
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

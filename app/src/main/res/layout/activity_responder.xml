@@ -28,13 +28,18 @@
         android:layout_alignParentTop="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/button_container"
-            android:layout_alignParentTop="true"
-            tools:listitem="@layout/item_edittext" />
+            android:layout_alignParentTop="true">
+
+            <LinearLayout
+                android:id="@+id/ln_parent_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
 
         <LinearLayout
             android:id="@+id/button_container"
