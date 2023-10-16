@@ -47,10 +47,22 @@ class EventAdapter(
     }
 
     override fun onBindViewHolder(holder: Pager2ViewHolder, position: Int) {
-        val date = dataList[position].date
-        val org = dataList[position].orgUnitName
+        val data = dataList[position]
+        val date = data.date
+        val org = data.orgUnitName
         holder.organisationUnit.text = org
         holder.eventDate.text = date
+        when (data.status) {
+            "draft" -> {
+
+            }
+            "completed" -> {
+
+            }
+            "duplicates" -> {
+
+            }
+        }
 //        holder.iconImageView.setImageResource(icon)
 
     }

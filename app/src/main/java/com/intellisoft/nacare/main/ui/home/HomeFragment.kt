@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.nacare.adapter.TreeAdapter
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.OrgTreeNode
+import com.intellisoft.nacare.models.Constants
+import com.intellisoft.nacare.models.Constants.CURRENT_ORG
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
@@ -84,7 +86,7 @@ class HomeFragment : Fragment() {
                     date = date,
                     orgUnitCode = code,
                     orgUnitName = name,
-                    patientId = ""
+                    patientId = "", serverId = ""
                 )
                 viewModel.addEvent(requireContext(), data)
                 formatterClass.saveSharedPref("date", date, requireContext())
@@ -95,9 +97,29 @@ class HomeFragment : Fragment() {
                 hostNavController.navigate(R.id.nav_gallery)
             }
         }
+
+        displayInitialData()
         return binding.root
     }
 
+    private fun displayInitialData() {
+        val org = viewModel.loadOrganizations(requireActivity())
+        if (!org.isNullOrEmpty()) {
+            val co = formatterClass.getSharedPref(CURRENT_ORG, requireContext())
+            if (co != null) {
+                val matchingOrg = org.firstOrNull { it.code == co }
+                if (matchingOrg != null) {
+                    binding.edtOrg.setText(matchingOrg.name)
+                }
+                /*  if (matchingOrg != null) {
+                      if (matchingOrg.children.length.isEmpty()) {
+
+                      }
+                  }*/
+            }
+
+        }
+    }
 
     private fun showOrgUnitDialog(org: List<OrganizationData>) {
         val or = org.firstOrNull()

@@ -203,30 +203,6 @@ class PatientSearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPatientSearchWarning() {
-        val dialogBuilder = AlertDialog.Builder(this@PatientSearchActivity)
-        val inflater = layoutInflater
-        val dialogView = inflater.inflate(R.layout.confirmation_dialog, null)
-        dialogBuilder.setView(dialogView)
-
-        val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
-        val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
-        val nextButton: MaterialButton = dialogView.findViewById(R.id.next_button)
-
-        tvMessage.text = "No Record found of Patient Searched with those parameters"
-        nextButton.text = "Search Again"
-        nextButton.setOnClickListener {
-            val bundle = Bundle()
-            val cc = Converters().toJsonEvent(eventData)
-            bundle.putString("event", cc)
-            val intent = Intent(this@PatientSearchActivity, PatientListActivity::class.java)
-            intent.putExtra("data", bundle)
-            startActivity(intent)
-            this@PatientSearchActivity.finish()
-        }
-        dialog = dialogBuilder.create()
-        dialog.show()
-    }
 
     private fun displayDataElements(json: String, eventData: EventData) {
         val gson = Gson()
@@ -375,28 +351,7 @@ class PatientSearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayDataElementsOld(json: String, eventData: EventData) {
-        val gson = Gson()
-        val items = gson.fromJson(json, Array<ProgramStageSections>::class.java)
-        items.forEach {
-            it.dataElements.forEach { t ->
-                dataList.add(t)
-            }
-        }
-      /*  val ad = ElementAdapter(
-            this@PatientSearchActivity, layoutInflater, dataList, eventData
-        )*/
 
-//        binding.recyclerView.apply {
-//            layoutManager = LinearLayoutManager(this@PatientSearchActivity)
-//            adapter = ad
-//        }
-
-        /*  for (i in 0 until dataList.size) {
-              val jsonObject = jsonArray.getJSONObject(i)
-              createInputField(jsonObject)
-          }*/
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

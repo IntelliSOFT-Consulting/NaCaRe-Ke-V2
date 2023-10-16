@@ -27,8 +27,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addEvent(context, data)
     }
 
-    fun loadEvents(context: Context) = runBlocking {
-        repository.loadEvents(context)
+    fun loadEvents(context: Context,status: String) = runBlocking {
+        repository.loadEvents(context,status)
     }
 
     fun addProgram(context: Context, data: ProgramData) = runBlocking {

@@ -2,29 +2,23 @@ package com.intellisoft.nacare.util
 
 import android.app.DatePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
 import android.widget.DatePicker
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.gson.Gson
-import com.intellisoft.nacare.auth.Login
 import com.intellisoft.nacare.helper_class.CountyUnit
-import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.OrgTreeNode
-import com.intellisoft.nacare.helper_class.Person
-import com.intellisoft.nacare.helper_class.ProgramCategory
-import com.intellisoft.nacare.helper_class.ProgramSections
-import com.intellisoft.nacare.helper_class.ProgramStageSections
-import com.intellisoft.nacare.room.ProgramData
 import com.nacare.ke.capture.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -33,9 +27,10 @@ import java.util.Locale
 import java.util.UUID
 
 object AppUtils {
-      fun containsAnyKeyword(displayName: String, keywords: List<String>): Boolean {
+    fun containsAnyKeyword(displayName: String, keywords: List<String>): Boolean {
         return keywords.any { keyword -> displayName.contains(keyword) }
     }
+
     fun showNoOrgUnits(context: Context) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("No Organization Units")
@@ -298,5 +293,29 @@ object AppUtils {
         val currentDate = Date()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
         return dateFormat.format(currentDate)
+    }
+
+    fun permissionError(
+        layoutInflater: LayoutInflater,
+        context: Context,
+        status: String,
+        message: String
+    ) {
+        val dialog: AlertDialog
+        val dialogBuilder = AlertDialog.Builder(context)
+        val dialogView = layoutInflater.inflate(R.layout.confirmation_dialog, null)
+        dialogBuilder.setView(dialogView)
+
+        val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
+        val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
+        val nextButton: MaterialButton = dialogView.findViewById(R.id.next_button)
+        dialog = dialogBuilder.create()
+        tvMessage.text = message
+        nextButton.text = "Retry"
+        nextButton.setOnClickListener {
+            dialog.dismiss()
+
+        }
+        dialog.show()
     }
 }

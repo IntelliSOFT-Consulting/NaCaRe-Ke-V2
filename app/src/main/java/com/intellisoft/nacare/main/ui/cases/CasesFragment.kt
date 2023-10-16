@@ -22,7 +22,7 @@ import com.intellisoft.nacare.room.MainViewModel
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.FragmentCasesBinding
 
-class CasesFragment : Fragment() {
+class CasesFragment : Fragment(), FilterBottomSheetListener {
     private lateinit var binding: FragmentCasesBinding
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var viewModel: MainViewModel
@@ -49,7 +49,7 @@ class CasesFragment : Fragment() {
                 loadCurrentEvent(event)
             }
         }
-        loadEventData()
+        loadEventData("ALL")
         setHasOptionsMenu(true)
         return root
     }
@@ -75,6 +75,7 @@ class CasesFragment : Fragment() {
 
     private fun showFilterBottomSheet() {
         val bottomSheetFragment = FilterBottomSheetFragment()
+        bottomSheetFragment.setFilterBottomSheetListener(this)
         bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
 
     }
@@ -102,16 +103,20 @@ class CasesFragment : Fragment() {
         }
     }
 
-    private fun loadEventData() {
-        val data = viewModel.loadEvents(requireContext())
+    private fun loadEventData(status: String) {
+        val data = viewModel.loadEvents(requireContext(), status)
         if (!data.isNullOrEmpty()) {
+            binding.recyclerView.visibility = View.VISIBLE
             binding.tvNoCases.visibility = View.GONE
+
             dataList = data
             val adapter = EventAdapter(dataList, requireContext(), this::handleClick)
             mRecyclerView.adapter = adapter
             mRecyclerView.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter.notifyDataSetChanged()
         } else {
+            binding.recyclerView.visibility = View.GONE
             binding.tvNoCases.visibility = View.VISIBLE
         }
 
@@ -120,6 +125,19 @@ class CasesFragment : Fragment() {
     private fun handleClick(data: EventData) {
         val event = viewModel.loadCurrentEvent(requireContext(), data.id.toString())
         loadCurrentEvent(event)
+
+    }
+
+
+    override fun onStatusClicked(status: String) {
+        loadEventData(status)
+    }
+
+    override fun onDateClick() {
+
+    }
+
+    override fun onDateRangeClicked() {
 
     }
 

@@ -14,8 +14,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.intellisoft.nacare.helper_class.DataElementItem
-import com.intellisoft.nacare.helper_class.EntityEnrollments
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.PatientPayload
 import com.intellisoft.nacare.helper_class.ProgramCategory
@@ -26,6 +26,7 @@ import com.intellisoft.nacare.main.registry.PatientListActivity
 import com.intellisoft.nacare.main.registry.PatientSearchActivity
 import com.intellisoft.nacare.main.registry.ResponderActivity
 import com.intellisoft.nacare.models.Constants
+import com.intellisoft.nacare.models.Constants.CURRENT_ORG
 import com.intellisoft.nacare.models.Constants.FACILITY_TOOL
 import com.intellisoft.nacare.models.Constants.PATIENT_REGISTRATION
 import com.intellisoft.nacare.models.Constants.PROGRAM_TRACKED_ENTITY_TYPE
@@ -36,6 +37,7 @@ import com.intellisoft.nacare.room.FacilityEventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.OrganizationData
 import com.intellisoft.nacare.room.ProgramData
+import com.intellisoft.nacare.util.AppUtils.permissionError
 import com.intellisoft.nacare.viewmodels.NetworkViewModel
 import com.nacare.ke.capture.R
 import kotlinx.coroutines.CoroutineScope
@@ -99,6 +101,11 @@ class RetrofitCalls {
                                                 name = name,
                                                 code = code,
                                                 children = ""
+                                            )
+                                            formatterClass.saveSharedPref(
+                                                CURRENT_ORG,
+                                                code,
+                                                context
                                             )
                                             viewModel.addOrganization(context, org)
                                             handleChildOrganizationUnits(context, code)
@@ -395,30 +402,46 @@ class RetrofitCalls {
                     if (apiInterface.isSuccessful) {
                         val statusCode = apiInterface.code()
                         val body = apiInterface.body()
-                        if (statusCode == 200) {
-                            networkModel.setBooleanValue(false)
-                            if (body != null) {
-                                val converters = Converters().toJsonPatientSearch(body)
-                                try {
-                                    if (body.trackedEntityInstances.isEmpty()) {
-                                        noPatientRecordFound(context, layoutInflater, eventData)
-                                    } else {
-                                        val bundle = Bundle()
-                                        val cc = Converters().toJsonEvent(eventData)
-                                        bundle.putString("event", cc)
-                                        bundle.putString("patients", converters)
-                                        val intent = Intent(
-                                            context,
-                                            PatientListActivity::class.java
-                                        )
-                                        intent.putExtra("data", bundle)
-                                        context.startActivity(intent)
-                                        (context as PatientSearchActivity).finish()
+                        when (statusCode) {
+                            200 -> {
+                                networkModel.setBooleanValue(false)
+                                if (body != null) {
+                                    val converters = Converters().toJsonPatientSearch(body)
+                                    try {
+                                        if (body.trackedEntityInstances.isEmpty()) {
+                                            noPatientRecordFound(context, layoutInflater, eventData)
+                                        } else {
+                                            val bundle = Bundle()
+                                            val cc = Converters().toJsonEvent(eventData)
+                                            bundle.putString("event", cc)
+                                            bundle.putString("patients", converters)
+                                            val intent = Intent(
+                                                context,
+                                                PatientListActivity::class.java
+                                            )
+                                            intent.putExtra("data", bundle)
+                                            context.startActivity(intent)
+                                            (context as PatientSearchActivity).finish()
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Log.e("TAG", "json err:::: ${e.message}")
                                     }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Log.e("TAG", "json err:::: ${e.message}")
                                 }
+                            }
+                            409 -> {
+                                val errorMessage = body?.toString()
+                                Log.e("TAG", "Conflict error::::: $errorMessage")
+
+                                /*    networkModel.setBooleanValue(false)
+                                    if (body != null) {
+                                        val converters = Converters().toJsonPatientSearch(body)
+                                        val jsonObject = JsonParser.parseString(converters).asJsonObject
+                                        val status = jsonObject.getAsJsonPrimitive("status").asString
+                                        val message = jsonObject.getAsJsonPrimitive("message").asString
+                                        permissionError(layoutInflater, context, status, message)
+                                    }*/
+
                             }
                         }
                     }

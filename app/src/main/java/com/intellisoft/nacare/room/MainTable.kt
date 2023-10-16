@@ -77,6 +77,7 @@ data class EventData(
     val status: String = "draft",
     val saved: Boolean = false,
     val synced: Boolean = false,
+    var serverId: String,
     @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
     @ColumnInfo(name = "updated_at")

@@ -4,6 +4,7 @@ object Constants {
     const val PATIENT_REGISTRATION = "patient-registration"
     const val PATIENT_ID = "patient-id"
     const val TRACKED_ENTITY_TYPE = "trackedEntityType"
+    const val CURRENT_ORG = "current-organization"
     const val PROGRAM_TRACKED_ENTITY_TYPE = "program-id"
     const val FACILITY_TOOL = "facility-tool"
     const val SERVER_URL = "http://45.79.116.38:8080/"

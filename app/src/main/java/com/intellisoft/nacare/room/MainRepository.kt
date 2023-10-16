@@ -39,10 +39,14 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun loadEvents(context: Context): List<EventData>? {
+    fun loadEvents(context: Context, status: String): List<EventData>? {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            return roomDao.loadEvents()
+            return if (status == "ALL") {
+                roomDao.loadEvents()
+            } else {
+                roomDao.loadStatusEvents(status)
+            }
         }
         return emptyList()
     }
@@ -232,7 +236,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun getAllPatientsData(context: Context): List<ElementResponse>? {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            return roomDao.getAllPatientsData(true, "new")
+            return roomDao.getAllPatientsData(true)
         }
         return emptyList()
     }
@@ -272,7 +276,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 return if (ev.patientId.isBlank()) {
                     val pb = roomDao.updatePatientToEventResponse(eventData.id.toString(), uuid)
                     uuid
-                }else{
+                } else {
                     ev.patientId
                 }
             }
