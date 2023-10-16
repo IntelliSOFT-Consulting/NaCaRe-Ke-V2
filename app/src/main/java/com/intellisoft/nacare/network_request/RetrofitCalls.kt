@@ -449,7 +449,7 @@ class RetrofitCalls {
         tvMessage.text = "No Record found of Patient Searched with those parameters"
         nextButton.text = "Register New Patient"
         nextButton.setOnClickListener {
-            FormatterClass().saveSharedPref(Constants.PATIENT_ID, "new", context)
+            FormatterClass().saveSharedPref(Constants.PATIENT_ID, eventData.patientId, context)
             handlePatientRegistration(context, dialog, eventData)
 
         }

@@ -80,7 +80,7 @@ class DashboardActivity : AppCompatActivity() {
                     navController.navigate(R.id.settingsFragment)
                 }
 
-                R.id.nav_set_pin -> {
+                R.id.nav_cases -> {
                     // Handle Set PIN item click
 //          navController.navigate(R.id.nav_set_pin)
 
@@ -90,6 +90,9 @@ class DashboardActivity : AppCompatActivity() {
                     val hostNavController =
                         findNavController(R.id.nav_host_fragment_content_dashboard)
                     hostNavController.navigate(R.id.nav_gallery)
+                }
+
+                R.id.nav_set_pin -> {
                 }
 
                 R.id.nav_logout -> {

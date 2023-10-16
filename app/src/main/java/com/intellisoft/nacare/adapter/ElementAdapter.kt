@@ -24,6 +24,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.OrgTreeNode
 import com.intellisoft.nacare.room.Converters
+import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
 import com.intellisoft.nacare.util.AppUtils.showNoOrgUnits
@@ -34,7 +35,7 @@ class ElementAdapter(
     private val context: Context,
     private val layoutInflater: LayoutInflater,
     private val items: List<DataElementItem>,
-    private val event: String
+    private val event: EventData
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -274,10 +275,10 @@ class ElementAdapter(
                         // This method is called when the text is changing.
 
                         if (s != null) {
-                            viewModel.addResponse(
+                           /* viewModel.addResponse(
                                 context,
                                 event, item.id, s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -328,10 +329,10 @@ class ElementAdapter(
                         // This method is called when the text is changing.
 
                         if (s != null) {
-                            viewModel.addResponse(
+                           /* viewModel.addResponse(
                                 context,
                                 event, item.id, s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -378,10 +379,10 @@ class ElementAdapter(
                         // This method is called when the text is changing.
 
                         if (s != null) {
-                            viewModel.addResponse(
+                           /* viewModel.addResponse(
                                 context,
                                 event, item.id, s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -409,15 +410,15 @@ class ElementAdapter(
             }
             checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked) {
-                    viewModel.addResponse(
+                   /* viewModel.addResponse(
                         context,
                         event, item.id, "true"
-                    )
+                    )*/
                 } else {
-                    viewModel.deleteResponse(
-                        context,
-                        event, item.id,
-                    )
+//                    viewModel.deleteResponse(
+//                        context,
+//                        event, item.id,
+//                    )
                 }
             }
         }
@@ -459,12 +460,12 @@ class ElementAdapter(
                         count: Int
                     ) {
                         if (s != null) {
-                            viewModel.addResponse(
+                         /*   viewModel.addResponse(
                                 context,
                                 event,
                                 items[adapterPosition].id,
                                 s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -513,12 +514,12 @@ class ElementAdapter(
                         count: Int
                     ) {
                         if (s != null) {
-                            viewModel.addResponse(
+                         /*   viewModel.addResponse(
                                 context,
                                 event,
                                 items[adapterPosition].id,
                                 s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -610,10 +611,10 @@ class ElementAdapter(
                         // This method is called when the text is changing.
 
                         if (s != null) {
-                            viewModel.addResponse(
+                           /* viewModel.addResponse(
                                 context,
                                 event, item.id, s.toString()
-                            )
+                            )*/
                         }
                     }
 
@@ -648,20 +649,20 @@ class ElementAdapter(
             radioButtonNo.apply {
                 setOnCheckedChangeListener { button, isChecked ->
                     if (isChecked) {
-                        viewModel.addResponse(
+                      /*  viewModel.addResponse(
                             context,
                             event, item.id, "false"
-                        )
+                        )*/
                     }
                 }
             }
             radioButtonYes.apply {
                 setOnCheckedChangeListener { button, isChecked ->
                     if (isChecked) {
-                        viewModel.addResponse(
+                      /*  viewModel.addResponse(
                             context,
                             event, item.id, "true"
-                        )
+                        )*/
                     }
                 }
             }
@@ -714,12 +715,12 @@ class ElementAdapter(
                         count: Int
                     ) {
                         if (s != null) {
-                            viewModel.addResponse(
+                         /*   viewModel.addResponse(
                                 context,
                                 event,
                                 items[adapterPosition].id,
                                 s.toString()
-                            )
+                            )*/
                         }
                     }
 

@@ -6,4 +6,9 @@
         <item name="android:colorAccent">?colorPrimary</item>
         <item name="android:textColorSecondary">?colorPrimary</item> <!-- for check state -->
     </style>
+
+    <style name="CircularDeterminateProgressBar">
+        <item name="android:indeterminateOnly">false </item>
+        <item name="android:progressDrawable">@drawable/circle</item>
+    </style>
 </resources>

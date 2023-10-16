@@ -96,7 +96,7 @@ class ResponderActivity : AppCompatActivity() {
         items.forEach {
             viewModel.addResponse(
                 this@ResponderActivity,
-                eventData.id.toString(),
+                eventData,
                 it.attribute,
                 it.value
             )
@@ -141,7 +141,7 @@ class ResponderActivity : AppCompatActivity() {
                     tvElement.text = item.id
                     val response = viewModel.getEventResponse(
                         this@ResponderActivity,
-                        eventData.id.toString(),
+                        eventData,
                         item.id
                     )
                     if (response != null) {
@@ -168,7 +168,7 @@ class ResponderActivity : AppCompatActivity() {
                                 if (s != null) {
                                     viewModel.addResponse(
                                         context,
-                                        eventData.id.toString(),
+                                        eventData,
                                         item.id,
                                         s.toString()
                                     )
@@ -232,7 +232,7 @@ class ResponderActivity : AppCompatActivity() {
                                 if (s != null) {
                                     viewModel.addResponse(
                                         context,
-                                        eventData.id.toString(),
+                                        eventData,
                                         item.id,
                                         s.toString()
                                     )
@@ -248,7 +248,7 @@ class ResponderActivity : AppCompatActivity() {
                     binding.lnParentView.addView(itemView)
                     val response = viewModel.getEventResponse(
                         this@ResponderActivity,
-                        eventData.id.toString(),
+                        eventData,
                         item.id
                     )
                     if (response != null) {
@@ -274,7 +274,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -309,7 +309,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -339,7 +339,7 @@ class ResponderActivity : AppCompatActivity() {
 
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -355,7 +355,7 @@ class ResponderActivity : AppCompatActivity() {
                         if (isChecked) {
                             viewModel.addResponse(
                                 this@ResponderActivity,
-                                eventData.id.toString(), item.id, "false"
+                                eventData, item.id, "false"
                             )
                         }
                     }
@@ -365,7 +365,7 @@ class ResponderActivity : AppCompatActivity() {
                         if (isChecked) {
                             viewModel.addResponse(
                                 this@ResponderActivity,
-                                eventData.id.toString(), item.id, "true"
+                                eventData, item.id, "true"
                             )
                         }
                     }
@@ -390,7 +390,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -417,7 +417,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -450,7 +450,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -477,7 +477,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -510,7 +510,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -537,7 +537,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -565,7 +565,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvName.text = item.displayName
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -577,7 +577,7 @@ class ResponderActivity : AppCompatActivity() {
                     if (isChecked) {
                         viewModel.addResponse(
                             this@ResponderActivity,
-                            eventData.id.toString(), item.id, "true"
+                            eventData, item.id, "true"
                         )
                     } else {
                         viewModel.deleteResponse(
@@ -606,7 +606,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -633,7 +633,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -666,7 +666,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
                     this@ResponderActivity,
-                    eventData.id.toString(),
+                    eventData,
                     item.id
                 )
                 if (response != null) {
@@ -693,7 +693,7 @@ class ResponderActivity : AppCompatActivity() {
                             if (s != null) {
                                 viewModel.addResponse(
                                     context,
-                                    eventData.id.toString(),
+                                    eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -720,12 +720,7 @@ class ResponderActivity : AppCompatActivity() {
                 dataList.add(t)
             }
         }
-        val ad = ElementAdapter(
-            this@ResponderActivity,
-            layoutInflater,
-            dataList,
-            eventData.id.toString()
-        )
+
         /*   binding.recyclerView.apply {
                layoutManager = LinearLayoutManager(this@ResponderActivity)
                adapter = ad

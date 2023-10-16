@@ -9,6 +9,11 @@
             android:icon="@drawable/home"
             android:title="Home" />
         <item
+            android:id="@+id/nav_cases"
+            android:icon="@drawable/comorbidities"
+            android:title="Cases"
+            android:visible="true" />
+        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings"
             android:title="Settings"

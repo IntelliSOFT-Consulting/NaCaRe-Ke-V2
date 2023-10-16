@@ -71,6 +71,8 @@ class PatientSearchActivity : AppCompatActivity() {
                 val ev = dataBundle.getString("event")
                 if (ev != null) {
                     eventData = Gson().fromJson(ev, EventData::class.java)
+
+
                 }
                 val programStageDataElements = dataBundle.getString("programStageDataElements")
                 if (programStageDataElements != null) {
@@ -263,7 +265,7 @@ class PatientSearchActivity : AppCompatActivity() {
                     tvElement.text = item.id
                     val response = viewModel.getEventResponse(
                         this@PatientSearchActivity,
-                        eventData.id.toString(),
+                        eventData,
                         item.id
                     )
                     if (response != null) {
@@ -290,7 +292,7 @@ class PatientSearchActivity : AppCompatActivity() {
                                 if (s != null) {
                                     viewModel.addResponse(
                                         context,
-                                        eventData.id.toString(),
+                                        eventData,
                                         item.id,
                                         s.toString()
                                     )
@@ -354,7 +356,7 @@ class PatientSearchActivity : AppCompatActivity() {
                                 if (s != null) {
                                     viewModel.addResponse(
                                         context,
-                                        eventData.id.toString(),
+                                        eventData,
                                         item.id,
                                         s.toString()
                                     )
@@ -381,9 +383,9 @@ class PatientSearchActivity : AppCompatActivity() {
                 dataList.add(t)
             }
         }
-        val ad = ElementAdapter(
-            this@PatientSearchActivity, layoutInflater, dataList, eventData.id.toString()
-        )
+      /*  val ad = ElementAdapter(
+            this@PatientSearchActivity, layoutInflater, dataList, eventData
+        )*/
 
 //        binding.recyclerView.apply {
 //            layoutManager = LinearLayoutManager(this@PatientSearchActivity)

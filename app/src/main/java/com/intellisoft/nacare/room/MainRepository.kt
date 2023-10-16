@@ -1,6 +1,7 @@
 package com.intellisoft.nacare.room
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.intellisoft.nacare.helper_class.DataValueData
 import com.intellisoft.nacare.helper_class.FormatterClass
@@ -94,49 +95,64 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun addResponse(context: Context, event: String, element: String, response: String) {
+    fun addResponse(context: Context, ev: EventData, element: String, response: String) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-
-            val registration = formatterClass.getSharedPref(PATIENT_REGISTRATION, context)
-            if (registration == null) {
-                val patient = formatterClass.getSharedPref(PATIENT_ID, context)
-                if (patient != null) {
-                    val exists = roomDao.checkResponse(userId, patient.toString(), event, element)
+            val event = roomDao.loadCurrentEvent(ev.id.toString())
+            if (event != null) {
+                val registration = formatterClass.getSharedPref(PATIENT_REGISTRATION, context)
+                if (registration == null) {
+                    val patient = formatterClass.getSharedPref(PATIENT_ID, context)
+                    if (patient != null) {
+                        val exists = roomDao.checkResponse(
+                            userId,
+                            patient.toString(),
+                            event.id.toString(),
+                            element
+                        )
+                        if (exists) {
+                            roomDao.updateResponse(
+                                response,
+                                userId,
+                                false,
+                                patient.toString(),
+                                event.id.toString(),
+                                element
+                            )
+                        } else {
+                            val res = ElementResponse(
+                                eventId = event.id.toString(),
+                                userId = userId,
+                                indicatorId = element,
+                                value = response,
+                                patientId = patient.toString()
+                            )
+                            roomDao.addResponse(res)
+                        }
+                    }
+                } else {
+                    val exists =
+                        roomDao.checkResponse(userId, event.patientId, event.id.toString(), element)
                     if (exists) {
                         roomDao.updateResponse(
                             response,
                             userId,
-                            false,
-                            patient.toString(),
-                            event,
+                            true,
+                            event.patientId,
+                            event.id.toString(),
                             element
                         )
                     } else {
                         val res = ElementResponse(
-                            eventId = event,
+                            eventId = event.id.toString(),
                             userId = userId,
                             indicatorId = element,
                             value = response,
-                            patientId = patient.toString()
+                            patientId = event.patientId,
+                            isPatient = true
                         )
                         roomDao.addResponse(res)
                     }
-                }
-            } else {
-                val exists = roomDao.checkResponse(userId, "new", event, element)
-                if (exists) {
-                    roomDao.updateResponse(response, userId, true, "new", event, element)
-                } else {
-                    val res = ElementResponse(
-                        eventId = event,
-                        userId = userId,
-                        indicatorId = element,
-                        value = response,
-                        patientId = "new",
-                        isPatient = true
-                    )
-                    roomDao.addResponse(res)
                 }
             }
         }
@@ -156,11 +172,10 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun getEventResponse(context: Context, event: String, code: String): String? {
+    fun getEventResponse(context: Context, event: EventData, code: String): String? {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            val patientId = formatterClass.getSharedPref(PATIENT_ID, context)
-            return roomDao.getEventResponse(userId, patientId.toString(), code, event)
+            return roomDao.getEventResponse(userId, event.patientId, code, event.id.toString())
         }
         return null
     }
@@ -242,11 +257,28 @@ class MainRepository(private val roomDao: RoomDao) {
     fun updatePatientEventResponse(context: Context, eventId: String, reference: String): Boolean {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            val ev = roomDao.updatePatientToEventResponse(eventId, reference, )
+//            val ev = roomDao.updatePatientToEventResponse(eventId, reference)
             val data = roomDao.updatePatientEventResponse(eventId, reference, true)
             return true
         }
         return false
+    }
+
+    fun updateEventWithPatientId(context: Context, eventData: EventData, uuid: String): String {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val ev = roomDao.loadCurrentEvent(eventData.id.toString())
+            if (ev != null) {
+                return if (ev.patientId.isBlank()) {
+                    val pb = roomDao.updatePatientToEventResponse(eventData.id.toString(), uuid)
+                    uuid
+                }else{
+                    ev.patientId
+                }
+            }
+            return uuid
+        }
+        return ""
     }
 
 }

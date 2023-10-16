@@ -105,11 +105,14 @@ class CasesFragment : Fragment() {
     private fun loadEventData() {
         val data = viewModel.loadEvents(requireContext())
         if (!data.isNullOrEmpty()) {
+            binding.tvNoCases.visibility = View.GONE
             dataList = data
             val adapter = EventAdapter(dataList, requireContext(), this::handleClick)
             mRecyclerView.adapter = adapter
             mRecyclerView.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        } else {
+            binding.tvNoCases.visibility = View.VISIBLE
         }
 
     }

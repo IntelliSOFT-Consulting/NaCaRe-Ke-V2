@@ -23,4 +23,5 @@
     <dimen name="_100_dp">200dp</dimen>
     <dimen name="default_top_margin">16dp</dimen>
     <dimen name="_16dp">16dp</dimen>
+    <dimen name="_0dp">0dp</dimen>
 </resources>

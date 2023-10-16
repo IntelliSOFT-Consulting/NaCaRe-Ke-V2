@@ -203,7 +203,7 @@ class PatientListActivity : AppCompatActivity() {
                 val response =
                     viewModel.getEventResponse(
                         this@PatientListActivity,
-                        eventData.id.toString(),
+                        eventData,
                         it.id
                     )
                 if (response != null) {

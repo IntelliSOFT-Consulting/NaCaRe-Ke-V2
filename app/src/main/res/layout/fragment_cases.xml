@@ -30,6 +30,16 @@
             android:paddingBottom="@dimen/_100_dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_patient" />
+
+        <TextView
+            android:id="@+id/tv_no_cases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal"
+            android:text="There are no cases recorded"
+            android:textAlignment="center"
+            android:visibility="gone" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

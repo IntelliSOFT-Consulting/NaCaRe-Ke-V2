@@ -3,6 +3,7 @@ package com.intellisoft.nacare.main.registry
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -27,6 +28,7 @@ import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
+import com.intellisoft.nacare.util.AppUtils
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.ActivityRegistryBinding
 
@@ -178,6 +180,8 @@ class RegistryActivity : AppCompatActivity() {
 
     private fun loadProgramData(program: ProgramData) {
 //        try {
+        var counter = 0
+        var complete = 0
         val treeNodes = mutableListOf<ProgramStageSections>()
         val allTreeNodes = mutableListOf<ProgramStageSections>()
 
@@ -228,12 +232,16 @@ class RegistryActivity : AppCompatActivity() {
 
         dataList.clear()
 
+        val done1 = retrievePatientResponses(treeNodes)
+        val total1 = calculateTotalElements(treeNodes)
+        counter = total1.toInt()
+        complete = done1.toInt()
         val pr = ProgramCategory(
             iconResId = R.drawable.home,
             name = "Patient Details",
             id = "patient-detail",
-            done = retrievePatientResponses(treeNodes),
-            total = calculateTotalElements(treeNodes),
+            done = done1,
+            total = total1,
             elements = allTreeNodes,
             position = "0",
             altElements = treeNodes
@@ -241,12 +249,17 @@ class RegistryActivity : AppCompatActivity() {
         dataList.add(pr)
 
         items.forEachIndexed { index, it ->
+
+            val done = retrieveUserResponses(it.programStageSections)
+            val total = calculateTotalElements(it.programStageSections)
+            counter += total.toInt()
+            complete += done.toInt()
             val pd = ProgramCategory(
                 iconResId = R.drawable.home,
                 name = it.name,
                 id = it.id,
-                done = retrieveUserResponses(it.programStageSections),
-                total = calculateTotalElements(it.programStageSections),
+                done = done,
+                total = total,
                 elements = it.programStageSections,
                 position = index.toString(),
                 altElements = emptyList()
@@ -263,10 +276,24 @@ class RegistryActivity : AppCompatActivity() {
         }
         ad.notifyDataSetChanged()
 
+        binding.apply {
+
+
+            val percent = if (counter != 0) {
+                (complete.toDouble() / counter.toDouble()) * 100
+            } else {
+                0.0 // handle division by zero if necessary
+            }
+            Log.e("TAG", "Percentage $percent Done $complete Total $counter")
+
+            progressBar.progress = percent.toInt()
+            textViewProgress.text = "${percent.toInt()}%"
+        }
+
 
     }
 
-    private fun retrievePatientResponses(data: List<ProgramStageSections>): String? {
+    private fun retrievePatientResponses(data: List<ProgramStageSections>): String {
         var count = 0
         if (data.isNotEmpty()) {
             data.forEach {
@@ -275,7 +302,7 @@ class RegistryActivity : AppCompatActivity() {
                     val response =
                         viewModel.getEventResponse(
                             this@RegistryActivity,
-                            eventData.id.toString(),
+                            eventData,
                             it.id
                         )
 
@@ -309,7 +336,7 @@ class RegistryActivity : AppCompatActivity() {
                 val response =
                     viewModel.getEventResponse(
                         this@RegistryActivity,
-                        eventData.id.toString(),
+                        eventData,
                         it.id
                     )
                 if (response != null) {
@@ -389,11 +416,23 @@ class RegistryActivity : AppCompatActivity() {
 
     private fun generatePath(name: String): Class<*>? {
         return if (name == "Patient Details") {
-
             formatterClass.saveSharedPref(
                 PATIENT_REGISTRATION, "true",
-                this@RegistryActivity
+                this@RegistryActivity,
             )
+            val patient =
+                viewModel.updateEventWithPatientId(
+                    this@RegistryActivity,
+                    eventData,
+                    AppUtils.generateUuid()
+                )
+            if (patient != null) {
+                formatterClass.saveSharedPref(
+                    PATIENT_ID, patient,
+                    this@RegistryActivity
+                )
+                eventData.patientId = patient
+            }
             val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
             if (!exists) {
                 PatientSearchActivity::class.java

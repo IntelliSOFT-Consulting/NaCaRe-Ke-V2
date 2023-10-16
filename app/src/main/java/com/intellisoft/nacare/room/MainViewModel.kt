@@ -47,12 +47,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadCurrentEvent(context, id)
     }
 
-    fun addResponse(context: Context, event: String, element: String, response: String) =
+    fun addResponse(context: Context, event: EventData, element: String, response: String) =
         runBlocking {
             repository.addResponse(context, event, element, response)
         }
 
-    fun getEventResponse(context: Context, event: String, element: String) = runBlocking {
+    fun getEventResponse(context: Context, event: EventData, element: String) = runBlocking {
         repository.getEventResponse(context, event, element)
     }
 
@@ -94,9 +94,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updatePatientEventResponse(context: Context, event: String, reference: String) =
         runBlocking {
-            Log.e("TAG","updating patient...... $event \nPatient $reference")
             repository.updatePatientEventResponse(context, event, reference)
         }
 
-
+    fun updateEventWithPatientId(context: Context, eventData: EventData, uuid: String) =
+        runBlocking {
+            repository.updateEventWithPatientId(context, eventData, uuid)
+        }
 }
