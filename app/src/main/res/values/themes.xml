@@ -14,6 +14,7 @@
         <!-- Customize your theme here. -->
         <!--        <item name="android:typeface"></item>-->
         <item name="android:fontFamily">@font/black</item>
+
     </style>
 
     <style name="ActionIconSmallPadding" parent="Widget.AppCompat.ImageButton">

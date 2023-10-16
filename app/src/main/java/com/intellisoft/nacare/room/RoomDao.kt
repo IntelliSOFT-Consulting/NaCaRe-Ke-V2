@@ -104,8 +104,8 @@ interface RoomDao {
     @Query("SELECT EXISTS (SELECT 1 FROM responses WHERE isPatient =:b AND eventId =:code)")
     fun getEventPatientDetails(code: String, b: Boolean): Boolean
 
-    @Query("UPDATE events SET saved =:saved WHERE  id =:eventId")
-    fun competeEvent(eventId: String, saved: Boolean)
+    @Query("UPDATE events SET saved =:saved, status =:status WHERE  id =:eventId")
+    fun competeEvent(eventId: String, saved: Boolean, status: String)
 
     @Query("UPDATE responses SET patientId =:reference WHERE  eventId =:eventId AND isPatient =:isPatient")
     fun updatePatientEventResponse(eventId: String, reference: String, isPatient: Boolean)

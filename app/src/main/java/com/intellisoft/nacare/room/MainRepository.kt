@@ -252,7 +252,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun competeEvent(context: Context, eventId: String): Boolean {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
-            val data = roomDao.competeEvent(eventId, true)
+            val data = roomDao.competeEvent(eventId, true, "completed")
             return true
         }
         return false

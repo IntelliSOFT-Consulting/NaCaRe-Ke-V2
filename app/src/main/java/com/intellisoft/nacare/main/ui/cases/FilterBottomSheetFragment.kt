@@ -1,6 +1,7 @@
 package com.intellisoft.nacare.main.ui.cases
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,23 @@ class FilterBottomSheetFragment : BottomSheetDialogFragment() {
         binding = FragmentFilterBottomSheetBinding.inflate(inflater, container, false)
         val view = binding.root
         binding.apply {
+            val gridLayout: GridLayout = view.findViewById(R.id.gridLayout)
+
+            for (i in 0 until gridLayout.childCount) {
+                val childView = gridLayout.getChildAt(i)
+
+                if (childView is RadioButton) {
+                    childView.setOnClickListener {
+                        // Uncheck all other RadioButtons in the GridLayout
+                        for (j in 0 until gridLayout.childCount) {
+                            val otherRadioButton = gridLayout.getChildAt(j)
+                            if (otherRadioButton is RadioButton && otherRadioButton != childView) {
+                                otherRadioButton.isChecked = false
+                            }
+                        }
+                    }
+                }
+            }
             tvDate.setOnClickListener {
                 // check if ln_dates is visible, if visible hide else show
                 when (lnDates.visibility) {

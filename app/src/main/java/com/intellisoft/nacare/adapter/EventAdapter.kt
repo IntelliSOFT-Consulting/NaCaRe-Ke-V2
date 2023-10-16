@@ -1,12 +1,15 @@
 package com.intellisoft.nacare.adapter
 
 import android.content.Context
+import android.graphics.PorterDuff
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.intellisoft.nacare.helper_class.FormatterClass
@@ -56,14 +59,30 @@ class EventAdapter(
             "draft" -> {
 
             }
+
             "completed" -> {
+                holder.eventStatus.setImageResource(R.drawable.completeddoc)
+                holder.eventStatus.setColorFilter(
+                    ContextCompat.getColor(context, R.color.green), PorterDuff.Mode.SRC_IN
+                )
+                if (!data.synced) {
+                    holder.syncIcon.visibility = View.VISIBLE
+                    holder.syncIcon.setColorFilter(
+                        ContextCompat.getColor(context, R.color.primary), PorterDuff.Mode.SRC_IN)
+
+                    holder.syncIcon.apply {
+                        setOnClickListener {
+                            Log.e("Tag","Sync Event ${data.id}")
+                        }
+                    }
+                }
 
             }
+
             "duplicates" -> {
 
             }
         }
-//        holder.iconImageView.setImageResource(icon)
 
     }
 

@@ -142,9 +142,7 @@ class DashboardActivity : AppCompatActivity() {
             items.forEach {
                 Log.e("TAG", "Event Program Data ${it.id} name ${it.name}")
             }
-
         }
-
     }
 
     private fun syncData() {

@@ -57,134 +57,92 @@
         android:padding="16dp"
         android:visibility="gone">
 
-        <RadioGroup
-            android:id="@+id/commonRadioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
         <GridLayout
-            android:id="@+id/containerLayout"
+            android:id="@+id/gridLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="3" />
-        <!--  <RadioGroup
-              android:id="@+id/radioGroup"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:rowCount="4">
 
-              &lt;!&ndash; Row 1 &ndash;&gt;
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal">
 
-                  <RadioButton
-                      android:id="@+id/today"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Today" />
+            <!-- Row 1 -->
 
-                  <RadioButton
-                      android:id="@+id/yesterday"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Yesterday" />
+            <RadioButton
+                android:id="@+id/today"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Today" />
 
-                  <RadioButton
-                      android:id="@+id/tomorrow"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Tomorrow" />
-              </LinearLayout>
+            <RadioButton
+                android:id="@+id/yesterday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yesterday" />
 
-              &lt;!&ndash; Row 2 &ndash;&gt;
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/tomorrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tomorrow" />
 
-                  <RadioButton
-                      android:id="@+id/thisWeek"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="This Week" />
 
-                  <RadioButton
-                      android:id="@+id/lastWeek"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Last Week" />
+            <RadioButton
+                android:id="@+id/thisWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This Week" />
 
-                  <RadioButton
-                      android:id="@+id/nextWeek"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Next Week" />
-              </LinearLayout>
+            <RadioButton
+                android:id="@+id/lastWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Week" />
 
-              &lt;!&ndash; Row 3 &ndash;&gt;
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/nextWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Next Week" />
 
-                  <RadioButton
-                      android:id="@+id/thisMonth"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="This Month" />
 
-                  <RadioButton
-                      android:id="@+id/lastMonth"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Last Month" />
+            <RadioButton
+                android:id="@+id/thisMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This Month" />
 
-                  <RadioButton
-                      android:id="@+id/nextMonth"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Next Month" />
-              </LinearLayout>
+            <RadioButton
+                android:id="@+id/lastMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Month" />
 
-              &lt;!&ndash; Row 4 &ndash;&gt;
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/nextMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Next Month" />
 
-                  <RadioButton
-                      android:id="@+id/fromTo"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="From To" />
 
-                  <RadioButton
-                      android:id="@+id/other"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Other" />
+            <RadioButton
+                android:id="@+id/fromTo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From To" />
 
-                  <RadioButton
-                      android:id="@+id/anytime"
-                      android:layout_width="0dp"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:text="Anytime" />
-              </LinearLayout>
-          </RadioGroup>-->
+            <RadioButton
+                android:id="@+id/other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other" />
+
+            <RadioButton
+                android:id="@+id/anytime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Anytime" />
+        </GridLayout>
     </LinearLayout>
 
     <View

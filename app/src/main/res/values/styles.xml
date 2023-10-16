@@ -11,4 +11,5 @@
         <item name="android:indeterminateOnly">false </item>
         <item name="android:progressDrawable">@drawable/circle</item>
     </style>
+
 </resources>
