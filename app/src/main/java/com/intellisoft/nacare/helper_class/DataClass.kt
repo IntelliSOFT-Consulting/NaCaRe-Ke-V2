@@ -8,10 +8,11 @@ enum class NavigationValues {
 }
 
 enum class SubmissionsStatus {
-    SUBMITTED,
+    COMPLETED,
     DRAFT,
-    REJECTED,
-    PUBLISHED
+    SYNCED,
+    NOT_SYNCED,
+    DUPLICATED
 }
 
 enum class PositionStatus {
@@ -178,6 +179,13 @@ data class SearchPatientResponse(
     val trackedEntityInstances: List<TrackedEntityInstances>
 )
 
+data class ErrorResponse(
+    val httpStatus: String,
+    val httpStatusCode: String,
+    val status: String,
+    val message: String,
+)
+
 data class TrackedEntityInstances(
     val trackedEntityType: String,
     val trackedEntityInstance: String,
@@ -279,6 +287,7 @@ data class OptionSet(
 )
 
 data class Person(
+    val patientId: String,
     val trackedEntityInstance: String,
     val firstName: String,
     val middleName: String,
@@ -338,4 +347,23 @@ data class DataElements(
     val quiz: String,
     val type: String,
     val options: List<String>
+)
+
+data class EventPayload(
+    val program: String,
+    val orgUnit: String,
+    val eventDate: String,
+    val status: String = "COMPLETED",
+    val programStage: String,
+    val trackedEntityInstance: String,
+    val dataValues: List<PayloadDataValues>
+)
+data class PayloadDataValues(
+    val dataElement: String,
+    val value: String,
+
+)
+
+data class MultipleEvents(
+    val events: List<EventPayload>
 )

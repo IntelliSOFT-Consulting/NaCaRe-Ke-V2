@@ -15,16 +15,12 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
-import com.intellisoft.nacare.adapter.ElementAdapter
-import com.intellisoft.nacare.helper_class.DataElement
 import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.helper_class.EntityAttributes
 import com.intellisoft.nacare.helper_class.FormatterClass
-import com.intellisoft.nacare.helper_class.ProgramStageDataElements
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
@@ -58,6 +54,7 @@ class ResponderActivity : AppCompatActivity() {
                 }
                 val programStageDataElements = dataBundle.getString("programStageDataElements")
                 if (programStageDataElements != null) {
+
                     displayDataElements(programStageDataElements, eventData)
                 }
                 val attribute = dataBundle.getString("attribute")
@@ -104,6 +101,7 @@ class ResponderActivity : AppCompatActivity() {
     }
 
     private fun displayDataElements(json: String, eventData: EventData) {
+        Log.e("TAG", "Data Element Responder$eventData")
         val gson = Gson()
         val items = gson.fromJson(json, Array<ProgramStageSections>::class.java)
         dataList.clear()
@@ -114,12 +112,12 @@ class ResponderActivity : AppCompatActivity() {
         }
 
         for (dataElement in dataList) {
-            createInputField(dataElement)
+            createInputField(dataElement, eventData)
         }
 
     }
 
-    private fun createInputField(item: DataElementItem) {
+    private fun createInputField(item: DataElementItem, eventData: EventData) {
         val valueType = item.valueType
         val label = item.displayName
         val inflater = LayoutInflater.from(this)
@@ -308,10 +306,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
-                                    item.id,
-                                    s.toString()
+                                    context, eventData, item.id, s.toString()
                                 )
                             }
                         }
@@ -354,8 +349,7 @@ class ResponderActivity : AppCompatActivity() {
                     setOnCheckedChangeListener { button, isChecked ->
                         if (isChecked) {
                             viewModel.addResponse(
-                                this@ResponderActivity,
-                                eventData, item.id, "false"
+                                this@ResponderActivity, eventData, item.id, "false"
                             )
                         }
                     }
@@ -364,8 +358,7 @@ class ResponderActivity : AppCompatActivity() {
                     setOnCheckedChangeListener { button, isChecked ->
                         if (isChecked) {
                             viewModel.addResponse(
-                                this@ResponderActivity,
-                                eventData, item.id, "true"
+                                this@ResponderActivity, eventData, item.id, "true"
                             )
                         }
                     }
@@ -416,8 +409,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
+                                    context, eventData,
                                     item.id,
                                     s.toString()
                                 )
@@ -449,9 +441,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvName.text = item.displayName
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
-                    this@ResponderActivity,
-                    eventData,
-                    item.id
+                    this@ResponderActivity, eventData, item.id
                 )
                 if (response != null) {
                     editText.setText(response)
@@ -476,10 +466,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
-                                    item.id,
-                                    s.toString()
+                                    context, eventData, item.id, s.toString()
                                 )
                             }
                         }
@@ -536,10 +523,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
-                                    item.id,
-                                    s.toString()
+                                    context, eventData, item.id, s.toString()
                                 )
                             }
                         }
@@ -577,12 +561,11 @@ class ResponderActivity : AppCompatActivity() {
                     if (isChecked) {
                         viewModel.addResponse(
                             this@ResponderActivity,
-                            eventData, item.id, "true"
+                            this.eventData, item.id, "true"
                         )
                     } else {
                         viewModel.deleteResponse(
-                            this@ResponderActivity,
-                            eventData.id.toString(), item.id,
+                            this@ResponderActivity, eventData.id.toString(), item.id,
                         )
                     }
                 }
@@ -605,9 +588,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvName.text = item.displayName
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
-                    this@ResponderActivity,
-                    eventData,
-                    item.id
+                    this@ResponderActivity, eventData, item.id
                 )
                 if (response != null) {
                     editText.setText(response)
@@ -632,10 +613,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
-                                    item.id,
-                                    s.toString()
+                                    context, eventData, item.id, s.toString()
                                 )
                             }
                         }
@@ -665,9 +643,7 @@ class ResponderActivity : AppCompatActivity() {
                 tvName.text = item.displayName
                 tvElement.text = item.id
                 val response = viewModel.getEventResponse(
-                    this@ResponderActivity,
-                    eventData,
-                    item.id
+                    this@ResponderActivity, eventData, item.id
                 )
                 if (response != null) {
                     editText.setText(response)
@@ -692,10 +668,7 @@ class ResponderActivity : AppCompatActivity() {
                         ) {
                             if (s != null) {
                                 viewModel.addResponse(
-                                    context,
-                                    eventData,
-                                    item.id,
-                                    s.toString()
+                                    context, eventData, item.id, s.toString()
                                 )
                             }
                         }
@@ -711,21 +684,6 @@ class ResponderActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayDataElementsOld(json: String, eventData: EventData) {
-        val gson = Gson()
-        val items = gson.fromJson(json, Array<ProgramStageSections>::class.java)
-        dataList.clear()
-        items.forEach {
-            it.dataElements.forEach { t ->
-                dataList.add(t)
-            }
-        }
-
-        /*   binding.recyclerView.apply {
-               layoutManager = LinearLayoutManager(this@ResponderActivity)
-               adapter = ad
-           }*/
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

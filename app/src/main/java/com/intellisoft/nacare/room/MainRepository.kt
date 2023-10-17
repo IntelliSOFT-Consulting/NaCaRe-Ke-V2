@@ -1,7 +1,6 @@
 package com.intellisoft.nacare.room
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.intellisoft.nacare.helper_class.DataValueData
 import com.intellisoft.nacare.helper_class.FormatterClass
@@ -35,6 +34,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun addEvent(context: Context, data: EventData) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
+            data.userId = userId
             roomDao.addEvent(data)
         }
     }
@@ -43,9 +43,9 @@ class MainRepository(private val roomDao: RoomDao) {
         val userId = formatterClass.getSharedPref("username", context)
         if (userId != null) {
             return if (status == "ALL") {
-                roomDao.loadEvents()
+                roomDao.loadEvents(userId)
             } else {
-                roomDao.loadStatusEvents(status)
+                roomDao.loadStatusEvents(status, userId)
             }
         }
         return emptyList()
@@ -283,6 +283,27 @@ class MainRepository(private val roomDao: RoomDao) {
             return uuid
         }
         return ""
+    }
+
+    fun tiePatientToEvent(context: Context, eventData: EventData, trackedEntityInstance: String) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val ev = roomDao.tiePatientToEvent(userId,eventData.id.toString(),trackedEntityInstance)
+        }
+    }
+
+    fun updateEventData(context: Context, id: String, date: String) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val ev = roomDao.updateEventData(userId,id,date)
+        }
+    }
+
+    fun resetAllEvents(context: Context) {
+        val userId = formatterClass.getSharedPref("username", context)
+        if (userId != null) {
+            val ev = roomDao.resetAllEvents(userId,"draft",false)
+        }
     }
 
 }

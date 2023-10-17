@@ -22,11 +22,11 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addEvent(data: EventData)
 
-    @Query("SELECT * FROM events ORDER BY id DESC")
-    fun loadEvents(): List<EventData>?
+    @Query("SELECT * FROM events WHERE userId =:userId ORDER BY id DESC")
+    fun loadEvents(userId: String): List<EventData>?
 
-    @Query("SELECT * FROM events WHERE status =:status ORDER BY id DESC")
-    fun loadStatusEvents(status: String): List<EventData>?
+    @Query("SELECT * FROM events WHERE status =:status AND userId =:userId ORDER BY id DESC")
+    fun loadStatusEvents(status: String, userId: String): List<EventData>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addProgram(data: ProgramData)
@@ -112,5 +112,11 @@ interface RoomDao {
 
     @Query("UPDATE events SET patientId =:reference WHERE  id =:eventId")
     fun updatePatientToEventResponse(eventId: String, reference: String)
+    @Query("UPDATE events SET entityId =:entityId WHERE  id =:eventId AND userId =:userId")
+    fun tiePatientToEvent(userId: String, eventId: String, entityId: String)
+    @Query("UPDATE events SET date =:date WHERE  id =:eventId AND userId =:userId")
+    fun updateEventData(userId: String, eventId: String, date: String)
+    @Query("UPDATE events SET saved =:saved, status=:status WHERE userId =:userId")
+    fun resetAllEvents(userId: String, status: String, saved: Boolean)
 
 }

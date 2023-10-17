@@ -1,6 +1,7 @@
 package com.intellisoft.nacare.main.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +47,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         formatterClass = FormatterClass()
         binding.apply {
-            edtDate.setText(formatterClass.getFormattedDate())
+            edtDate.setText(formatterClass.getFormattedDateMonth())
             disableTextInputEditText(edtDate)
             disableTextInputEditText(edtOrg)
         }
@@ -83,10 +84,11 @@ class HomeFragment : Fragment() {
                     return@setOnClickListener
                 }
                 val data = EventData(
+                    userId = "",
                     date = date,
                     orgUnitCode = code,
                     orgUnitName = name,
-                    patientId = "", serverId = ""
+                    patientId = "", serverId = "", entityId = ""
                 )
                 viewModel.addEvent(requireContext(), data)
                 formatterClass.saveSharedPref("date", date, requireContext())
@@ -109,13 +111,16 @@ class HomeFragment : Fragment() {
             if (co != null) {
                 val matchingOrg = org.firstOrNull { it.code == co }
                 if (matchingOrg != null) {
-                    binding.edtOrg.setText(matchingOrg.name)
-                }
-                /*  if (matchingOrg != null) {
-                      if (matchingOrg.children.length.isEmpty()) {
+                    val children = matchingOrg.children
+                    Log.e("Data","Org Children $children")
+                    if (children.isEmpty()) {
+                        /*children.forEach {
 
-                      }
-                  }*/
+                        }*/
+                        binding.edtOrg.setText(matchingOrg.name)
+                    }
+                }
+
             }
 
         }

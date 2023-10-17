@@ -101,4 +101,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         runBlocking {
             repository.updateEventWithPatientId(context, eventData, uuid)
         }
+
+    fun tiePatientToEvent(context: Context, eventData: EventData, trackedEntityInstance: String)=
+        runBlocking {
+            repository.tiePatientToEvent(context, eventData, trackedEntityInstance)
+    }
+
+    fun updateEventData(context: Context, id: String, outputDateString: String) = runBlocking{
+        repository.updateEventData(context, id, outputDateString)
+    }
+
+    fun resetAllEvents(context: Context)= runBlocking {
+        repository.resetAllEvents(context)
+    }
 }

@@ -1,7 +1,10 @@
 package com.intellisoft.nacare.main.ui.cases
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -13,14 +16,27 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.intellisoft.nacare.adapter.EventAdapter
+import com.intellisoft.nacare.helper_class.EventPayload
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.helper_class.MultipleEvents
+import com.intellisoft.nacare.helper_class.PayloadDataValues
+import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.main.registry.RegistryActivity
+import com.intellisoft.nacare.models.Constants
+import com.intellisoft.nacare.models.Constants.PROGRAM_TRACKED_ENTITY_TYPE
+import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.nacare.ke.capture.R
 import com.nacare.ke.capture.databinding.FragmentCasesBinding
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class CasesFragment : Fragment(), FilterBottomSheetListener {
     private lateinit var binding: FragmentCasesBinding
@@ -108,9 +124,10 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
         if (!data.isNullOrEmpty()) {
             binding.recyclerView.visibility = View.VISIBLE
             binding.tvNoCases.visibility = View.GONE
-
+//            refineEventDates(data)
             dataList = data
-            val adapter = EventAdapter(dataList, requireContext(), this::handleClick)
+            val adapter =
+                EventAdapter(dataList, requireContext(), this::handleClick, this::syncEvent)
             mRecyclerView.adapter = adapter
             mRecyclerView.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -122,12 +139,127 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
 
     }
 
+/*
+    private fun refineEventDates(data: List<EventData>) {
+        data.forEach {
+            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-dd-MM")
+            val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+            try {
+                // Parse the input date string
+                val inputDate = LocalDate.parse(it.date, inputFormatter)
+
+                // Format the date in the desired output format
+                val outputDateString = outputFormatter.format(inputDate)
+
+                // Print the result
+                println("Input Date: ${it.date}")
+                println("Output Date: $outputDateString")
+                viewModel.updateEventData(requireContext(), it.id.toString(), outputDateString.toString())
+            } catch (e: Exception) {
+                // Handle parsing errors
+                println("Error parsing the date: ${e.message}")
+            }
+        }
+    }
+*/
+
     private fun handleClick(data: EventData) {
         val event = viewModel.loadCurrentEvent(requireContext(), data.id.toString())
         loadCurrentEvent(event)
 
     }
 
+    private fun syncEvent(event: EventData) {
+        Log.e("TAG", "Event Sync $event")
+        val data = viewModel.loadProgram(requireContext(), "notification")
+        if (data != null) {
+            val json = data.programStages
+            val gson = Gson()
+            val items = gson.fromJson(json, Array<ProgramStages>::class.java)
+            val multiple = mutableListOf<EventPayload>()
+            items.forEach {
+                val dataValues = mutableListOf<PayloadDataValues>()
+                val sections = it.programStageSections
+                sections.first().dataElements.forEach { k ->
+                    val valueData = PayloadDataValues(
+                        dataElement = k.id,
+                        value = k.valueType,
+                    )
+                    dataValues.add(valueData)
+                }
+                val entity = formatterClass.getSharedPref(TRACKED_ENTITY_TYPE, requireContext())
+                if (entity != null) {
+                    val programCode =
+                        formatterClass.getSharedPref(
+                            PROGRAM_TRACKED_ENTITY_TYPE,
+                            requireContext()
+                        )
+                    if (programCode != null) {
+                        val payload = EventPayload(
+                            program = programCode,
+                            orgUnit = event.orgUnitCode,
+                            eventDate = event.date,
+                            status = "COMPLETED",
+                            programStage = it.id,
+                            trackedEntityInstance = event.entityId,
+                            dataValues = dataValues
+                        )
+                        multiple.add(payload)
+
+                    }
+                }
+            }
+
+            val allEventData = MultipleEvents(
+                events = multiple
+            )
+
+            val end = gson.toJson(allEventData)
+            println(end)
+            allEventData.events.forEach {
+                val dv = gson.toJson(it)
+                Log.e("TAG", "Payload Data $dv")
+            }
+
+
+        }
+
+    }
+
+
+    private fun saveJsonToFileInDirectory(
+        context: Context,
+        jsonData: String,
+        directoryName: String,
+        fileName: String
+    ) {
+        val externalStorageState = Environment.getExternalStorageState()
+        if (Environment.MEDIA_MOUNTED == externalStorageState) {
+            val externalFilesDir = context.getExternalFilesDir(null)
+
+            if (externalFilesDir != null) {
+                val directory = File(externalFilesDir, directoryName)
+
+                if (!directory.exists()) {
+                    directory.mkdirs() // Create the directory if it doesn't exist
+                }
+
+                val file = File(directory, fileName)
+
+                try {
+                    val fileWriter = FileWriter(file)
+                    fileWriter.write(jsonData)
+                    fileWriter.close()
+                    Log.e("TAG", "JSON data saved to file: ${file.absolutePath}")
+                } catch (e: IOException) {
+                    Log.e("TAG", "Error writing JSON data to file: ${e.message}")
+                }
+            }
+        } else {
+            Log.e("TAG", "External storage not available")
+        }
+    }
 
     override fun onStatusClicked(status: String) {
         loadEventData(status)

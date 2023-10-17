@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -85,7 +86,8 @@ class PatientListActivity : AppCompatActivity() {
     private fun generatePatientList(data: SearchPatientResponse) {
         data.trackedEntityInstances.forEach {
             val person = Person(
-                trackedEntityInstance = retrieveAttribute("AP13g7NcBOf", it.attributes),
+                trackedEntityInstance=it.trackedEntityInstance,
+                patientId = retrieveAttribute("AP13g7NcBOf", it.attributes),
                 firstName = retrieveAttribute("R1vaUuILrDy", it.attributes),
                 middleName = retrieveAttribute("hn8hJsBAKrh", it.attributes),
                 lastName = retrieveAttribute("hzVijy6tEUF", it.attributes),
@@ -123,14 +125,24 @@ class PatientListActivity : AppCompatActivity() {
             bundle.putString("name", data.name)
             bundle.putString("programStageDataElements", json.toString())
             bundle.putString("attribute", jsonAttribute.toString())
-
-            val cc = Converters().toJsonEvent(eventData)
-            bundle.putString("event", cc)
-
-            val intent = Intent(this@PatientListActivity, ResponderActivity::class.java)
-            intent.putExtra("data", bundle)
-            startActivity(intent)
-            this@PatientListActivity.finish()
+            val event =
+                viewModel.loadCurrentEvent(this@PatientListActivity, eventData.id.toString())
+            if (event != null) {
+                eventData = event
+                val cc = Converters().toJsonEvent(eventData)
+                bundle.putString("event", cc)
+                Log.e("TAG", "Received Event Data $cc")
+                formatterClass.saveSharedPref("event", cc, this@PatientListActivity)
+                viewModel.tiePatientToEvent(
+                    this@PatientListActivity,
+                    eventData,
+                    person.trackedEntityInstance
+                )
+                val intent = Intent(this@PatientListActivity, ResponderActivity::class.java)
+                intent.putExtra("data", bundle)
+                startActivity(intent)
+                this@PatientListActivity.finish()
+            }
         } else {
             Toast.makeText(
                 this@PatientListActivity,

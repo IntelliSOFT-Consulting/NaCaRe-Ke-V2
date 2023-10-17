@@ -268,7 +268,7 @@ object AppUtils {
                 context,
                 { _: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int ->
 //                    val selectedDate =                        String.format("%02d/%02d/%04d", dayOfMonth, monthOfYear + 1, year)
-                    val dateFormat = SimpleDateFormat("yyyy-dd-MM", Locale.getDefault())
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val selectedDate = dateFormat.format(Date(year - 1900, monthOfYear, dayOfMonth))
 
                     textInputEditText.setText(selectedDate)

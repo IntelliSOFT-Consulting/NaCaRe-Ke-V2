@@ -8,8 +8,9 @@
     </style>
 
     <style name="CircularDeterminateProgressBar">
-        <item name="android:indeterminateOnly">false </item>
+        <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/circle</item>
     </style>
 
+    <style name="OutlinedButton" parent="Widget.MaterialComponents.Button"></style>
 </resources>

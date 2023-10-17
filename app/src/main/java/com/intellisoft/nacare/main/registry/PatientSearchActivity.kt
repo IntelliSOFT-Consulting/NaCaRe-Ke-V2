@@ -107,57 +107,12 @@ class PatientSearchActivity : AppCompatActivity() {
 
                 if (collectedInputs.size > 0) {
                     performPatientSearch(collectedInputs, layoutInflater, eventData)
-//                    Toast.makeText(
-//                        this@PatientSearchActivity,
-//                        "Found Inputs\nCode -> $collectedInputs",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
                 } else {
                     Toast.makeText(
                         this@PatientSearchActivity, "Please provide and input", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
-            /*  nextButton.setOnClickListener {
-                  collectedInputs.clear()
-                  for (i in 0 until binding.recyclerView.adapter!!.itemCount) {
-                      when (val viewHolder = recyclerView.findViewHolderForAdapterPosition(i)) {
-                          is ElementAdapter.EditTextViewHolder -> {
-                              val input =
-                                  viewHolder.itemView.findViewById<TextInputEditText>(R.id.editText).text.toString()                           //editText.text.toString()
-                              val code =
-                                  viewHolder.itemView.findViewById<TextView>(R.id.tv_element).text.toString()
-                              if (input.isNotEmpty()) {
-                                  val dt = CodeValue(
-                                      id = code, value = input
-                                  )
-                                  collectedInputs.add(dt)
-                              }
-                          }
-
-                          is ElementAdapter.AutoCompleteViewHolder -> {
-                              val input =
-                                  viewHolder.itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView).text.toString()
-                              val code =
-                                  viewHolder.itemView.findViewById<TextView>(R.id.tv_element).text.toString()
-                              if (input.isNotEmpty()) {
-                                  val dt = CodeValue(
-                                      id = code, value = input
-                                  )
-                                  collectedInputs.add(dt)
-                              }
-                          }
-                      }
-                  }
-
-                  if (collectedInputs.size > 0) {
-                      performPatientSearch(collectedInputs, layoutInflater, eventData)
-                  } else {
-                      Toast.makeText(
-                          this@PatientSearchActivity, "Please provide and input", Toast.LENGTH_SHORT
-                      ).show()
-                  }
-              }*/
         }
         networkModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
 
@@ -248,39 +203,6 @@ class PatientSearchActivity : AppCompatActivity() {
                         editText.setText(response)
                     }
                     inputFieldMap[item.id] = editText
-                    editText.apply {
-                        addTextChangedListener(object : TextWatcher {
-                            override fun beforeTextChanged(
-                                s: CharSequence?,
-                                start: Int,
-                                count: Int,
-                                after: Int
-                            ) {
-                                // This method is called before the text is changed.
-                            }
-
-                            override fun onTextChanged(
-                                s: CharSequence?,
-                                start: Int,
-                                before: Int,
-                                count: Int
-                            ) {
-                                if (s != null) {
-                                    viewModel.addResponse(
-                                        context,
-                                        eventData,
-                                        item.id,
-                                        s.toString()
-                                    )
-                                }
-                            }
-
-                            override fun afterTextChanged(s: Editable?) {
-                                // This method is called after the text has changed.
-                                // You can perform actions here based on the updated text.
-                            }
-                        })
-                    }
                     binding.lnParentView.addView(itemView)
                 } else {
                     val itemView = inflater.inflate(
@@ -311,40 +233,6 @@ class PatientSearchActivity : AppCompatActivity() {
                     autoCompleteTextView.setAdapter(adp)
                     adp.notifyDataSetChanged()
                     inputFieldMap[item.id] = autoCompleteTextView
-                    autoCompleteTextView.apply {
-
-                        addTextChangedListener(object : TextWatcher {
-                            override fun beforeTextChanged(
-                                s: CharSequence?,
-                                start: Int,
-                                count: Int,
-                                after: Int
-                            ) {
-                                // This method is called before the text is changed.
-                            }
-
-                            override fun onTextChanged(
-                                s: CharSequence?,
-                                start: Int,
-                                before: Int,
-                                count: Int
-                            ) {
-                                if (s != null) {
-                                    viewModel.addResponse(
-                                        context,
-                                        eventData,
-                                        item.id,
-                                        s.toString()
-                                    )
-                                }
-                            }
-
-                            override fun afterTextChanged(s: Editable?) {
-                                // This method is called after the text has changed.
-                                // You can perform actions here based on the updated text.
-                            }
-                        })
-                    }
                     binding.lnParentView.addView(itemView)
                 }
             }

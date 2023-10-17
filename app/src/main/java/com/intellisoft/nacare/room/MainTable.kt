@@ -70,6 +70,7 @@ data class FacilityEventData(
 
 @Entity(tableName = "events")
 data class EventData(
+    var userId: String,
     val date: String,
     val orgUnitCode: String,
     val orgUnitName: String,
@@ -78,6 +79,7 @@ data class EventData(
     val saved: Boolean = false,
     val synced: Boolean = false,
     var serverId: String,
+    var entityId: String,
     @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
     @ColumnInfo(name = "updated_at")

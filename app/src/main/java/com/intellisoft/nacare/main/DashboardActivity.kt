@@ -52,7 +52,7 @@ class DashboardActivity : AppCompatActivity() {
         binding.appBarDashboard.fab.setOnClickListener { _ ->
 
         }
-        syncData()
+//        syncData()
         prepareEventData()
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -111,8 +111,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_help -> {
-                    // Handle Help Desk item click
-//          navController.navigate(R.id.nav_help)
+                   viewModel.resetAllEvents(this@DashboardActivity)
                 }
 
                 R.id.nav_sync -> {
@@ -226,11 +225,7 @@ class DashboardActivity : AppCompatActivity() {
             .show()
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.dashboard, menu)
-//        return true
-//    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection

@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.intellisoft.nacare.helper_class.FormatterClass
+import com.intellisoft.nacare.helper_class.SubmissionsStatus
 import com.intellisoft.nacare.room.EventData
 import com.nacare.ke.capture.R
 
@@ -20,7 +21,8 @@ import com.nacare.ke.capture.R
 class EventAdapter(
     private var dataList: List<EventData>,
     private val context: Context,
-    private val click: (EventData) -> Unit
+    private val click: (EventData) -> Unit,
+    private val syncEvent: (EventData) -> Unit
 ) : RecyclerView.Adapter<EventAdapter.Pager2ViewHolder>() {
 
     inner class Pager2ViewHolder(itemView: View) :
@@ -56,8 +58,9 @@ class EventAdapter(
         holder.organisationUnit.text = org
         holder.eventDate.text = date
         when (data.status) {
-            "draft" -> {
-
+            SubmissionsStatus.DRAFT.name -> {
+                holder.eventStatus.setImageResource(R.drawable.ic_event_status_open)
+                holder.syncIcon.visibility = View.GONE
             }
 
             "completed" -> {
@@ -68,18 +71,19 @@ class EventAdapter(
                 if (!data.synced) {
                     holder.syncIcon.visibility = View.VISIBLE
                     holder.syncIcon.setColorFilter(
-                        ContextCompat.getColor(context, R.color.primary), PorterDuff.Mode.SRC_IN)
+                        ContextCompat.getColor(context, R.color.primary), PorterDuff.Mode.SRC_IN
+                    )
 
                     holder.syncIcon.apply {
                         setOnClickListener {
-                            Log.e("Tag","Sync Event ${data.id}")
+                            syncEvent(data)
                         }
                     }
                 }
 
             }
 
-            "duplicates" -> {
+            SubmissionsStatus.DUPLICATED.name -> {
 
             }
         }

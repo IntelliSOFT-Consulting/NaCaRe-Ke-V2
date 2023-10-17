@@ -16,6 +16,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.intellisoft.nacare.helper_class.DataElementItem
+import com.intellisoft.nacare.helper_class.ErrorResponse
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.PatientPayload
 import com.intellisoft.nacare.helper_class.ProgramCategory
@@ -413,6 +414,7 @@ class RetrofitCalls {
                                         } else {
                                             val bundle = Bundle()
                                             val cc = Converters().toJsonEvent(eventData)
+                                            Log.e("TAG","Event Data Sent.... $cc")
                                             bundle.putString("event", cc)
                                             bundle.putString("patients", converters)
                                             val intent = Intent(
@@ -429,20 +431,33 @@ class RetrofitCalls {
                                     }
                                 }
                             }
-                            409 -> {
-                                val errorMessage = body?.toString()
-                                Log.e("TAG", "Conflict error::::: $errorMessage")
 
-                                /*    networkModel.setBooleanValue(false)
-                                    if (body != null) {
-                                        val converters = Converters().toJsonPatientSearch(body)
-                                        val jsonObject = JsonParser.parseString(converters).asJsonObject
-                                        val status = jsonObject.getAsJsonPrimitive("status").asString
-                                        val message = jsonObject.getAsJsonPrimitive("message").asString
-                                        permissionError(layoutInflater, context, status, message)
-                                    }*/
+
+                        }
+                    } else {
+                        val statusCode = apiInterface.code()
+                        val errorBody = apiInterface.errorBody()?.string()
+                        when (statusCode) {
+                            409 -> {
+
+                                if (errorBody != null) {
+                                    val gson = Gson()
+                                    val errorResponse =
+                                        gson.fromJson(errorBody, ErrorResponse::class.java)
+                                    val errorStatus = errorResponse.status
+                                    val errorMessage = errorResponse.message
+                                    permissionError(
+                                        layoutInflater,
+                                        context,
+                                        errorStatus,
+                                        errorMessage
+                                    )
+                                }
+                                networkModel.setBooleanValue(false)
 
                             }
+
+                            500 -> {}
                         }
                     }
                 } catch (e: Exception) {
@@ -588,17 +603,20 @@ class RetrofitCalls {
                             if (body != null) {
                                 val converters = Converters().toJsonPatientRegister(body)
                                 try {
-                                    val json = Gson().fromJson(converters, JsonObject::class.java)
+                                    val json =
+                                        Gson().fromJson(converters, JsonObject::class.java)
 
                                     val jsonObject = JSONObject(json.toString())
-                                    val importSummariesArray = jsonObject.getJSONObject("response")
-                                        .getJSONArray("importSummaries")
+                                    val importSummariesArray =
+                                        jsonObject.getJSONObject("response")
+                                            .getJSONArray("importSummaries")
 
                                     if (importSummariesArray.length() > 0) {
                                         val firstImportSummary =
                                             importSummariesArray.getJSONObject(0)
                                         val href = firstImportSummary.getString("href")
-                                        val reference = firstImportSummary.getString("reference")
+                                        val reference =
+                                            firstImportSummary.getString("reference")
                                         enrollPatient(
                                             context,
                                             reference,
