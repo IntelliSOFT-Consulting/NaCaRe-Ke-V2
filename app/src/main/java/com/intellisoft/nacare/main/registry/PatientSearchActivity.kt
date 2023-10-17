@@ -33,8 +33,8 @@ import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils.isOnline
 import com.intellisoft.nacare.util.AppUtils.noConnection
 import com.intellisoft.nacare.viewmodels.NetworkViewModel
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityPatientSearchBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityPatientSearchBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
@@ -71,8 +71,6 @@ class PatientSearchActivity : AppCompatActivity() {
                 val ev = dataBundle.getString("event")
                 if (ev != null) {
                     eventData = Gson().fromJson(ev, EventData::class.java)
-
-
                 }
                 val programStageDataElements = dataBundle.getString("programStageDataElements")
                 if (programStageDataElements != null) {
@@ -144,12 +142,11 @@ class PatientSearchActivity : AppCompatActivity() {
             if (programCode != null) {
                 retrofitCalls.performPatientSearch(
                     this@PatientSearchActivity,
-                    this.eventData,
+                    eventData,
                     binding.progressBar,
                     searchParametersString,
                     networkModel,
                     layoutInflater,
-                    eventData,
                     programCode
                 )
             }

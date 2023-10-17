@@ -40,7 +40,7 @@ import com.intellisoft.nacare.room.OrganizationData
 import com.intellisoft.nacare.room.ProgramData
 import com.intellisoft.nacare.util.AppUtils.permissionError
 import com.intellisoft.nacare.viewmodels.NetworkViewModel
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -385,7 +385,6 @@ class RetrofitCalls {
         searchParametersString: String,
         networkModel: NetworkViewModel,
         layoutInflater: LayoutInflater,
-        eventData1: EventData,
         program: String
     ) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -414,7 +413,6 @@ class RetrofitCalls {
                                         } else {
                                             val bundle = Bundle()
                                             val cc = Converters().toJsonEvent(eventData)
-                                            Log.e("TAG","Event Data Sent.... $cc")
                                             bundle.putString("event", cc)
                                             bundle.putString("patients", converters)
                                             val intent = Intent(
@@ -423,6 +421,7 @@ class RetrofitCalls {
                                             )
                                             intent.putExtra("data", bundle)
                                             context.startActivity(intent)
+
                                             (context as PatientSearchActivity).finish()
                                         }
                                     } catch (e: Exception) {

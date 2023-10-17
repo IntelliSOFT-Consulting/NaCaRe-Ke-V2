@@ -11,7 +11,7 @@ import com.intellisoft.nacare.helper_class.PinLockStatus
 import com.intellisoft.nacare.main.DashboardActivity
 import com.intellisoft.nacare.network_request.RetrofitCalls
 import com.intellisoft.nacare.room.MainViewModel
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 import kotlin.random.Random
 import kotlinx.coroutines.*
 

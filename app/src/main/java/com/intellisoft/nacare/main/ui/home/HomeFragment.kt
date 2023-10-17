@@ -25,13 +25,15 @@ import com.intellisoft.nacare.util.AppUtils.disableTextInputEditText
 import com.intellisoft.nacare.util.AppUtils.generateChild
 import com.intellisoft.nacare.util.AppUtils.showDatePickerDialog
 import com.intellisoft.nacare.util.AppUtils.showNoOrgUnits
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.FragmentHomeBinding
+import com.intellisoft.nacare.viewmodels.NetworkViewModel
+import com.nacare.capture.R
+import com.nacare.capture.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var viewModel: MainViewModel
+    private lateinit var networkViewModel: NetworkViewModel
     private lateinit var formatterClass: FormatterClass
     val hashMap1 = mutableMapOf<String, String>()
     private lateinit var dialog: AlertDialog
@@ -43,6 +45,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        networkViewModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
 
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         formatterClass = FormatterClass()
@@ -94,6 +97,7 @@ class HomeFragment : Fragment() {
                 formatterClass.saveSharedPref("date", date, requireContext())
                 formatterClass.saveSharedPref("code", code, requireContext())
                 formatterClass.saveSharedPref("name", name, requireContext())
+                networkViewModel.updateData(data)
                 val hostNavController =
                     requireActivity().findNavController(R.id.nav_host_fragment_content_dashboard)
                 hostNavController.navigate(R.id.nav_gallery)
@@ -112,7 +116,7 @@ class HomeFragment : Fragment() {
                 val matchingOrg = org.firstOrNull { it.code == co }
                 if (matchingOrg != null) {
                     val children = matchingOrg.children
-                    Log.e("Data","Org Children $children")
+                    Log.e("Data", "Org Children $children")
                     if (children.isEmpty()) {
                         /*children.forEach {
 

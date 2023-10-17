@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.nacare.helper_class.OrgTreeNode
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 class TreeAdapter(
     private val context: Context,

@@ -25,8 +25,8 @@ import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityPatientListBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityPatientListBinding
 
 class PatientListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientListBinding
@@ -47,12 +47,16 @@ class PatientListActivity : AppCompatActivity() {
         if (receivedIntent != null) {
             val dataBundle = receivedIntent.getBundleExtra("data")
             if (dataBundle != null) {
-                val code = dataBundle.getString("code")
-                val name = dataBundle.getString("name")
                 val ev = dataBundle.getString("event")
                 val patients = dataBundle.getString("patients")
                 if (ev != null) {
                     eventData = Gson().fromJson(ev, EventData::class.java)
+                }else{
+                    Toast.makeText(
+                        this@PatientListActivity,
+                        "No Event Data Received",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 if (patients != null) {
                     seachData = Gson().fromJson(patients, SearchPatientResponse::class.java)

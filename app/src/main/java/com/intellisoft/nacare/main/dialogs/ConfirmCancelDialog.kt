@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.nacare.ke.capture.databinding.ConfirmCancelDialogBinding
+import com.nacare.capture.databinding.ConfirmCancelDialogBinding
 
 
 class ConfirmCancelDialog : BottomSheetDialogFragment() {

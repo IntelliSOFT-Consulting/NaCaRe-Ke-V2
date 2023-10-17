@@ -32,9 +32,9 @@ import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
 import com.intellisoft.nacare.util.AppUtils
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityRegistryBinding
-import com.nacare.ke.capture.databinding.ConfirmCancelDialogBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityRegistryBinding
+import com.nacare.capture.databinding.ConfirmCancelDialogBinding
 
 class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
     private lateinit var binding: ActivityRegistryBinding
@@ -83,46 +83,6 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
                 val bottomSheetFragment = ConfirmCancelDialog()
                 bottomSheetFragment.setFilterBottomSheetListener(this@RegistryActivity)
                 bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
-                /* val bottomSheetView: View =
-                     layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
-                 val bottomSheetDialog = BottomSheetDialog(this@RegistryActivity)
-                 bottomSheetDialog.setContentView(bottomSheetView)
-                 bottomSheetDialog.show()
-                 val btnCancel = bottomSheetDialog.findViewById<MaterialButton>(R.id.btn_cancel)
-                 btnCancel.apply {
-                     setOnClickListener {
-                         bottomSheetDialog.dismiss()
-                     }
-                 }
-                 val btnComplete = bottomSheetDialog.findViewById<MaterialButton>(R.id.bnt_complete)
-
-                 btnComplete.apply {
-                     setOnClickListener {
-                         try {
-                             val saved = viewModel.competeEvent(this@RegistryActivity, eventData)
-                             if (saved) {
-                                 Toast.makeText(
-                                     this@RegistryActivity,
-                                     "Event saved",
-                                     Toast.LENGTH_SHORT
-                                 ).show()
-                             } else {
-                                 Toast.makeText(
-                                     this@RegistryActivity,
-                                     "Error Encountered saving event, please try again later",
-                                     Toast.LENGTH_SHORT
-                                 ).show()
-                             }
-                         } catch (e: Exception) {
-                             Toast.makeText(
-                                 this@RegistryActivity,
-                                 "Error Encountered saving event, please try again later",
-                                 Toast.LENGTH_SHORT
-                             ).show()
-                         }
-                         bottomSheetDialog.dismiss()
-                     }
-                 }*/
 
             }
         }

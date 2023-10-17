@@ -1,6 +1,7 @@
 package com.intellisoft.nacare.main.registry
 
 import android.app.Application
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -9,12 +10,16 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
@@ -26,12 +31,14 @@ import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
 import com.intellisoft.nacare.util.AppUtils.containsAnyKeyword
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityResponderBinding
+import com.intellisoft.nacare.viewmodels.NetworkViewModel
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityResponderBinding
 
 class ResponderActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResponderBinding
     private lateinit var viewModel: MainViewModel
+    private lateinit var networkViewModel: NetworkViewModel
     private lateinit var eventData: EventData
     private val formatterClass = FormatterClass()
     private val dataList: MutableList<DataElementItem> = mutableListOf()
@@ -41,6 +48,7 @@ class ResponderActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         viewModel = MainViewModel((this.applicationContext as Application))
+        networkViewModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
         // Inside your ResponderActivity
         val receivedIntent = intent
         if (receivedIntent != null) {
@@ -63,21 +71,35 @@ class ResponderActivity : AppCompatActivity() {
                 }
                 supportActionBar?.apply {
                     title = name
-//                    subtitle = "$date | $org"
                     setDisplayHomeAsUpEnabled(true)
-//            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
 
+                }
+
+                binding.apply {
+                    when (name) {
+
+                        "Survivorship" -> {
+                            nextButton.text = "Finish"
+                            nextButton.setOnClickListener {
+                                val intent = Intent(this@ResponderActivity, SummaryActivity::class.java)
+                                startActivity(intent)
+                                this@ResponderActivity.finish()
+                            }
+                        }
+                        else -> {
+                            prevButton.setOnClickListener {
+                                this@ResponderActivity.finish()
+                            }
+                            nextButton.setOnClickListener {
+                                this@ResponderActivity.finish()
+                            }
+                        }
+                    }
                 }
 
             }
         }
         binding.apply {
-            prevButton.setOnClickListener {
-                this@ResponderActivity.finish()
-            }
-            nextButton.setOnClickListener {
-                this@ResponderActivity.finish()
-            }
             val program = formatterClass.getSharedPref("program", this@ResponderActivity)
             val org = formatterClass.getSharedPref("name", this@ResponderActivity)
 
@@ -85,6 +107,16 @@ class ResponderActivity : AppCompatActivity() {
             textView.text = Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY)
 
         }
+        networkViewModel.eventData.observe(this, Observer { newData ->
+            // Update UI based on the new data
+            if (newData != null) {
+                updateUI(newData)
+            }
+        })
+    }
+
+    private fun updateUI(newData: EventData) {
+        eventData = newData
     }
 
     private fun manipulateRetrievedAttribute(json: String, eventData: EventData) {

@@ -19,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.intellisoft.nacare.helper_class.CountyUnit
 import com.intellisoft.nacare.helper_class.OrgTreeNode
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date

@@ -16,7 +16,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.intellisoft.nacare.helper_class.DataElementItem
 import com.intellisoft.nacare.room.MainViewModel
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 class FacilityElementAdapter(
     private val context: Context,

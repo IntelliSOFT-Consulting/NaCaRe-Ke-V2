@@ -28,8 +28,8 @@ import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.network_request.RetrofitCalls
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityDashboardBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityDashboardBinding
 
 class DashboardActivity : AppCompatActivity() {
 

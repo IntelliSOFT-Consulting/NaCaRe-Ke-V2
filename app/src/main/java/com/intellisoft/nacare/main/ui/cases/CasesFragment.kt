@@ -30,8 +30,9 @@ import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.room.MainViewModel
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.FragmentCasesBinding
+import com.intellisoft.nacare.viewmodels.NetworkViewModel
+import com.nacare.capture.R
+import com.nacare.capture.databinding.FragmentCasesBinding
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -42,6 +43,7 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
     private lateinit var binding: FragmentCasesBinding
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var viewModel: MainViewModel
+    private lateinit var networkViewModel: NetworkViewModel
     private lateinit var formatterClass: FormatterClass
     private lateinit var dataList: List<EventData>
 
@@ -52,6 +54,7 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
     ): View {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        networkViewModel = ViewModelProvider(this).get(NetworkViewModel::class.java)
         binding = FragmentCasesBinding.inflate(inflater, container, false)
         formatterClass = FormatterClass()
         val root: View = binding.root
@@ -107,6 +110,7 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
             val converters = Converters().toJsonEvent(event)
             bundle.putString("event", converters)
             formatterClass.saveSharedPref("event", converters, requireContext())
+            networkViewModel.updateData(event)
             val intent = Intent(requireContext(), RegistryActivity::class.java)
             intent.putExtra("data", bundle)
             startActivity(intent)
@@ -124,7 +128,6 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
         if (!data.isNullOrEmpty()) {
             binding.recyclerView.visibility = View.VISIBLE
             binding.tvNoCases.visibility = View.GONE
-//            refineEventDates(data)
             dataList = data
             val adapter =
                 EventAdapter(dataList, requireContext(), this::handleClick, this::syncEvent)
@@ -139,30 +142,6 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
 
     }
 
-/*
-    private fun refineEventDates(data: List<EventData>) {
-        data.forEach {
-            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-dd-MM")
-            val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-            try {
-                // Parse the input date string
-                val inputDate = LocalDate.parse(it.date, inputFormatter)
-
-                // Format the date in the desired output format
-                val outputDateString = outputFormatter.format(inputDate)
-
-                // Print the result
-                println("Input Date: ${it.date}")
-                println("Output Date: $outputDateString")
-                viewModel.updateEventData(requireContext(), it.id.toString(), outputDateString.toString())
-            } catch (e: Exception) {
-                // Handle parsing errors
-                println("Error parsing the date: ${e.message}")
-            }
-        }
-    }
-*/
 
     private fun handleClick(data: EventData) {
         val event = viewModel.loadCurrentEvent(requireContext(), data.id.toString())

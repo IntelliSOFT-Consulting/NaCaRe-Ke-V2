@@ -15,7 +15,7 @@ import com.google.android.material.card.MaterialCardView
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.SubmissionsStatus
 import com.intellisoft.nacare.room.EventData
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 
 class EventAdapter(

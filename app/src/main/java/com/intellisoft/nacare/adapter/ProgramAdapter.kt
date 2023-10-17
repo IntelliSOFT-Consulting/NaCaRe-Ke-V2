@@ -12,7 +12,7 @@ import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.room.EventData
 import com.intellisoft.nacare.util.AppUtils
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 
 class ProgramAdapter(

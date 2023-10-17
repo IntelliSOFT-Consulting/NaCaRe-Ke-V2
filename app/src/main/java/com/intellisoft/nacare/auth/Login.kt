@@ -14,8 +14,8 @@ import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.main.DashboardActivity
 import com.intellisoft.nacare.models.Constants.SERVER_URL
 import com.intellisoft.nacare.util.AppUtils.controlData
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityLoginBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityLoginBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

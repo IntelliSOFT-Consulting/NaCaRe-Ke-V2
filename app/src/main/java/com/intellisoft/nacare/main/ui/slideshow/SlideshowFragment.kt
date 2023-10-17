@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.room.MainViewModel
-import com.nacare.ke.capture.databinding.FragmentSlideshowBinding
+import com.nacare.capture.databinding.FragmentSlideshowBinding
 
 class SlideshowFragment : Fragment() {
     private lateinit var binding: FragmentSlideshowBinding

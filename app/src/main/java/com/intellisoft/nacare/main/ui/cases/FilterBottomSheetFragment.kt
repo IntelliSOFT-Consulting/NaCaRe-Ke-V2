@@ -9,9 +9,9 @@ import android.widget.GridLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.FragmentCasesBinding
-import com.nacare.ke.capture.databinding.FragmentFilterBottomSheetBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.FragmentCasesBinding
+import com.nacare.capture.databinding.FragmentFilterBottomSheetBinding
 
 class FilterBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentFilterBottomSheetBinding

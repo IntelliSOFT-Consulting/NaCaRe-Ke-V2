@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.intellisoft.nacare.helper_class.Person
 import com.intellisoft.nacare.room.EventData
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 class PersonAdapter(
     private val people: List<Person>,

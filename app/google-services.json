@@ -36,6 +36,35 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:494501667219:android:7fefe4895b809668774866",
+        "android_client_info": {
+          "package_name": "com.nacare.capture"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "494501667219-8dkujuqtt7onbovj91qhuqrarn37vvlo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZpujiMHOgiFT6H63LYH1LEKt4_3WJ68g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "494501667219-8dkujuqtt7onbovj91qhuqrarn37vvlo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:494501667219:android:1633462387171698774866",
         "android_client_info": {
           "package_name": "com.nacare.ke.capture"

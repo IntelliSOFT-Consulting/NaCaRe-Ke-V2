@@ -12,7 +12,7 @@ import com.google.android.material.card.MaterialCardView
 import com.intellisoft.nacare.helper_class.FacilityProgramCategory
 import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.util.AppUtils
-import com.nacare.ke.capture.R
+import com.nacare.capture.R
 
 
 class FacilityAdapter(

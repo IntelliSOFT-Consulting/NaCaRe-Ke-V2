@@ -13,8 +13,8 @@ import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.ProgramStages
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.room.ProgramData
-import com.nacare.ke.capture.R
-import com.nacare.ke.capture.databinding.ActivityFacilityBinding
+import com.nacare.capture.R
+import com.nacare.capture.databinding.ActivityFacilityBinding
 
 class FacilityActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFacilityBinding

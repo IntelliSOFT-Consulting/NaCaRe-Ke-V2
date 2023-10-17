@@ -238,5 +238,6 @@
     <string name="action_view">View</string>
     <string name="save_exit">Next</string>
     <string name="organization_unit">Organization Unit</string>
+    <string name="save_exit_summary"><![CDATA[Save & Exit]]></string>
 
 </resources>
