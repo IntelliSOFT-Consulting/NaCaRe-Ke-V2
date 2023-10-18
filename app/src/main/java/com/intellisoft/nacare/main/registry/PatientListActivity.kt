@@ -20,6 +20,7 @@ import com.intellisoft.nacare.helper_class.ProgramCategory
 import com.intellisoft.nacare.helper_class.ProgramSections
 import com.intellisoft.nacare.helper_class.ProgramStageSections
 import com.intellisoft.nacare.helper_class.SearchPatientResponse
+import com.intellisoft.nacare.main.DashboardActivity
 import com.intellisoft.nacare.models.Constants.PATIENT_ID
 import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.EventData
@@ -135,15 +136,15 @@ class PatientListActivity : AppCompatActivity() {
                 eventData = event
                 val cc = Converters().toJsonEvent(eventData)
                 bundle.putString("event", cc)
-                Log.e("TAG", "Received Event Data $cc")
                 formatterClass.saveSharedPref("event", cc, this@PatientListActivity)
                 viewModel.tiePatientToEvent(
                     this@PatientListActivity,
                     eventData,
                     person.trackedEntityInstance
                 )
-                val intent = Intent(this@PatientListActivity, ResponderActivity::class.java)
-                intent.putExtra("data", bundle)
+                manipulateRetrievedAttribute(jsonAttribute.toString(),eventData)
+                val intent = Intent(this@PatientListActivity, DashboardActivity::class.java)
+                intent.putExtra("searchPatient", "searchPatient")
                 startActivity(intent)
                 this@PatientListActivity.finish()
             }
@@ -156,7 +157,18 @@ class PatientListActivity : AppCompatActivity() {
         }
 
     }
-
+    private fun manipulateRetrievedAttribute(json: String, eventData: EventData) {
+        val gson = Gson()
+        val items = gson.fromJson(json, Array<EntityAttributes>::class.java)
+        items.forEach {
+            viewModel.addResponse(
+                this@PatientListActivity,
+                eventData,
+                it.attribute,
+                it.value
+            )
+        }
+    }
     private fun loadInitialData(): ProgramCategory? {
         val data = viewModel.loadProgram(this, "notification")
 

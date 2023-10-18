@@ -60,6 +60,10 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
                     eventData = Gson().fromJson(event, EventData::class.java)
                 }
             }
+            val data = receivedIntent.getStringExtra("searchPatient")
+            if (data != null) {
+
+            }
         }
         viewModel = MainViewModel((this.applicationContext as Application))
         loadInitialData()
@@ -243,6 +247,15 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
         }
         ad.notifyDataSetChanged()
 
+        val receivedIntent = intent
+        if (receivedIntent != null) {
+            val data = receivedIntent.getStringExtra("searchPatient")
+            if (data == "searchPatient") {
+                handleClick(pr)
+                receivedIntent.removeExtra("searchPatient")
+            }
+        }
+
         binding.apply {
 
 
@@ -344,12 +357,16 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    return
+                } else {
+                    val intent = Intent(this@RegistryActivity, ResponderActivity::class.java)
+                    intent.putExtra("data", bundle)
+                    startActivity(intent)
                 }
+            } else {
+                val intent = Intent(this@RegistryActivity, d)
+                intent.putExtra("data", bundle)
+                startActivity(intent)
             }
-            val intent = Intent(this@RegistryActivity, d)
-            intent.putExtra("data", bundle)
-            startActivity(intent)
         } else {
             Toast.makeText(
                 this@RegistryActivity,
@@ -382,7 +399,7 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
     }
 
     private fun generatePath(name: String): Class<*>? {
-        return if (name == "Patient Details") {
+        if (name == "Patient Details") {
             formatterClass.saveSharedPref(
                 PATIENT_REGISTRATION, "true",
                 this@RegistryActivity,
@@ -402,16 +419,17 @@ class RegistryActivity : AppCompatActivity(), ConfirmCancelDialogListener {
             }
             val exists = viewModel.getPatientDetails(this@RegistryActivity, eventData)
             if (!exists) {
-                PatientSearchActivity::class.java
+                return PatientSearchActivity::class.java
             } else {
-                ResponderActivity::class.java
+                return ResponderActivity::class.java
             }
         } else {
             formatterClass.deleteSharedPref(
                 PATIENT_REGISTRATION,
                 this@RegistryActivity
             )
-            ResponderActivity::class.java
+
+            return ResponderActivity::class.java
         }
 
     }

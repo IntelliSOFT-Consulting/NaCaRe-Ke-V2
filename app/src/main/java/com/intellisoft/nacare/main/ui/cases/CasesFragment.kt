@@ -207,39 +207,6 @@ class CasesFragment : Fragment(), FilterBottomSheetListener {
     }
 
 
-    private fun saveJsonToFileInDirectory(
-        context: Context,
-        jsonData: String,
-        directoryName: String,
-        fileName: String
-    ) {
-        val externalStorageState = Environment.getExternalStorageState()
-        if (Environment.MEDIA_MOUNTED == externalStorageState) {
-            val externalFilesDir = context.getExternalFilesDir(null)
-
-            if (externalFilesDir != null) {
-                val directory = File(externalFilesDir, directoryName)
-
-                if (!directory.exists()) {
-                    directory.mkdirs() // Create the directory if it doesn't exist
-                }
-
-                val file = File(directory, fileName)
-
-                try {
-                    val fileWriter = FileWriter(file)
-                    fileWriter.write(jsonData)
-                    fileWriter.close()
-                    Log.e("TAG", "JSON data saved to file: ${file.absolutePath}")
-                } catch (e: IOException) {
-                    Log.e("TAG", "Error writing JSON data to file: ${e.message}")
-                }
-            }
-        } else {
-            Log.e("TAG", "External storage not available")
-        }
-    }
-
     override fun onStatusClicked(status: String) {
         loadEventData(status)
     }

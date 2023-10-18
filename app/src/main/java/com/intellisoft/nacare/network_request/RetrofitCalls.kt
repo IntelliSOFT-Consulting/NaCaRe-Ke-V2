@@ -415,6 +415,15 @@ class RetrofitCalls {
                                             val cc = Converters().toJsonEvent(eventData)
                                             bundle.putString("event", cc)
                                             bundle.putString("patients", converters)
+                                            val programStageDataElements =
+                                                formatterClass.getSharedPref(
+                                                    "programStageDataElements",
+                                                    context
+                                                )
+
+                                            if (programStageDataElements!=null){
+                                                bundle.putString("programStageDataElements", programStageDataElements)
+                                            }
                                             val intent = Intent(
                                                 context,
                                                 PatientListActivity::class.java

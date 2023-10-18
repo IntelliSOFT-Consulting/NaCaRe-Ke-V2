@@ -23,9 +23,11 @@ import com.intellisoft.nacare.helper_class.FormatterClass
 import com.intellisoft.nacare.helper_class.PatientPayload
 import com.intellisoft.nacare.helper_class.Person
 import com.intellisoft.nacare.helper_class.ProgramStages
+import com.intellisoft.nacare.main.registry.RegistryActivity
 import com.intellisoft.nacare.models.Constants.PROGRAM_TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.models.Constants.TRACKED_ENTITY_TYPE
 import com.intellisoft.nacare.network_request.RetrofitCalls
+import com.intellisoft.nacare.room.Converters
 import com.intellisoft.nacare.room.MainViewModel
 import com.intellisoft.nacare.util.AppUtils
 import com.nacare.capture.R
@@ -51,6 +53,30 @@ class DashboardActivity : AppCompatActivity() {
 
         binding.appBarDashboard.fab.setOnClickListener { _ ->
 
+        }
+
+        val receivedIntent = intent
+        if (receivedIntent != null) {
+            val data = receivedIntent.getStringExtra("searchPatient")
+            if (data == "searchPatient") {
+                openEventList()
+                val event = viewModel.loadLatestEvent(this@DashboardActivity)
+                if (event != null) {
+                    formatterClass.saveSharedPref("date", event.date, this@DashboardActivity)
+                    formatterClass.saveSharedPref("code", event.orgUnitCode, this@DashboardActivity)
+                    formatterClass.saveSharedPref("name", event.orgUnitName, this@DashboardActivity)
+
+                    val bundle = Bundle()
+                    val converters = Converters().toJsonEvent(event)
+                    bundle.putString("event", converters)
+                    formatterClass.saveSharedPref("event", converters, this@DashboardActivity)
+
+                    val intent = Intent(this@DashboardActivity, RegistryActivity::class.java)
+                    intent.putExtra("data", bundle)
+                    intent.putExtra("searchPatient", "searchPatient")
+                    startActivity(intent)
+                }
+            }
         }
 //        syncData()
         prepareEventData()
@@ -84,15 +110,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_cases -> {
-                    // Handle Set PIN item click
-//          navController.navigate(R.id.nav_set_pin)
-
-                    formatterClass.deleteSharedPref("date", this@DashboardActivity)
-                    formatterClass.deleteSharedPref("code", this@DashboardActivity)
-                    formatterClass.deleteSharedPref("name", this@DashboardActivity)
-                    val hostNavController =
-                        findNavController(R.id.nav_host_fragment_content_dashboard)
-                    hostNavController.navigate(R.id.nav_gallery)
+                    openEventList()
                 }
 
                 R.id.nav_set_pin -> {
@@ -111,7 +129,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_help -> {
-                   viewModel.resetAllEvents(this@DashboardActivity)
+                    viewModel.resetAllEvents(this@DashboardActivity)
                 }
 
                 R.id.nav_sync -> {
@@ -226,7 +244,6 @@ class DashboardActivity : AppCompatActivity() {
     }
 
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection
         return when (item.itemId) {
@@ -239,16 +256,20 @@ class DashboardActivity : AppCompatActivity() {
             R.id.action_clear -> {
                 // Handle the second menu item click
 //                viewModel.clearEntireDatabase()
-                formatterClass.deleteSharedPref("date", this@DashboardActivity)
-                formatterClass.deleteSharedPref("code", this@DashboardActivity)
-                formatterClass.deleteSharedPref("name", this@DashboardActivity)
-                val hostNavController = findNavController(R.id.nav_host_fragment_content_dashboard)
-                hostNavController.navigate(R.id.nav_gallery)
+                openEventList()
                 true
             }
             // Add more cases for other menu items if needed
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun openEventList() {
+        formatterClass.deleteSharedPref("date", this@DashboardActivity)
+        formatterClass.deleteSharedPref("code", this@DashboardActivity)
+        formatterClass.deleteSharedPref("name", this@DashboardActivity)
+        val hostNavController = findNavController(R.id.nav_host_fragment_content_dashboard)
+        hostNavController.navigate(R.id.nav_gallery)
     }
 
     override fun onSupportNavigateUp(): Boolean {

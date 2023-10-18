@@ -66,7 +66,6 @@ class PatientSearchActivity : AppCompatActivity() {
         if (receivedIntent != null) {
             val dataBundle = receivedIntent.getBundleExtra("data")
             if (dataBundle != null) {
-                val code = dataBundle.getString("code")
                 val name = dataBundle.getString("name")
                 val ev = dataBundle.getString("event")
                 if (ev != null) {
@@ -74,6 +73,11 @@ class PatientSearchActivity : AppCompatActivity() {
                 }
                 val programStageDataElements = dataBundle.getString("programStageDataElements")
                 if (programStageDataElements != null) {
+                    formatterClass.saveSharedPref(
+                        "programStageDataElements",
+                        programStageDataElements,
+                        this@PatientSearchActivity
+                    )
                     displayDataElements(programStageDataElements, eventData)
                 }
                 supportActionBar?.apply {
@@ -235,7 +239,6 @@ class PatientSearchActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
