@@ -93,7 +93,9 @@ class DashboardActivity : AppCompatActivity() {
                     R.id.nav_gallery,
                     R.id.nav_slideshow,
                     R.id.settingsFragment,
-                    R.id.programsFragment
+                    R.id.programsFragment,
+                    R.id.facilityFragment,
+                    R.id.eventsFragment
                 ), drawerLayout
             )
         setupActionBarWithNavController(navController, appBarConfiguration)

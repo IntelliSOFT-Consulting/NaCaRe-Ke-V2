@@ -20,8 +20,8 @@
             android:layout_height="wrap_content"
             android:text="@string/select_a_tool" />
 
-        <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/materialCardView"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialFacilityCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_15dp"
@@ -70,7 +70,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/materialPatientCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

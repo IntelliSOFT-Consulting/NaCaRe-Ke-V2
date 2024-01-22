@@ -86,12 +86,12 @@ class LandingFragment : Fragment() {
         binding.btnProceed.apply {
 
             setOnClickListener {
-                val organization = binding.organizationEdittext.text
-                if (organization.isNullOrEmpty()) {
-                    binding.organizationLayout.error = "Please select organization unit"
-                    binding.organizationEdittext.requestFocus()
-                    return@setOnClickListener
-                }
+//                val organization = binding.organizationEdittext.text
+//                if (organization.isNullOrEmpty()) {
+//                    binding.organizationLayout.error = "Please select organization unit"
+//                    binding.organizationEdittext.requestFocus()
+//                    return@setOnClickListener
+//                }
                 NavHostFragment.findNavController(this@LandingFragment)
                     .navigate(R.id.action_landingFragment_to_programsFragment)
             }

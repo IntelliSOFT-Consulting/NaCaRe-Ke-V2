@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
+import androidx.navigation.fragment.NavHostFragment
 import androidx.paging.PagedList
 import com.intellisoft.nacare.core.Sdk
 import com.nacare.capture.databinding.FragmentProgramsBinding
@@ -15,7 +16,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.hisp.dhis.android.core.arch.repositories.scope.RepositoryScope
 import org.hisp.dhis.android.core.program.Program
-
+import com.nacare.capture.R
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,6 +50,22 @@ class ProgramsFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentProgramsBinding.inflate(inflater, container, false)
         programData()
+        binding.apply {
+            btnPrevious.apply {
+                setOnClickListener {
+                    NavHostFragment.findNavController(this@ProgramsFragment)
+                        .navigate(R.id.landingFragment)
+                }
+            }
+            materialFacilityCardView.setOnClickListener {
+                NavHostFragment.findNavController(this@ProgramsFragment)
+                    .navigate(R.id.facilityFragment)
+            }
+            materialPatientCardView.setOnClickListener {
+                NavHostFragment.findNavController(this@ProgramsFragment)
+                    .navigate(R.id.eventsFragment)
+            }
+        }
         return binding.root
 
     }

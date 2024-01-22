@@ -50,5 +50,15 @@
         android:name="com.intellisoft.nacare.main.ui.home.ProgramsFragment"
         android:label="@string/cancer_notification_tool"
         tools:layout="@layout/fragment_programs" />
+    <fragment
+        android:id="@+id/facilityFragment"
+        android:name="com.intellisoft.nacare.main.ui.home.FacilityFragment"
+        android:label="@string/cancer_notification_tool"
+        tools:layout="@layout/fragment_facility" />
+    <fragment
+        android:id="@+id/eventsFragment"
+        android:name="com.intellisoft.nacare.main.ui.home.EventsFragment"
+        android:label="@string/cancer_notification_tool"
+        tools:layout="@layout/fragment_events" />
 
 </navigation>

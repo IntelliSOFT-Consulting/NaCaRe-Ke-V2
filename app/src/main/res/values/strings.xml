@@ -245,5 +245,15 @@
     <string name="cancer_notification_tool">Cancer Notification Tool</string>
     <string name="previous_button">"Previous "</string>
     <string name="select_a_tool">Select a Tool</string>
+    <string name="registered_event">Registered Events</string>
+    <string name="reported_cases">Reported Cases</string>
+    <string name="register_new">Register new Cancer</string>
+    <string name="action">Action</string>
+    <string name="status">Status</string>
+    <string name="date_captured">Date Captured</string>
+    <string name="date_created">Date Created</string>
+    <string name="firstname">First Name</string>
+    <string name="lastname">Last Name</string>
+    <string name="diagnosis">Diagnosis</string>
 
 </resources>
