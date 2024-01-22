@@ -239,7 +239,9 @@ data class TrackedEntityAttributes(
 )
 
 data class OrgTreeNode(
-    val label: String, val code: String,
+    val label: String,
+    val code: String,
+    val level:String,
     val children: List<OrgTreeNode> = emptyList(),
     var isExpanded: Boolean = false
 )
@@ -319,14 +321,18 @@ data class OrganizationResponse(
 
 data class OrganizationUnitResponse(
     val name: String,
+    val id: String,
+    val level: String,
     val children: List<CountyUnit>,
-    val id: String
+
 )
 
 data class CountyUnit(
     val name: String,
+    val id: String,
+    val level: String,
     val children: List<CountyUnit>,
-    val id: String
+
 )
 
 

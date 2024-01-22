@@ -23,7 +23,7 @@ interface Interface {
     @GET("/api/40/me.json?fields=id,username,surname,firstName,organisationUnits[name,id]")
     suspend fun loadOrganization(): Response<OrganizationResponse>
 
-    @GET("/api/40/organisationUnits/{code}?fields=name,id,children[name,id,children[name,id,children[name,id,children[name,id,children]]]]")
+    @GET("/api/40/organisationUnits/{code}?fields=name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children]]]]")
     suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
 
     @GET("/api/40/programs")

@@ -37,7 +37,7 @@ android {
     }
     packagingOptions {
         resources {
-            pickFirsts += ['META-INF/ASL-2.0.txt', 'META-INF/LGPL-3.0.txt' ]
+            pickFirsts += ['META-INF/ASL-2.0.txt', 'META-INF/LGPL-3.0.txt']
         }
         resources.excludes.add("META-INF/*")
         resources.excludes += "DebugProbesKt.bin"
@@ -53,19 +53,26 @@ android {
     }
 }
 
+ext {
+    libraries = [
+            flipper : "0.83.0",
+            soloader: "0.10.1"
+    ]
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.4.3'
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.3'
+    implementation 'com.google.firebase:firebase-crashlytics:18.6.1'
+    implementation 'com.google.firebase:firebase-analytics:21.5.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -73,8 +80,18 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2'
     implementation 'org.hisp:dhis2-java-client:1.6.3'
-    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation "org.hisp.dhis.rules:rule-engine:2.0.48"
+    implementation("org.hisp.dhis:android-core:1.9.0") {
+        exclude group: 'com.facebook.flipper'
+    }
+    debugImplementation "com.facebook.flipper:flipper:${libraries.flipper}"
+    debugImplementation "com.facebook.soloader:soloader:${libraries.soloader}"
+    debugImplementation("com.facebook.flipper:flipper-network-plugin:${libraries.flipper}") {
+        exclude group: 'com.squareup.okhttp3'
+    }
 
+    releaseImplementation "com.facebook.flipper:flipper-noop:${libraries.flipper}"
 
     //Network
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

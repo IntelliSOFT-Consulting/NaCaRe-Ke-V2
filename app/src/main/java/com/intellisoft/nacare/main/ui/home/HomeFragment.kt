@@ -139,6 +139,7 @@ class HomeFragment : Fragment() {
                 val orgNode = OrgTreeNode(
                     label = converters.name,
                     code = converters.id,
+                    level = converters.level,
                     children = generateChild(converters.children)
                 )
                 treeNodes.add(orgNode)

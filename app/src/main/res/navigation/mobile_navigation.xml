@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/landingFragment">
 
     <fragment
         android:id="@+id/nav_home"
@@ -36,5 +36,19 @@
         android:name="com.intellisoft.nacare.main.ui.settings.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/landingFragment"
+        android:name="com.intellisoft.nacare.main.ui.home.LandingFragment"
+        android:label="@string/cancer_notification_tool"
+        tools:layout="@layout/fragment_landing">
+        <action
+            android:id="@+id/action_landingFragment_to_programsFragment"
+            app:destination="@id/programsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/programsFragment"
+        android:name="com.intellisoft.nacare.main.ui.home.ProgramsFragment"
+        android:label="@string/cancer_notification_tool"
+        tools:layout="@layout/fragment_programs" />
 
 </navigation>

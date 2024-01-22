@@ -539,6 +539,7 @@ class ElementAdapter(
                                 val orgNode = OrgTreeNode(
                                     label = converters.name,
                                     code = converters.id,
+                                    level = converters.level,
                                     children = AppUtils.generateChild(converters.children)
                                 )
                                 treeNodes.add(orgNode)

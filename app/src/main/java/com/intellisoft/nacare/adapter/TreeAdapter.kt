@@ -1,6 +1,7 @@
 package com.intellisoft.nacare.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,16 +51,32 @@ class TreeAdapter(
 
         // Handle visibility based on whether the node has children and is expanded
         val arrowIcon: ImageView = itemView.findViewById(R.id.org_unit_icon)
-        arrowIcon.visibility = if (node.children.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+        arrowIcon.visibility = if (node.children.isNotEmpty()) {
+            if (node.level != "5") {
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
+
+        } else View.INVISIBLE
 
         // Set label text
         val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
-        checkbox.visibility = if (node.children.isNotEmpty()) View.INVISIBLE else View.VISIBLE
+        checkbox.visibility = if (node.children.isNotEmpty()) View.INVISIBLE else {
+            if (node.level == "5") {
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
+        }
+
         // Handle visibility based on whether the node has children and is expanded
         if (node.children.isEmpty()) {
             checkbox.setOnClickListener {
-                val patient = treeNodes[position]
-                click(patient)
+                val org = treeNodes[position]
+                if (org.level == "5") {
+                    click(org)
+                }
             }
         }
         // Handle expand/collapse state

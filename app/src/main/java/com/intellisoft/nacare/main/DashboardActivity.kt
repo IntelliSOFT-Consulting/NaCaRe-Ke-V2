@@ -88,20 +88,26 @@ class DashboardActivity : AppCompatActivity() {
         appBarConfiguration =
             AppBarConfiguration(
                 setOf(
+                    R.id.landingFragment,
                     R.id.nav_home,
                     R.id.nav_gallery,
                     R.id.nav_slideshow,
                     R.id.settingsFragment,
-
-                    ), drawerLayout
+                    R.id.programsFragment
+                ), drawerLayout
             )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.landingFragment -> {
+                    // Handle Home item click
+                    navController.navigate(R.id.landingFragment)
+                }
+
                 R.id.nav_home -> {
                     // Handle Home item click
-                    navController.navigate(R.id.nav_home)
+                    navController.navigate(R.id.landingFragment)
                 }
 
                 R.id.nav_settings -> {
