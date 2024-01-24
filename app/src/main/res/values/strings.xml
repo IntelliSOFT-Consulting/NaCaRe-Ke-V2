@@ -122,4 +122,8 @@
     <string name="lastname">Last Name</string>
     <string name="diagnosis">Diagnosis</string>
     <string name="date_created">Date Created</string>
+    <string name="search_patient">Search Patient</string>
+    <string name="search_results">Search Results</string>
+    <string name="no_record_found_for_the_patient_with_the_details_provided">No record found for the patient with the details provided</string>
+    <string name="register_new_patient">Register New Patient</string>
 </resources>

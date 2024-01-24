@@ -24,4 +24,5 @@
     <dimen name="default_top_margin">16dp</dimen>
     <dimen name="_16dp">16dp</dimen>
     <dimen name="_0dp">0dp</dimen>
+    <dimen name="_3dp">3dp</dimen>
 </resources>

@@ -44,7 +44,7 @@ public class TrackedEntityAttributesFieldHolder extends SearchFieldHolder {
         attributeList = Sdk.d2().trackedEntityModule().trackedEntityAttributes()
                 .blockingGet();
         List<String> attributeListNames = new ArrayList<>();
-        attributeListNames.add(label.getText().toString());
+//        attributeListNames.add(label.getText().toString());
         for (TrackedEntityAttribute attribute : attributeList) {
             attributeListNames.add(attribute.displayName());
         }

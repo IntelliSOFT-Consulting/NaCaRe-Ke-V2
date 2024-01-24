@@ -146,7 +146,7 @@ public class EnrollmentFormActivity extends AppCompatActivity {
                 } else {
                     valueRepository.blockingDeleteIfExist();
                 }
-            } catch (D2Error d2Error) {
+            } catch (Exception d2Error) {
                 d2Error.printStackTrace();
             } finally {
                 if (!value.equals(currentValue)) {
@@ -163,10 +163,10 @@ public class EnrollmentFormActivity extends AppCompatActivity {
 
         disposable.add(
                 engineService.configure(Sdk.d2(),
-                        getIntent().getStringExtra(IntentExtra.PROGRAM_UID.name()),
-                        EnrollmentFormService.getInstance().getEnrollmentUid(),
-                        null
-                )
+                                getIntent().getStringExtra(IntentExtra.PROGRAM_UID.name()),
+                                EnrollmentFormService.getInstance().getEnrollmentUid(),
+                                null
+                        )
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
@@ -185,7 +185,7 @@ public class EnrollmentFormActivity extends AppCompatActivity {
                                         EnrollmentFormService.getInstance().getEnrollmentFormFields()
                                                 .subscribeOn(Schedulers.io()),
                                         engineService.ruleEnrollment().flatMap(ruleEnrollment ->
-                                                Flowable.fromCallable(() -> ruleEngine.evaluate(ruleEnrollment).call()))
+                                                        Flowable.fromCallable(() -> ruleEngine.evaluate(ruleEnrollment).call()))
                                                 .subscribeOn(Schedulers.io()),
                                         this::applyEffects
                                 ))

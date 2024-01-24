@@ -90,7 +90,7 @@ dependencies {
     debugImplementation ("com.facebook.flipper:flipper-network-plugin:${libraries.flipper}") {
         exclude group: 'com.squareup.okhttp3'
     }
-    implementation 'com.airbnb.android:lottie:4.2.0'
+    implementation 'com.airbnb.android:lottie:6.1.0'
 
     releaseImplementation "com.facebook.flipper:flipper-noop:${libraries.flipper}"
 }

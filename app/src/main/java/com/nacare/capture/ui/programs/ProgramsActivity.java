@@ -72,6 +72,7 @@ public class ProgramsActivity extends ListActivity implements OnProgramSelection
     private LiveData<PagedList<Program>> getPrograms(List<String> organisationUnitUids) {
         return Sdk.d2().programModule().programs()
                 .byOrganisationUnitList(organisationUnitUids)
+//                .byProgramType().eq(ProgramType.WITH_REGISTRATION)
                 .orderByName(RepositoryScope.OrderByDirection.ASC)
                 .getPaged(20);
     }
@@ -80,6 +81,7 @@ public class ProgramsActivity extends ListActivity implements OnProgramSelection
     public void onProgramSelected(String programUid, ProgramType programType, String type) {
 
         new FormatterClass().saveSharedPref("program", type, this);
+        new FormatterClass().saveSharedPref("programUid", programUid, this);
         if (programType == ProgramType.WITH_REGISTRATION)
             ActivityStarter.startActivity(this,
                     TrackedEntityInstancesActivity

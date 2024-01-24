@@ -16,6 +16,7 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
+import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
@@ -67,32 +68,34 @@ public class TrackedEntityInstancesActivity extends ListActivity {
                 Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
                 return;
             }
-            compositeDisposable.add(
-                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
-                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
-                                    .blockingAdd(
-                                            TrackedEntityInstanceCreateProjection.builder()
-                                                    .organisationUnit(orgCode)
-                                                    .trackedEntityType(program.trackedEntityType().uid())
-                                                    .build()
-                                    ))
-                            .map(teiUid -> EnrollmentFormActivity.getFormActivityIntent(
-                                    TrackedEntityInstancesActivity.this,
-                                    teiUid,
-                                    selectedProgram,
-                                    orgCode
-                            ))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-
-                            .subscribe(
-                                    activityIntent ->
-                                            ActivityStarter.startActivityForResult(
-                                                    TrackedEntityInstancesActivity.this, activityIntent, ENROLLMENT_RQ),
-                                    Throwable::printStackTrace
-                            )
-
-            );
+            ActivityStarter.startActivity(
+                    TrackedEntityInstancesActivity.this, TrackedEntityInstanceSearchActivity.getIntent(this), false);
+//            compositeDisposable.add(
+//                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
+//                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
+//                                    .blockingAdd(
+//                                            TrackedEntityInstanceCreateProjection.builder()
+//                                                    .organisationUnit(orgCode)
+//                                                    .trackedEntityType(program.trackedEntityType().uid())
+//                                                    .build()
+//                                    ))
+//                            .map(teiUid -> EnrollmentFormActivity.getFormActivityIntent(
+//                                    TrackedEntityInstancesActivity.this,
+//                                    teiUid,
+//                                    selectedProgram,
+//                                    orgCode
+//                            ))
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//
+//                            .subscribe(
+//                                    activityIntent ->
+//                                            ActivityStarter.startActivityForResult(
+//                                                    TrackedEntityInstancesActivity.this, activityIntent, ENROLLMENT_RQ),
+//                                    Throwable::printStackTrace
+//                            )
+//
+//            );
 
         });
     }

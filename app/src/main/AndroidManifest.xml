@@ -20,6 +20,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
+            android:name=".ui.main.custom.TrackedEntityInstanceActivity"
+            android:exported="false"
+            android:label="@string/cancer_notification_tool"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ui.main.SyncActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
