@@ -360,7 +360,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setSyncing();
             uploadData();
         } else if (id == R.id.navExit) {
-            compositeDisposable.add(LogOutService.logOut(this));
+           try{
+               compositeDisposable.add(LogOutService.logOut(this));
+           }catch (Exception e){
+               e.printStackTrace();
+           }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawerLayout);

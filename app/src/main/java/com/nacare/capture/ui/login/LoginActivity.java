@@ -17,6 +17,7 @@ import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.main.MainActivity;
+import com.nacare.capture.ui.main.SyncActivity;
 import com.nacare.capture.ui.programs.ProgramsActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -74,9 +75,9 @@ public class LoginActivity extends AppCompatActivity {
             }
             if (loginResult.getSuccess() != null) {
                 if (Sdk.d2().programModule().programs().blockingCount() > 0) {
-                    ActivityStarter.startActivity(this, ProgramsActivity.getProgramActivityIntent(this),true);
+                    ActivityStarter.startActivity(this, SyncActivity.getIntent(this),true);
                 } else {
-                    ActivityStarter.startActivity(this, MainActivity.getMainActivityIntent(this),true);
+                    ActivityStarter.startActivity(this, SyncActivity.getIntent(this),true);
                 }
             }
             setResult(Activity.RESULT_OK);

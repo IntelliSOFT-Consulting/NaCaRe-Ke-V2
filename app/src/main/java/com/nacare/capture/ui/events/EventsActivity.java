@@ -126,6 +126,8 @@ public class EventsActivity extends ListActivity {
             findViewById(R.id.eventsNotificator).setVisibility(View.GONE);
             findViewById(R.id.eventButton).setVisibility(
                     eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+            findViewById(R.id.circularProgressBar).setVisibility(
+                    eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 

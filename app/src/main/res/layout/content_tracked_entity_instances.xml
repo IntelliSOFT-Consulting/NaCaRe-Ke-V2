@@ -1,37 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/_10dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.tracked_entity_instances.TrackedEntityInstancesActivity"
     tools:showIn="@layout/activity_tracked_entity_instances">
 
-    <TextView
-        android:id="@+id/trackedEntityInstancesNotificator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/no_tracked_entity_instances_found"
-        android:textSize="16sp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/trackedEntityInstancesRecyclerView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        tools:listitem="@layout/list_item_with_style" />
+        android:orientation="vertical">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/enrollmentButton"
+        <TextView
+            android:id="@+id/textViewWithArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10dp"
+            android:clickable="true"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="@string/menu_home"
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/baseline_arrow_back_ios_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/enrollmentButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/_15dp"
+            android:gravity="center"
+            android:text="@string/register_new"
+            app:icon="@android:drawable/ic_menu_search" />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5dp"
+            android:text="@string/reported_cases" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/purple_200"
+            android:paddingTop="@dimen/_5dp"
+            android:paddingBottom="@dimen/_5dp">
+
+            <include
+                layout="@layout/item_cases_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/trackedEntityInstancesNotificator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_tracked_entity_instances_found"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackedEntityInstancesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            tools:listitem="@layout/item_cases_data" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/circularProgressBar"
+        style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_add_white" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_centerInParent="true" />
+</RelativeLayout>

@@ -8,6 +8,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.paging.DataSource;
 import androidx.paging.PagedListAdapter;
 
@@ -46,7 +47,7 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
     @NonNull
     @Override
     public ListItemWithSyncHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tracked, parent, false);
         return new ListItemWithSyncHolder(itemView);
     }
 
@@ -58,6 +59,20 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
         holder.subtitle1.setText(valueAt(values, AttributeHelper.teiSubtitle1(trackedEntityInstance)));
         holder.subtitle2.setText(setSubtitle2(values, trackedEntityInstance));
         holder.rightText.setText(DateFormatHelper.formatDate(trackedEntityInstance.created()));
+
+        /****
+         * Updated Section
+         * */
+        holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(trackedEntityInstance.created()));
+        holder.firstnameTextView.setText(valueAt(values, AttributeHelper.teiTitle(trackedEntityInstance)));
+        holder.actionTextView.setText(valueAt(values, AttributeHelper.teiSubtitle1(trackedEntityInstance)));
+        holder.statusTextView.setText(valueAt(values, AttributeHelper.teiTitle(trackedEntityInstance)));
+        int colorBlack = ContextCompat.getColor(holder.itemView.getContext(), R.color.black);
+        holder.firstnameTextView.setTextColor(colorBlack);
+        holder.dateTextView.setTextColor(colorBlack);
+        holder.statusTextView.setTextColor(colorBlack);
+        holder.actionTextView.setTextColor(colorBlack);
+
         setImage(trackedEntityInstance, holder);
         holder.delete.setVisibility(View.VISIBLE);
         holder.delete.setOnClickListener(view -> {

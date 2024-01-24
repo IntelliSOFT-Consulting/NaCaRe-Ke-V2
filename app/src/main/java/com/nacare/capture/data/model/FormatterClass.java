@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.nacare.capture.R;
+import com.nacare.capture.data.service.SyncStatusHelper;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +37,8 @@ public class FormatterClass {
         // Replace this logic with your actual implementation
         List<HomeData> homeDataList = new ArrayList<>();
         // Example: Adding dummy data
-        homeDataList.add(new HomeData("70", "Number of notifications made by facility"));
-        homeDataList.add(new HomeData("310", "Number of active notifications made by facility (not closed within 60 days)"));
+        homeDataList.add(new HomeData(MessageFormat.format("{0}", SyncStatusHelper.trackedEntityInstanceCount()), "Number of notifications made by facility"));
+        homeDataList.add(new HomeData(MessageFormat.format("{0}", SyncStatusHelper.trackedEntityInstanceCount()), "Number of active notifications made by facility (not closed within 60 days)"));
 
         return homeDataList;
     }

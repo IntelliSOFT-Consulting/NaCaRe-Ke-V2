@@ -3,12 +3,16 @@ package com.nacare.capture.ui.tracked_entity_instances;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
+import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
@@ -54,31 +58,43 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         if (isEmpty(selectedProgram))
             findViewById(R.id.enrollmentButton).setVisibility(View.GONE);
 
-        findViewById(R.id.enrollmentButton).setOnClickListener(view -> compositeDisposable.add(
-                Sdk.d2().programModule().programs().uid(selectedProgram).get()
-                        .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
-                                .blockingAdd(
-                                        TrackedEntityInstanceCreateProjection.builder()
-                                                .organisationUnit(Sdk.d2().organisationUnitModule().organisationUnits()
-                                                        .one().blockingGet().uid())
-                                                .trackedEntityType(program.trackedEntityType().uid())
-                                                .build()
-                                ))
-                        .map(teiUid -> EnrollmentFormActivity.getFormActivityIntent(
-                                TrackedEntityInstancesActivity.this,
-                                teiUid,
-                                selectedProgram,
-                                Sdk.d2().organisationUnitModule().organisationUnits().one().blockingGet().uid()
-                                ))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                activityIntent ->
-                                        ActivityStarter.startActivityForResult(
-                                                TrackedEntityInstancesActivity.this, activityIntent,ENROLLMENT_RQ),
-                                Throwable::printStackTrace
-                        )
-        ));
+        findViewById(R.id.textViewWithArrow).setOnClickListener(v -> {
+            onBackPressed();
+        });
+        findViewById(R.id.enrollmentButton).setOnClickListener(view -> {
+            String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+            if (TextUtils.isEmpty(orgCode)) {
+                Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            compositeDisposable.add(
+                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
+                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
+                                    .blockingAdd(
+                                            TrackedEntityInstanceCreateProjection.builder()
+                                                    .organisationUnit(orgCode)
+                                                    .trackedEntityType(program.trackedEntityType().uid())
+                                                    .build()
+                                    ))
+                            .map(teiUid -> EnrollmentFormActivity.getFormActivityIntent(
+                                    TrackedEntityInstancesActivity.this,
+                                    teiUid,
+                                    selectedProgram,
+                                    orgCode
+                            ))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+
+                            .subscribe(
+                                    activityIntent ->
+                                            ActivityStarter.startActivityForResult(
+                                                    TrackedEntityInstancesActivity.this, activityIntent, ENROLLMENT_RQ),
+                                    Throwable::printStackTrace
+                            )
+
+            );
+
+        });
     }
 
     private void observeTrackedEntityInstances() {
@@ -90,6 +106,8 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             adapter.submitList(trackedEntityInstancePagedList);
             findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
                     trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+            findViewById(R.id.circularProgressBar).setVisibility(
+                    trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 
@@ -99,7 +117,10 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         if (!isEmpty(selectedProgram)) {
             List<String> programUids = new ArrayList<>();
             programUids.add(selectedProgram);
-            return teiRepository.byProgramUids(programUids);
+            String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+            if (TextUtils.isEmpty(orgCode)) {
+                return teiRepository.byProgramUids(programUids).byOrganisationUnitUid().eq(orgCode);
+            } else return teiRepository;
         } else {
             return teiRepository;
         }
@@ -115,9 +136,9 @@ public class TrackedEntityInstancesActivity extends ListActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == ENROLLMENT_RQ && resultCode == RESULT_OK){
-                adapter.invalidateSource();
+        if (requestCode == ENROLLMENT_RQ && resultCode == RESULT_OK) {
+            adapter.invalidateSource();
         }
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

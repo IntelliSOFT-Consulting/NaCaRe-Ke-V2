@@ -116,4 +116,10 @@
     <string name="action">Action</string>
     <string name="facility_details_capture_tool">Facility Details Capture Tool</string>
     <string name="save">Save</string>
+    <string name="register_new">Register New Case</string>
+    <string name="reported_cases">Reported Cases</string>
+    <string name="firstname">First Name</string>
+    <string name="lastname">Last Name</string>
+    <string name="diagnosis">Diagnosis</string>
+    <string name="date_created">Date Created</string>
 </resources>

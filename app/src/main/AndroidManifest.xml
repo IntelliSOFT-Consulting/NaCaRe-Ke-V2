@@ -20,6 +20,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
+            android:name=".ui.main.SyncActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ui.main.custom.OrganizationActivity"
             android:exported="false" />
         <activity
@@ -56,11 +60,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.tracked_entity_instances.TrackedEntityInstancesActivity"
-            android:label="@string/title_activity_tracked_entity_instances"
+            android:label="@string/cancer_notification_tool"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity"
-            android:label="@string/title_activity_tracked_entity_search"
+            android:label="@string/cancer_notification_tool"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.enrollment_form.EnrollmentFormActivity"
