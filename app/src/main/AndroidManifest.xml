@@ -88,11 +88,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.event_form.EventFormActivity"
-            android:label="@string/title_activity_event_form"
+            android:label="@string/facility_details_capture_tool"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.events.EventsActivity"
-            android:label="Facility Details Capture Tool"
+            android:label="@string/facility_details_capture_tool"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ui.data_sets.instances.data_set_form.DataSetFormActivity" />
 

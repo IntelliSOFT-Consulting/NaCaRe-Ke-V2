@@ -88,7 +88,7 @@ public class DataSetFormActivity extends AppCompatActivity {
             }
         });
         binding.buttonEnd.setOnClickListener(this::finishEnrollment);
-        binding.buttonValidate.setOnClickListener(this::runValidationRules);
+//        binding.buttonValidate.setOnClickListener(this::runValidationRules);
         binding.formRecycler.setAdapter(adapter);
 
         DataSetFormService.getInstance().init(

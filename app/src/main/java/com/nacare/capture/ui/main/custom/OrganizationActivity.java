@@ -103,7 +103,7 @@ public class OrganizationActivity extends AppCompatActivity {
                 // This method is called to notify you that the characters within `editable` have changed.
                 String newText = editable.toString();
                 // Do something with the new text.
-                if (newText.length() >= 4) {
+                if (newText.length() >= 3) {
                     loadOrganizationsByName(newText);
 
                 }
@@ -122,6 +122,7 @@ public class OrganizationActivity extends AppCompatActivity {
         disposable = Sdk.d2().organisationUnitModule().organisationUnits()
 //                .byRootOrganisationUnit(true)
                 .byDisplayName().like(newText)
+                .byLevel().eq(5)
                 .get()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -21,6 +23,7 @@ import androidx.databinding.DataBindingUtil;
 import com.nacare.capture.BuildConfig;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
+import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.forms.EventFormService;
 import com.nacare.capture.data.service.forms.FormField;
 import com.nacare.capture.data.service.forms.RuleEngineService;
@@ -102,17 +105,22 @@ public class EventFormActivity extends AppCompatActivity {
 
         adapter = new FormAdapter(getValueListener(), getImageListener());
         binding.buttonEnd.setOnClickListener(this::finishEnrollment);
-        binding.buttonValidate.setOnClickListener(this::evaluateProgramIndicators);
+//        binding.buttonValidate.setOnClickListener(this::evaluateProgramIndicators);
         binding.formRecycler.setAdapter(adapter);
 
         engineInitialization = PublishProcessor.create();
 
-        if (EventFormService.getInstance().init(
-                Sdk.d2(),
-                eventUid,
-                programUid,
-                getIntent().getStringExtra(IntentExtra.OU_UID.name())))
-            this.engineService = new RuleEngineService();
+        String orgName = new FormatterClass().getSharedPref("orgName", this);
+        String program = new FormatterClass().getSharedPref("program", this);
+        if (!TextUtils.isEmpty(orgName)) {
+            String formattedText = "Saving to <b>" + program + "</b> in <b>" + orgName + "</b>";
+            binding.textViewNote.setText(Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY));
+        }
+        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+        if (!TextUtils.isEmpty(orgCode)) {
+            if (EventFormService.getInstance().init(Sdk.d2(), eventUid, programUid, orgCode))
+                this.engineService = new RuleEngineService();
+        }
 
     }
 
@@ -135,7 +143,7 @@ public class EventFormActivity extends AppCompatActivity {
                 } else {
                     valueRepository.blockingDeleteIfExist();
                 }
-            } catch (D2Error d2Error) {
+            } catch (Exception d2Error) {
                 d2Error.printStackTrace();
             } finally {
                 if (!value.equals(currentValue)) {
@@ -175,10 +183,10 @@ public class EventFormActivity extends AppCompatActivity {
 
         disposable.add(
                 Flowable.zip(
-                        engineService.configure(Sdk.d2(), programUid, eventUid),
-                        EventFormService.getInstance().isListingRendering(),
-                        Pair::of
-                )
+                                engineService.configure(Sdk.d2(), programUid, eventUid),
+                                EventFormService.getInstance().isListingRendering(),
+                                Pair::of
+                        )
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
@@ -198,7 +206,7 @@ public class EventFormActivity extends AppCompatActivity {
                                         EventFormService.getInstance().getEventFormFields()
                                                 .subscribeOn(Schedulers.io()),
                                         engineService.ruleEvent().flatMap(ruleEvent ->
-                                                Flowable.fromCallable(() -> ruleEngine.evaluate(ruleEvent).call()))
+                                                        Flowable.fromCallable(() -> ruleEngine.evaluate(ruleEvent).call()))
                                                 .subscribeOn(Schedulers.io()),
                                         this::applyEffects
                                 ))

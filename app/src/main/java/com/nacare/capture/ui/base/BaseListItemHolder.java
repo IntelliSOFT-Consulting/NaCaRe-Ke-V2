@@ -21,6 +21,9 @@ public class BaseListItemHolder extends RecyclerView.ViewHolder {
     public final CardView bitmapCardView;
     public final ImageButton delete;
     public final Button sync;
+    public final TextView dateTextView;
+    public final TextView statusTextView;
+    public final TextView actionTextView;
 
     public BaseListItemHolder(@NonNull View view) {
         super(view);
@@ -31,5 +34,8 @@ public class BaseListItemHolder extends RecyclerView.ViewHolder {
         bitmapCardView = view.findViewById(R.id.itemBitmapCardView);
         delete = view.findViewById(R.id.deleteButton);
         sync = view.findViewById(R.id.synButton);
+        dateTextView = view.findViewById(R.id.dateTextView);
+        statusTextView = view.findViewById(R.id.statusTextView);
+        actionTextView = view.findViewById(R.id.actionTextView);
     }
 }

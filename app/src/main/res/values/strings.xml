@@ -110,4 +110,10 @@
     <string name="cancer_notification_tool">Cancer Notification Tool</string>
     <string name="previous">Previous</string>
     <string name="select_tool">Select a Tool</string>
+    <string name="menu_home">Back</string>
+    <string name="date_captured">Date Facility Details Captured</string>
+    <string name="status">Status</string>
+    <string name="action">Action</string>
+    <string name="facility_details_capture_tool">Facility Details Capture Tool</string>
+    <string name="save">Save</string>
 </resources>

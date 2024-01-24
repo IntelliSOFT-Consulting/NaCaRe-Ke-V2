@@ -3,12 +3,14 @@ package com.nacare.capture.ui.events;
 import static com.nacare.capture.data.service.StyleBinderHelper.setBackgroundColor;
 import static com.nacare.capture.data.service.StyleBinderHelper.setState;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.paging.DataSource;
 import androidx.paging.PagedListAdapter;
 
@@ -44,7 +46,7 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
     @NonNull
     @Override
     public ListItemWithSyncHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_update, parent, false);
         return new ListItemWithSyncHolder(itemView);
     }
 
@@ -56,6 +58,16 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
         holder.subtitle1.setText(valueAt(values, event.programStage()));
         holder.subtitle2.setText(optionCombo(event.attributeOptionCombo()).displayName());
         holder.rightText.setText(DateFormatHelper.formatDate(event.eventDate()));
+
+
+        holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(event.eventDate()));
+        holder.statusTextView.setText(event.status().name());
+        holder.actionTextView.setText("Edit");
+        int colorBlack = ContextCompat.getColor(holder.itemView.getContext(), R.color.black);
+
+        holder.dateTextView.setTextColor(colorBlack);
+        holder.statusTextView.setTextColor(colorBlack);
+        holder.actionTextView.setTextColor(colorBlack);
         holder.icon.setImageResource(R.drawable.ic_programs_black_24dp);
         holder.delete.setVisibility(View.VISIBLE);
         holder.delete.setOnClickListener(view -> {
@@ -79,7 +91,7 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
                         event.program(),
                         event.organisationUnit(),
                         EventFormActivity.FormType.CHECK
-                ),false
+                ), false
         ));
     }
 

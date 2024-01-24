@@ -72,7 +72,12 @@
                 android:id="@+id/navWipeData"
                 android:icon="@drawable/ic_delete_forever_black_24dp"
                 android:title="@string/wipe_data"
-                android:visible="false" />
+                android:visible="true" />
+            <item
+                android:id="@+id/navSyncData"
+                android:icon="@drawable/ic_sync"
+                android:title="@string/sync"
+                android:visible="true" />
         </menu>
     </item>
 

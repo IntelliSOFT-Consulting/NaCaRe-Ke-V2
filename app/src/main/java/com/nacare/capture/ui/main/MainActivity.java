@@ -83,9 +83,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         inflateMainView();
         createNavigationView(user);
+//        wipeData();
         setSyncing();
         syncMetadata();
         downloadData();
+//        uploadData();
     }
 
     private void loadDashboard() {
@@ -354,6 +356,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.navWipeData) {
             syncStatusText.setText(R.string.wiping_data);
             wipeData();
+        } else if (id == R.id.navSyncData) {
+            setSyncing();
+            uploadData();
         } else if (id == R.id.navExit) {
             compositeDisposable.add(LogOutService.logOut(this));
         }

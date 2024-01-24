@@ -4,7 +4,7 @@
     <color name="colorEmpty">#ffeeeeee</color>
     <color name="colorPrimary">@color/purple_200</color>
     <color name="colorPrimaryDark">@color/purple_200</color>
-    <color name="colorAccent">#43cacb</color>
+    <color name="colorAccent">@color/colorPrimary</color>
     <color name="colorAccentLight">#d8f7f7</color>
     <color name="colorAccentDark">#393d4d</color>
     <color name="colorAccentAlt">#f78f05</color>
@@ -14,7 +14,7 @@
     <color name="purple_200">#6B2D7A</color>
     <color name="purple_500">@color/purple_200</color>
     <color name="purple_700">@color/purple_200</color>
-    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_200">@color/colorPrimary</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
