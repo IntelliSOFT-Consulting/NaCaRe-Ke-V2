@@ -16,9 +16,10 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/lnLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
+                android:background="@color/unselected"
                 android:orientation="horizontal"
                 android:padding="6dp">
 
@@ -29,6 +30,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="0.8"
+                    app:tint="@color/purple_200"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Large.Inverse" />
 
                 <!-- ImageView -->
@@ -39,7 +41,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/info"
-                    app:tint="@color/white" />
+                    app:tint="@color/black" />
 
                 <!-- Small TextView -->
                 <TextView
@@ -49,7 +51,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="8dp"
                     android:text="0/10"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:textSize="12sp" />
 
                 <!-- First Small ImageView -->
@@ -60,17 +62,18 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/lock"
-                    app:tint="@color/white" />
+                    app:tint="@color/black" />
 
                 <!-- Second Small ImageView -->
                 <ImageView
-                    android:id="@+id/smallImageView2"
+                    android:id="@+id/rotationImageView"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
+                    android:rotation="180"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="4dp"
                     android:src="@drawable/upload"
-                    app:tint="@color/white" />
+                    app:tint="@color/black" />
 
             </LinearLayout>
 

@@ -1,22 +1,30 @@
 package com.nacare.capture.data.adapters;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.ExpandableItem;
+import com.nacare.capture.data.service.ActivityStarter;
+import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
+import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
 import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.option.Option;
@@ -44,12 +52,15 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         return new PersonViewHolder(v);
     }
 
+
     @Override
     public void onBindViewHolder(final PersonViewHolder holder, final int position) {
         ExpandableItem person = personList.get(position);
         holder.textViewName.setText(person.getGroupName());
         holder.linearLayout.setVisibility(View.GONE);
         if (currentPosition == position) {
+            holder.lnLinearLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.selected));
+            holder.rotationImageView.setRotation(0);
             holder.linearLayout.setVisibility(View.VISIBLE);
         }
         holder.textViewName.setOnClickListener(view -> {
@@ -68,6 +79,41 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 createSearchFieldsDataElement(holder.linearLayout, dataElement);
             }
         }
+        LayoutInflater inflater = LayoutInflater.from(context);
+        LinearLayout itemView = (LinearLayout) inflater.inflate(
+                R.layout.item_submit_cancel,
+                holder.linearLayout,
+                false
+        );
+        holder.linearLayout.addView(itemView);
+        MaterialButton submitButton = itemView.findViewById(R.id.btn_proceed);
+        submitButton.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater2 = LayoutInflater.from(context);
+            View customView = inflater2.inflate(R.layout.custom_layout_confirm, null);
+            builder.setView(customView);
+            AlertDialog alertDialog = builder.create();
+            TextView tvTitle = customView.findViewById(R.id.tv_title);
+            TextView tvMessage = customView.findViewById(R.id.tv_message);
+            MaterialButton noButton = customView.findViewById(R.id.no_button);
+            MaterialButton yesButton = customView.findViewById(R.id.yes_button);
+            tvTitle.setText(R.string.submit_form);
+            tvMessage.setText("Are you sure you want to save?\nYou will npt be able to edit this patient info once saved");
+
+            yesButton.setOnClickListener(c -> {
+                alertDialog.dismiss();
+            });
+            noButton.setOnClickListener(c -> {
+                alertDialog.dismiss();
+            });
+
+            alertDialog.show();
+        });
+        MaterialButton nextButton = itemView.findViewById(R.id.btn_cancel);
+        nextButton.setOnClickListener(v -> {
+
+        });
+
 
     }
 
@@ -208,7 +254,8 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
     class PersonViewHolder extends RecyclerView.ViewHolder {
         TextView textViewFirstName, smallTextView, textViewName;
-        LinearLayout linearLayout;
+        LinearLayout linearLayout, lnLinearLayout;
+        ImageView rotationImageView;
 
         PersonViewHolder(View itemView) {
             super(itemView);
@@ -216,6 +263,8 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
             smallTextView = (TextView) itemView.findViewById(R.id.smallTextView);
             textViewName = (TextView) itemView.findViewById(R.id.textViewName);
             linearLayout = (LinearLayout) itemView.findViewById(R.id.linearLayout);
+            lnLinearLayout = (LinearLayout) itemView.findViewById(R.id.lnLinearLayout);
+            rotationImageView = (ImageView) itemView.findViewById(R.id.rotationImageView);
         }
     }
 }
