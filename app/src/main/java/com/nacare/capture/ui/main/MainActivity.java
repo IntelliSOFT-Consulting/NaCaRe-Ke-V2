@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void downloadData() {
         compositeDisposable.add(
                 Observable.merge(
-                                downloadTrackedEntityInstances(),
+//                                downloadTrackedEntityInstances(),
                                 downloadSingleEvents(),
                                 downloadAggregatedData()
                         )
@@ -292,12 +292,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Observable<TrackerD2Progress> downloadTrackedEntityInstances() {
         return Sdk.d2().trackedEntityModule().trackedEntityInstanceDownloader()
-                .limit(100).limitByOrgunit(false).limitByProgram(false).download();
+                .limitByOrgunit(false).limitByProgram(false).download();
     }
 
     private Observable<TrackerD2Progress> downloadSingleEvents() {
         return Sdk.d2().eventModule().eventDownloader()
-                .limit(100).limitByOrgunit(false).limitByProgram(false).download();
+                .limitByOrgunit(false).limitByProgram(false).download();
     }
 
     private Observable<AggregatedD2Progress> downloadAggregatedData() {
@@ -360,11 +360,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setSyncing();
             uploadData();
         } else if (id == R.id.navExit) {
-           try{
-               compositeDisposable.add(LogOutService.logOut(this));
-           }catch (Exception e){
-               e.printStackTrace();
-           }
+            try {
+                compositeDisposable.add(LogOutService.logOut(this));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawerLayout);

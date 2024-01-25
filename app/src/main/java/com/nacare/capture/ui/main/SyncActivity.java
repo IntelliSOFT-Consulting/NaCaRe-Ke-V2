@@ -44,12 +44,12 @@ public class SyncActivity extends AppCompatActivity {
 
     private Observable<TrackerD2Progress> downloadTrackedEntityInstances() {
         return Sdk.d2().trackedEntityModule().trackedEntityInstanceDownloader()
-                .limit(1000).limitByOrgunit(false).limitByProgram(false).download();
+                .limitByOrgunit(false).limitByProgram(false).download();
     }
 
     private Observable<TrackerD2Progress> downloadSingleEvents() {
         return Sdk.d2().eventModule().eventDownloader()
-                .limit(1000).limitByOrgunit(false).limitByProgram(false).download();
+                .limitByOrgunit(false).limitByProgram(false).download();
     }
 
     private Observable<AggregatedD2Progress> downloadAggregatedData() {
@@ -59,7 +59,7 @@ public class SyncActivity extends AppCompatActivity {
     private void downloadData() {
         compositeDisposable.add(
                 Observable.merge(
-                                downloadTrackedEntityInstances(),
+//                                downloadTrackedEntityInstances(),
                                 downloadSingleEvents(),
                                 downloadAggregatedData()
                         )

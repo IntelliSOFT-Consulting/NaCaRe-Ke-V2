@@ -87,8 +87,6 @@ public class EventsActivity extends ListActivity {
                                                         .byCategoryComboUid().eq(program.categoryComboUid())
                                                         .one().blockingGet().uid() : null;
 
-                                        Log.e("TAG", "Organization Units ***** Original" + orgCode);
-                                        Log.e("TAG", "Organization Units ***** " + orgUnit);
                                         return Sdk.d2().eventModule().events()
                                                 .blockingAdd(
                                                         EventCreateProjection.builder()

@@ -166,8 +166,7 @@ public class RuleEngineService {
         if (eventUid == null)
             return Flowable.empty();
         else
-            return Flowable.fromCallable(() ->
-                    transformToRuleEvent(d2.eventModule().events().uid(eventUid).blockingGet()));
+            return Flowable.fromCallable(() -> transformToRuleEvent(d2.eventModule().events().uid(eventUid).blockingGet()));
     }
 
     private List<String> getProgramTrackedEntityAttributesUids(
@@ -191,9 +190,9 @@ public class RuleEngineService {
 
     private Flowable<List<RuleEvent>> getEvents(String enrollmentUid) {
         return Flowable.fromCallable(() -> d2.eventModule().events()
-                .byEnrollmentUid().eq(enrollmentUid)
-                .byStatus().in(EventStatus.ACTIVE, EventStatus.COMPLETED)
-                .blockingGet()).flatMapIterable(events -> events)
+                        .byEnrollmentUid().eq(enrollmentUid)
+                        .byStatus().in(EventStatus.ACTIVE, EventStatus.COMPLETED)
+                        .blockingGet()).flatMapIterable(events -> events)
                 .map(this::transformToRuleEvent)
                 .toList().toFlowable();
     }
@@ -243,13 +242,13 @@ public class RuleEngineService {
 
     private Flowable<List<Rule>> getRules() {
         return Flowable.fromCallable(() -> d2.programModule().programRules()
-                .byProgramUid().eq(programUid).withProgramRuleActions().blockingGet())
+                        .byProgramUid().eq(programUid).withProgramRuleActions().blockingGet())
                 .map(this::transformToRule);
     }
 
     private Flowable<List<RuleVariable>> getRuleVariables() {
         return Flowable.fromCallable(() -> d2.programModule().programRuleVariables()
-                .byProgramUid().eq(programUid).blockingGet())
+                        .byProgramUid().eq(programUid).blockingGet())
                 .map(this::transformToRuleVariable);
     }
 

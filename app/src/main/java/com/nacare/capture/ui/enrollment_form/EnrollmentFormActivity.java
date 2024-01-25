@@ -90,8 +90,8 @@ public class EnrollmentFormActivity extends AppCompatActivity {
 
         adapter = new FormAdapter(getValueListener(), getImageListener());
         binding.buttonEnd.setOnClickListener(this::finishEnrollment);
-        binding.formRecycler.setAdapter(adapter);
-
+       binding.formRecycler.setAdapter(adapter);
+// 
         engineInitialization = PublishProcessor.create();
 
         if (EnrollmentFormService.getInstance().init(

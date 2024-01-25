@@ -5,11 +5,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -20,10 +32,13 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.nacare.capture.BuildConfig;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
+import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.forms.EventFormService;
 import com.nacare.capture.data.service.forms.FormField;
 import com.nacare.capture.data.service.forms.RuleEngineService;
@@ -33,8 +48,14 @@ import com.nacare.capture.ui.enrollment_form.FormAdapter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hisp.dhis.android.core.arch.helpers.FileResizerHelper;
 import org.hisp.dhis.android.core.arch.helpers.FileResourceDirectoryHelper;
+import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.maintenance.D2Error;
+import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.program.ProgramIndicator;
+import org.hisp.dhis.android.core.program.ProgramSection;
+import org.hisp.dhis.android.core.program.ProgramStage;
+import org.hisp.dhis.android.core.program.ProgramStageSection;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
 import org.hisp.dhis.rules.RuleEngine;
 import org.hisp.dhis.rules.models.RuleAction;
@@ -43,8 +64,11 @@ import org.hisp.dhis.rules.models.RuleEffect;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -88,6 +112,12 @@ public class EventFormActivity extends AppCompatActivity {
         return intent;
     }
 
+    private ProgramStage programStage;
+    private List<ProgramStageSection> programStageSections;
+    private Map<String, View> inputFieldMap = new HashMap<>();
+
+    private List<HomeData> collectedInputs = new ArrayList<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,12 +130,10 @@ public class EventFormActivity extends AppCompatActivity {
 
         eventUid = getIntent().getStringExtra(IntentExtra.EVENT_UID.name());
         programUid = getIntent().getStringExtra(IntentExtra.PROGRAM_UID.name());
-
         formType = FormType.valueOf(getIntent().getStringExtra(IntentExtra.TYPE.name()));
-
+//
         adapter = new FormAdapter(getValueListener(), getImageListener());
         binding.buttonEnd.setOnClickListener(this::finishEnrollment);
-//        binding.buttonValidate.setOnClickListener(this::evaluateProgramIndicators);
         binding.formRecycler.setAdapter(adapter);
 
         engineInitialization = PublishProcessor.create();
@@ -122,7 +150,338 @@ public class EventFormActivity extends AppCompatActivity {
                 this.engineService = new RuleEngineService();
         }
 
+//        prepareFormData();
+
     }
+
+    private void submitEnrollment(View viewold) {
+        collectedInputs.clear();
+        for (Map.Entry<String, View> entry : inputFieldMap.entrySet()) {
+            String id = entry.getKey();
+            View view = entry.getValue();
+
+            if (view instanceof TextInputEditText) {
+                TextInputEditText textInputEditText = (TextInputEditText) view;
+                String input = textInputEditText.getText().toString();
+
+                if (!input.isEmpty()) {
+                    HomeData dt = new HomeData(id, input);
+                    collectedInputs.add(dt);
+                }
+            } else if (view instanceof AutoCompleteTextView) {
+                AutoCompleteTextView textInputEditText = (AutoCompleteTextView) view;
+                String input = textInputEditText.getText().toString();
+
+                if (!input.isEmpty()) {
+                    HomeData dt = new HomeData(id, input);
+                    collectedInputs.add(dt);
+                }
+            }
+            // Handle other view types if needed
+        }
+
+        if (collectedInputs.size() > 0) {
+            for (HomeData homeData : collectedInputs) {
+//                TrackedEntityDataValueObjectRepository valueRepository =
+//                        Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+//                                .value(homeData.getId(), homeData.getName());
+//                String currentValue = valueRepository.blockingExists() ?
+//                        valueRepository.blockingGet().value() : "";
+//                if (currentValue == null)
+//                    currentValue = "";
+//
+//                try {
+//                    if (!isEmpty(homeData.getName())) {
+//                        valueRepository.blockingSet(homeData.getName());
+//                    } else {
+//                        valueRepository.blockingDeleteIfExist();
+//                    }
+//                    Toast.makeText(this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+//                } catch (Exception d2Error) {
+//                    Toast.makeText(this, "Failed to Save Values", Toast.LENGTH_SHORT).show();
+//                }
+//                new SaveDataAsyncTask(this, homeData).execute();
+                Log.e("TAG", "Data Values *** " + homeData.getId());
+                Log.e("TAG", "Data Values *** " + homeData.getName());
+            }
+        }
+
+    }
+
+
+    private void prepareFormData() {
+        programStage = Sdk.d2().programModule()
+                .programStages()
+                .byProgramUid()
+                .eq(programUid)
+                .one().blockingGet();
+        if (programStage != null) {
+            programStageSections = Sdk.d2().programModule()
+                    .programStageSections()
+                    .withDataElements()
+                    .byProgramStageUid().eq(programStage.uid())
+                    .blockingGet();
+
+            List<DataElement> flattenedList = programStageSections.stream()
+                    .flatMap(section -> section.dataElements().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
+                    .distinct()
+                    .collect(Collectors.toList());
+            for (DataElement dataElement : flattenedList) {
+                createSearchFieldsDataElement(binding.formLinearLayout, dataElement);
+            }
+        }
+    }
+
+    private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item) {
+        String valueType = item.valueType().toString();
+        String label = item.displayName();
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        if ("TEXT".equals(valueType)) {
+            if (item.optionSet() == null) {
+                LinearLayout itemView = (LinearLayout) inflater.inflate(
+                        R.layout.item_edittext,
+                        linearLayout,
+                        false
+                );
+
+                TextView tvName = itemView.findViewById(R.id.tv_name);
+                TextView tvElement = itemView.findViewById(R.id.tv_element);
+                TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                TextInputEditText editText = itemView.findViewById(R.id.editText);
+
+                tvName.setText(item.displayName());
+                tvElement.setText(item.uid());
+                inputFieldMap.put(item.uid(), editText);
+                linearLayout.addView(itemView);
+            } else {
+                LinearLayout itemView = (LinearLayout) inflater.inflate(
+                        R.layout.item_autocomplete,
+                        linearLayout,
+                        false
+                );
+
+
+                TextView tvName = itemView.findViewById(R.id.tv_name);
+                TextView tvElement = itemView.findViewById(R.id.tv_element);
+                TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                AutoCompleteTextView autoCompleteTextView = itemView.findViewById(R.id.autoCompleteTextView);
+
+                tvElement.setText(item.uid());
+
+                List<String> optionsStringList = new ArrayList<>();
+
+                List<Option> optionsList = generateOptionSets(item.optionSet().uid());
+                for (Option option : optionsList) {
+                    optionsStringList.add(option.displayName());
+                }
+                ArrayAdapter<String> adp = new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        optionsStringList
+                );
+
+                tvName.setText(item.displayName());
+                autoCompleteTextView.setAdapter(adp);
+                autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
+                        // This method is called to notify you that somewhere within charSequence, the text is about to be changed.
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                        // This method is called to notify you that somewhere within charSequence, the text has been changed.
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        // This method is called to notify you that the characters within editable have been changed.
+                        // You can perform actions here based on the updated text.
+
+                        String newText = editable.toString();
+                        TrackedEntityDataValueObjectRepository valueRepository =
+                                Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+                                        .value(item.uid(), newText);
+
+                        String currentValue = valueRepository.blockingExists() ?
+                                valueRepository.blockingGet().value() : "";
+
+                        if (currentValue == null) {
+                            currentValue = "";
+                        }
+
+                        try {
+                            if (!isEmpty(newText)) {
+                                valueRepository.blockingSet(newText);
+                            } else {
+                                valueRepository.blockingDeleteIfExist();
+                            }
+                        } catch (D2Error d2Error) {
+                            d2Error.printStackTrace(); // Log the error for debugging purposes
+                            Log.e("TAG", "Error Saving Selection *** " + d2Error.getLocalizedMessage());
+                        }
+                    }
+                });
+                adp.notifyDataSetChanged();
+                inputFieldMap.put(item.uid(), autoCompleteTextView);
+                linearLayout.addView(itemView);
+
+
+                /* */
+            }
+        } else if ("DATE".equals(valueType)) {
+            View itemView = inflater.inflate(
+                    R.layout.item_date_edittext,
+                    linearLayout,
+                    false
+            );
+
+// Find views in the inflated layout
+            TextView tvName = itemView.findViewById(R.id.tv_name);
+            TextView tvElement = itemView.findViewById(R.id.tv_element);
+            TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+            TextInputEditText editText = itemView.findViewById(R.id.editText);
+
+// Set values to views
+            tvName.setText(item.displayName());
+            tvElement.setText(item.uid());
+            inputFieldMap.put(item.uid(), editText);
+
+// Get and set response if available
+// Define keywords and check for maximum date restriction
+            List<String> keywords = Arrays.asList("Birth", "Death");
+//            boolean max = containsAnyKeyword(item.displayName(), keywords);
+//            new FormatterClass().disableTextInputEditText(editText);
+
+// Set click listener for opening date picker dialog
+            editText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    new FormatterClass().showDatePickerDialog(
+//                            ResponderActivity.this, editText, max, false
+//                    );
+                }
+            });
+
+// Set text change listener for updating response
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // This method is called before the text is changed.
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s != null) {
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // This method is called after the text has changed.
+                    // You can perform actions here based on the updated text.
+                }
+            });
+
+// Add the inflated layout to the parent view
+            linearLayout.addView(itemView);
+        } else if ("BOOLEAN".equals(valueType)) {
+            View itemView = inflater.inflate(
+                    R.layout.item_radio,
+                    linearLayout,
+                    false
+            );
+            TextView tvName = itemView.findViewById(R.id.tv_name);
+            RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
+            RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
+            tvName.setText(item.displayName());
+
+
+// Get and set response if available
+//            String response = viewModel.getEventResponse(ResponderActivity.this, eventData, item.getId());
+//            if (response != null) {
+//                if (response.equals("true")) {
+//                    radioButtonYes.setChecked(true);
+//                } else if (response.equals("false")) {
+//                    radioButtonNo.setChecked(true);
+//                }
+//            }
+
+// Set OnCheckedChangeListener for RadioButton "No"
+            radioButtonNo.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+
+                }
+            });
+
+// Set OnCheckedChangeListener for RadioButton "Yes"
+            radioButtonYes.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+
+                }
+            });
+
+// Add the inflated layout to the parent view
+            linearLayout.addView(itemView);
+        }
+
+    }
+
+    private List<Option> generateOptionSets(String uid) {
+        List<Option> optionsList;
+        optionsList = Sdk.d2().optionModule()
+                .options()
+                .byOptionSetUid().eq(uid)
+                .blockingGet();
+        return optionsList;
+    }
+
+    private class SaveDataAsyncTask extends AsyncTask<Void, Void, Void> {
+        private final Context context;
+        private final HomeData homeData;
+
+        public SaveDataAsyncTask(Context context, HomeData homeData) {
+            this.context = context;
+            this.homeData = homeData;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            TrackedEntityDataValueObjectRepository valueRepository =
+                    Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+                            .value(homeData.getId(), homeData.getName());
+
+            String currentValue = valueRepository.blockingExists() ?
+                    valueRepository.blockingGet().value() : "";
+
+            if (currentValue == null) {
+                currentValue = "";
+            }
+
+            try {
+                if (!isEmpty(homeData.getName())) {
+                    valueRepository.blockingSet(homeData.getName());
+                } else {
+                    valueRepository.blockingDeleteIfExist();
+                }
+            } catch (Exception d2Error) {
+                d2Error.printStackTrace(); // Log the error for debugging purposes
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Toast.makeText(context, "Saved Successfully", Toast.LENGTH_SHORT).show();
+        }
+
+        private boolean isEmpty(String str) {
+            return str == null || str.trim().isEmpty();
+        }
+    }
+
 
     private FormAdapter.OnValueSaved getValueListener() {
         return (fieldUid, value) -> {
@@ -146,8 +505,10 @@ public class EventFormActivity extends AppCompatActivity {
             } catch (Exception d2Error) {
                 d2Error.printStackTrace();
             } finally {
-                if (!value.equals(currentValue)) {
-                    engineInitialization.onNext(true);
+                if (!isEmpty(value)) {
+                    if (!value.equals(currentValue)) {
+                        engineInitialization.onNext(true);
+                    }
                 }
             }
         };
