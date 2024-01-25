@@ -21,6 +21,7 @@ import com.nacare.capture.data.service.DateFormatHelper;
 import com.nacare.capture.ui.base.DiffByIdItemCallback;
 import com.nacare.capture.ui.base.ListItemWithSyncHolder;
 import com.nacare.capture.ui.event_form.EventFormActivity;
+import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 import com.nacare.capture.ui.tracker_import_conflicts.TrackerImportConflictsAdapter;
 
 import org.hisp.dhis.android.core.category.CategoryOptionCombo;
@@ -85,12 +86,12 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
 
         holder.itemView.setOnClickListener(view -> ActivityStarter.startActivity(
                 activity,
-                EventFormActivity.getFormActivityIntent(
+                FacilityDetailsActivity.getIntent(
                         activity,
                         event.uid(),
                         event.program(),
                         event.organisationUnit(),
-                        EventFormActivity.FormType.CHECK
+                        FacilityDetailsActivity.FormType.CHECK
                 ), false
         ));
     }

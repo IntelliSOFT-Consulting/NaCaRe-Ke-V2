@@ -18,6 +18,7 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.event_form.EventFormActivity;
+import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 
 import org.hisp.dhis.android.core.event.EventCollectionRepository;
 import org.hisp.dhis.android.core.event.EventCreateProjection;
@@ -98,9 +99,9 @@ public class EventsActivity extends ListActivity {
                                                 );
                                     })
                                     .map(eventUid ->
-                                            EventFormActivity.getFormActivityIntent(EventsActivity.this,
+                                            FacilityDetailsActivity.getIntent(EventsActivity.this,
                                                     eventUid,
-                                                    selectedProgram, orgCode, EventFormActivity.FormType.CREATE))
+                                                    selectedProgram, orgCode, FacilityDetailsActivity.FormType.CREATE))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(

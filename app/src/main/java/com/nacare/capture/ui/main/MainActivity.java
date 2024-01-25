@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -307,13 +308,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void uploadData() {
         compositeDisposable.add(
                 Sdk.d2().fileResourceModule().fileResources().upload()
-                        .concatWith(Sdk.d2().trackedEntityModule().trackedEntityInstances().upload())
+//                        .concatWith(Sdk.d2().trackedEntityModule().trackedEntityInstances().upload())
                         .concatWith(Sdk.d2().dataValueModule().dataValues().upload())
                         .concatWith(Sdk.d2().eventModule().events().upload())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnComplete(this::setSyncingFinished)
-                        .doOnError(Throwable::printStackTrace)
+                        .doOnError(error -> Log.e("TAG", "Error Encountered **** " + error))
                         .subscribe());
     }
 
