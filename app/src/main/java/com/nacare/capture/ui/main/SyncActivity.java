@@ -59,7 +59,7 @@ public class SyncActivity extends AppCompatActivity {
     private void downloadData() {
         compositeDisposable.add(
                 Observable.merge(
-//                                downloadTrackedEntityInstances(),
+                                downloadTrackedEntityInstances(),
                                 downloadSingleEvents(),
                                 downloadAggregatedData()
                         )

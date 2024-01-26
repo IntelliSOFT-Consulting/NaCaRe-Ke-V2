@@ -24,7 +24,7 @@ public class BaseListItemHolder extends RecyclerView.ViewHolder {
     public final TextView dateTextView;
     public final TextView statusTextView;
     public final TextView actionTextView;
-    public final TextView firstnameTextView;
+    public final TextView firstnameTextView, nameTextView;
 
     public BaseListItemHolder(@NonNull View view) {
         super(view);
@@ -39,5 +39,6 @@ public class BaseListItemHolder extends RecyclerView.ViewHolder {
         statusTextView = view.findViewById(R.id.statusTextView);
         actionTextView = view.findViewById(R.id.actionTextView);
         firstnameTextView = view.findViewById(R.id.firstnameTextView);
+        nameTextView = view.findViewById(R.id.nameTextView);
     }
 }

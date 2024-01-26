@@ -128,4 +128,11 @@
     <string name="register_new_patient">Register New Patient</string>
     <string name="cancel">Cancel</string>
     <string name="submit_form">Submit Form</string>
+    <string name="patient_unique_id">Unique ID</string>
+    <string name="hospital_number">Hospital No</string>
+    <string name="identification">Identification</string>
+    <string name="patient_name">Patient Name</string>
+    <string name="alert">Alert</string>
+    <string name="update_an_existing_cancer_case">Update an Existing Cancer Case</string>
+    <string name="add_new_primary_cancer_info">Add New Primary Cancer Info</string>
 </resources>

@@ -20,10 +20,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
+            android:name=".ui.tracked_entity_instances.search.SearchResultsActivity"
+            android:exported="false"
+            android:label="@string/cancer_notification_tool"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ui.main.custom.FacilityDetailsActivity"
+            android:exported="false"
             android:label="@string/facility_details_capture_tool"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.main.custom.TrackedEntityInstanceActivity"
             android:exported="false"

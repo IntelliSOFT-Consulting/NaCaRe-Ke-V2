@@ -179,9 +179,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     }
                 }
 
-//                new SaveDataAsyncTask(this, homeData).execute();
-                Log.e("TAG", "Data Values *** " + homeData.getId());
-                Log.e("TAG", "Data Values *** " + homeData.getName());
             }
         }
 

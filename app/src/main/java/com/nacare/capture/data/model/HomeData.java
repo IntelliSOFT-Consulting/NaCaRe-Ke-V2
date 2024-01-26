@@ -1,6 +1,10 @@
 package com.nacare.capture.data.model;
 
-public class HomeData {
+import android.os.Parcel;
+
+import java.io.Serializable;
+
+public class HomeData implements Serializable {
     private String id;
     private String name;
 
@@ -9,6 +13,13 @@ public class HomeData {
         this.id = id;
     }
 
+    protected HomeData(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+    }
+
+
+
     public String getName() {
         return name;
     }
@@ -16,4 +27,6 @@ public class HomeData {
     public String getId() {
         return id;
     }
+
+
 }

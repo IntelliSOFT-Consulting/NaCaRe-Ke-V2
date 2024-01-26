@@ -7,6 +7,14 @@ import java.util.List;
 
 public class AttributeHelper {
 
+    public static String uniqueID(TrackedEntityInstance trackedEntityInstance) {
+        return getAttributeUid(trackedEntityInstance.trackedEntityAttributeValues(), 0);
+    }
+
+    public static String hospitalNo(TrackedEntityInstance trackedEntityInstance) {
+        return getAttributeUid(trackedEntityInstance.trackedEntityAttributeValues(), 1);
+    }
+
     public static String teiTitle(TrackedEntityInstance trackedEntityInstance) {
         return getAttributeUid(trackedEntityInstance.trackedEntityAttributeValues(), 0);
     }

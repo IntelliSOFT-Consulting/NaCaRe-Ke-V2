@@ -84,16 +84,16 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
         setState(event.aggregatedSyncState(), holder.syncIcon);
         setConflicts(event.uid(), holder);
 
-        holder.itemView.setOnClickListener(view -> ActivityStarter.startActivity(
-                activity,
-                FacilityDetailsActivity.getIntent(
-                        activity,
-                        event.uid(),
-                        event.program(),
-                        event.organisationUnit(),
-                        FacilityDetailsActivity.FormType.CHECK
-                ), false
-        ));
+//        holder.itemView.setOnClickListener(view -> ActivityStarter.startActivity(
+//                activity,
+//                FacilityDetailsActivity.getIntent(
+//                        activity,
+//                        event.uid(),
+//                        event.program(),
+//                        event.organisationUnit(),
+//                        FacilityDetailsActivity.FormType.CHECK
+//                ), false
+//        ));
     }
 
     private OrganisationUnit orgUnit(String orgUnitUid) {

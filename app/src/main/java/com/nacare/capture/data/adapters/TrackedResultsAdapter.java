@@ -1,30 +1,33 @@
-package com.nacare.capture.ui.tracked_entity_instances;
+package com.nacare.capture.data.adapters;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.paging.DataSource;
 import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
-import com.nacare.capture.data.service.DateFormatHelper;
-import com.nacare.capture.ui.base.DiffByIdItemCallback;
-import com.nacare.capture.ui.base.ListItemWithSyncHolder;
-import com.nacare.capture.ui.tracker_import_conflicts.TrackerImportConflictsAdapter;
+import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.data.service.AttributeHelper;
+import com.nacare.capture.data.service.DateFormatHelper;
 import com.nacare.capture.data.service.ImageHelper;
 import com.nacare.capture.data.service.StyleBinderHelper;
+import com.nacare.capture.ui.base.DiffByIdItemCallback;
+import com.nacare.capture.ui.base.ListItemWithSyncHolder;
+import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
+import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
+import com.nacare.capture.ui.tracker_import_conflicts.TrackerImportConflictsAdapter;
 
 import org.hisp.dhis.android.core.arch.call.D2Progress;
-import org.hisp.dhis.android.core.common.State;
-import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 
@@ -32,22 +35,22 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
-public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntityInstance, ListItemWithSyncHolder> {
+public class TrackedResultsAdapter extends PagedListAdapter<TrackedEntityInstance, ListItemWithSyncHolder> {
 
     private DataSource<?, TrackedEntityInstance> source;
 
-    public TrackedEntityInstanceAdapter() {
+    private OnClickListener onClickListener;
+
+    public TrackedResultsAdapter(OnClickListener onClickListener) {
         super(new DiffByIdItemCallback<>());
+        this.onClickListener = onClickListener;
     }
 
     @NonNull
     @Override
     public ListItemWithSyncHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tracked, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_search, parent, false);
         return new ListItemWithSyncHolder(itemView);
     }
 
@@ -55,36 +58,49 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
     public void onBindViewHolder(@NonNull ListItemWithSyncHolder holder, int position) {
         TrackedEntityInstance trackedEntityInstance = getItem(position);
         List<TrackedEntityAttributeValue> values = trackedEntityInstance.trackedEntityAttributeValues();
-        holder.title.setText(valueAt(values, AttributeHelper.teiTitle(trackedEntityInstance)));
-        holder.subtitle1.setText(valueAt(values, AttributeHelper.teiSubtitle1(trackedEntityInstance)));
-        holder.subtitle2.setText(setSubtitle2(values, trackedEntityInstance));
-        holder.rightText.setText(DateFormatHelper.formatDate(trackedEntityInstance.created()));
-
         /****
          * Updated Section
          * */
-        holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(trackedEntityInstance.created()));
-        holder.firstnameTextView.setText(valueAt(values, "R1vaUuILrDy"));
-        holder.statusTextView.setText(valueAt(values, "hzVijy6tEUF"));
+        holder.dateTextView.setText(valueAt(values, AttributeHelper.uniqueID(trackedEntityInstance)));
+        holder.firstnameTextView.setText(valueAt(values, "MiXrdHDZ6Hw"));
+        String first = valueAt(values, "R1vaUuILrDy");
+        String last = valueAt(values, "hzVijy6tEUF");
+        String name = first + " " + last;
+        holder.nameTextView.setText(name);
+        holder.statusTextView.setText(valueAt(values, "eFbT7iTnljR"));
         holder.actionTextView.setText(valueAt(values, AttributeHelper.teiSubtitle1(trackedEntityInstance)));
+
         int colorBlack = ContextCompat.getColor(holder.itemView.getContext(), R.color.black);
         holder.firstnameTextView.setTextColor(colorBlack);
         holder.dateTextView.setTextColor(colorBlack);
         holder.statusTextView.setTextColor(colorBlack);
         holder.actionTextView.setTextColor(colorBlack);
+        holder.nameTextView.setTextColor(colorBlack);
 
-        setImage(trackedEntityInstance, holder);
-        holder.delete.setVisibility(View.VISIBLE);
-        holder.delete.setOnClickListener(view -> {
-            try {
-                Sdk.d2().trackedEntityModule().trackedEntityInstances().uid(trackedEntityInstance.uid()).blockingDelete();
-                invalidateSource();
-                notifyDataSetChanged();
-            } catch (D2Error d2Error) {
-                d2Error.printStackTrace();
-            }
+        holder.itemView.setOnClickListener(v -> {
+            onClickListener.onClick(trackedEntityInstance);
+
+           /* AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View customView = inflater.inflate(R.layout.custom_layout, null);
+            builder.setView(customView);
+            AlertDialog alertDialog = builder.create();
+            TextView tvTitle = customView.findViewById(R.id.tv_title);
+            TextView tvMessage = customView.findViewById(R.id.tv_message);
+            MaterialButton nextButton = customView.findViewById(R.id.next_button);
+            tvTitle.setText(R.string.search_results);
+            tvMessage.setText(R.string.no_record_found_for_the_patient_with_the_details_provided);
+            nextButton.setText(R.string.register_new_patient);
+            nextButton.setOnClickListener(c -> {
+                alertDialog.dismiss();
+                ActivityStarter.startActivity(
+                        TrackedEntityInstanceSearchActivity.this, TrackedEntityInstanceActivity.getIntent(this), true);
+            });
+
+            alertDialog.show();*/
         });
-        if (trackedEntityInstance.aggregatedSyncState() == State.TO_POST ||
+
+       /* if (trackedEntityInstance.aggregatedSyncState() == State.TO_POST ||
                 trackedEntityInstance.aggregatedSyncState() == State.TO_UPDATE) {
             holder.sync.setVisibility(View.VISIBLE);
             holder.sync.setOnClickListener(v -> {
@@ -112,7 +128,7 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
         } else {
             holder.sync.setVisibility(View.GONE);
             holder.sync.setOnClickListener(null);
-        }
+        }*/
         StyleBinderHelper.setBackgroundColor(R.color.colorAccentDark, holder.icon);
         StyleBinderHelper.setState(trackedEntityInstance.aggregatedSyncState(), holder.syncIcon);
         setConflicts(trackedEntityInstance.uid(), holder);
@@ -174,5 +190,9 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
 
     public void invalidateSource() {
         source.invalidate();
+    }
+
+    public interface OnClickListener {
+        void onClick(TrackedEntityInstance item);
     }
 }

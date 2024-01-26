@@ -70,32 +70,6 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             }
             ActivityStarter.startActivity(
                     TrackedEntityInstancesActivity.this, TrackedEntityInstanceSearchActivity.getIntent(this), false);
-//            compositeDisposable.add(
-//                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
-//                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
-//                                    .blockingAdd(
-//                                            TrackedEntityInstanceCreateProjection.builder()
-//                                                    .organisationUnit(orgCode)
-//                                                    .trackedEntityType(program.trackedEntityType().uid())
-//                                                    .build()
-//                                    ))
-//                            .map(teiUid -> EnrollmentFormActivity.getFormActivityIntent(
-//                                    TrackedEntityInstancesActivity.this,
-//                                    teiUid,
-//                                    selectedProgram,
-//                                    orgCode
-//                            ))
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//
-//                            .subscribe(
-//                                    activityIntent ->
-//                                            ActivityStarter.startActivityForResult(
-//                                                    TrackedEntityInstancesActivity.this, activityIntent, ENROLLMENT_RQ),
-//                                    Throwable::printStackTrace
-//                            )
-//
-//            );
 
         });
     }
@@ -103,8 +77,17 @@ public class TrackedEntityInstancesActivity extends ListActivity {
     private void observeTrackedEntityInstances() {
         adapter = new TrackedEntityInstanceAdapter();
         recyclerView.setAdapter(adapter);
-
-        getTeiRepository().getPaged(20).observe(this, trackedEntityInstancePagedList -> {
+        String programUid = new FormatterClass().getSharedPref("programUid", this);
+        if (TextUtils.isEmpty(programUid)) {
+            Toast.makeText(this, "Please Select Program to Proceed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+        if (TextUtils.isEmpty(orgCode)) {
+            Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        getTeiRepository(programUid, orgCode).getPaged(20).observe(this, trackedEntityInstancePagedList -> {
             adapter.setSource(trackedEntityInstancePagedList.getDataSource());
             adapter.submitList(trackedEntityInstancePagedList);
             findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
@@ -114,19 +97,14 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         });
     }
 
-    private TrackedEntityInstanceCollectionRepository getTeiRepository() {
+    private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid, String orgCode) {
         TrackedEntityInstanceCollectionRepository teiRepository =
                 Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
-        if (!isEmpty(selectedProgram)) {
-            List<String> programUids = new ArrayList<>();
-            programUids.add(selectedProgram);
-            String orgCode = new FormatterClass().getSharedPref("orgCode", this);
-            if (TextUtils.isEmpty(orgCode)) {
-                return teiRepository.byProgramUids(programUids).byOrganisationUnitUid().eq(orgCode);
-            } else return teiRepository;
-        } else {
-            return teiRepository;
-        }
+
+        List<String> programUids = new ArrayList<>();
+        programUids.add(programUid);
+        return teiRepository.byProgramUids(programUids).byOrganisationUnitUid().eq(orgCode);
+
     }
 
     @Override

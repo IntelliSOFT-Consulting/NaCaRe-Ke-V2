@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void downloadData() {
         compositeDisposable.add(
                 Observable.merge(
-//                                downloadTrackedEntityInstances(),
+                                downloadTrackedEntityInstances(),
                                 downloadSingleEvents(),
                                 downloadAggregatedData()
                         )
@@ -314,7 +314,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnComplete(this::setSyncingFinished)
-                        .doOnError(error -> Log.e("TAG", "Error Encountered **** " + error))
+                        .doOnError(error -> {
+                            Log.e("TAG", "Error Encountered **** " + error);
+                        })
                         .subscribe());
     }
 
