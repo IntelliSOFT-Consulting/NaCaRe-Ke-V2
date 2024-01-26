@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -77,6 +78,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
     private ProgramStage programStage;
     private List<ProgramStageSection> programStageSections;
     private Map<String, View> inputFieldMap = new HashMap<>();
+    private Map<String, String> optionFieldMap = new HashMap<>();
 
     private List<HomeData> collectedInputs = new ArrayList<>();
     private RadioGroup radioGroup;
@@ -128,8 +130,10 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 String input = textInputEditText.getText().toString();
 
                 if (!input.isEmpty()) {
-                    HomeData dt = new HomeData(id, input);
-                    collectedInputs.add(dt);
+                    HomeData dt = new HomeData(id, generateAnswerOption(id, input));
+                    if (dt.getName() != null) {
+                        collectedInputs.add(dt);
+                    }
                 }
             } else if (view instanceof RadioGroup) {
                 radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
@@ -168,43 +172,48 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                             valueRepository.blockingGet().value() : "";
 
                     try {
-//                        if (!TextUtils.isEmpty(currentValue)) {
-                        // Update existing value
                         valueRepository.blockingSet(homeData.getName());
-//                        } else {
-//                            valueRepository.blockingDeleteIfExist();
-//                        }
-
                         Toast.makeText(this, "Saved Successfully", Toast.LENGTH_SHORT).show();
                     } catch (D2Error d2Error) {
                         Toast.makeText(this, "Failed to Save Values " + d2Error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
-//                TrackedEntityDataValueObjectRepository valueRepository =
-//                        Sdk.d2().trackedEntityModule().trackedEntityDataValues()
-//                                .value(homeData.getId(), homeData.getName());
-//                String currentValue = valueRepository.blockingExists() ?
-//                        valueRepository.blockingGet().value() : "";
-//                if (currentValue == null)
-//                    currentValue = "";
-//
-//                try {
-//                    if (!isEmpty(homeData.getName())) {
-//                        valueRepository.blockingSet(homeData.getName());
-//                    } else {
-//                        valueRepository.blockingDeleteIfExist();
-//                    }
-//                    Toast.makeText(this, "Saved Successfully", Toast.LENGTH_SHORT).show();
-//                } catch (D2Error d2Error) {
-//                    Toast.makeText(this, "Failed to Save Values "+d2Error.getMessage(), Toast.LENGTH_SHORT).show();
-//                }
 //                new SaveDataAsyncTask(this, homeData).execute();
                 Log.e("TAG", "Data Values *** " + homeData.getId());
                 Log.e("TAG", "Data Values *** " + homeData.getName());
             }
         }
 
+    }
+
+    private String generateAnswerOption(String uid, String inputName) {
+
+        String foundKey = null;
+        for (Map.Entry<String, String> entry : optionFieldMap.entrySet()) {
+            if (inputName.equals(entry.getValue())) {
+                foundKey = entry.getKey();
+                break; // Found the key, exit the loop
+            }
+        }
+
+        // Check if the key was found
+        if (foundKey != null) {
+            System.out.println("Key for displayName '" + inputName + "': " + foundKey);
+        } else {
+            System.out.println("No key found for displayName '" + inputName + "'");
+        }
+        Option option = Sdk.d2().optionModule()
+                .options()
+                .byUid().eq(foundKey)
+//                .byDisplayName().eq(inputName)
+                .one()
+                .blockingGet();
+        Log.e("TAG", "Value we are looking for " + option);
+        if (option != null) {
+            return option.uid();
+        }
+        return null;
     }
 
     private void prepareFormData() {
@@ -224,8 +233,13 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     .flatMap(section -> section.dataElements().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
                     .distinct()
                     .collect(Collectors.toList());
+            List<String> exclusionIds = Arrays.asList("OeUTTmDXAye", "QHprEcvWSQV", "TUR7b6PuifD");
+
             for (DataElement dataElement : flattenedList) {
-                createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement));
+                if (!exclusionIds.contains(dataElement.uid())) {
+
+                    createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement));
+                }
             }
         }
     }
@@ -242,6 +256,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
     private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String currentValue) {
         String valueType = item.valueType().toString();
         String label = item.displayName();
+//        String attribute=item.attributeValues()
         LayoutInflater inflater = LayoutInflater.from(this);
 
         if ("TEXT".equals(valueType)) {
@@ -281,6 +296,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                 List<Option> optionsList = generateOptionSets(item.optionSet().uid());
                 for (Option option : optionsList) {
+                    optionFieldMap.put(option.uid(), option.displayName());
                     optionsStringList.add(option.displayName());
                 }
                 ArrayAdapter<String> adp = new ArrayAdapter<>(
@@ -291,7 +307,10 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                 tvName.setText(item.displayName());
                 autoCompleteTextView.setAdapter(adp);
-                autoCompleteTextView.setText(currentValue, false);
+                String currentData = generateOptionNameFromId(currentValue);
+                if (currentData != null) {
+                    autoCompleteTextView.setText(currentData, false);
+                }
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
@@ -307,29 +326,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     public void afterTextChanged(Editable editable) {
                         // This method is called to notify you that the characters within editable have been changed.
                         // You can perform actions here based on the updated text.
-
-//                        String newText = editable.toString();
-//                        TrackedEntityDataValueObjectRepository valueRepository =
-//                                Sdk.d2().trackedEntityModule().trackedEntityDataValues()
-//                                        .value(item.uid(), newText);
-//
-//                        String currentValue = valueRepository.blockingExists() ?
-//                                valueRepository.blockingGet().value() : "";
-//
-//                        if (currentValue == null) {
-//                            currentValue = "";
-//                        }
-//
-//                        try {
-//                            if (!isEmpty(newText)) {
-//                                valueRepository.blockingSet(newText);
-//                            } else {
-//                                valueRepository.blockingDeleteIfExist();
-//                            }
-//                        } catch (D2Error d2Error) {
-//                            d2Error.printStackTrace(); // Log the error for debugging purposes
-//                            Log.e("TAG", "Error Saving Selection *** " + d2Error.getLocalizedMessage());
-//                        }
                     }
                 });
                 adp.notifyDataSetChanged();
@@ -393,7 +389,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 }
             });
 
-// Add the inflated layout to the parent view
             linearLayout.addView(itemView);
         } else if ("BOOLEAN".equals(valueType)) {
             View itemView = inflater.inflate(
@@ -415,36 +410,20 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 radioGroup.clearCheck();
             }
             inputFieldMap.put(item.uid(), radioGroup);
-
-
-// Get and set response if available
-//            String response = viewModel.getEventResponse(ResponderActivity.this, eventData, item.getId());
-//            if (response != null) {
-//                if (response.equals("true")) {
-//                    radioButtonYes.setChecked(true);
-//                } else if (response.equals("false")) {
-//                    radioButtonNo.setChecked(true);
-//                }
-//            }
-
-// Set OnCheckedChangeListener for RadioButton "No"
-            radioButtonNo.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-
-                }
-            });
-
-// Set OnCheckedChangeListener for RadioButton "Yes"
-            radioButtonYes.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-
-                }
-            });
-
-// Add the inflated layout to the parent view
             linearLayout.addView(itemView);
         }
 
+    }
+
+    private String generateOptionNameFromId(String currentValue) {
+        Option option = Sdk.d2().optionModule()
+                .options()
+                .byUid().eq(currentValue)
+                .one()
+                .blockingGet();
+        if (option != null) {
+            return option.displayName();
+        } else return null;
     }
 
     private List<Option> generateOptionSets(String uid) {
