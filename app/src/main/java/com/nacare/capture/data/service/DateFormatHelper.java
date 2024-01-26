@@ -6,13 +6,13 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateFormatHelper {
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
 
     public static String formatDate(Date date) {
         if (date == null) {
             return null;
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd hh:mm:ss", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd hh:mm:ss", Locale.US);
         return dateFormat.format(date);
     }
 

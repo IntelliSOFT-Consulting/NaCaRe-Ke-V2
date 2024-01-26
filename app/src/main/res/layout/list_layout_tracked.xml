@@ -30,7 +30,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="0.8"
-                    app:tint="@color/purple_200"
+                    android:textColor="@color/purple_200"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Large.Inverse" />
 
                 <!-- ImageView -->

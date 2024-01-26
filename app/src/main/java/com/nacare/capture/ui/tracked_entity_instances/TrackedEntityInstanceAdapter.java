@@ -14,6 +14,7 @@ import androidx.paging.PagedListAdapter;
 
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
+import com.nacare.capture.data.adapters.TrackedResultsAdapter;
 import com.nacare.capture.data.service.DateFormatHelper;
 import com.nacare.capture.ui.base.DiffByIdItemCallback;
 import com.nacare.capture.ui.base.ListItemWithSyncHolder;
@@ -39,9 +40,11 @@ import io.reactivex.schedulers.Schedulers;
 public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntityInstance, ListItemWithSyncHolder> {
 
     private DataSource<?, TrackedEntityInstance> source;
+    private OnClickListener onClickListener;
 
-    public TrackedEntityInstanceAdapter() {
+    public TrackedEntityInstanceAdapter(OnClickListener onClickListener) {
         super(new DiffByIdItemCallback<>());
+        this.onClickListener = onClickListener;
     }
 
     @NonNull
@@ -72,6 +75,10 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
         holder.dateTextView.setTextColor(colorBlack);
         holder.statusTextView.setTextColor(colorBlack);
         holder.actionTextView.setTextColor(colorBlack);
+
+        holder.itemView.setOnClickListener(v->{
+            onClickListener.onClick(trackedEntityInstance);
+        });
 
         setImage(trackedEntityInstance, holder);
         holder.delete.setVisibility(View.VISIBLE);
@@ -174,5 +181,8 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
 
     public void invalidateSource() {
         source.invalidate();
+    }
+    public interface OnClickListener {
+        void onClick(TrackedEntityInstance item);
     }
 }

@@ -63,7 +63,7 @@ public class OrganizationActivity extends AppCompatActivity {
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         nextButton = findViewById(R.id.btn_proceed);
         nextButton.setOnClickListener(v -> {
-                  /*  String data = autoCompleteTextView.getText().toString();
+                    String data = autoCompleteTextView.getText().toString();
                     if (data.isEmpty()) {
                         Toast.makeText(this, "Select Organization Unit to Proceed", Toast.LENGTH_SHORT).show();
                         autoCompleteTextView.setError("Select Organization Unit to Proceed");
@@ -78,7 +78,6 @@ public class OrganizationActivity extends AppCompatActivity {
                     }
                     new FormatterClass().saveSharedPref("orgCode", orgCode, this);
                     new FormatterClass().saveSharedPref("orgName", data, this);
-*/
                     ActivityStarter.startActivity(OrganizationActivity.this,
                             ProgramsActivity.getProgramActivityIntent(OrganizationActivity.this), false);
                 }

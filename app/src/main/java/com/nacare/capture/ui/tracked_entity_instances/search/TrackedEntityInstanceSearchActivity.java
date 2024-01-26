@@ -138,7 +138,7 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                 Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
                 return;
             }
-            ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs,orgCode), false);
+            ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs,orgCode), true);
             /*for (HomeData data : collectedInputs) {
                 searchTrackedEntityInstanceQuery(programUid, data).observe(this, trackedEntityInstancePagedList -> {
                     for (TrackedEntityInstance tei : trackedEntityInstancePagedList) {
@@ -177,10 +177,10 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         AlertDialog alertDialog = builder.create();
         RecyclerView bottomSheetRecyclerView =
                 customView.findViewById(R.id.recyclerView);
-        adapter = new TrackedEntityInstanceAdapter();
-        adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-        adapter.submitList(trackedEntityInstancePagedList);
-        bottomSheetRecyclerView.setAdapter(adapter);
+//        adapter = new TrackedEntityInstanceAdapter();
+//        adapter.setSource(trackedEntityInstancePagedList.getDataSource());
+//        adapter.submitList(trackedEntityInstancePagedList);
+//        bottomSheetRecyclerView.setAdapter(adapter);
        /* TextView tvTitle = customView.findViewById(R.id.tv_title);
         TextView tvMessage = customView.findViewById(R.id.tv_message);
         MaterialButton nextButton = customView.findViewById(R.id.next_button);
@@ -228,8 +228,10 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         nextButton.setText(R.string.register_new_patient);
         nextButton.setOnClickListener(v -> {
             alertDialog.dismiss();
+
+            /*
             ActivityStarter.startActivity(
-                    TrackedEntityInstanceSearchActivity.this, TrackedEntityInstanceActivity.getIntent(this), true);
+                    TrackedEntityInstanceSearchActivity.this, TrackedEntityInstanceActivity.getIntent(this), true);*/
         });
 
         alertDialog.show();

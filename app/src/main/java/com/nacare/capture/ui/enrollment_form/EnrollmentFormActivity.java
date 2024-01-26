@@ -90,7 +90,7 @@ public class EnrollmentFormActivity extends AppCompatActivity {
 
         adapter = new FormAdapter(getValueListener(), getImageListener());
         binding.buttonEnd.setOnClickListener(this::finishEnrollment);
-       binding.formRecycler.setAdapter(adapter);
+        binding.formRecycler.setAdapter(adapter);
 // 
         engineInitialization = PublishProcessor.create();
 
@@ -130,9 +130,7 @@ public class EnrollmentFormActivity extends AppCompatActivity {
         return (fieldUid, value) -> {
             TrackedEntityAttributeValueObjectRepository valueRepository =
                     Sdk.d2().trackedEntityModule().trackedEntityAttributeValues()
-                            .value(
-                                    fieldUid,
-                                    getIntent().getStringExtra(IntentExtra.TEI_UID.name()
+                            .value(fieldUid, getIntent().getStringExtra(IntentExtra.TEI_UID.name()
                                     )
                             );
             String currentValue = valueRepository.blockingExists() ?

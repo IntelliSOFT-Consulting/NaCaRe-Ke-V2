@@ -16,8 +16,11 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
+import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
+import com.nacare.capture.ui.tracked_entity_instances.search.SearchResultsActivity;
 import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
 
@@ -75,7 +78,7 @@ public class TrackedEntityInstancesActivity extends ListActivity {
     }
 
     private void observeTrackedEntityInstances() {
-        adapter = new TrackedEntityInstanceAdapter();
+        adapter = new TrackedEntityInstanceAdapter(this::handleClick);
         recyclerView.setAdapter(adapter);
         String programUid = new FormatterClass().getSharedPref("programUid", this);
         if (TextUtils.isEmpty(programUid)) {
@@ -97,6 +100,17 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         });
     }
 
+    private void handleClick(TrackedEntityInstance data) {
+
+        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+        if (TextUtils.isEmpty(orgCode)) {
+            Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ActivityStarter.startActivity(
+                TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, orgCode), false);
+    }
+
     private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid, String orgCode) {
         TrackedEntityInstanceCollectionRepository teiRepository =
                 Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
@@ -105,6 +119,16 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         programUids.add(programUid);
         return teiRepository.byProgramUids(programUids).byOrganisationUnitUid().eq(orgCode);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            observeTrackedEntityInstances();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override

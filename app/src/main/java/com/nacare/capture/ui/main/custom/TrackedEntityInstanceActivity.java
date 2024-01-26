@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
@@ -16,11 +17,15 @@ import com.nacare.capture.data.adapters.ExpandableListAdapter;
 import com.nacare.capture.data.model.ExpandableItem;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
+import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 
 import org.hisp.dhis.android.core.program.ProgramSection;
 import org.hisp.dhis.android.core.program.ProgramStage;
 import org.hisp.dhis.android.core.program.ProgramStageSection;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValue;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +33,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
-    public static Intent getIntent(Context context) {
-        return new Intent(context, TrackedEntityInstanceActivity.class);
+
+    private enum IntentExtra {
+        TEI_UID, PROGRAM_UID, OU_UID
+    }
+
+
+    public static Intent getIntent(Context context, String teiUid, String programUid,
+                                   String orgUnitUid) {
+        Intent intent = new Intent(context, TrackedEntityInstanceActivity.class);
+        intent.putExtra(IntentExtra.TEI_UID.name(), teiUid);
+        intent.putExtra(IntentExtra.PROGRAM_UID.name(), programUid);
+        intent.putExtra(IntentExtra.OU_UID.name(), orgUnitUid);
+        return intent;
     }
 
     private List<ProgramSection> programSectionList;
     private List<ProgramStageSection> programStageSections;
     private ProgramStage programStage;
+
+    private String selectedTei, selectedProgram, selectedOrgUnit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +62,32 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
         RecyclerView recyclerView = findViewById(R.id.trackedEntityInstanceRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        selectedTei = getIntent().getStringExtra(IntentExtra.TEI_UID.name());
+        selectedProgram = getIntent().getStringExtra(IntentExtra.PROGRAM_UID.name());
+        selectedOrgUnit = getIntent().getStringExtra(IntentExtra.OU_UID.name());
+        new FormatterClass().saveSharedPref("selectedTei", selectedTei, this);
         List<ExpandableItem> itemList = generateSampleData();
         ExpandableListAdapter adapter = new ExpandableListAdapter(itemList, this);
         recyclerView.setAdapter(adapter);
+
+        loadCurrentTrackedEntity();
+    }
+
+    private void loadCurrentTrackedEntity() {
+        Log.e("TAG", "Selected Program " + selectedProgram);
+        Log.e("TAG", "Selected Org Unit " + selectedOrgUnit);
+        Log.e("TAG", "Selected Tei " + selectedTei);
+        TrackedEntityInstanceCollectionRepository teiRepository =
+                Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
+
+        List<String> programUids = new ArrayList<>();
+        programUids.add(selectedProgram);
+        TrackedEntityInstance trackedEntityInstance = teiRepository.byProgramUids(programUids).byUid().eq(selectedTei).one().blockingGet();
+        Log.e("TAG", "Selected TrackedEntityInstance **** " + trackedEntityInstance.trackedEntityAttributeValues());
+        for (TrackedEntityAttributeValue teav:trackedEntityInstance.trackedEntityAttributeValues()){
+            Log.e("TAG","Selected "+teav.value()+" Attribute "+teav.trackedEntityAttribute());
+        }
+
     }
 
     private List<ExpandableItem> generateSampleData() {

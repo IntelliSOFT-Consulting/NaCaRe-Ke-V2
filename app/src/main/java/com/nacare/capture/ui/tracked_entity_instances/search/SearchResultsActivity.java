@@ -27,11 +27,17 @@ import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
 import com.nacare.capture.ui.tracked_entity_instances.TrackedEntityInstanceAdapter;
 
+import org.hisp.dhis.android.core.enrollment.EnrollmentCreateProjection;
+import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
+import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnitMode;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -82,7 +88,17 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
         }
     }
 
-    private void handleResultsClick(TrackedEntityInstance trackedEntityInstance) {
+    private Date getNowWithoutTime() {
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTime(new Date());
+        gc.set(Calendar.HOUR_OF_DAY, 0);
+        gc.set(Calendar.MINUTE, 0);
+        gc.set(Calendar.SECOND, 0);
+        gc.set(Calendar.MILLISECOND, 0);
+        return gc.getTime();
+    }
+
+    private void handleResultsClick(TrackedEntityInstance data) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -107,28 +123,52 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
         noButton.setText(R.string.add_new_primary_cancer_info);
         noButton.setOnClickListener(v -> {
             alertDialog.dismiss();
-            disposable.add(
-                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
-                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
-                                    .blockingAdd(
-                                            TrackedEntityInstanceCreateProjection.builder()
-                                                    .organisationUnit(selectedOrganization)
-                                                    .trackedEntityType(program.trackedEntityType().uid())
-                                                    .build()
-                                    ))
-                            .map(teiUid -> TrackedEntityInstanceActivity.getIntent(
-                                    SearchResultsActivity.this
-                            ))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    activityIntent ->
-                                            ActivityStarter.startActivity(
-                                                    SearchResultsActivity.this, activityIntent, true),
-                                    Throwable::printStackTrace
-                            )
 
-            );
+            Log.e("TAG", "Selected Tracked Entity " + data);
+            Log.e("TAG", "Selected Tracked Program " + selectedProgram);
+            Log.e("TAG", "Selected Tracked Organization " + selectedOrganization);
+
+            String enrollmentUid = null;
+            try {
+                enrollmentUid = Sdk.d2().enrollmentModule().enrollments().blockingAdd(
+                        EnrollmentCreateProjection.builder()
+                                .organisationUnit(selectedOrganization)
+                                .program(selectedProgram)
+                                .trackedEntityInstance(data.uid())
+                                .build()
+                );
+                EnrollmentObjectRepository enrollmentRepository = Sdk.d2().enrollmentModule().enrollments().uid(enrollmentUid);
+                enrollmentRepository.setEnrollmentDate(getNowWithoutTime());
+                enrollmentRepository.setIncidentDate(getNowWithoutTime());
+                ActivityStarter.startActivity(this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization), true);
+            } catch (D2Error e) {
+                Log.e("Error", "Error creating enrollment" + e.getMessage());
+            }
+
+//            disposable.add(
+//                    Sdk.d2().programModule().programs().uid(selectedProgram).get()
+//                            .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
+//                                    .blockingAdd(
+//                                            TrackedEntityInstanceCreateProjection.builder()
+//                                                    .organisationUnit(selectedOrganization)
+//                                                    .trackedEntityType(program.trackedEntityType().uid())
+//                                                    .build()
+//                                    ))
+//                            .map(teiUid -> TrackedEntityInstanceActivity.getIntent(
+//                                    SearchResultsActivity.this,
+//                                    data.uid()
+//                                    , selectedProgram, selectedOrganization
+//                            ))
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(
+//                                    activityIntent ->
+//                                            ActivityStarter.startActivity(
+//                                                    SearchResultsActivity.this, activityIntent, true),
+//                                    Throwable::printStackTrace
+//                            )
+//
+//            );
 
         });
         yesButton.setText(R.string.update_an_existing_cancer_case);
