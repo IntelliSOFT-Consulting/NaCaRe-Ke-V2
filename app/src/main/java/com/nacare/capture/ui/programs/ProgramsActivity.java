@@ -47,36 +47,38 @@ public class ProgramsActivity extends ListActivity implements OnProgramSelection
     }
 
     private void observePrograms() {
-        ProgramsAdapter adapter = new ProgramsAdapter(this);
-        recyclerView.setAdapter(adapter);
-
-      try {
-          disposable = Sdk.d2().organisationUnitModule().organisationUnits().getUids()
-                  .subscribeOn(Schedulers.io())
-                  .observeOn(AndroidSchedulers.mainThread())
-                  .map(this::getPrograms)
-                  .subscribe(programs -> programs.observe(this, programPagedList -> {
-                      adapter.submitList(programPagedList);
-                      findViewById(R.id.programsNotificator).setVisibility(
-                              programPagedList.isEmpty() ? View.VISIBLE : View.GONE);
-                  }));
-      }catch (Exception e){
-          e.printStackTrace();
-      }
+        try {
+            ProgramsAdapter adapter = new ProgramsAdapter(this);
+            recyclerView.setAdapter(adapter);
+            disposable = Sdk.d2().organisationUnitModule().organisationUnits().getUids()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(this::getPrograms)
+                    .subscribe(programs -> programs.observe(this, programPagedList -> {
+                        adapter.submitList(programPagedList);
+                        findViewById(R.id.programsNotificator).setVisibility(
+                                programPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+                    }));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (disposable != null) {
-            disposable.dispose();
+        try {
+            if (disposable != null) {
+                disposable.dispose();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private LiveData<PagedList<Program>> getPrograms(List<String> organisationUnitUids) {
         return Sdk.d2().programModule().programs()
                 .byOrganisationUnitList(organisationUnitUids)
-//                .byProgramType().eq(ProgramType.WITH_REGISTRATION)
                 .orderByName(RepositoryScope.OrderByDirection.ASC)
                 .getPaged(20);
     }

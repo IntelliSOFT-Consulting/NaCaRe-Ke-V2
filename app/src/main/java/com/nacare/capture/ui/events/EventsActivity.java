@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,7 +16,6 @@ import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
-import com.nacare.capture.ui.event_form.EventFormActivity;
 import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 
 import org.hisp.dhis.android.core.event.EventCollectionRepository;
@@ -116,22 +114,26 @@ public class EventsActivity extends ListActivity {
     }
 
     private void observeEvents() {
-       try {
-           adapter = new EventAdapter(this);
-           recyclerView.setAdapter(adapter);
-
-           getEventRepository().getPaged(20).observe(this, eventsPagedList -> {
-               adapter.setSource(eventsPagedList.getDataSource());
-               adapter.submitList(eventsPagedList);
-               findViewById(R.id.eventsNotificator).setVisibility(View.GONE);
-               findViewById(R.id.eventButton).setVisibility(
-                       eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
-               findViewById(R.id.circularProgressBar).setVisibility(
-                       eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
-           });
-       }catch (Exception e){
-           e.printStackTrace();
-       }
+        try {
+            adapter = new EventAdapter(this);
+            recyclerView.setAdapter(adapter);
+            String orgUnit = new FormatterClass().getSharedPref("orgCode", this);
+            if (!isEmpty(orgUnit)) {
+                if (!isEmpty(selectedProgram)) {
+                    getEventRepository(orgUnit).getPaged(20).observe(this, eventsPagedList -> {
+                        adapter.setSource(eventsPagedList.getDataSource());
+                        adapter.submitList(eventsPagedList);
+                        findViewById(R.id.eventsNotificator).setVisibility(View.GONE);
+                        findViewById(R.id.eventButton).setVisibility(
+                                eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+                        findViewById(R.id.circularProgressBar).setVisibility(
+                                eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+                    });
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -140,18 +142,10 @@ public class EventsActivity extends ListActivity {
         super.onResume();
     }
 
-    private EventCollectionRepository getEventRepository() {
+    private EventCollectionRepository getEventRepository(String orgUnit) {
         EventCollectionRepository eventRepository =
                 Sdk.d2().eventModule().events().withTrackedEntityDataValues();
-        String orgUnit = new FormatterClass().getSharedPref("orgCode", this);
-        if (!isEmpty(orgUnit)) {
-            if (!isEmpty(selectedProgram)) {
-                return eventRepository.byProgramUid().eq(selectedProgram).byOrganisationUnitUid().eq(orgUnit);
-            } else {
-                return eventRepository;
-            }
-        }
-        return null;
+        return eventRepository.byProgramUid().eq(selectedProgram).byOrganisationUnitUid().eq(orgUnit);
     }
 
     @Override

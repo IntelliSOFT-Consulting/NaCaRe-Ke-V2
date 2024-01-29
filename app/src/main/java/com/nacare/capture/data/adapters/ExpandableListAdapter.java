@@ -3,12 +3,10 @@ package com.nacare.capture.data.adapters;
 
 import static android.text.TextUtils.isEmpty;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -34,19 +31,17 @@ import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.ExpandableItem;
 import com.nacare.capture.data.model.FormatterClass;
-import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.data.service.DateFormatHelper;
-import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
-import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
-import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
 import org.hisp.dhis.android.core.dataelement.DataElement;
+import org.hisp.dhis.android.core.event.Event;
+import org.hisp.dhis.android.core.event.EventCollectionRepository;
 import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.program.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValueObjectRepository;
-import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValue;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 
@@ -80,8 +75,8 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
     @Override
     public void onBindViewHolder(final PersonViewHolder holder, final int position) {
-        ExpandableItem person = personList.get(position);
-        holder.textViewName.setText(person.getGroupName());
+        ExpandableItem data = personList.get(position);
+        holder.textViewName.setText(data.getGroupName());
         holder.linearLayout.setVisibility(View.GONE);
         if (currentPosition == position) {
             holder.lnLinearLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.selected));
@@ -90,20 +85,26 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         } else {
             holder.linearLayout.setVisibility(View.GONE);
         }
-        holder.textViewName.setOnClickListener(view -> {
+        holder.itemView.setOnClickListener(view -> {
             currentPosition = position;
             notifyDataSetChanged();
         });
-        if (person.getChildItems() != null) {
-            holder.smallTextView.setText("0/" + person.getChildItems().size());
-            for (TrackedEntityAttribute trackedEntityAttribute : person.getChildItems()) {
+        if (data.getChildItems() != null) {
+            holder.smallTextView.setText(countResponded(data.getChildItems()) + "/" + data.getChildItems().size());
+            holder.linearLayout.removeAllViews();
+            for (TrackedEntityAttribute trackedEntityAttribute : data.getChildItems()) {
                 createSearchFields(holder.linearLayout, trackedEntityAttribute, extractCurrentAttributeValue(trackedEntityAttribute));
             }
         }
-        if (person.getDataElements() != null) {
-            holder.smallTextView.setText("0/" + person.getDataElements().size());
-            for (DataElement dataElement : person.getDataElements()) {
-                createSearchFieldsDataElement(holder.linearLayout, dataElement, extractCurrentValue(dataElement));
+        if (data.getDataElements() != null) {
+            holder.smallTextView.setText(countAlreadyResponded(data.getProgramUid(), data.getProgramStageUid(), data.getSelectedOrgUnit(), data.getSelectedTei(), data.getDataElements()) + "/" + data.getDataElements().size());
+            holder.linearLayout.removeAllViews();
+            for (DataElement dataElement : data.getDataElements()) {
+                createSearchFieldsDataElement(holder.linearLayout,
+                        dataElement,
+                        extractCurrentValue(data.getProgramUid(), data.getProgramStageUid(), data.getSelectedOrgUnit(),
+                                data.getSelectedTei(), dataElement)
+                );
             }
         }
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -140,38 +141,65 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
     }
 
-    private String extractCurrentAttributeValue(TrackedEntityAttribute trackedEntityAttribute) {
-        String orgCode = new FormatterClass().getSharedPref("orgCode", context);
-        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-        String programUid = new FormatterClass().getSharedPref("programUid", context);
+    private String countResponded(List<TrackedEntityAttribute> trackedEntityAttributes) {
+        Integer counter = 0;
 
-        TrackedEntityInstanceCollectionRepository teiRepository = Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
-
-        List<String> programUids = new ArrayList<>();
-        programUids.add(programUid);
-        TrackedEntityInstance tei = teiRepository.byProgramUids(programUids)
-//                .byOrganisationUnitUid().eq(orgCode)
-                .byUid().eq(selectedTei).one().blockingGet();
-
-        if (tei != null) {
-            Log.e("TAG", "Current Value ****" + tei.trackedEntityAttributeValues());
-            for (TrackedEntityAttributeValue attributeValue : tei.trackedEntityAttributeValues()) {
-
-                if (attributeValue.trackedEntityAttribute().equals(trackedEntityAttribute.uid())) {
-                    return attributeValue.value();
+        try {
+            for (TrackedEntityAttribute trackedEntityAttribute : trackedEntityAttributes) {
+                String value = extractCurrentAttributeValue(trackedEntityAttribute);
+                if (value != null) {
+                    counter++;
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "" + counter;
+    }
 
+    private String countAlreadyResponded(String programUid, String programStageUid, String selectedOrgUnit, String selectedTei, List<DataElement> dataElements) {
+        Integer counter = 0;
+        try {
+            for (DataElement dt : dataElements) {
+                String value = extractCurrentValue(programUid, programStageUid, selectedOrgUnit,
+                        selectedTei, dt);
+                if (value != null) {
+                    counter++;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "" + counter;
+    }
+
+    private String getSharedPref(String key) {
+        return new FormatterClass().getSharedPref(key, context);
+    }
+
+    private String extractCurrentAttributeValue(TrackedEntityAttribute trackedEntityAttribute) {
+        String orgCode = getSharedPref("orgCode");
+        String selectedTei = getSharedPref("selectedTei");
+        String programUid = getSharedPref("programUid");
+        try {
+            TrackedEntityInstanceCollectionRepository teiRepository = Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
+
+            List<String> programUids = new ArrayList<>();
+            programUids.add(programUid);
+            TrackedEntityInstance tei = teiRepository.byProgramUids(programUids)
+                    .byUid().eq(selectedTei).one().blockingGet();
+            if (tei != null) {
+                return tei.trackedEntityAttributeValues().stream()
+                        .filter(attributeValue -> attributeValue.trackedEntityAttribute().equals(trackedEntityAttribute.uid()))
+                        .map(TrackedEntityAttributeValue::value)
+                        .findFirst()
+                        .orElse(null);
+            }
+        } catch (Exception e) {
+            return null;
         }
 
         return null;
-//        Stewring selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-//        TrackedEntityDataValueObjectRepository valueRepository =
-//                Sdk.d2().trackedEntityModule().trackedEntityDataValues()
-//                        .value(trackedEntityAttribute.uid(), selectedTei);
-//
-//        return valueRepository.blockingExists() ?
-//                valueRepository.blockingGet().value() : "";
     }
 
     private String valueAt(List<TrackedEntityAttributeValue> values, String attributeUid) {
@@ -184,11 +212,40 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         return null;
     }
 
-    private String extractCurrentValue(DataElement dataElement) {
-        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-        TrackedEntityDataValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityDataValues().value(dataElement.uid(), selectedTei);
+    private String extractCurrentValue(String programUid, String programStageUid, String orgUnit, String selectedTei, DataElement dataElement) {
+        /**
+         * Get the event based on the organization and program stage**/
+        List<String> uids = new ArrayList<>();
+        uids.add(selectedTei);
 
-        return valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+        EventCollectionRepository eventRepository =
+                Sdk.d2().eventModule().events().withTrackedEntityDataValues();
+        Event event = eventRepository
+                .withTrackedEntityDataValues()
+                .byProgramUid().eq(programUid)
+                .byProgramStageUid().eq(programStageUid)
+                .byOrganisationUnitUid().eq(orgUnit)
+                .byTrackedEntityInstanceUids(uids)
+                .one()
+                .blockingGet();
+
+        if (event != null) {
+            if (event.trackedEntityDataValues().size() > 0) {
+                Optional<String> result = event.trackedEntityDataValues()
+                        .stream()
+                        .filter(dataValue -> dataValue.dataElement().equalsIgnoreCase(dataElement.uid()))
+                        .map(TrackedEntityDataValue::value)
+                        .findFirst();
+                String value = result.orElse(null);
+
+                Log.e("TAG", "Value for the Current Data Event " + value);
+
+                return value;
+
+            }
+            return "";
+        }
+        return "";
     }
 
     private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String value) {
@@ -196,9 +253,157 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         String label = item.displayName();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        if ("TEXT".equals(valueType)) {
-            if (item.optionSet() == null) {
-                LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_edittext, linearLayout, false);
+        switch (valueType) {
+            case "TEXT":
+                if (item.optionSet() == null) {
+                    LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_edittext, linearLayout, false);
+
+                    TextView tvName = itemView.findViewById(R.id.tv_name);
+                    TextView tvElement = itemView.findViewById(R.id.tv_element);
+                    TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                    TextInputEditText editText = itemView.findViewById(R.id.editText);
+
+                    tvName.setText(item.displayName());
+                    tvElement.setText(item.uid());
+                    editText.setText(value);
+
+                    editText.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+                            String value = editable.toString();
+                            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+                            if (selectedTei != null) {
+                                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
+                                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+                                if (currentValue == null) currentValue = "";
+
+                                Log.e("TAG", "Current Value" + currentValue);
+
+                                try {
+                                    if (!isEmpty(value)) {
+                                        valueRepository.blockingSet(value);
+                                    }
+//                                else {
+//                                    valueRepository.blockingDeleteIfExist();
+//                                }
+                                } catch (Exception d2Error) {
+                                    d2Error.printStackTrace();
+                                    Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
+                                } finally {
+                                    Log.e("TAG", "Response Saved Successfully");
+                                }
+                            } else {
+                                Log.e("TAG", "Response Saved Successfully No tracked Entity");
+                            }
+                        }
+                    });
+                    linearLayout.addView(itemView);
+                } else {
+                    LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
+
+
+                    TextView tvName = itemView.findViewById(R.id.tv_name);
+                    TextView tvElement = itemView.findViewById(R.id.tv_element);
+                    TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                    AutoCompleteTextView autoCompleteTextView = itemView.findViewById(R.id.autoCompleteTextView);
+
+                    tvElement.setText(item.uid());
+
+                    List<String> optionsStringList = new ArrayList<>();
+
+                    List<Option> optionsList = generateOptionSets(item.optionSet().uid());
+                    for (Option option : optionsList) {
+                        optionsStringList.add(option.displayName());
+                    }
+                    ArrayAdapter<String> adp = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, optionsStringList);
+
+                    tvName.setText(item.displayName());
+                    autoCompleteTextView.setAdapter(adp);
+                    if (value != null) {
+                        autoCompleteTextView.setText(value, false);
+                    }
+                    adp.notifyDataSetChanged();
+                    linearLayout.addView(itemView);
+                }
+                break;
+            case "DATE": {
+                View itemView = inflater.inflate(R.layout.item_date_edittext, linearLayout, false);
+                TextView tvName = itemView.findViewById(R.id.tv_name);
+                TextView tvElement = itemView.findViewById(R.id.tv_element);
+                TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                TextInputEditText editText = itemView.findViewById(R.id.editText);
+                tvName.setText(item.displayName());
+                tvElement.setText(item.uid());
+                List<String> keywords = Arrays.asList("Birth", "Death");
+                editText.setKeyListener(null);
+                editText.setCursorVisible(false);
+                editText.setFocusable(false);
+                if (value != null) {
+                    value = new FormatterClass().extractValid(value);
+                    editText.setText(value);
+                }
+                editText.setOnClickListener(v -> {
+                    Calendar calendar = Calendar.getInstance();
+                    new DatePickerDialog(context, (datePicker, year, month, day) -> {
+                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+                        String valueCurrent = getDate(year, month, day);
+                        editText.setText(valueCurrent);
+
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+                });
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        // This method is called before the text is changed.
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (s != null) {
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        // This method is called after the text has changed.
+                        // You can perform actions here based on the updated text.
+                    }
+                });
+                linearLayout.addView(itemView);
+                break;
+            }
+            case "BOOLEAN": {
+                View itemView = inflater.inflate(
+                        R.layout.item_radio,
+                        linearLayout,
+                        false
+                );
+                TextView tvName = itemView.findViewById(R.id.tv_name);
+                radioGroup = itemView.findViewById(R.id.radioGroup);
+                RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
+                RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
+                tvName.setText(item.displayName());
+                if (value != null && value.equals("true")) {
+                    radioGroup.check(R.id.radioButtonYes);
+                } else if (value != null && value.equals("false")) {
+                    radioGroup.check(R.id.radioButtonNo);
+                } else {
+                    radioGroup.clearCheck();
+                }
+                linearLayout.addView(itemView);
+                break;
+            }
+            case "NUMBER": {
+                LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_edittext_phone, linearLayout, false);
 
                 TextView tvName = itemView.findViewById(R.id.tv_name);
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
@@ -249,32 +454,10 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                     }
                 });
                 linearLayout.addView(itemView);
-            } else {
-                LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
-
-
-                TextView tvName = itemView.findViewById(R.id.tv_name);
-                TextView tvElement = itemView.findViewById(R.id.tv_element);
-                TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
-                AutoCompleteTextView autoCompleteTextView = itemView.findViewById(R.id.autoCompleteTextView);
-
-                tvElement.setText(item.uid());
-
-                List<String> optionsStringList = new ArrayList<>();
-
-                List<Option> optionsList = generateOptionSets(item.optionSet().uid());
-                for (Option option : optionsList) {
-                    optionsStringList.add(option.displayName());
-                }
-                ArrayAdapter<String> adp = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, optionsStringList);
-
-                tvName.setText(item.displayName());
-                autoCompleteTextView.setAdapter(adp);
-                adp.notifyDataSetChanged();
-//                stringMap.put(item.uid(), autoCompleteTextView);
-                linearLayout.addView(itemView);
+                break;
             }
         }
+
 
     }
 
@@ -283,126 +466,132 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         String label = item.displayName();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        if ("TEXT".equals(valueType)) {
-            if (item.optionSet() == null) {
-                LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_edittext, linearLayout, false);
+        switch (valueType) {
+            case "TEXT":
+                if (item.optionSet() == null) {
+                    LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_edittext, linearLayout, false);
 
+                    TextView tvName = itemView.findViewById(R.id.tv_name);
+                    TextView tvElement = itemView.findViewById(R.id.tv_element);
+                    TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                    TextInputEditText editText = itemView.findViewById(R.id.editText);
+
+                    tvName.setText(item.displayName());
+                    tvElement.setText(item.uid());
+//                stringMap.put(item.uid(), editText);
+                    controlInputAppearance(item.uid(), editText);
+                    editText.setText(value);
+                    editText.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                            String value = charSequence.toString();
+                            if (!value.isEmpty()) {
+                                String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+                                if (selectedTei != null) {
+                                    TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
+                                            trackedEntityAttributeValues().value(item.uid(), selectedTei);
+                                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+                                    if (currentValue == null) currentValue = "";
+
+                                    try {
+                                        valueRepository.blockingSet(value);
+
+                                    } catch (Exception d2Error) {
+                                        d2Error.printStackTrace();
+                                        Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
+                                    } finally {
+                                        Log.e("TAG", "Response Saved Successfully");
+                                    }
+                                } else {
+                                    Log.e("TAG", "Response Saved Successfully No tracked Entity");
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
+                    linearLayout.addView(itemView);
+                } else {
+                    LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
+
+
+                    TextView tvName = itemView.findViewById(R.id.tv_name);
+                    TextView tvElement = itemView.findViewById(R.id.tv_element);
+                    TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
+                    AutoCompleteTextView autoCompleteTextView = itemView.findViewById(R.id.autoCompleteTextView);
+
+                    tvElement.setText(item.uid());
+
+                    List<String> optionsStringList = new ArrayList<>();
+
+                    List<Option> optionsList = generateOptionSets(item.optionSet().uid());
+                    for (Option option : optionsList) {
+                        optionsStringList.add(option.displayName());
+                    }
+                    ArrayAdapter<String> adp = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, optionsStringList);
+
+                    tvName.setText(item.displayName());
+                    autoCompleteTextView.setAdapter(adp);
+                    adp.notifyDataSetChanged();
+                    String currentData = generateOptionNameFromId(value);
+                    if (currentData != null) {
+//                    autoCompleteTextView.setText(currentData, false);
+                    }
+                    autoCompleteTextView.setText(value, false);
+                    autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                            String value = charSequence.toString();
+                            if (!value.isEmpty()) {
+                                Log.e("TAG", "Details Here *** " + item.uid());
+                                Log.e("TAG", "Details Here *** " + item.displayName());
+                                Log.e("TAG", "Details Here *** " + item.optionSet().uid());
+                                Log.e("TAG", "Details Here *** " + value);
+                                new SaveValueTask(item.uid(), item.displayName(), item.optionSet().uid(), value).execute();
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
+                    linearLayout.addView(itemView);
+                }
+                break;
+            case "DATE": {
+                View itemView = inflater.inflate(R.layout.item_date_edittext, linearLayout, false);
                 TextView tvName = itemView.findViewById(R.id.tv_name);
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
                 TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
-
                 tvName.setText(item.displayName());
                 tvElement.setText(item.uid());
-//                stringMap.put(item.uid(), editText);
-                controlInputAppearance(item.uid(), editText);
-                editText.setText(value);
-                editText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                        String value = charSequence.toString();
-                        if (!value.isEmpty()) {
-                            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                            if (selectedTei != null) {
-                                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
-                                        trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                                if (currentValue == null) currentValue = "";
-
-                                try {
-                                    valueRepository.blockingSet(value);
-
-                                } catch (Exception d2Error) {
-                                    d2Error.printStackTrace();
-                                    Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                                } finally {
-                                    Log.e("TAG", "Response Saved Successfully");
-                                }
-                            } else {
-                                Log.e("TAG", "Response Saved Successfully No tracked Entity");
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
-                linearLayout.addView(itemView);
-            } else {
-                LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
-
-
-                TextView tvName = itemView.findViewById(R.id.tv_name);
-                TextView tvElement = itemView.findViewById(R.id.tv_element);
-                TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
-                AutoCompleteTextView autoCompleteTextView = itemView.findViewById(R.id.autoCompleteTextView);
-
-                tvElement.setText(item.uid());
-
-                List<String> optionsStringList = new ArrayList<>();
-
-                List<Option> optionsList = generateOptionSets(item.optionSet().uid());
-                for (Option option : optionsList) {
-                    optionsStringList.add(option.displayName());
+                List<String> keywords = Arrays.asList("Birth", "Death");
+                editText.setKeyListener(null);
+                editText.setCursorVisible(false);
+                editText.setFocusable(false);
+                value = new FormatterClass().extractValid(value);
+                if (value != null) {
+                    editText.setText(value);
                 }
-                ArrayAdapter<String> adp = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, optionsStringList);
-
-                tvName.setText(item.displayName());
-                autoCompleteTextView.setAdapter(adp);
-                adp.notifyDataSetChanged();
-                String currentData = generateOptionNameFromId(value);
-                if (currentData != null) {
-//                    autoCompleteTextView.setText(currentData, false);
-                }
-                autoCompleteTextView.setText(value, false);
-                autoCompleteTextView.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                        String value = charSequence.toString();
-                        if (!value.isEmpty()) {
-                            Log.e("TAG", "Details Here *** " + item.uid());
-                            Log.e("TAG", "Details Here *** " + item.displayName());
-                            Log.e("TAG", "Details Here *** " + item.optionSet().uid());
-                            Log.e("TAG", "Details Here *** " + value);
-                            new SaveValueTask(item.uid(), item.displayName(), item.optionSet().uid(), value).execute();
-                        }
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
-                linearLayout.addView(itemView);
-            }
-        } else if ("DATE".equals(valueType)) {
-            View itemView = inflater.inflate(R.layout.item_date_edittext, linearLayout, false);
-            TextView tvName = itemView.findViewById(R.id.tv_name);
-            TextView tvElement = itemView.findViewById(R.id.tv_element);
-            TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
-            TextInputEditText editText = itemView.findViewById(R.id.editText);
-            tvName.setText(item.displayName());
-            tvElement.setText(item.uid());
-            List<String> keywords = Arrays.asList("Birth", "Death");
-            editText.setKeyListener(null);
-            editText.setCursorVisible(false);
-            editText.setFocusable(false);
-            editText.setOnClickListener(v -> {
-                Calendar calendar = Calendar.getInstance();
-                new DatePickerDialog(context, (datePicker, year, month, day) -> {
-                    String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                    String valueCurrent = getDate(year, month, day);
-                    editText.setText(valueCurrent);
+                editText.setOnClickListener(v -> {
+                    Calendar calendar = Calendar.getInstance();
+                    new DatePickerDialog(context, (datePicker, year, month, day) -> {
+                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+                        String valueCurrent = getDate(year, month, day);
+                        editText.setText(valueCurrent);
 //                    TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
 //                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
 //                    if (currentValue == null) currentValue = "";
@@ -423,38 +612,40 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 //                        Log.e("TAG", "Response Saved Successfully");
 //                    }
 
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
-            });
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    // This method is called before the text is changed.
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s != null) {
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+                });
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        // This method is called before the text is changed.
                     }
-                }
 
-                @Override
-                public void afterTextChanged(Editable s) {
-                    // This method is called after the text has changed.
-                    // You can perform actions here based on the updated text.
-                }
-            });
-            linearLayout.addView(itemView);
-        } else if ("BOOLEAN".equals(valueType)) {
-            View itemView = inflater.inflate(
-                    R.layout.item_radio,
-                    linearLayout,
-                    false
-            );
-            TextView tvName = itemView.findViewById(R.id.tv_name);
-            radioGroup = itemView.findViewById(R.id.radioGroup);
-            RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
-            RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
-            tvName.setText(item.displayName());
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (s != null) {
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        // This method is called after the text has changed.
+                        // You can perform actions here based on the updated text.
+                    }
+                });
+                linearLayout.addView(itemView);
+                break;
+            }
+            case "BOOLEAN": {
+                View itemView = inflater.inflate(
+                        R.layout.item_radio,
+                        linearLayout,
+                        false
+                );
+                TextView tvName = itemView.findViewById(R.id.tv_name);
+                radioGroup = itemView.findViewById(R.id.radioGroup);
+                RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
+                RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
+                tvName.setText(item.displayName());
 //
 //            if (currentValue != null && currentValue.equals("true")) {
 //                radioGroup.check(R.id.radioButtonYes);
@@ -464,7 +655,9 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 //                radioGroup.clearCheck();
 //            }
 //            inputFieldMap.put(item.uid(), radioGroup);
-            linearLayout.addView(itemView);
+                linearLayout.addView(itemView);
+                break;
+            }
         }
 
     }

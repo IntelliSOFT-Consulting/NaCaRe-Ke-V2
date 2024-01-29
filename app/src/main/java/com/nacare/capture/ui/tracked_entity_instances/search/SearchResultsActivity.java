@@ -1,7 +1,6 @@
 package com.nacare.capture.ui.tracked_entity_instances.search;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.paging.PagedList;
@@ -23,25 +22,21 @@ import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.databinding.ActivitySearchResultsBinding;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
-import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
-import com.nacare.capture.ui.tracked_entity_instances.TrackedEntityInstanceAdapter;
 
 import org.hisp.dhis.android.core.enrollment.EnrollmentCreateProjection;
 import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnitMode;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
-import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
+import org.hisp.dhis.android.core.trackedentity.search.TrackedEntityInstanceQueryCollectionRepository;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 public class SearchResultsActivity extends ListWithoutBindingsActivity {
     private ActivitySearchResultsBinding binding;
@@ -78,14 +73,12 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
         homeData = (ArrayList<HomeData>) getIntent().getSerializableExtra(IntentExtra.DATA.name());
         adapter = new TrackedResultsAdapter(this::handleResultsClick);
         recyclerView.setAdapter(adapter);
-        for (HomeData data : homeData) {
-            searchTrackedEntityInstanceQuery(selectedProgram, data).observe(this, trackedEntityInstancePagedList -> {
-                adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-                adapter.submitList(trackedEntityInstancePagedList);
+        searchTrackedEntityInstanceQuery(selectedProgram, homeData).observe(this, trackedEntityInstancePagedList -> {
+            adapter.setSource(trackedEntityInstancePagedList.getDataSource());
+            adapter.submitList(trackedEntityInstancePagedList);
 
-            });
+        });
 
-        }
     }
 
     private Date getNowWithoutTime() {
@@ -140,8 +133,9 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
                 EnrollmentObjectRepository enrollmentRepository = Sdk.d2().enrollmentModule().enrollments().uid(enrollmentUid);
                 enrollmentRepository.setEnrollmentDate(getNowWithoutTime());
                 enrollmentRepository.setIncidentDate(getNowWithoutTime());
+
                 ActivityStarter.startActivity(this,
-                        TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization,false), true);
+                        TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization, false), true);
             } catch (D2Error e) {
                 Log.e("Error", "Error creating enrollment" + e.getMessage());
             }
@@ -182,14 +176,16 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
     }
 
 
-    private LiveData<PagedList<TrackedEntityInstance>> searchTrackedEntityInstanceQuery(String programUid, HomeData data) {
+    private LiveData<PagedList<TrackedEntityInstance>> searchTrackedEntityInstanceQuery(String programUid, ArrayList<HomeData> data) {
 
-        return Sdk.d2().trackedEntityModule()
+        TrackedEntityInstanceQueryCollectionRepository collectionRepository = Sdk.d2().trackedEntityModule()
                 .trackedEntityInstanceQuery()
                 .byOrgUnitMode().eq(OrganisationUnitMode.DESCENDANTS)
-                .byProgram().eq(programUid)
-                .byFilter(data.getId()).like(data.getName())
-                .onlineFirst().getPaged(15);
+                .byProgram().eq(programUid);
+        for (HomeData hd : data) {
+            collectionRepository = collectionRepository.byFilter(hd.getId()).like(hd.getName());
+        }
+        return collectionRepository.onlineFirst().getPaged(15);
     }
 
     @Override

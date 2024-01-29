@@ -6,12 +6,17 @@ import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +48,7 @@ import org.hisp.dhis.android.core.imports.TrackerImportConflict;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.program.ProgramStage;
+import org.hisp.dhis.android.core.program.ProgramStageDataElement;
 import org.hisp.dhis.android.core.program.ProgramStageSection;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
 
@@ -109,11 +115,11 @@ public class FacilityDetailsActivity extends AppCompatActivity {
             String formattedText = "Saving to <b>" + program + "</b> in <b>" + orgName + "</b>";
             binding.textViewNote.setText(Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY));
         }
-        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
-        if (!TextUtils.isEmpty(orgCode)) {
-            if (EventFormService.getInstance().init(Sdk.d2(), eventUid, programUid, orgCode))
-                this.engineService = new RuleEngineService();
-        }
+//        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+//        if (!TextUtils.isEmpty(orgCode)) {
+//            if (EventFormService.getInstance().init(Sdk.d2(), eventUid, programUid, orgCode))
+//                this.engineService = new RuleEngineService();
+//        }
         prepareFormData();
     }
 
@@ -123,39 +129,42 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         inflater.inflate(R.menu.sync_menu, menu);
         return true;
     }
+
     private Observable<D2Progress> syncEvent(String teiUid) {
         return Sdk.d2().eventModule().events()
                 .byUid().eq(teiUid)
                 .upload();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle menu item clicks here
         switch (item.getItemId()) {
             case R.id.menu_sync:
                 Disposable disposable = syncEvent(eventUid)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            data -> {
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                data -> {
 
-                                Log.e("TAG", "Data Upload *** " + data);
-                            },
-                            Throwable::printStackTrace,
-                            () -> {
+                                    Log.e("TAG", "Data Upload *** " + data);
+                                },
+                                Throwable::printStackTrace,
+                                () -> {
 
-                            }
-                    );
+                                }
+                        );
 
-            List<TrackerImportConflict> trackerImportConflicts = Sdk.d2().importModule().trackerImportConflicts()
-                    .byEventUid().eq(eventUid).blockingGet();
+                List<TrackerImportConflict> trackerImportConflicts = Sdk.d2().importModule().trackerImportConflicts()
+                        .byEventUid().eq(eventUid).blockingGet();
 
-            Log.e("TAG", "Data Upload *** Conflicts" + trackerImportConflicts);
+                Log.e("TAG", "Data Upload *** Conflicts" + trackerImportConflicts);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void submitEnrollment(View viewold) {
         collectedInputs.clear();
         for (Map.Entry<String, View> entry : inputFieldMap.entrySet()) {
@@ -311,19 +320,13 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     .blockingGet();
 
             List<DataElement> flattenedList = programStageSections.stream()
-                    .flatMap(section -> section.dataElements().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
+                    .flatMap(section -> section.dataElements().stream())
                     .distinct()
                     .collect(Collectors.toList());
             List<String> exclusionIds = Arrays.asList("OeUTTmDXAye", "QHprEcvWSQV", "TUR7b6PuifD");
 
             for (DataElement dataElement : flattenedList) {
                 if (!exclusionIds.contains(dataElement.uid())) {
-                    dataElement.valueType();
-                    dataElement.displayName();
-                    dataElement.uid();
-
-
-
                     createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement));
                 }
             }
@@ -344,7 +347,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         String label = item.displayName();
 //        String attribute=item.attributeValues()
 
-        Log.e("TAG", "Form Field *** " + label + " Item Type " + valueType + " Current Value " + currentValue);
+        Log.e("TAG", "Form Field *** " + label + " Item Type " + valueType + " Current Value " + currentValue + " Attributes " + item.attributeValues());
         LayoutInflater inflater = LayoutInflater.from(this);
 
         switch (valueType) {
@@ -361,13 +364,26 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                     TextInputEditText editText = itemView.findViewById(R.id.editText);
 
-                    tvName.setText(item.displayName());
+                    String name = item.displayName();
+                    if (item.attributeValues() != null) {
+                        boolean isRequired = hasRequiredAttribute(item.attributeValues());
+                        Log.e("TAG", "Attribute is Required ****" + isRequired);
+                        if (isRequired) {
+                            // Add an asterisk and make only the asterisk red
+                            SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
+                            // Set the color for the asterisk to red
+                            spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                            // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
+                            name = spannableName.toString();
+                        }
+                    }
+                    tvName.setText(name);
                     tvElement.setText(item.uid());
                     inputFieldMap.put(item.uid(), editText);
                     editText.setText(currentValue);
                     linearLayout.addView(itemView);
-                }
-                else {
+                } else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(
                             R.layout.item_autocomplete,
                             linearLayout,
@@ -395,7 +411,21 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                             optionsStringList
                     );
 
-                    tvName.setText(item.displayName());
+                    String name = item.displayName();
+                    if (item.attributeValues() != null) {
+                        boolean isRequired = hasRequiredAttribute(item.attributeValues());
+                        Log.e("TAG", "Attribute is Required ****" + isRequired);
+                        if (isRequired) {
+                            // Add an asterisk and make only the asterisk red
+                            SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
+                            // Set the color for the asterisk to red
+                            spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                            // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
+                            name = spannableName.toString();
+                        }
+                    }
+                    tvName.setText(name);
                     autoCompleteTextView.setAdapter(adp);
 //                    String currentData = generateOptionNameFromId(currentValue);
 //                    if (currentData != null) {
@@ -441,7 +471,21 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
 
 // Set values to views
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (item.attributeValues() != null) {
+                    boolean isRequired = hasRequiredAttribute(item.attributeValues());
+                    Log.e("TAG", "Attribute is Required ****" + isRequired);
+                    if (isRequired) {
+                        // Add an asterisk and make only the asterisk red
+                        SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
+                        // Set the color for the asterisk to red
+                        spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                        // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
+                        name = spannableName.toString();
+                    }
+                }
+                tvName.setText(name);
                 tvElement.setText(item.uid());
                 inputFieldMap.put(item.uid(), editText);
 
@@ -491,7 +535,17 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 radioGroup = itemView.findViewById(R.id.radioGroup);
                 RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (item.attributeValues() != null) {
+                    boolean isRequired = hasRequiredAttribute(item.attributeValues());
+                    Log.e("TAG", "Attribute is Required ****" + isRequired);
+                    if (isRequired) {
+                        SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
+                        spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        name = spannableName.toString();
+                    }
+                }
+                tvName.setText(name);
 
                 if (currentValue != null && currentValue.equals("true")) {
                     radioGroup.check(R.id.radioButtonYes);
@@ -507,6 +561,14 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         }
 
     }
+
+    private boolean hasRequiredAttribute(List<AttributeValue> attributeValues) {
+        return attributeValues.stream()
+                .anyMatch(attributeValue ->
+                        attributeValue.attribute().name().equalsIgnoreCase("Required")
+                                && attributeValue.value().equalsIgnoreCase("true"));
+    }
+
 
     private String generateOptionNameFromId(String currentValue) {
         Option option = Sdk.d2().optionModule()

@@ -9,10 +9,11 @@
     android:layout_marginTop="4dp"
     android:layout_marginEnd="8dp"
     android:layout_marginBottom="4dp"
-    android:elevation="@dimen/_15dp"
-    android:foreground="?attr/selectableItemBackgroundBorderless"
     android:clickable="true"
-    android:focusable="true">
+    android:elevation="@dimen/_15dp"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
+    app:cardElevation="@dimen/_15dp">
 
     <FrameLayout
         android:id="@+id/cardFrame"

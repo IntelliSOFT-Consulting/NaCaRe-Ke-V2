@@ -142,9 +142,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (compositeDisposable != null) {
+       try{ if (compositeDisposable != null) {
             compositeDisposable.clear();
-        }
+        } }catch (Exception e){
+           e.printStackTrace();
+       }
     }
 
     private void inflateMainView() {
@@ -259,15 +261,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void syncMetadata() {
-        compositeDisposable.add(downloadMetadata()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(Throwable::printStackTrace)
-                .doOnComplete(() -> {
-                    setSyncingFinished();
+        try {
+            compositeDisposable.add(downloadMetadata()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(Throwable::printStackTrace)
+                    .doOnComplete(() -> {
+                        setSyncingFinished();
 //                    ActivityStarter.startActivity(this, ProgramsActivity.getProgramActivityIntent(this), false);
-                })
-                .subscribe());
+                    })
+                    .subscribe());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private Observable<D2Progress> downloadMetadata() {
@@ -275,20 +282,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void downloadData() {
-        compositeDisposable.add(
-                Observable.merge(
-                                downloadTrackedEntityInstances(),
-                                downloadSingleEvents(),
-                                downloadAggregatedData()
-                        )
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnComplete(() -> {
-                            setSyncingFinished();
+        try {
+            compositeDisposable.add(
+                    Observable.merge(
+                                    downloadTrackedEntityInstances(),
+                                    downloadSingleEvents(),
+                                    downloadAggregatedData()
+                            )
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnComplete(() -> {
+                                setSyncingFinished();
 //                            ActivityStarter.startActivity(this, TrackedEntityInstancesActivity.getTrackedEntityInstancesActivityIntent(this, null), false);
-                        })
-                        .doOnError(Throwable::printStackTrace)
-                        .subscribe());
+                            })
+                            .doOnError(Throwable::printStackTrace)
+                            .subscribe());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private Observable<TrackerD2Progress> downloadTrackedEntityInstances() {
@@ -306,32 +317,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void uploadData() {
-        compositeDisposable.add(
-                Sdk.d2().fileResourceModule().fileResources().upload()
-                        .concatWith(Sdk.d2().trackedEntityModule().trackedEntityInstances().upload())
-                        .concatWith(Sdk.d2().dataValueModule().dataValues().upload())
-                        .concatWith(Sdk.d2().eventModule().events().upload())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnComplete(this::setSyncingFinished)
-                        .doOnError(error -> {
-                            Log.e("TAG", "Error Encountered **** " + error);
-                        })
-                        .subscribe());
+        try {
+            compositeDisposable.add(
+                    Sdk.d2().fileResourceModule().fileResources().upload()
+                            .concatWith(Sdk.d2().trackedEntityModule().trackedEntityInstances().upload())
+                            .concatWith(Sdk.d2().dataValueModule().dataValues().upload())
+                            .concatWith(Sdk.d2().eventModule().events().upload())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnComplete(this::setSyncingFinished)
+                            .doOnError(error -> {
+                                Log.e("TAG", "Error Encountered **** " + error);
+                            })
+                            .subscribe());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void wipeData() {
-        compositeDisposable.add(
-                Observable
-                        .fromCallable(() -> {
-                            Sdk.d2().wipeModule().wipeData();
-                            return "Done wipeData";
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(Throwable::printStackTrace)
-                        .doOnComplete(this::setSyncingFinished)
-                        .subscribe());
+        try {
+            compositeDisposable.add(
+                    Observable
+                            .fromCallable(() -> {
+                                Sdk.d2().wipeModule().wipeData();
+                                return "Done wipeData";
+                            })
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnError(Throwable::printStackTrace)
+                            .doOnComplete(this::setSyncingFinished)
+                            .subscribe());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

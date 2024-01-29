@@ -19,6 +19,10 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 
+import org.hisp.dhis.android.core.enrollment.Enrollment;
+import org.hisp.dhis.android.core.enrollment.EnrollmentCollectionRepository;
+import org.hisp.dhis.android.core.event.Event;
+import org.hisp.dhis.android.core.event.EventCollectionRepository;
 import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.program.ProgramSection;
 import org.hisp.dhis.android.core.program.ProgramStage;
@@ -80,6 +84,40 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
         Log.e("TAG", "Selected Program " + selectedProgram);
         Log.e("TAG", "Selected Org Unit " + selectedOrgUnit);
         Log.e("TAG", "Selected Tei " + selectedTei);
+
+        /**
+         * Get the current enrollemr linked to the tracked entity**/
+
+        EnrollmentCollectionRepository enrollmentCollectionRepository = Sdk.d2().enrollmentModule().enrollments();
+        List<Enrollment> enrollments = enrollmentCollectionRepository
+                .byProgram().eq(selectedProgram)
+                .byOrganisationUnit().eq(selectedOrgUnit)
+                .byTrackedEntityInstance().eq(selectedTei)
+                .blockingGet();
+
+
+        List<String> trackedEntities = new ArrayList<>();
+        for (Enrollment enrollment : enrollments) {
+//            String trackedEntityInstance = enrollment.;
+//            trackedEntities.add(trackedEntityInstance);
+        }
+
+        EventCollectionRepository eventRepository =
+                Sdk.d2().eventModule().events().withTrackedEntityDataValues();
+        List<String> instanceUids = new ArrayList<>();
+        instanceUids.add(selectedTei);
+
+        List<Event> eventList = eventRepository.
+                byProgramUid().eq(selectedProgram)
+                .byOrganisationUnitUid().eq(selectedOrgUnit)
+//                .byEnrollmentUid().eq
+                .byTrackedEntityInstanceUids(instanceUids).blockingGet();
+
+        for (Event ev : eventList) {
+            Log.e("TAG", "Event Data *** " + ev.programStage());
+        }
+
+
         TrackedEntityInstanceCollectionRepository teiRepository =
                 Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
 
@@ -101,6 +139,12 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
 
     private List<ExpandableItem> generateSampleData() {
         try {
+
+            /**
+             * Get Current Enrollment
+             *
+             * Confirm matches
+             */
             List<ExpandableItem> itemList = new ArrayList<>();
 
             List<TrackedEntityAttribute> trackedEntityAttributes = new ArrayList<>();
@@ -122,7 +166,7 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
                         trackedEntityAttributes.add(programSection);
                     }
                 }
-                itemList.add(new ExpandableItem("Patient Details and Cancer Information", trackedEntityAttributes, null));
+                itemList.add(new ExpandableItem(programUid, selectedOrgUnit, selectedTei, "registration", "Patient Details and Cancer Information", trackedEntityAttributes, null));
                 programStage = Sdk.d2().programModule()
                         .programStages()
                         .byProgramUid()
@@ -137,7 +181,7 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
                             .blockingGet();
 
                     for (ProgramStageSection programStageSection : programStageSections) {
-                        itemList.add(new ExpandableItem(programStageSection.displayName(), null, programStageSection.dataElements()));
+                        itemList.add(new ExpandableItem(programUid, selectedOrgUnit, selectedTei, programStage.uid(), programStageSection.displayName(), null, programStageSection.dataElements()));
                     }
                 }
 
@@ -150,7 +194,8 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
     }
 
     private boolean shouldAddAttribute(TrackedEntityAttribute programSection) {
-        List<String> keywords = Arrays.asList("MiXrdHDZ6Hw", "yIp9UZ1Bex6", "RhplKXZoKsC", "wzHl7HdsSlO", "OSs8D8u1El7", "HEoJiJqgPh1", "k5cjujLd0nd", "ghOKiyhlPX0", "BzhDnF5fG4x", "Lhoe9ecBhZi", "AyuVgasCLyM", "vPICBz6JEmK", "xxEsZFtua8N");
+        List<String> keywords = Arrays.asList("MiXrdHDZ6Hw", "yIp9UZ1Bex6", "RhplKXZoKsC", "wzHl7HdsSlO", "OSs8D8u1El7", "HEoJiJqgPh1",
+                "k5cjujLd0nd", "ghOKiyhlPX0", "BzhDnF5fG4x", "Lhoe9ecBhZi", "AyuVgasCLyM", "vPICBz6JEmK", "xxEsZFtua8N");
         Optional<String> matchingKeyword = keywords.stream()
                 .filter(keyword -> programSection.uid().contains(keyword))
                 .findFirst();

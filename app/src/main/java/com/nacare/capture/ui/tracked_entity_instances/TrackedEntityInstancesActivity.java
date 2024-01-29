@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -80,26 +81,30 @@ public class TrackedEntityInstancesActivity extends ListActivity {
     }
 
     private void observeTrackedEntityInstances() {
-        adapter = new TrackedEntityInstanceAdapter(this::handleClick);
-        recyclerView.setAdapter(adapter);
-        String programUid = new FormatterClass().getSharedPref("programUid", this);
-        if (TextUtils.isEmpty(programUid)) {
-            Toast.makeText(this, "Please Select Program to Proceed", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
-        if (TextUtils.isEmpty(orgCode)) {
-            Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        getTeiRepository(programUid, orgCode).getPaged(20).observe(this, trackedEntityInstancePagedList -> {
-            adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-            adapter.submitList(trackedEntityInstancePagedList);
-            findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
-                    trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
-            findViewById(R.id.circularProgressBar).setVisibility(
-                    trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
-        });
+     try {
+         adapter = new TrackedEntityInstanceAdapter(this::handleClick);
+         recyclerView.setAdapter(adapter);
+         String programUid = new FormatterClass().getSharedPref("programUid", this);
+         if (TextUtils.isEmpty(programUid)) {
+             Toast.makeText(this, "Please Select Program to Proceed", Toast.LENGTH_SHORT).show();
+             return;
+         }
+         String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+         if (TextUtils.isEmpty(orgCode)) {
+             Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
+             return;
+         }
+         getTeiRepository(programUid, orgCode).getPaged(20).observe(this, trackedEntityInstancePagedList -> {
+             adapter.setSource(trackedEntityInstancePagedList.getDataSource());
+             adapter.submitList(trackedEntityInstancePagedList);
+             findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
+                     trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+             findViewById(R.id.circularProgressBar).setVisibility(
+                     trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+         });
+     }catch (Exception e){
+         e.printStackTrace();
+     }
     }
 
     private void handleClick(TrackedEntityInstance data) {
@@ -109,6 +114,7 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
             return;
         }
+        Log.e("TAG","Tracked Entity Event **** ");
         ActivityStarter.startActivity(
                 TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, orgCode,false), false);
     }

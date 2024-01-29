@@ -48,6 +48,7 @@ import org.hisp.dhis.android.core.program.ProgramSection;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
+import org.hisp.dhis.android.core.trackedentity.search.TrackedEntityInstanceQueryCollectionRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -114,18 +115,18 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                     HomeData dt = new HomeData(id, input.trim());
                     collectedInputs.add(dt);
                 }
+
+            } else if (view instanceof AutoCompleteTextView) {
+                AutoCompleteTextView textInputEditText = (AutoCompleteTextView) view;
+                String input = textInputEditText.getText().toString();
+
+                if (!input.isEmpty()) {
+                    HomeData dt = new HomeData(id, input);
+                    if (dt.getName() != null) {
+                        collectedInputs.add(dt);
+                    }
+                }
             }
-//            } else if (view instanceof AutoCompleteTextView) {
-//                AutoCompleteTextView textInputEditText = (AutoCompleteTextView) view;
-//                String input = textInputEditText.getText().toString();
-//
-//                if (!input.isEmpty()) {
-//                    HomeData dt = new HomeData(id, generateAnswerOption(id, input));
-//                    if (dt.getName() != null) {
-//                        collectedInputs.add(dt);
-//                    }
-//                }
-//            }
         }
         if (collectedInputs.size() > 0) {
             String programUid = new FormatterClass().getSharedPref("programUid", this);
@@ -138,17 +139,18 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                 Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
                 return;
             }
-            ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs,orgCode), true);
-            /*for (HomeData data : collectedInputs) {
-                searchTrackedEntityInstanceQuery(programUid, data).observe(this, trackedEntityInstancePagedList -> {
-                    for (TrackedEntityInstance tei : trackedEntityInstancePagedList) {
-                        Log.e("TAG", "Tracked Entity Instance Here **** " + tei.trackedEntityAttributeValues());
-                    }
-                    if (!trackedEntityInstancePagedList.isEmpty()) {
-                        showResultsDialog(trackedEntityInstancePagedList);
-                    }
-                });
-            }*/
+//
+//            for (HomeData data : collectedInputs) {
+            searchTrackedEntityInstanceQuery(programUid, collectedInputs).observe(this, trackedEntityInstancePagedList -> {
+
+                if (!trackedEntityInstancePagedList.isEmpty()) {
+//                    showResultsDialog(trackedEntityInstancePagedList);
+                    ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs,orgCode), true);
+                } else {
+                    showCustomAlertDialog(this);
+                }
+            });
+
         } else {
             Toast.makeText(this, "Please enter at least one search parameter", Toast.LENGTH_SHORT).show();
         }
@@ -196,14 +198,16 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         alertDialog.show();
     }
 
-    private LiveData<PagedList<TrackedEntityInstance>> searchTrackedEntityInstanceQuery(String programUid, HomeData data) {
+    private LiveData<PagedList<TrackedEntityInstance>> searchTrackedEntityInstanceQuery(String programUid, List<HomeData> data) {
 
-        return Sdk.d2().trackedEntityModule()
+        TrackedEntityInstanceQueryCollectionRepository collectionRepository = Sdk.d2().trackedEntityModule()
                 .trackedEntityInstanceQuery()
                 .byOrgUnitMode().eq(OrganisationUnitMode.DESCENDANTS)
-                .byProgram().eq(programUid)
-                .byFilter(data.getId()).like(data.getName())
-                .onlineFirst().getPaged(15);
+                .byProgram().eq(programUid);
+        for (HomeData hd : data) {
+            collectionRepository = collectionRepository.byFilter(hd.getId()).like(hd.getName());
+        }
+        return collectionRepository.onlineFirst().getPaged(15);
     }
 
     private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid) {
@@ -259,10 +263,6 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                         } else if (!exclusionIds.contains(programSection.uid())) {
                             remainingList.add(programSection);
                         }
-//                        programSection.valueType();
-//                        programSection.uid();
-//                        programSection.displayName();
-//                        programSection.at
                     }
                 }
                 if (hzVijy6tEUF != null) {
@@ -502,12 +502,14 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
             organisationUids = UidsHelper.getUidsList(organisationUnits);
         }
 
-        return Sdk.d2().trackedEntityModule()
+        TrackedEntityInstanceQueryCollectionRepository jeff = Sdk.d2().trackedEntityModule()
                 .trackedEntityInstanceQuery()
                 .byOrgUnits().in(organisationUids)
                 .byOrgUnitMode().eq(OrganisationUnitMode.DESCENDANTS)
-                .byProgram().eq(savedProgram)
-                .byFilter(savedAttribute).like(savedFilter)
+                .byProgram().eq(savedProgram);
+
+
+        return jeff.byFilter(savedAttribute).like(savedFilter)
                 .onlineFirst().getPaged(15);
     }
 }
