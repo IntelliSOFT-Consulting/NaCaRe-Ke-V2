@@ -6,6 +6,6 @@
         android:icon="@android:drawable/ic_popup_sync"
         android:orderInCategory="100"
         android:title="Sync"
-        android:visible="false"
+        android:visible="true"
         app:showAsAction="always" />
 </menu>

@@ -37,6 +37,7 @@ import com.nacare.capture.data.service.forms.RuleEngineService;
 import com.nacare.capture.databinding.ActivityFacilityDetailsBinding;
 
 import org.hisp.dhis.android.core.arch.call.D2Progress;
+import org.hisp.dhis.android.core.attribute.AttributeValue;
 import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.imports.TrackerImportConflict;
 import org.hisp.dhis.android.core.maintenance.D2Error;
@@ -317,6 +318,11 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
             for (DataElement dataElement : flattenedList) {
                 if (!exclusionIds.contains(dataElement.uid())) {
+                    dataElement.valueType();
+                    dataElement.displayName();
+                    dataElement.uid();
+
+
 
                     createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement));
                 }

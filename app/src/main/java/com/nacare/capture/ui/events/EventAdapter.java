@@ -64,10 +64,10 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
     public void onBindViewHolder(@NonNull ListItemWithSyncHolder holder, int position) {
         Event event = getItem(position);
         List<TrackedEntityDataValue> values = new ArrayList<>(event.trackedEntityDataValues());
-        holder.title.setText(orgUnit(event.organisationUnit()).displayName());
-        holder.subtitle1.setText(valueAt(values, event.programStage()));
-        holder.subtitle2.setText(optionCombo(event.attributeOptionCombo()).displayName());
-        holder.rightText.setText(DateFormatHelper.formatDate(event.eventDate()));
+//        holder.title.setText(orgUnit(event.organisationUnit()).displayName());
+//        holder.subtitle1.setText(valueAt(values, event.programStage()));
+//        holder.subtitle2.setText(optionCombo(event.attributeOptionCombo()).displayName());
+//        holder.rightText.setText(DateFormatHelper.formatDate(event.eventDate()));
 
 
         holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(event.eventDate()));

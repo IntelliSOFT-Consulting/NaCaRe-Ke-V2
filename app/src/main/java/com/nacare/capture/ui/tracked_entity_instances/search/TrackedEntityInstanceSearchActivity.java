@@ -259,6 +259,10 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                         } else if (!exclusionIds.contains(programSection.uid())) {
                             remainingList.add(programSection);
                         }
+//                        programSection.valueType();
+//                        programSection.uid();
+//                        programSection.displayName();
+//                        programSection.at
                     }
                 }
                 if (hzVijy6tEUF != null) {
