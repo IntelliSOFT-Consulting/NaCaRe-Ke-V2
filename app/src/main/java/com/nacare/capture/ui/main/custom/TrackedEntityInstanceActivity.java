@@ -19,6 +19,7 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 
+import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.program.ProgramSection;
 import org.hisp.dhis.android.core.program.ProgramStage;
 import org.hisp.dhis.android.core.program.ProgramStageSection;
@@ -30,21 +31,23 @@ import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionR
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
 
     private enum IntentExtra {
-        TEI_UID, PROGRAM_UID, OU_UID
+        TEI_UID, PROGRAM_UID, OU_UID, NEW_USER
     }
 
 
     public static Intent getIntent(Context context, String teiUid, String programUid,
-                                   String orgUnitUid) {
+                                   String orgUnitUid, boolean isNew) {
         Intent intent = new Intent(context, TrackedEntityInstanceActivity.class);
         intent.putExtra(IntentExtra.TEI_UID.name(), teiUid);
         intent.putExtra(IntentExtra.PROGRAM_UID.name(), programUid);
         intent.putExtra(IntentExtra.OU_UID.name(), orgUnitUid);
+        intent.putExtra(IntentExtra.NEW_USER.name(), isNew);
         return intent;
     }
 
@@ -82,54 +85,76 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
 
         List<String> programUids = new ArrayList<>();
         programUids.add(selectedProgram);
-        TrackedEntityInstance trackedEntityInstance = teiRepository.byProgramUids(programUids).byUid().eq(selectedTei).one().blockingGet();
+        TrackedEntityInstance trackedEntityInstance = teiRepository
+                .byProgramUids(programUids)
+                .byUid().eq(selectedTei)
+                .one()
+                .blockingGet();
         Log.e("TAG", "Selected TrackedEntityInstance **** " + trackedEntityInstance.trackedEntityAttributeValues());
-        for (TrackedEntityAttributeValue teav:trackedEntityInstance.trackedEntityAttributeValues()){
-            Log.e("TAG","Selected "+teav.value()+" Attribute "+teav.trackedEntityAttribute());
+        for (TrackedEntityAttributeValue teav : trackedEntityInstance.trackedEntityAttributeValues()) {
+
+
+            Log.e("TAG", "Selected " + teav.value() + " Attribute " + teav.trackedEntityAttribute());
         }
 
     }
 
     private List<ExpandableItem> generateSampleData() {
-        List<ExpandableItem> itemList = new ArrayList<>();
-        List<TrackedEntityAttribute> trackedEntityAttributes = new ArrayList<>();
-        String programUid = new FormatterClass().getSharedPref("programUid", this);
-        if (programUid != null) {
-            programSectionList = Sdk.d2().programModule()
-                    .programSections()
-                    .withAttributes()
-                    .byProgramUid()
-                    .eq(programUid)
-                    .blockingGet();
-            List<TrackedEntityAttribute> flattenedList = programSectionList.stream()
-                    .flatMap(section -> section.attributes().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
-                    .distinct()
-                    .collect(Collectors.toList());
+        try {
+            List<ExpandableItem> itemList = new ArrayList<>();
 
-            for (TrackedEntityAttribute programSection : flattenedList) {
-                trackedEntityAttributes.add(programSection);
-            }
-            itemList.add(new ExpandableItem("Patient Details and Cancer Information", trackedEntityAttributes, null));
-            programStage = Sdk.d2().programModule()
-                    .programStages()
-                    .byProgramUid()
-                    .eq(programUid)
-                    .one()
-                    .blockingGet();
-            if (programStage != null) {
-                programStageSections = Sdk.d2().programModule()
-                        .programStageSections()
-                        .withDataElements()
-                        .byProgramStageUid().eq(programStage.uid())
+            List<TrackedEntityAttribute> trackedEntityAttributes = new ArrayList<>();
+            String programUid = new FormatterClass().getSharedPref("programUid", this);
+            if (programUid != null) {
+                programSectionList = Sdk.d2().programModule()
+                        .programSections()
+                        .withAttributes()
+                        .byProgramUid()
+                        .eq(programUid)
                         .blockingGet();
+                List<TrackedEntityAttribute> flattenedList = programSectionList.stream()
+                        .flatMap(section -> section.attributes().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
+                        .distinct()
+                        .collect(Collectors.toList());
 
-                for (ProgramStageSection programStageSection : programStageSections) {
-                    itemList.add(new ExpandableItem(programStageSection.displayName(), null, programStageSection.dataElements()));
+                for (TrackedEntityAttribute programSection : flattenedList) {
+                    if (shouldAddAttribute(programSection)) {
+                        trackedEntityAttributes.add(programSection);
+                    }
                 }
+                itemList.add(new ExpandableItem("Patient Details and Cancer Information", trackedEntityAttributes, null));
+                programStage = Sdk.d2().programModule()
+                        .programStages()
+                        .byProgramUid()
+                        .eq(programUid)
+                        .one()
+                        .blockingGet();
+                if (programStage != null) {
+                    programStageSections = Sdk.d2().programModule()
+                            .programStageSections()
+                            .withDataElements()
+                            .byProgramStageUid().eq(programStage.uid())
+                            .blockingGet();
+
+                    for (ProgramStageSection programStageSection : programStageSections) {
+                        itemList.add(new ExpandableItem(programStageSection.displayName(), null, programStageSection.dataElements()));
+                    }
+                }
+
             }
 
+            return itemList;
+        } catch (Exception e) {
+            return null;
         }
+    }
 
-        return itemList;
+    private boolean shouldAddAttribute(TrackedEntityAttribute programSection) {
+        List<String> keywords = Arrays.asList("MiXrdHDZ6Hw", "yIp9UZ1Bex6", "RhplKXZoKsC", "wzHl7HdsSlO", "OSs8D8u1El7", "HEoJiJqgPh1", "k5cjujLd0nd", "ghOKiyhlPX0", "BzhDnF5fG4x", "Lhoe9ecBhZi", "AyuVgasCLyM", "vPICBz6JEmK", "xxEsZFtua8N");
+        Optional<String> matchingKeyword = keywords.stream()
+                .filter(keyword -> programSection.uid().contains(keyword))
+                .findFirst();
+        return matchingKeyword.isPresent();
+
     }
 }

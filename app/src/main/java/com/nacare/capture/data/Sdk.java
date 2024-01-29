@@ -1,6 +1,9 @@
 package com.nacare.capture.data;
 
+import android.app.Application;
 import android.content.Context;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.nacare.capture.data.service.FlipperManager;
 
@@ -13,9 +16,17 @@ import java.util.List;
 
 import okhttp3.Interceptor;
 
-public class Sdk {
+public class Sdk extends Application {
 
-    public static D2 d2() throws IllegalArgumentException {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+
+    }
+
+    public static D2 d2() {
         return D2Manager.getD2();
     }
 

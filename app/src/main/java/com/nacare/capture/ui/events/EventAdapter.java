@@ -4,6 +4,7 @@ import static com.nacare.capture.data.service.StyleBinderHelper.setBackgroundCol
 import static com.nacare.capture.data.service.StyleBinderHelper.setState;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,10 @@ import com.nacare.capture.ui.event_form.EventFormActivity;
 import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 import com.nacare.capture.ui.tracker_import_conflicts.TrackerImportConflictsAdapter;
 
+import org.hisp.dhis.android.core.arch.call.D2Progress;
 import org.hisp.dhis.android.core.category.CategoryOptionCombo;
 import org.hisp.dhis.android.core.event.Event;
+import org.hisp.dhis.android.core.imports.TrackerImportConflict;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnit;
 import org.hisp.dhis.android.core.program.ProgramStageDataElement;
@@ -33,6 +36,12 @@ import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValue;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder> {
 
@@ -84,16 +93,25 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
         setState(event.aggregatedSyncState(), holder.syncIcon);
         setConflicts(event.uid(), holder);
 
-//        holder.itemView.setOnClickListener(view -> ActivityStarter.startActivity(
-//                activity,
-//                FacilityDetailsActivity.getIntent(
-//                        activity,
-//                        event.uid(),
-//                        event.program(),
-//                        event.organisationUnit(),
-//                        FacilityDetailsActivity.FormType.CHECK
-//                ), false
-//        ));
+//        holder.itemView.setOnClickListener(c -> {
+//
+//        });
+        holder.itemView.setOnClickListener(view -> ActivityStarter.startActivity(
+                activity,
+                FacilityDetailsActivity.getIntent(
+                        activity,
+                        event.uid(),
+                        event.program(),
+                        event.organisationUnit(),
+                        FacilityDetailsActivity.FormType.CHECK
+                ), false
+        ));
+    }
+
+    private Observable<D2Progress> syncEvent(String teiUid) {
+        return Sdk.d2().eventModule().events()
+                .byUid().eq(teiUid)
+                .upload();
     }
 
     private OrganisationUnit orgUnit(String orgUnitUid) {

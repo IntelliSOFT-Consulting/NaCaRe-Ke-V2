@@ -140,7 +140,8 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
                 EnrollmentObjectRepository enrollmentRepository = Sdk.d2().enrollmentModule().enrollments().uid(enrollmentUid);
                 enrollmentRepository.setEnrollmentDate(getNowWithoutTime());
                 enrollmentRepository.setIncidentDate(getNowWithoutTime());
-                ActivityStarter.startActivity(this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization), true);
+                ActivityStarter.startActivity(this,
+                        TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization,false), true);
             } catch (D2Error e) {
                 Log.e("Error", "Error creating enrollment" + e.getMessage());
             }

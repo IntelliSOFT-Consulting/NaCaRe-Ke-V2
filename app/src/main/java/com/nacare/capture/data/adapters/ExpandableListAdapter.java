@@ -6,6 +6,7 @@ import static android.text.TextUtils.isEmpty;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -17,6 +18,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstan
 
 import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.option.Option;
+import org.hisp.dhis.android.core.program.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValueObjectRepository;
@@ -51,12 +55,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAdapter.PersonViewHolder> {
 
 
     private List<ExpandableItem> personList;
     private Context context;
+    private RadioGroup radioGroup;
 
     private static int currentPosition = 0;
 
@@ -143,14 +149,14 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
         List<String> programUids = new ArrayList<>();
         programUids.add(programUid);
-        TrackedEntityInstance tei = teiRepository
-                .byProgramUids(programUids)
+        TrackedEntityInstance tei = teiRepository.byProgramUids(programUids)
 //                .byOrganisationUnitUid().eq(orgCode)
                 .byUid().eq(selectedTei).one().blockingGet();
 
         if (tei != null) {
             Log.e("TAG", "Current Value ****" + tei.trackedEntityAttributeValues());
             for (TrackedEntityAttributeValue attributeValue : tei.trackedEntityAttributeValues()) {
+
                 if (attributeValue.trackedEntityAttribute().equals(trackedEntityAttribute.uid())) {
                     return attributeValue.value();
                 }
@@ -202,6 +208,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 tvName.setText(item.displayName());
                 tvElement.setText(item.uid());
                 editText.setText(value);
+
                 editText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
@@ -288,6 +295,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 tvName.setText(item.displayName());
                 tvElement.setText(item.uid());
 //                stringMap.put(item.uid(), editText);
+                controlInputAppearance(item.uid(), editText);
                 editText.setText(value);
                 editText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -297,26 +305,26 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                     @Override
                     public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                         String value = charSequence.toString();
-                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                        if (selectedTei != null) {
-                            TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                            String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                            if (currentValue == null) currentValue = "";
+                        if (!value.isEmpty()) {
+                            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+                            if (selectedTei != null) {
+                                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
+                                        trackedEntityAttributeValues().value(item.uid(), selectedTei);
+                                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+                                if (currentValue == null) currentValue = "";
 
-                            try {
-                                if (!isEmpty(value)) {
+                                try {
                                     valueRepository.blockingSet(value);
-                                } else {
-//                                    valueRepository.blockingDeleteIfExist();
+
+                                } catch (Exception d2Error) {
+                                    d2Error.printStackTrace();
+                                    Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
+                                } finally {
+                                    Log.e("TAG", "Response Saved Successfully");
                                 }
-                            } catch (Exception d2Error) {
-                                d2Error.printStackTrace();
-                                Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                            } finally {
-                                Log.e("TAG", "Response Saved Successfully");
+                            } else {
+                                Log.e("TAG", "Response Saved Successfully No tracked Entity");
                             }
-                        } else {
-                            Log.e("TAG", "Response Saved Successfully No tracked Entity");
                         }
                     }
 
@@ -348,10 +356,10 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 tvName.setText(item.displayName());
                 autoCompleteTextView.setAdapter(adp);
                 adp.notifyDataSetChanged();
-//                String currentData = generateOptionNameFromId(value);
-//                if (currentData != null) {
+                String currentData = generateOptionNameFromId(value);
+                if (currentData != null) {
 //                    autoCompleteTextView.setText(currentData, false);
-//                }
+                }
                 autoCompleteTextView.setText(value, false);
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -361,26 +369,12 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                     @Override
                     public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                         String value = charSequence.toString();
-                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                        if (selectedTei != null) {
-                            TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                            String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                            if (currentValue == null) currentValue = "";
-
-                            try {
-                                if (!isEmpty(value)) {
-                                    valueRepository.blockingSet(value);
-                                } else {
-//                                    valueRepository.blockingDeleteIfExist();
-                                }
-                            } catch (Exception d2Error) {
-                                d2Error.printStackTrace();
-                                Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                            } finally {
-                                Log.e("TAG", "Response Saved Successfully");
-                            }
-                        } else {
-                            Log.e("TAG", "Response Saved Successfully No tracked Entity");
+                        if (!value.isEmpty()) {
+                            Log.e("TAG", "Details Here *** " + item.uid());
+                            Log.e("TAG", "Details Here *** " + item.displayName());
+                            Log.e("TAG", "Details Here *** " + item.optionSet().uid());
+                            Log.e("TAG", "Details Here *** " + value);
+                            new SaveValueTask(item.uid(), item.displayName(), item.optionSet().uid(), value).execute();
                         }
                     }
 
@@ -392,11 +386,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 linearLayout.addView(itemView);
             }
         } else if ("DATE".equals(valueType)) {
-            View itemView = inflater.inflate(
-                    R.layout.item_date_edittext,
-                    linearLayout,
-                    false
-            );
+            View itemView = inflater.inflate(R.layout.item_date_edittext, linearLayout, false);
             TextView tvName = itemView.findViewById(R.id.tv_name);
             TextView tvElement = itemView.findViewById(R.id.tv_element);
             TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
@@ -404,39 +394,36 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
             tvName.setText(item.displayName());
             tvElement.setText(item.uid());
             List<String> keywords = Arrays.asList("Birth", "Death");
+            editText.setKeyListener(null);
+            editText.setCursorVisible(false);
+            editText.setFocusable(false);
             editText.setOnClickListener(v -> {
                 Calendar calendar = Calendar.getInstance();
-                new DatePickerDialog(context, (datePicker, year, month, day) ->
-                {
+                new DatePickerDialog(context, (datePicker, year, month, day) -> {
                     String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-
-                    TrackedEntityAttributeValueObjectRepository valueRepository =
-                            Sdk.d2().trackedEntityModule()
-                                    .trackedEntityAttributeValues()
-                                    .value(item.uid(), selectedTei);
-                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                    if (currentValue == null) currentValue = "";
-
-                    Log.e("TAG", "Current Value" + currentValue);
                     String valueCurrent = getDate(year, month, day);
+                    editText.setText(valueCurrent);
+//                    TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
+//                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+//                    if (currentValue == null) currentValue = "";
+//
+//                    Log.e("TAG", "Current Value" + currentValue);
+//                    String valueCurrent = getDate(year, month, day);
+//
+//                    try {
+//                        if (!isEmpty(valueCurrent)) {
+//                            valueRepository.blockingSet(valueCurrent);
+//                        } else {
+//                            valueRepository.blockingDeleteIfExist();
+//                        }
+//                    } catch (Exception d2Error) {
+//                        d2Error.printStackTrace();
+//                        Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
+//                    } finally {
+//                        Log.e("TAG", "Response Saved Successfully");
+//                    }
 
-                    try {
-                        if (!isEmpty(valueCurrent)) {
-                            valueRepository.blockingSet(valueCurrent);
-                        } else {
-                            valueRepository.blockingDeleteIfExist();
-                        }
-                    } catch (Exception d2Error) {
-                        d2Error.printStackTrace();
-                        Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                    } finally {
-                        Log.e("TAG", "Response Saved Successfully");
-                    }
-
-                },
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
             });
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -457,8 +444,57 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 }
             });
             linearLayout.addView(itemView);
+        } else if ("BOOLEAN".equals(valueType)) {
+            View itemView = inflater.inflate(
+                    R.layout.item_radio,
+                    linearLayout,
+                    false
+            );
+            TextView tvName = itemView.findViewById(R.id.tv_name);
+            radioGroup = itemView.findViewById(R.id.radioGroup);
+            RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
+            RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
+            tvName.setText(item.displayName());
+//
+//            if (currentValue != null && currentValue.equals("true")) {
+//                radioGroup.check(R.id.radioButtonYes);
+//            } else if (currentValue != null && currentValue.equals("false")) {
+//                radioGroup.check(R.id.radioButtonNo);
+//            } else {
+//                radioGroup.clearCheck();
+//            }
+//            inputFieldMap.put(item.uid(), radioGroup);
+            linearLayout.addView(itemView);
         }
 
+    }
+
+    private void controlInputAppearance(String uid, TextInputEditText editText) {
+        try {
+            ProgramTrackedEntityAttribute tei = Sdk.d2().programModule().programTrackedEntityAttributes()
+                    .byUid().eq(uid)
+                    .one().blockingGet();
+          /*  if (tei != null) {
+                tei.id();
+                tei.
+                t
+            }*/
+        } catch (Exception e) {
+
+        }
+    }
+
+    private String extractOptionUid(String name, String uid, String value) {
+        List<String> keywords = Arrays.asList("Sex", "Site", "Type of facility", "County of Usual Residence", "Insurance Cover");
+        Option option = Sdk.d2().optionModule().options().byOptionSetUid().eq(uid).byDisplayName().eq(value).one().blockingGet();
+        if (option != null) {
+            Optional<String> matchingKeyword = keywords.stream()
+                    .filter(keyword -> name.contains(keyword))
+                    .findFirst();
+
+            return matchingKeyword.map(keyword -> option.code()).orElseGet(() -> option.code());
+
+        } else return null;
     }
 
     private String getDate(int year, int month, int day) {
@@ -469,14 +505,10 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
     }
 
     private String generateOptionNameFromId(String currentValue) {
-        Option option = Sdk.d2().optionModule()
-                .options()
-                .byUid().eq(currentValue)
-                .one()
-                .blockingGet();
+        Option option = Sdk.d2().optionModule().options().byUid().eq(currentValue).one().blockingGet();
         if (option != null) {
             return option.displayName();
-        } else return null;
+        } else return currentValue;
 
     }
 
@@ -507,4 +539,57 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
             rotationImageView = (ImageView) itemView.findViewById(R.id.rotationImageView);
         }
     }
+
+    private class SaveValueTask extends AsyncTask<Void, Void, String> {
+        private String value, displayName, uid, itemuid;
+
+        SaveValueTask(String itemuid, String displayName, String uid, String value) {
+            this.displayName = displayName;
+            this.itemuid = itemuid;
+            this.uid = uid;
+            this.value = value;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            value = extractOptionUid(displayName, uid, value);
+            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+            String message = "Data Saved";
+            if (selectedTei != null) {
+                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
+                        trackedEntityAttributeValues().value(itemuid, selectedTei);
+                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
+                if (currentValue == null) currentValue = "";
+
+                try {
+                    valueRepository.blockingSet(value);
+
+                } catch (Exception d2Error) {
+                    message = "Response Saved Successfully with Error " + d2Error.getMessage();
+                    d2Error.printStackTrace();
+                    Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
+
+
+                } finally {
+                    Log.e("TAG", "Response Saved Successfully *** " + value);
+                    message = "Response Saved Successfully *** " + value;
+                }
+            } else {
+                Log.e("TAG", "Response Saved Successfully No tracked Entity");
+                message = "Response Saved Successfully No tracked Entity";
+            }
+            return message;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                Log.e("TAG", result);
+            }
+        }
+    }
+
+// To execute the task
+
+
 }

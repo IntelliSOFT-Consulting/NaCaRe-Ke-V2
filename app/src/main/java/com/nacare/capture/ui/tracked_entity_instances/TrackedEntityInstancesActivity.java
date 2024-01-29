@@ -20,6 +20,8 @@ import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
 import com.nacare.capture.ui.tracked_entity_instances.search.SearchResultsActivity;
 import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
+import org.hisp.dhis.android.core.enrollment.Enrollment;
+import org.hisp.dhis.android.core.enrollment.EnrollmentCollectionRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
@@ -108,16 +110,27 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             return;
         }
         ActivityStarter.startActivity(
-                TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, orgCode), false);
+                TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, orgCode,false), false);
     }
 
     private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid, String orgCode) {
+
+
+        /**
+         * Search for enrollment for the current facility*/
+
+        EnrollmentCollectionRepository enrollmentCollectionRepository = Sdk.d2().enrollmentModule().enrollments();
+        List<Enrollment> enrollments = enrollmentCollectionRepository.byProgram().eq(programUid).byOrganisationUnit().eq(orgCode).blockingGet();
+        List<String> trackedEntities = new ArrayList<>();
+        for (Enrollment enrollment : enrollments) {
+            String trackedEntityInstance = enrollment.trackedEntityInstance();
+            trackedEntities.add(trackedEntityInstance);
+        }
         TrackedEntityInstanceCollectionRepository teiRepository =
                 Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
-
         List<String> programUids = new ArrayList<>();
         programUids.add(programUid);
-        return teiRepository.byProgramUids(programUids).byOrganisationUnitUid().eq(orgCode);
+        return teiRepository.byUid().in(trackedEntities);
 
     }
 
@@ -126,7 +139,7 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         super.onResume();
         try {
             observeTrackedEntityInstances();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

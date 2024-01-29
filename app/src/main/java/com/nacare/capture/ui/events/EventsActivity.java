@@ -116,18 +116,28 @@ public class EventsActivity extends ListActivity {
     }
 
     private void observeEvents() {
-        adapter = new EventAdapter(this);
-        recyclerView.setAdapter(adapter);
+       try {
+           adapter = new EventAdapter(this);
+           recyclerView.setAdapter(adapter);
 
-        getEventRepository().getPaged(20).observe(this, eventsPagedList -> {
-            adapter.setSource(eventsPagedList.getDataSource());
-            adapter.submitList(eventsPagedList);
-            findViewById(R.id.eventsNotificator).setVisibility(View.GONE);
-            findViewById(R.id.eventButton).setVisibility(
-                    eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
-            findViewById(R.id.circularProgressBar).setVisibility(
-                    eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
-        });
+           getEventRepository().getPaged(20).observe(this, eventsPagedList -> {
+               adapter.setSource(eventsPagedList.getDataSource());
+               adapter.submitList(eventsPagedList);
+               findViewById(R.id.eventsNotificator).setVisibility(View.GONE);
+               findViewById(R.id.eventButton).setVisibility(
+                       eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+               findViewById(R.id.circularProgressBar).setVisibility(
+                       eventsPagedList.isEmpty() ? View.VISIBLE : View.GONE);
+           });
+       }catch (Exception e){
+           e.printStackTrace();
+       }
+    }
+
+    @Override
+    protected void onResume() {
+        observeEvents();
+        super.onResume();
     }
 
     private EventCollectionRepository getEventRepository() {

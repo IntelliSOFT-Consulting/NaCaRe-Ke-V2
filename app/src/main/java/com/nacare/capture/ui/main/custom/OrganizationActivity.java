@@ -62,6 +62,8 @@ public class OrganizationActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Cancer Notification Tool");
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         nextButton = findViewById(R.id.btn_proceed);
+        String orgName = new FormatterClass().getSharedPref("orgName", this);
+        autoCompleteTextView.setText(orgName, false);
         nextButton.setOnClickListener(v -> {
                     String data = autoCompleteTextView.getText().toString();
                     if (data.isEmpty()) {
