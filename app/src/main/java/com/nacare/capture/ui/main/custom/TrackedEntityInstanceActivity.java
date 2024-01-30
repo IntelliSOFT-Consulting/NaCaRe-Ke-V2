@@ -41,17 +41,21 @@ import java.util.stream.Collectors;
 public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
 
     private enum IntentExtra {
-        TEI_UID, PROGRAM_UID, OU_UID, NEW_USER
+        TEI_UID, PROGRAM_UID, OU_UID, NEW_USER, EVENT_UID
     }
 
 
-    public static Intent getIntent(Context context, String teiUid, String programUid,
+    public static Intent getIntent(Context context,
+                                   String eventUid,
+                                   String teiUid,
+                                   String programUid,
                                    String orgUnitUid, boolean isNew) {
         Intent intent = new Intent(context, TrackedEntityInstanceActivity.class);
         intent.putExtra(IntentExtra.TEI_UID.name(), teiUid);
         intent.putExtra(IntentExtra.PROGRAM_UID.name(), programUid);
         intent.putExtra(IntentExtra.OU_UID.name(), orgUnitUid);
         intent.putExtra(IntentExtra.NEW_USER.name(), isNew);
+        intent.putExtra(IntentExtra.EVENT_UID.name(), eventUid);
         return intent;
     }
 

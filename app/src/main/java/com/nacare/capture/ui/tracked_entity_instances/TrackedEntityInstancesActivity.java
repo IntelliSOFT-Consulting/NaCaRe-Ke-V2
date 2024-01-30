@@ -14,10 +14,12 @@ import androidx.annotation.Nullable;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
+import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.enrollment_form.EnrollmentFormActivity;
 import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
+import com.nacare.capture.ui.main.custom.TrackedEntityRegistrationActivity;
 import com.nacare.capture.ui.tracked_entity_instances.search.SearchResultsActivity;
 import com.nacare.capture.ui.tracked_entity_instances.search.TrackedEntityInstanceSearchActivity;
 
@@ -81,30 +83,30 @@ public class TrackedEntityInstancesActivity extends ListActivity {
     }
 
     private void observeTrackedEntityInstances() {
-     try {
-         adapter = new TrackedEntityInstanceAdapter(this::handleClick);
-         recyclerView.setAdapter(adapter);
-         String programUid = new FormatterClass().getSharedPref("programUid", this);
-         if (TextUtils.isEmpty(programUid)) {
-             Toast.makeText(this, "Please Select Program to Proceed", Toast.LENGTH_SHORT).show();
-             return;
-         }
-         String orgCode = new FormatterClass().getSharedPref("orgCode", this);
-         if (TextUtils.isEmpty(orgCode)) {
-             Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
-             return;
-         }
-         getTeiRepository(programUid, orgCode).getPaged(20).observe(this, trackedEntityInstancePagedList -> {
-             adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-             adapter.submitList(trackedEntityInstancePagedList);
-             findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
-                     trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
-             findViewById(R.id.circularProgressBar).setVisibility(
-                     trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
-         });
-     }catch (Exception e){
-         e.printStackTrace();
-     }
+        try {
+            adapter = new TrackedEntityInstanceAdapter(this::handleClick);
+            recyclerView.setAdapter(adapter);
+            String programUid = new FormatterClass().getSharedPref("programUid", this);
+            if (TextUtils.isEmpty(programUid)) {
+                Toast.makeText(this, "Please Select Program to Proceed", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+            if (TextUtils.isEmpty(orgCode)) {
+                Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            getTeiRepository(programUid, orgCode).getPaged(20).observe(this, trackedEntityInstancePagedList -> {
+                adapter.setSource(trackedEntityInstancePagedList.getDataSource());
+                adapter.submitList(trackedEntityInstancePagedList);
+                findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
+                        trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+                findViewById(R.id.circularProgressBar).setVisibility(
+                        trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void handleClick(TrackedEntityInstance data) {
@@ -114,9 +116,17 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("TAG","Tracked Entity Event **** ");
+        ArrayList<HomeData> collectedInputs = new ArrayList<>();
         ActivityStarter.startActivity(
-                TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, orgCode,false), false);
+                this, TrackedEntityRegistrationActivity.getIntent(
+                        this,
+                        data.uid(),
+                        selectedProgram,
+                        orgCode, collectedInputs, "false"), false);
+        Log.e("TAG", "Tracked Entity Event **** ");
+  /*      ActivityStarter.startActivity(
+                TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this,null, data.uid(), selectedProgram, orgCode,false), false);
+   */
     }
 
     private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid, String orgCode) {

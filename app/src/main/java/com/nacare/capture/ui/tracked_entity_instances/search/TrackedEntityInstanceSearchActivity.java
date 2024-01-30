@@ -9,8 +9,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -23,10 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.paging.PagedList;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -37,10 +33,11 @@ import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.databinding.ActivityTrackedEntityInstanceSearchBinding;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
-import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
+import com.nacare.capture.ui.main.custom.TrackedEntityRegistrationActivity;
 import com.nacare.capture.ui.tracked_entity_instances.TrackedEntityInstanceAdapter;
 
 import org.hisp.dhis.android.core.arch.helpers.UidsHelper;
+import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.option.Option;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnit;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnitMode;
@@ -48,6 +45,7 @@ import org.hisp.dhis.android.core.program.ProgramSection;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
 import org.hisp.dhis.android.core.trackedentity.search.TrackedEntityInstanceQueryCollectionRepository;
 
 import java.text.SimpleDateFormat;
@@ -59,7 +57,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActivity {
 
@@ -85,6 +85,7 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
     }
 
     private List<TrackedEntityInstance> trackedEntityInstances = new ArrayList<>();
+    private CompositeDisposable compositeDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +93,7 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         binding = DataBindingUtil.setContentView(this,
                 R.layout.activity_tracked_entity_instance_search);
         setUp(R.id.trackedEntityInstanceSearchToolbar, R.id.trackedEntityInstanceRecyclerView);
-
+        compositeDisposable = new CompositeDisposable();
         stringMap = new HashMap<>();
         disposable = new CompositeDisposable();
         lnParent = findViewById(R.id.lnParent);
@@ -139,63 +140,18 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                 Toast.makeText(this, "Please Select Organization to Proceed", Toast.LENGTH_SHORT).show();
                 return;
             }
-//
-//            for (HomeData data : collectedInputs) {
             searchTrackedEntityInstanceQuery(programUid, collectedInputs).observe(this, trackedEntityInstancePagedList -> {
 
                 if (!trackedEntityInstancePagedList.isEmpty()) {
-//                    showResultsDialog(trackedEntityInstancePagedList);
-                    ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs,orgCode), true);
+                    ActivityStarter.startActivity(this, SearchResultsActivity.getIntent(this, programUid, collectedInputs, orgCode), true);
                 } else {
-                    showCustomAlertDialog(this);
+                    showCustomAlertDialog(this, collectedInputs);
                 }
             });
 
         } else {
             Toast.makeText(this, "Please enter at least one search parameter", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void showResultsDialog(PagedList<TrackedEntityInstance> trackedEntityInstancePagedList) {
-
-       /* BottomSheetDialog bottomSheet = new BottomSheetDialog(this);
-        bottomSheet.setContentView(R.layout.fragment_bottom_sheet);
-
-        Window window = bottomSheet.getWindow();
-        if (window != null) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            window.setDimAmount(0.5f); // Adjust dim amount as needed
-        }
-
-        bottomSheetRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new TrackedEntityInstanceAdapter();
-        adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-        bottomSheetRecyclerView.setAdapter(adapter);
-        bottomSheet.show();*/
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View customView = inflater.inflate(R.layout.fragment_bottom_sheet, null);
-        builder.setView(customView);
-        AlertDialog alertDialog = builder.create();
-        RecyclerView bottomSheetRecyclerView =
-                customView.findViewById(R.id.recyclerView);
-//        adapter = new TrackedEntityInstanceAdapter();
-//        adapter.setSource(trackedEntityInstancePagedList.getDataSource());
-//        adapter.submitList(trackedEntityInstancePagedList);
-//        bottomSheetRecyclerView.setAdapter(adapter);
-       /* TextView tvTitle = customView.findViewById(R.id.tv_title);
-        TextView tvMessage = customView.findViewById(R.id.tv_message);
-        MaterialButton nextButton = customView.findViewById(R.id.next_button);
-        tvTitle.setText(R.string.search_results);
-        tvMessage.setText(R.string.no_record_found_for_the_patient_with_the_details_provided);
-        nextButton.setText(R.string.register_new_patient);
-        nextButton.setOnClickListener(v -> {
-            alertDialog.dismiss();
-            ActivityStarter.startActivity(
-                    TrackedEntityInstanceSearchActivity.this, TrackedEntityInstanceActivity.getIntent(this), true);
-        });*/
-
-        alertDialog.show();
     }
 
     private LiveData<PagedList<TrackedEntityInstance>> searchTrackedEntityInstanceQuery(String programUid, List<HomeData> data) {
@@ -218,7 +174,7 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         return teiRepository.byProgramUids(programUids);
     }
 
-    public void showCustomAlertDialog(Context context) {
+    public void showCustomAlertDialog(Context context, ArrayList<HomeData> collectedInputs) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View customView = inflater.inflate(R.layout.custom_layout, null);
@@ -230,12 +186,46 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
         tvTitle.setText(R.string.search_results);
         tvMessage.setText(R.string.no_record_found_for_the_patient_with_the_details_provided);
         nextButton.setText(R.string.register_new_patient);
+        alertDialog.setCancelable(false);
         nextButton.setOnClickListener(v -> {
             alertDialog.dismiss();
+            String orgCode = new FormatterClass().getSharedPref("orgCode", this);
+            String programUid = new FormatterClass().getSharedPref("programUid", this);
+            String trackedEntityType = new FormatterClass().getSharedPref("trackedEntityType", this);
+            if (programUid != null && orgCode != null && trackedEntityType != null) {
 
-            /*
-            ActivityStarter.startActivity(
-                    TrackedEntityInstanceSearchActivity.this, TrackedEntityInstanceActivity.getIntent(this), true);*/
+                compositeDisposable.add(
+                        Sdk.d2().programModule().programs().uid(programUid).get()
+                                .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
+                                        .blockingAdd(
+                                                TrackedEntityInstanceCreateProjection.builder()
+                                                        .organisationUnit(orgCode)
+                                                        .trackedEntityType(trackedEntityType)
+                                                        .build()
+                                        ))
+                                .map(teiUid -> TrackedEntityRegistrationActivity.getIntent(
+                                        this,
+                                        teiUid,
+                                        programUid,
+                                        orgCode, collectedInputs, "true"
+                                ))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        activityIntent ->
+                                                ActivityStarter.startActivity(
+                                                        this, activityIntent, true),
+                                        Throwable::printStackTrace
+//                                            Log.e("TAG", "Creation **** Success **** ");
+
+                                ));
+
+
+            } else {
+                Toast.makeText(this, "Please select Organization Unit to proceed", Toast.LENGTH_SHORT).show();
+            }
+
+
         });
 
         alertDialog.show();

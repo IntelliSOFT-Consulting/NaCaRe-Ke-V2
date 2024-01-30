@@ -13,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.adapters.TrackedResultsAdapter;
+import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.databinding.ActivitySearchResultsBinding;
@@ -26,8 +28,10 @@ import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
 
 import org.hisp.dhis.android.core.enrollment.EnrollmentCreateProjection;
 import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
+import org.hisp.dhis.android.core.event.EventCreateProjection;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnitMode;
+import org.hisp.dhis.android.core.program.ProgramStage;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.search.TrackedEntityInstanceQueryCollectionRepository;
 
@@ -81,15 +85,6 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
 
     }
 
-    private Date getNowWithoutTime() {
-        final GregorianCalendar gc = new GregorianCalendar();
-        gc.setTime(new Date());
-        gc.set(Calendar.HOUR_OF_DAY, 0);
-        gc.set(Calendar.MINUTE, 0);
-        gc.set(Calendar.SECOND, 0);
-        gc.set(Calendar.MILLISECOND, 0);
-        return gc.getTime();
-    }
 
     private void handleResultsClick(TrackedEntityInstance data) {
 
@@ -131,11 +126,33 @@ public class SearchResultsActivity extends ListWithoutBindingsActivity {
                                 .build()
                 );
                 EnrollmentObjectRepository enrollmentRepository = Sdk.d2().enrollmentModule().enrollments().uid(enrollmentUid);
-                enrollmentRepository.setEnrollmentDate(getNowWithoutTime());
-                enrollmentRepository.setIncidentDate(getNowWithoutTime());
+                enrollmentRepository.setEnrollmentDate(new FormatterClass().getNowWithoutTime());
+                enrollmentRepository.setIncidentDate(new FormatterClass().getNowWithoutTime());
 
-                ActivityStarter.startActivity(this,
-                        TrackedEntityInstanceActivity.getIntent(this, data.uid(), selectedProgram, selectedOrganization, false), true);
+                // Create an Empty Event to hold the responses
+                ProgramStage stage = Sdk.d2().programModule().programStages()
+                        .byProgramUid().eq(selectedProgram)
+                        .byName().like("ALL")
+                        .one().blockingGet();
+                if (stage != null) {
+
+                    String eventUid = Sdk.d2().eventModule().events()
+                            .blockingAdd(
+                                    EventCreateProjection.builder()
+                                            .organisationUnit(selectedOrganization)
+                                            .program(selectedProgram)
+                                            .programStage(stage.uid())
+                                            .enrollment(enrollmentUid)
+                                            .build()
+                            );
+
+                    Log.e("TAG", "Created Event **** " + eventUid);
+
+                    ActivityStarter.startActivity(this,
+                            TrackedEntityInstanceActivity.getIntent(this, eventUid, data.uid(), selectedProgram, selectedOrganization, false), true);
+                } else {
+                    Toast.makeText(this, "Please select a program stage to proceed", Toast.LENGTH_SHORT).show();
+                }
             } catch (D2Error e) {
                 Log.e("Error", "Error creating enrollment" + e.getMessage());
             }

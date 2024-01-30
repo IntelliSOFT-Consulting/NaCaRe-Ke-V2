@@ -3,6 +3,7 @@ package com.nacare.capture.ui.programs;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.lifecycle.LiveData;
@@ -20,6 +21,7 @@ import com.nacare.capture.ui.tracked_entity_instances.TrackedEntityInstancesActi
 import org.hisp.dhis.android.core.arch.repositories.scope.RepositoryScope;
 import org.hisp.dhis.android.core.program.Program;
 import org.hisp.dhis.android.core.program.ProgramType;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityType;
 
 import java.util.List;
 
@@ -84,16 +86,22 @@ public class ProgramsActivity extends ListActivity implements OnProgramSelection
     }
 
     @Override
-    public void onProgramSelected(String programUid, ProgramType programType, String type) {
+    public void onProgramSelected(String programUid, ProgramType programType, String type, TrackedEntityType trackedEntityType) {
 
         new FormatterClass().saveSharedPref("program", type, this);
         new FormatterClass().saveSharedPref("programUid", programUid, this);
+//
+        if (trackedEntityType!=null) {
+            new FormatterClass().saveSharedPref("trackedEntityType", trackedEntityType.uid(), this);
+        }
+        Log.e("TAG","Tracked Entity Type **** "+trackedEntityType);
         if (programType == ProgramType.WITH_REGISTRATION)
+
             ActivityStarter.startActivity(this,
                     TrackedEntityInstancesActivity
                             .getTrackedEntityInstancesActivityIntent(this, programUid),
                     false);
-        else
+         else
             ActivityStarter.startActivity(this,
                     EventsActivity.getIntent(this,
                             programUid),

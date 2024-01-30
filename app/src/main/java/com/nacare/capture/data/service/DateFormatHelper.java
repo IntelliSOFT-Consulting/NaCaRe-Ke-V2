@@ -7,6 +7,7 @@ import java.util.Locale;
 
 public class DateFormatHelper {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+    private static final SimpleDateFormat dateInverseFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
     public static String formatDate(Date date) {
         if (date == null) {
@@ -18,6 +19,9 @@ public class DateFormatHelper {
 
     public static String formatSimpleDate(Date date) {
         return dateFormat.format(date);
+    }
+    public static String formatCurrentDate(Date date) {
+        return dateInverseFormat.format(date);
     }
 
     public static Date parseSimpleDate(String date) throws ParseException {

@@ -49,6 +49,6 @@ public class ProgramsAdapter extends PagedListAdapter<Program, ListItemWithStyle
 //        StyleBinderHelper.bindStyle(holder, program.style());
 
         holder.card.setOnClickListener(view -> programSelectionListener
-                .onProgramSelected(program.uid(), program.programType(),program.displayName()));
+                .onProgramSelected(program.uid(), program.programType(), program.displayName(), program.trackedEntityType()));
     }
 }

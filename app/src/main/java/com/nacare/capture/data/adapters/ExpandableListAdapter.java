@@ -109,7 +109,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         }
         LayoutInflater inflater = LayoutInflater.from(context);
         LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_submit_cancel, holder.linearLayout, false);
-//        holder.linearLayout.addView(itemView);
+        holder.linearLayout.addView(itemView);
         MaterialButton submitButton = itemView.findViewById(R.id.btn_proceed);
         submitButton.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -582,8 +582,8 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 editText.setKeyListener(null);
                 editText.setCursorVisible(false);
                 editText.setFocusable(false);
-                value = new FormatterClass().extractValid(value);
                 if (value != null) {
+                    value = new FormatterClass().extractValid(value);
                     editText.setText(value);
                 }
                 editText.setOnClickListener(v -> {
