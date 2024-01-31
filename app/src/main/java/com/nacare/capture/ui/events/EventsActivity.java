@@ -18,8 +18,10 @@ import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 
+import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
 import org.hisp.dhis.android.core.event.EventCollectionRepository;
 import org.hisp.dhis.android.core.event.EventCreateProjection;
+import org.hisp.dhis.android.core.event.EventObjectRepository;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnit;
 
 import java.util.Collections;

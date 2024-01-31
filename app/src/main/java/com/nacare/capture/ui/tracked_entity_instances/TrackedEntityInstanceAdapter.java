@@ -1,6 +1,9 @@
 package com.nacare.capture.ui.tracked_entity_instances;
 
+
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,10 +44,12 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
 
     private DataSource<?, TrackedEntityInstance> source;
     private OnClickListener onClickListener;
+    private Context context;
 
-    public TrackedEntityInstanceAdapter(OnClickListener onClickListener) {
+    public TrackedEntityInstanceAdapter(OnClickListener onClickListener, Context context) {
         super(new DiffByIdItemCallback<>());
         this.onClickListener = onClickListener;
+        this.context = context;
     }
 
     @NonNull
@@ -63,6 +68,20 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
         holder.subtitle2.setText(setSubtitle2(values, trackedEntityInstance));
         holder.rightText.setText(DateFormatHelper.formatDate(trackedEntityInstance.created()));
 
+        Drawable upDrawable = context.getResources().getDrawable(R.drawable.arrow_up);
+        Drawable downDrawable = context.getResources().getDrawable(R.drawable.arrow_down);
+        holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(downDrawable, null, null, null);
+
+        holder.dateTextView.setOnClickListener(v -> {
+            if (holder.hiddenLayout.getVisibility() == View.VISIBLE) {
+                holder.hiddenLayout.setVisibility(View.GONE);
+                holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(downDrawable, null, null, null);
+            } else {
+                holder.hiddenLayout.setVisibility(View.VISIBLE);
+                holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(upDrawable, null, null, null);
+            }
+        });
+
         /****
          * Updated Section
          * */
@@ -76,8 +95,10 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
         holder.statusTextView.setTextColor(colorBlack);
         holder.actionTextView.setTextColor(colorBlack);
 
-        holder.itemView.setOnClickListener(v->{
-            onClickListener.onClick(trackedEntityInstance);
+        holder.itemView.setOnClickListener(v -> {
+            if (holder.hiddenLayout.getVisibility() == View.VISIBLE) {
+                onClickListener.onClick(trackedEntityInstance);
+            }
         });
 
         setImage(trackedEntityInstance, holder);
@@ -182,6 +203,7 @@ public class TrackedEntityInstanceAdapter extends PagedListAdapter<TrackedEntity
     public void invalidateSource() {
         source.invalidate();
     }
+
     public interface OnClickListener {
         void onClick(TrackedEntityInstance item);
     }

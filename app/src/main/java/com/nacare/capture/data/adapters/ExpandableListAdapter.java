@@ -32,6 +32,8 @@ import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.ExpandableItem;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.DateFormatHelper;
+import com.nacare.capture.data.sync.StringValueTask;
+import com.nacare.capture.ui.main.custom.TrackedEntityInstanceActivity;
 
 import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.event.Event;
@@ -42,6 +44,7 @@ import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValueObjectRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValue;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
 
@@ -273,44 +276,21 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                         }
 
                         @Override
-                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            String value = s.toString();
+                            if (!value.isEmpty()) {
+                                new StringValueTask(context, item.uid(), value,false).execute();
+                            }
                         }
 
                         @Override
                         public void afterTextChanged(Editable editable) {
-                            String value = editable.toString();
-                            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                            if (selectedTei != null) {
-                                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                                if (currentValue == null) currentValue = "";
 
-                                Log.e("TAG", "Current Value" + currentValue);
-
-                                try {
-                                    if (!isEmpty(value)) {
-                                        valueRepository.blockingSet(value);
-                                    }
-//                                else {
-//                                    valueRepository.blockingDeleteIfExist();
-//                                }
-                                } catch (Exception d2Error) {
-                                    d2Error.printStackTrace();
-                                    Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                                } finally {
-                                    Log.e("TAG", "Response Saved Successfully");
-                                }
-                            } else {
-                                Log.e("TAG", "Response Saved Successfully No tracked Entity");
-                            }
                         }
                     });
                     linearLayout.addView(itemView);
                 } else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
-
-
                     TextView tvName = itemView.findViewById(R.id.tv_name);
                     TextView tvElement = itemView.findViewById(R.id.tv_element);
                     TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
@@ -328,10 +308,30 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
                     tvName.setText(item.displayName());
                     autoCompleteTextView.setAdapter(adp);
-                    if (value != null) {
-                        autoCompleteTextView.setText(value, false);
-                    }
                     adp.notifyDataSetChanged();
+                    String currentData = generateOptionNameFromId(value);
+                    if (currentData != null) {
+//                    autoCompleteTextView.setText(currentData, false);
+                    }
+                    autoCompleteTextView.setText(value, false);
+                    autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                            String value = charSequence.toString();
+                            if (!value.isEmpty()) {
+                                new SaveValueTask(item.uid(), item.displayName(), item.optionSet().uid(), value).execute();
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
                     linearLayout.addView(itemView);
                 }
                 break;
@@ -354,7 +354,6 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 editText.setOnClickListener(v -> {
                     Calendar calendar = Calendar.getInstance();
                     new DatePickerDialog(context, (datePicker, year, month, day) -> {
-                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
                         String valueCurrent = getDate(year, month, day);
                         editText.setText(valueCurrent);
 
@@ -368,7 +367,9 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s != null) {
+                        String value = s.toString();
+                        if (!value.isEmpty()) {
+                            new StringValueTask(context, item.uid(), value,false).execute();
                         }
                     }
 
@@ -399,6 +400,25 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 } else {
                     radioGroup.clearCheck();
                 }
+                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        String value = null;
+                        switch (checkedId) {
+                            case R.id.radioButtonYes:
+                                value = "true";
+                                break;
+                            case R.id.radioButtonNo:
+                                value = "false";
+                                break;
+                        }
+                        if (value != null) {
+                            new StringValueTask(context, item.uid(), value,false).execute();
+                        }
+                    }
+                });
+
+
                 linearLayout.addView(itemView);
                 break;
             }
@@ -421,36 +441,15 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
+                        String value = charSequence.toString();
+                        if (!value.isEmpty()) {
+                            new StringValueTask(context, item.uid(), value,false).execute();
+                        }
                     }
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        String value = editable.toString();
-                        String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                        if (selectedTei != null) {
-                            TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                            String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                            if (currentValue == null) currentValue = "";
 
-                            Log.e("TAG", "Current Value" + currentValue);
-
-                            try {
-                                if (!isEmpty(value)) {
-                                    valueRepository.blockingSet(value);
-                                }
-//                                else {
-//                                    valueRepository.blockingDeleteIfExist();
-//                                }
-                            } catch (Exception d2Error) {
-                                d2Error.printStackTrace();
-                                Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                            } finally {
-                                Log.e("TAG", "Response Saved Successfully");
-                            }
-                        } else {
-                            Log.e("TAG", "Response Saved Successfully No tracked Entity");
-                        }
                     }
                 });
                 linearLayout.addView(itemView);
@@ -490,25 +489,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                         public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                             String value = charSequence.toString();
                             if (!value.isEmpty()) {
-                                String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
-                                if (selectedTei != null) {
-                                    TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
-                                            trackedEntityAttributeValues().value(item.uid(), selectedTei);
-                                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                                    if (currentValue == null) currentValue = "";
-
-                                    try {
-                                        valueRepository.blockingSet(value);
-
-                                    } catch (Exception d2Error) {
-                                        d2Error.printStackTrace();
-                                        Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-                                    } finally {
-                                        Log.e("TAG", "Response Saved Successfully");
-                                    }
-                                } else {
-                                    Log.e("TAG", "Response Saved Successfully No tracked Entity");
-                                }
+                                new StringValueTask(context, item.uid(), value, true).execute();
                             }
                         }
 
@@ -518,7 +499,8 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                         }
                     });
                     linearLayout.addView(itemView);
-                } else {
+                }
+                else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
 
 
@@ -554,10 +536,6 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                         public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                             String value = charSequence.toString();
                             if (!value.isEmpty()) {
-                                Log.e("TAG", "Details Here *** " + item.uid());
-                                Log.e("TAG", "Details Here *** " + item.displayName());
-                                Log.e("TAG", "Details Here *** " + item.optionSet().uid());
-                                Log.e("TAG", "Details Here *** " + value);
                                 new SaveValueTask(item.uid(), item.displayName(), item.optionSet().uid(), value).execute();
                             }
                         }
@@ -592,25 +570,6 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                         String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
                         String valueCurrent = getDate(year, month, day);
                         editText.setText(valueCurrent);
-//                    TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().trackedEntityAttributeValues().value(item.uid(), selectedTei);
-//                    String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-//                    if (currentValue == null) currentValue = "";
-//
-//                    Log.e("TAG", "Current Value" + currentValue);
-//                    String valueCurrent = getDate(year, month, day);
-//
-//                    try {
-//                        if (!isEmpty(valueCurrent)) {
-//                            valueRepository.blockingSet(valueCurrent);
-//                        } else {
-//                            valueRepository.blockingDeleteIfExist();
-//                        }
-//                    } catch (Exception d2Error) {
-//                        d2Error.printStackTrace();
-//                        Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-//                    } finally {
-//                        Log.e("TAG", "Response Saved Successfully");
-//                    }
 
                     }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
                 });
@@ -622,8 +581,11 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s != null) {
+                        String value = s.toString();
+                        if (!value.isEmpty()) {
+                            new StringValueTask(context, item.uid(), value, true).execute();
                         }
+
                     }
 
                     @Override
@@ -647,14 +609,32 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
                 tvName.setText(item.displayName());
 //
-//            if (currentValue != null && currentValue.equals("true")) {
-//                radioGroup.check(R.id.radioButtonYes);
-//            } else if (currentValue != null && currentValue.equals("false")) {
-//                radioGroup.check(R.id.radioButtonNo);
-//            } else {
-//                radioGroup.clearCheck();
-//            }
-//            inputFieldMap.put(item.uid(), radioGroup);
+                if (value != null && value.equals("true")) {
+                    radioGroup.check(R.id.radioButtonYes);
+                } else if (value != null && value.equals("false")) {
+                    radioGroup.check(R.id.radioButtonNo);
+                } else {
+                    radioGroup.clearCheck();
+                }
+                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        // checkedId is the RadioButton ID that is checked in the RadioGroup
+                        String value = null;
+                        switch (checkedId) {
+                            case R.id.radioButtonYes:
+                                value = "true";
+                                break;
+                            case R.id.radioButtonNo:
+                                value = "false";
+                                break;
+                        }
+                        if (value != null) {
+                            new StringValueTask(context, item.uid(), value, true).execute();
+                        }
+                    }
+                });
+
                 linearLayout.addView(itemView);
                 break;
             }
@@ -694,7 +674,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day);
         Date date = calendar.getTime();
-        return DateFormatHelper.formatSimpleDate(date);
+        return DateFormatHelper.formatCurrentDate(date);
     }
 
     private String generateOptionNameFromId(String currentValue) {
@@ -746,26 +726,26 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         @Override
         protected String doInBackground(Void... params) {
             value = extractOptionUid(displayName, uid, value);
-            String selectedTei = new FormatterClass().getSharedPref("selectedTei", context);
+            String eventUid = new FormatterClass().getSharedPref("tracked_event", context);
+            Log.e("TAG", "Details Here *** Event Tracked " + eventUid);
             String message = "Data Saved";
-            if (selectedTei != null) {
-                TrackedEntityAttributeValueObjectRepository valueRepository = Sdk.d2().trackedEntityModule().
-                        trackedEntityAttributeValues().value(itemuid, selectedTei);
-                String currentValue = valueRepository.blockingExists() ? valueRepository.blockingGet().value() : "";
-                if (currentValue == null) currentValue = "";
+            if (eventUid != null) {
 
                 try {
+                    TrackedEntityDataValueObjectRepository valueRepository =
+                            Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+                                    .value(eventUid, itemuid);
+
                     valueRepository.blockingSet(value);
+                    String currentValue = valueRepository.blockingExists() ?
+                            valueRepository.blockingGet().value() : "";
+
+                    Log.e("TAG", "Details Here *** Saved successfully " + currentValue);
 
                 } catch (Exception d2Error) {
                     message = "Response Saved Successfully with Error " + d2Error.getMessage();
                     d2Error.printStackTrace();
                     Log.e("TAG", "Response Saved Successfully with Error " + d2Error.getMessage());
-
-
-                } finally {
-                    Log.e("TAG", "Response Saved Successfully *** " + value);
-                    message = "Response Saved Successfully *** " + value;
                 }
             } else {
                 Log.e("TAG", "Response Saved Successfully No tracked Entity");
@@ -777,7 +757,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                Log.e("TAG", result);
+                Log.e("TAG", "Post Results Data **** " + result);
             }
         }
     }

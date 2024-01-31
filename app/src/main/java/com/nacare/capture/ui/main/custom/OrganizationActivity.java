@@ -65,21 +65,21 @@ public class OrganizationActivity extends AppCompatActivity {
         String orgName = new FormatterClass().getSharedPref("orgName", this);
         autoCompleteTextView.setText(orgName, false);
         nextButton.setOnClickListener(v -> {
-                    String data = autoCompleteTextView.getText().toString();
-                    if (data.isEmpty()) {
-                        Toast.makeText(this, "Select Organization Unit to Proceed", Toast.LENGTH_SHORT).show();
-                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
-                        autoCompleteTextView.requestFocus();
-                        return;
-                    }
-                    String orgCode = getCodeFromHash(data);
-                    if (TextUtils.isEmpty(orgCode)) {
-                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
-                        autoCompleteTextView.requestFocus();
-                        return;
-                    }
-                    new FormatterClass().saveSharedPref("orgCode", orgCode, this);
-                    new FormatterClass().saveSharedPref("orgName", data, this);
+//                    String data = autoCompleteTextView.getText().toString();
+//                    if (data.isEmpty()) {
+//                        Toast.makeText(this, "Select Organization Unit to Proceed", Toast.LENGTH_SHORT).show();
+//                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
+//                        autoCompleteTextView.requestFocus();
+//                        return;
+//                    }
+//                    String orgCode = getCodeFromHash(data);
+//                    if (TextUtils.isEmpty(orgCode)) {
+//                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
+//                        autoCompleteTextView.requestFocus();
+//                        return;
+//                    }
+//                    new FormatterClass().saveSharedPref("orgCode", orgCode, this);
+//                    new FormatterClass().saveSharedPref("orgName", data, this);
                     ActivityStarter.startActivity(OrganizationActivity.this,
                             ProgramsActivity.getProgramActivityIntent(OrganizationActivity.this), false);
                 }

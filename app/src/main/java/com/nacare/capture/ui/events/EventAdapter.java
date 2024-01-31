@@ -27,6 +27,7 @@ import com.nacare.capture.ui.tracker_import_conflicts.TrackerImportConflictsAdap
 
 import org.hisp.dhis.android.core.arch.call.D2Progress;
 import org.hisp.dhis.android.core.category.CategoryOptionCombo;
+import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.event.Event;
 import org.hisp.dhis.android.core.imports.TrackerImportConflict;
 import org.hisp.dhis.android.core.maintenance.D2Error;
@@ -35,6 +36,7 @@ import org.hisp.dhis.android.core.program.ProgramStageDataElement;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValue;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -69,8 +71,12 @@ public class EventAdapter extends PagedListAdapter<Event, ListItemWithSyncHolder
 //        holder.subtitle2.setText(optionCombo(event.attributeOptionCombo()).displayName());
 //        holder.rightText.setText(DateFormatHelper.formatDate(event.eventDate()));
 
-
-        holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(event.eventDate()));
+        Date date = event.eventDate();
+        if (date != null) {
+            holder.dateTextView.setText(DateFormatHelper.formatSimpleDate(event.eventDate()));
+        }else{
+            holder.dateTextView.setText("");
+        }
         holder.statusTextView.setText(event.status().name());
         holder.actionTextView.setText("Edit");
         int colorBlack = ContextCompat.getColor(holder.itemView.getContext(), R.color.black);

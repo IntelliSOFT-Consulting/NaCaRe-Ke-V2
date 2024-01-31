@@ -194,6 +194,7 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
             String trackedEntityType = new FormatterClass().getSharedPref("trackedEntityType", this);
             if (programUid != null && orgCode != null && trackedEntityType != null) {
 
+                Toast.makeText(this, "Creating an Enrollment", Toast.LENGTH_SHORT).show();
                 compositeDisposable.add(
                         Sdk.d2().programModule().programs().uid(programUid).get()
                                 .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
@@ -213,10 +214,11 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         activityIntent ->
+//                                                Log.e("TAG", "Creation **** Success **** ")
                                                 ActivityStarter.startActivity(
                                                         this, activityIntent, true),
                                         Throwable::printStackTrace
-//                                            Log.e("TAG", "Creation **** Success **** ");
+
 
                                 ));
 

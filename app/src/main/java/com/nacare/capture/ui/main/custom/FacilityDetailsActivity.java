@@ -44,6 +44,8 @@ import com.nacare.capture.databinding.ActivityFacilityDetailsBinding;
 import org.hisp.dhis.android.core.arch.call.D2Progress;
 import org.hisp.dhis.android.core.attribute.AttributeValue;
 import org.hisp.dhis.android.core.dataelement.DataElement;
+import org.hisp.dhis.android.core.event.Event;
+import org.hisp.dhis.android.core.event.EventObjectRepository;
 import org.hisp.dhis.android.core.imports.TrackerImportConflict;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.option.Option;
@@ -115,11 +117,18 @@ public class FacilityDetailsActivity extends AppCompatActivity {
             String formattedText = "Saving to <b>" + program + "</b> in <b>" + orgName + "</b>";
             binding.textViewNote.setText(Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY));
         }
-//        String orgCode = new FormatterClass().getSharedPref("orgCode", this);
-//        if (!TextUtils.isEmpty(orgCode)) {
-//            if (EventFormService.getInstance().init(Sdk.d2(), eventUid, programUid, orgCode))
-//                this.engineService = new RuleEngineService();
-//        }
+
+        try {
+            EventObjectRepository ev = Sdk.d2().eventModule().events().uid(eventUid);
+            Event event = Sdk.d2().eventModule().events().uid(eventUid).blockingGet();
+            if (event != null) {
+                if (event.eventDate() == null) {
+                    ev.setEventDate(new FormatterClass().getNowWithoutTime());
+                }
+            }
+        } catch (Exception e) {
+            Log.e("TAG", "Error Updating Event Date ***" + e.getMessage());
+        }
         prepareFormData();
     }
 

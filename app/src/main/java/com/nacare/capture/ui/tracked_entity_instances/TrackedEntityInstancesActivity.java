@@ -84,7 +84,7 @@ public class TrackedEntityInstancesActivity extends ListActivity {
 
     private void observeTrackedEntityInstances() {
         try {
-            adapter = new TrackedEntityInstanceAdapter(this::handleClick);
+            adapter = new TrackedEntityInstanceAdapter(this::handleClick,this);
             recyclerView.setAdapter(adapter);
             String programUid = new FormatterClass().getSharedPref("programUid", this);
             if (TextUtils.isEmpty(programUid)) {
@@ -116,17 +116,16 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
             return;
         }
-        ArrayList<HomeData> collectedInputs = new ArrayList<>();
+//        ArrayList<HomeData> collectedInputs = new ArrayList<>();
+//        ActivityStarter.startActivity(
+//                this, TrackedEntityRegistrationActivity.getIntent(
+//                        this,
+//                        data.uid(),
+//                        selectedProgram,
+//                        orgCode, collectedInputs, "false"), false);
+        Log.e("TAG", "Tracked Entity Event **** "+data);
         ActivityStarter.startActivity(
-                this, TrackedEntityRegistrationActivity.getIntent(
-                        this,
-                        data.uid(),
-                        selectedProgram,
-                        orgCode, collectedInputs, "false"), false);
-        Log.e("TAG", "Tracked Entity Event **** ");
-  /*      ActivityStarter.startActivity(
                 TrackedEntityInstancesActivity.this, TrackedEntityInstanceActivity.getIntent(this,null, data.uid(), selectedProgram, orgCode,false), false);
-   */
     }
 
     private TrackedEntityInstanceCollectionRepository getTeiRepository(String programUid, String orgCode) {
@@ -135,18 +134,23 @@ public class TrackedEntityInstancesActivity extends ListActivity {
         /**
          * Search for enrollment for the current facility*/
 
-        EnrollmentCollectionRepository enrollmentCollectionRepository = Sdk.d2().enrollmentModule().enrollments();
-        List<Enrollment> enrollments = enrollmentCollectionRepository.byProgram().eq(programUid).byOrganisationUnit().eq(orgCode).blockingGet();
-        List<String> trackedEntities = new ArrayList<>();
-        for (Enrollment enrollment : enrollments) {
-            String trackedEntityInstance = enrollment.trackedEntityInstance();
-            trackedEntities.add(trackedEntityInstance);
-        }
-        TrackedEntityInstanceCollectionRepository teiRepository =
-                Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
-        List<String> programUids = new ArrayList<>();
-        programUids.add(programUid);
-        return teiRepository.byUid().in(trackedEntities);
+      try {
+          EnrollmentCollectionRepository enrollmentCollectionRepository = Sdk.d2().enrollmentModule().enrollments();
+          List<Enrollment> enrollments = enrollmentCollectionRepository.byProgram().eq(programUid).byOrganisationUnit().eq(orgCode).blockingGet();
+          List<String> trackedEntities = new ArrayList<>();
+          for (Enrollment enrollment : enrollments) {
+              String trackedEntityInstance = enrollment.trackedEntityInstance();
+              trackedEntities.add(trackedEntityInstance);
+          }
+          TrackedEntityInstanceCollectionRepository teiRepository =
+                  Sdk.d2().trackedEntityModule().trackedEntityInstances().withTrackedEntityAttributeValues();
+          List<String> programUids = new ArrayList<>();
+          programUids.add(programUid);
+          return teiRepository.byUid().in(trackedEntities);
+      }catch (Exception e){
+          e.printStackTrace();
+      }
+      return null;
 
     }
 

@@ -99,7 +99,7 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
         selectedProgram = getIntent().getStringExtra(IntentExtra.PROGRAM_UID.name());
         selectedOrganization = getIntent().getStringExtra(IntentExtra.OU_UID.name());
         List<HomeData> homeData = (ArrayList<HomeData>) getIntent().getSerializableExtra(IntentExtra.SEARCH_FIELDS.name());
-
+        new FormatterClass().saveSharedPref("selectedTei", selectedEntity, this);
         if (isNew != null) {
             if (isNew.equalsIgnoreCase("true")) {
                 /**
