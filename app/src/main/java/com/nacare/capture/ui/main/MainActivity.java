@@ -25,6 +25,7 @@ import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.data.service.SyncStatusHelper;
+import com.nacare.capture.data.service.network.RetrofitCalls;
 import com.nacare.capture.ui.code_executor.CodeExecutorActivity;
 import com.nacare.capture.ui.d2_errors.D2ErrorActivity;
 import com.nacare.capture.ui.data_sets.DataSetsActivity;
@@ -89,6 +90,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         syncMetadata();
         downloadData();
 //        uploadData();
+        loadDataAttributeValues();
+    }
+
+    private void loadDataAttributeValues() {
+        new RetrofitCalls().loaProgram(this, "notification");
+        new RetrofitCalls().loaProgram(this, "facility");
     }
 
     private void loadDashboard() {
@@ -142,11 +149,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       try{ if (compositeDisposable != null) {
-            compositeDisposable.clear();
-        } }catch (Exception e){
-           e.printStackTrace();
-       }
+        try {
+            if (compositeDisposable != null) {
+                compositeDisposable.clear();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void inflateMainView() {

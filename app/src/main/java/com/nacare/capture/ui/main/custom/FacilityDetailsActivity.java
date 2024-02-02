@@ -33,10 +33,13 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.model.HomeData;
+import com.nacare.capture.data.response.ProgramResponse;
 import com.nacare.capture.data.service.forms.EventFormService;
 import com.nacare.capture.data.service.forms.RuleEngineService;
 import com.nacare.capture.databinding.ActivityFacilityDetailsBinding;
@@ -53,6 +56,9 @@ import org.hisp.dhis.android.core.program.ProgramStage;
 import org.hisp.dhis.android.core.program.ProgramStageDataElement;
 import org.hisp.dhis.android.core.program.ProgramStageSection;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -327,19 +333,74 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     .withDataElements()
                     .byProgramStageUid().eq(programStage.uid())
                     .blockingGet();
+//        new DataAttributeTask("notification").execute();
+//        new DataAttributeTask("facility").execute();
+//        new DataAttributeTask("notification").execute();
+//        new DataAttributeTask("facility").execute();
 
             List<DataElement> flattenedList = programStageSections.stream()
                     .flatMap(section -> section.dataElements().stream())
                     .distinct()
                     .collect(Collectors.toList());
-            List<String> exclusionIds = Arrays.asList("OeUTTmDXAye", "QHprEcvWSQV", "TUR7b6PuifD");
+//            List<String> exclusionIds = Arrays.asList("OeUTTmDXAye", "QHprEcvWSQV", "TUR7b6PuifD");
 
             for (DataElement dataElement : flattenedList) {
-                if (!exclusionIds.contains(dataElement.uid())) {
-                    createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement));
-                }
+//                if (!exclusionIds.contains(dataElement.uid())) {
+                createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement), extractElementAttributes(dataElement));
+//                }
             }
         }
+    }
+
+
+    private List<ProgramResponse.AttributeValue> extractElementAttributes(DataElement currentElement) {
+        List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
+        String serverProgram = new FormatterClass().getSharedPref("facility_attribute_data", this);
+        if (serverProgram != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(serverProgram);
+                JSONArray programsArray = jsonObject.getJSONArray("programs");
+                for (int i = 0; i < programsArray.length(); i++) {
+                    JSONObject program = programsArray.getJSONObject(i);
+                    JSONArray programStages = program.getJSONArray("programStages");
+                    for (int j = 0; j < programStages.length(); j++) {
+                        JSONObject programStage = programStages.getJSONObject(j);
+                        JSONArray programStageSections = programStage.getJSONArray("programStageSections");
+                        for (int k = 0; k < programStageSections.length(); k++) {
+                            JSONObject programStageSection = programStageSections.getJSONObject(k);
+                            JSONArray dataElements = programStageSection.getJSONArray("dataElements");
+                            for (int l = 0; l < dataElements.length(); l++) {
+                                JSONObject dataElement = dataElements.getJSONObject(l);
+                                String dataElementId = dataElement.getString("id");
+                                JSONArray here = dataElement.getJSONArray("attributeValues");
+                                if (dataElementId.equalsIgnoreCase(currentElement.uid())) {
+                                    // You can add additional logic here based on your needs
+                                    for (int q = 0; q < here.length(); q++) {
+                                        JSONObject childHere = here.getJSONObject(q);
+                                        String value = childHere.getString("value");
+                                        JSONObject attribute = childHere.getJSONObject("attribute");
+                                        String attributeId = attribute.getString("id");
+                                        String attributeName = attribute.getString("name");
+                                        ProgramResponse.Attribute at = new ProgramResponse.Attribute();
+                                        at.id = attributeId;
+                                        at.name = attributeName;
+                                        ProgramResponse.AttributeValue atv = new ProgramResponse.AttributeValue();
+                                        atv.value = value;
+                                        atv.attribute = at;
+                                        attributeValues.add(atv);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("TAG", "Server Attributes *** Error " + e.getMessage());
+            }
+        }
+        return attributeValues;
     }
 
     private String retrieveCurrentValue(DataElement dataElement) {
@@ -351,13 +412,15 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 valueRepository.blockingGet().value() : "";
     }
 
-    private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String currentValue) {
+    private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String currentValue,
+                                               List<ProgramResponse.AttributeValue> attributeValueList) {
         String valueType = item.valueType().toString();
         String label = item.displayName();
-//        String attribute=item.attributeValues()
-
-        Log.e("TAG", "Form Field *** " + label + " Item Type " + valueType + " Current Value " + currentValue + " Attributes " + item.attributeValues());
         LayoutInflater inflater = LayoutInflater.from(this);
+        boolean isHidden = confirmHiddenValues("Hidden", attributeValueList);
+        boolean isDisabled = confirmHiddenValues("Disabled", attributeValueList);
+        boolean isRequired = confirmHiddenValues("Required", attributeValueList);
+        //exclude hidden values
 
         switch (valueType) {
             case "TEXT":
@@ -374,24 +437,13 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     TextInputEditText editText = itemView.findViewById(R.id.editText);
 
                     String name = item.displayName();
-                    if (item.attributeValues() != null) {
-                        boolean isRequired = hasRequiredAttribute(item.attributeValues());
-                        Log.e("TAG", "Attribute is Required ****" + isRequired);
-                        if (isRequired) {
-                            // Add an asterisk and make only the asterisk red
-                            SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
-                            // Set the color for the asterisk to red
-                            spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                            // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
-                            name = spannableName.toString();
-                        }
-                    }
                     tvName.setText(name);
                     tvElement.setText(item.uid());
                     inputFieldMap.put(item.uid(), editText);
                     editText.setText(currentValue);
-                    linearLayout.addView(itemView);
+                    if (!isHidden) {
+                        linearLayout.addView(itemView);
+                    }
                 } else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(
                             R.layout.item_autocomplete,
@@ -421,19 +473,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     );
 
                     String name = item.displayName();
-                    if (item.attributeValues() != null) {
-                        boolean isRequired = hasRequiredAttribute(item.attributeValues());
-                        Log.e("TAG", "Attribute is Required ****" + isRequired);
-                        if (isRequired) {
-                            // Add an asterisk and make only the asterisk red
-                            SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
-                            // Set the color for the asterisk to red
-                            spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                            // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
-                            name = spannableName.toString();
-                        }
-                    }
                     tvName.setText(name);
                     autoCompleteTextView.setAdapter(adp);
 //                    String currentData = generateOptionNameFromId(currentValue);
@@ -460,7 +499,9 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     });
                     adp.notifyDataSetChanged();
                     inputFieldMap.put(item.uid(), autoCompleteTextView);
-                    linearLayout.addView(itemView);
+                    if (!isHidden) {
+                        linearLayout.addView(itemView);
+                    }
 
 
                     /* */
@@ -472,46 +513,14 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                         linearLayout,
                         false
                 );
-
-// Find views in the inflated layout
                 TextView tvName = itemView.findViewById(R.id.tv_name);
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
                 TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
 
-// Set values to views
-                String name = item.displayName();
-                if (item.attributeValues() != null) {
-                    boolean isRequired = hasRequiredAttribute(item.attributeValues());
-                    Log.e("TAG", "Attribute is Required ****" + isRequired);
-                    if (isRequired) {
-                        // Add an asterisk and make only the asterisk red
-                        SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
-                        // Set the color for the asterisk to red
-                        spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                        // Now 'spannableName' contains the original name with an asterisk added, and only the asterisk is red if the condition is met
-                        name = spannableName.toString();
-                    }
-                }
-                tvName.setText(name);
+                tvName.setText(item.displayName());
                 tvElement.setText(item.uid());
                 inputFieldMap.put(item.uid(), editText);
-
-// Get and set response if available
-// Define keywords and check for maximum date restriction
-                List<String> keywords = Arrays.asList("Birth", "Death");
-//            boolean max = containsAnyKeyword(item.displayName(), keywords);
-//            new FormatterClass().disableTextInputEditText(editText);
-
-// Set click listener for opening date picker dialog
-                editText.setOnClickListener(v -> {
-//                    new FormatterClass().showDatePickerDialog(
-//                            ResponderActivity.this, editText, max, false
-//                    );
-                });
-
-// Set text change listener for updating response
                 editText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -531,7 +540,9 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     }
                 });
 
-                linearLayout.addView(itemView);
+                if (!isHidden) {
+                    linearLayout.addView(itemView);
+                }
                 break;
             }
             case "BOOLEAN": {
@@ -545,15 +556,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
                 String name = item.displayName();
-                if (item.attributeValues() != null) {
-                    boolean isRequired = hasRequiredAttribute(item.attributeValues());
-                    Log.e("TAG", "Attribute is Required ****" + isRequired);
-                    if (isRequired) {
-                        SpannableStringBuilder spannableName = new SpannableStringBuilder(name + "*");
-                        spannableName.setSpan(new ForegroundColorSpan(Color.RED), name.length(), name.length() + 1, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        name = spannableName.toString();
-                    }
-                }
                 tvName.setText(name);
 
                 if (currentValue != null && currentValue.equals("true")) {
@@ -564,11 +566,28 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     radioGroup.clearCheck();
                 }
                 inputFieldMap.put(item.uid(), radioGroup);
-                linearLayout.addView(itemView);
+                if (!isHidden) {
+                    linearLayout.addView(itemView);
+                }
                 break;
             }
         }
 
+    }
+
+    private boolean confirmHiddenValues(String target, List<ProgramResponse.AttributeValue> attributeValueList) {
+
+        boolean isHidden = false;
+        if (attributeValueList.isEmpty()) isHidden = false;
+        else {
+            for (ProgramResponse.AttributeValue patr : attributeValueList) {
+                ProgramResponse.Attribute data = patr.attribute;
+                if (data.name.equalsIgnoreCase(target)) {
+                    isHidden = patr.value.equalsIgnoreCase("true");
+                }
+            }
+        }
+        return isHidden;
     }
 
     private boolean hasRequiredAttribute(List<AttributeValue> attributeValues) {

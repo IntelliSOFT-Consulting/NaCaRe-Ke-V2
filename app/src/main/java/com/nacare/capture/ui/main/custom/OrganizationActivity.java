@@ -65,21 +65,21 @@ public class OrganizationActivity extends AppCompatActivity {
         String orgName = new FormatterClass().getSharedPref("orgName", this);
         autoCompleteTextView.setText(orgName, false);
         nextButton.setOnClickListener(v -> {
-//                    String data = autoCompleteTextView.getText().toString();
-//                    if (data.isEmpty()) {
-//                        Toast.makeText(this, "Select Organization Unit to Proceed", Toast.LENGTH_SHORT).show();
-//                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
-//                        autoCompleteTextView.requestFocus();
-//                        return;
-//                    }
-//                    String orgCode = getCodeFromHash(data);
-//                    if (TextUtils.isEmpty(orgCode)) {
-//                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
-//                        autoCompleteTextView.requestFocus();
-//                        return;
-//                    }
-//                    new FormatterClass().saveSharedPref("orgCode", orgCode, this);
-//                    new FormatterClass().saveSharedPref("orgName", data, this);
+                    String data = autoCompleteTextView.getText().toString();
+                    if (data.isEmpty()) {
+                        Toast.makeText(this, "Select Organization Unit to Proceed", Toast.LENGTH_SHORT).show();
+                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
+                        autoCompleteTextView.requestFocus();
+                        return;
+                    }
+                    String orgCode = getCodeFromHash(data);
+                    if (TextUtils.isEmpty(orgCode)) {
+                        autoCompleteTextView.setError("Select Organization Unit to Proceed");
+                        autoCompleteTextView.requestFocus();
+                        return;
+                    }
+                    new FormatterClass().saveSharedPref("orgCode", orgCode, this);
+                    new FormatterClass().saveSharedPref("orgName", data, this);
                     ActivityStarter.startActivity(OrganizationActivity.this,
                             ProgramsActivity.getProgramActivityIntent(OrganizationActivity.this), false);
                 }
@@ -120,39 +120,39 @@ public class OrganizationActivity extends AppCompatActivity {
 
     private void loadOrganizationsByName(String newText) {
         Log.e("TAG", "Organization Units ***** " + newText);
-        disposable = Sdk.d2().organisationUnitModule().organisationUnits()
+        try {
+            disposable = Sdk.d2().organisationUnitModule().organisationUnits()
 //                .byRootOrganisationUnit(true)
-                .byDisplayName().like(newText)
-                .byLevel().eq(5)
-                .get()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                    .byDisplayName().like(newText)
+                    .byLevel().eq(5)
+                    .get()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
 
-                .subscribe(
-                        organisationUnits -> {
-                            stringList.clear();
-                            // Handle the list of organizations here
-                            for (OrganisationUnit organisationUnit : organisationUnits) {
-                                // Access information about each organisationUnit
-                                String name = organisationUnit.displayName();
-                                String uid = organisationUnit.uid();
-                                String level = String.valueOf(organisationUnit.level());
-                                // ... other properties
-                                Log.e("TAG", "Organization Units ***** " + name);
-                                Log.e("TAG", "Organization Units ***** " + uid);
-                                Log.e("TAG", "Organization Units ***** " + level);
-                                stringList.add(name);
-                                stringMap.put(name, uid);
+                    .subscribe(
+                            organisationUnits -> {
+                                stringList.clear();
+                                // Handle the list of organizations here
+                                for (OrganisationUnit organisationUnit : organisationUnits) {
+                                    // Access information about each organisationUnit
+                                    String name = organisationUnit.displayName();
+                                    String uid = organisationUnit.uid();
+                                    String level = String.valueOf(organisationUnit.level());
+                                    stringList.add(name);
+                                    stringMap.put(name, uid);
+                                }
+                                adapter = new ArrayAdapter(this,
+                                        android.R.layout.simple_list_item_1, stringList);
+                                autoCompleteTextView.setAdapter(adapter);
+                            },
+                            throwable -> {
+                                // Handle errors here
+                                throwable.printStackTrace();
                             }
-                            adapter = new ArrayAdapter(this,
-                                    android.R.layout.simple_list_item_1, stringList);
-                            autoCompleteTextView.setAdapter(adapter);
-                        },
-                        throwable -> {
-                            // Handle errors here
-                            throwable.printStackTrace();
-                        }
-                );
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadOrganizations() {

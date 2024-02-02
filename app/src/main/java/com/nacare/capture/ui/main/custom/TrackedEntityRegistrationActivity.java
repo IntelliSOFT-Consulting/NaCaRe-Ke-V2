@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.nacare.capture.R;
@@ -31,10 +33,14 @@ import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.adapters.ExpandableListAdapter;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.model.HomeData;
+import com.nacare.capture.data.response.ProgramResponse;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.data.service.DateFormatHelper;
+import com.nacare.capture.data.sync.StringValueTask;
 import com.nacare.capture.ui.base.ListWithoutBindingsActivity;
 
+import org.cache2k.core.LongHeapCache;
+import org.hisp.dhis.android.core.dataelement.DataElement;
 import org.hisp.dhis.android.core.enrollment.EnrollmentCreateProjection;
 import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
 import org.hisp.dhis.android.core.event.EventCreateProjection;
@@ -51,6 +57,8 @@ import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueCollection
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityDataValueObjectRepository;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,6 +93,8 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
     private List<ProgramSection> programSectionList;
     String isNew;
 
+    private MaterialButton btnProceed, btnCancel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +103,8 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
         RecyclerView recyclerView = findViewById(R.id.trackedEntityInstanceRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         syncProgressBar = findViewById(R.id.syncProgressBar);
+        btnProceed = findViewById(R.id.btn_proceed);
+        btnProceed = findViewById(R.id.btn_cancel);
         syncProgressBar.setVisibility(View.GONE);
         isNew = getIntent().getStringExtra(IntentExtra.NEW.name());
         selectedEntity = getIntent().getStringExtra(IntentExtra.TEI_UID.name());
@@ -156,15 +168,13 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                                 .flatMap(section -> section.attributes().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
                                 .distinct()
                                 .collect(Collectors.toList());
-                        List<String> exclusionIds = Arrays.asList("AP13g7NcBOf", "hQSBZptmMp2", "xj0DQtTqeJc", "o2i9nPNWdjV");
+//                        List<String> exclusionIds = Arrays.asList("AP13g7NcBOf", "hQSBZptmMp2", "xj0DQtTqeJc", "o2i9nPNWdjV");
 
-                        for (TrackedEntityAttribute tr : flattenedList) {
-                            if (!exclusionIds.contains(tr.uid())) {
-                                trackedEntityAttributes.add(tr);
-                            }
-                        }
+                        //                            if (!exclusionIds.contains(tr.uid())) {
+                        //                            }
+                        trackedEntityAttributes.addAll(flattenedList);
                         for (TrackedEntityAttribute trackedEntityAttribute : trackedEntityAttributes) {
-                            createInputField(trackedEntityAttribute, extractCurrentAttributeValue(trackedEntityAttribute.uid()));
+                            createInputField(trackedEntityAttribute, extractCurrentAttributeValue(trackedEntityAttribute.uid()), extractElementAttributes(trackedEntityAttribute));
                         }
                     } else {
                         Toast.makeText(this, "Please select a program stage to proceed", Toast.LENGTH_SHORT).show();
@@ -185,20 +195,123 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                         .flatMap(section -> section.attributes().stream()) // Replace getYourNestedList() with the actual method to retrieve nested list
                         .distinct()
                         .collect(Collectors.toList());
-                List<String> exclusionIds = Arrays.asList("AP13g7NcBOf", "hQSBZptmMp2", "xj0DQtTqeJc", "o2i9nPNWdjV");
+//                List<String> exclusionIds = Arrays.asList("AP13g7NcBOf", "hQSBZptmMp2", "xj0DQtTqeJc", "o2i9nPNWdjV");
 
-                for (TrackedEntityAttribute tr : flattenedList) {
-                    if (!exclusionIds.contains(tr.uid())) {
-                        trackedEntityAttributes.add(tr);
-                    }
-                }
+                //                    if (!exclusionIds.contains(tr.uid())) {
+                //                    }
+                trackedEntityAttributes.addAll(flattenedList);
                 for (TrackedEntityAttribute trackedEntityAttribute : trackedEntityAttributes) {
-                    createInputField(trackedEntityAttribute, extractCurrentAttributeValue(trackedEntityAttribute.uid()));
+                    createInputField(trackedEntityAttribute, extractCurrentAttributeValue(trackedEntityAttribute.uid()), extractElementAttributes(trackedEntityAttribute));
                 }
             }
         }
 
+        btnProceed.setOnClickListener(v -> {
+            manipulateUserInputForUnique();
+        });
 
+
+    }
+
+    private List<ProgramResponse.AttributeValue> extractElementAttributes(TrackedEntityAttribute currentElement) {
+        List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
+        String serverProgram = new FormatterClass().getSharedPref("notification_attribute_data", this);
+        Log.e("TAG", "Notification Attributes *** " + serverProgram);
+        if (serverProgram != null) {
+            try {
+                // Parse the JSON data
+                JSONObject jsonObject = new JSONObject(serverProgram);
+                JSONArray programsArray = jsonObject.getJSONArray("programs");
+                for (int i = 0; i < programsArray.length(); i++) {
+                    JSONObject program = programsArray.getJSONObject(i);
+                    JSONArray programSectionsArray = program.getJSONArray("programSections");
+                    for (int j = 0; j < programSectionsArray.length(); j++) {
+                        JSONObject programSection = programSectionsArray.getJSONObject(j);
+                        JSONArray trackedEntityAttributesArray = programSection.getJSONArray("trackedEntityAttributes");
+                        for (int k = 0; k < trackedEntityAttributesArray.length(); k++) {
+                            JSONObject trackedEntityAttribute = trackedEntityAttributesArray.getJSONObject(k);
+                            String current = trackedEntityAttribute.getString("id");
+                            JSONArray attributeValuesArray = trackedEntityAttribute.getJSONArray("attributeValues");
+                            if (current.equalsIgnoreCase(currentElement.uid())) {
+                                for (int l = 0; l < attributeValuesArray.length(); l++) {
+                                    JSONObject attributeValue = attributeValuesArray.getJSONObject(l);
+                                    String attributeValueName = attributeValue.getJSONObject("attribute").getString("name");
+                                    String attributeValueId = attributeValue.getJSONObject("attribute").getString("id");
+                                    String value = attributeValue.getString("value");
+
+                                    ProgramResponse.Attribute at = new ProgramResponse.Attribute();
+                                    at.id = attributeValueId;
+                                    at.name = attributeValueName;
+                                    ProgramResponse.AttributeValue atv = new ProgramResponse.AttributeValue();
+                                    atv.value = value;
+                                    atv.attribute = at;
+                                    attributeValues.add(atv);
+
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("TAG", "Tracked Attribute Data Attributes Error **** " + e.getMessage());
+            }
+
+        }
+        return attributeValues;
+    }
+
+    private List<ProgramResponse.AttributeValue> extractElementAttributesOld(TrackedEntityAttribute currentElement) {
+        List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
+        String serverProgram = new FormatterClass().getSharedPref("notification_attribute_data", this);
+        Log.e("TAG", "Notification Attributes *** " + serverProgram);
+        if (serverProgram != null) {
+
+            try {
+                JSONObject jsonObject = new JSONObject(serverProgram);
+                JSONArray programsArray = jsonObject.getJSONArray("programs");
+                for (int i = 0; i < programsArray.length(); i++) {
+                    JSONObject program = programsArray.getJSONObject(i);
+                    JSONArray programStages = program.getJSONArray("programStages");
+                    for (int j = 0; j < programStages.length(); j++) {
+                        JSONObject programStage = programStages.getJSONObject(j);
+                        JSONArray programStageSections = programStage.getJSONArray("programStageSections");
+                        for (int k = 0; k < programStageSections.length(); k++) {
+                            JSONObject programStageSection = programStageSections.getJSONObject(k);
+                            JSONArray dataElements = programStageSection.getJSONArray("dataElements");
+                            for (int l = 0; l < dataElements.length(); l++) {
+                                JSONObject dataElement = dataElements.getJSONObject(l);
+                                String dataElementId = dataElement.getString("id");
+                                JSONArray here = dataElement.getJSONArray("attributeValues");
+                                if (dataElementId.equalsIgnoreCase(currentElement.uid())) {
+                                    // You can add additional logic here based on your needs
+                                    for (int q = 0; q < here.length(); q++) {
+                                        JSONObject childHere = here.getJSONObject(q);
+                                        String value = childHere.getString("value");
+                                        JSONObject attribute = childHere.getJSONObject("attribute");
+                                        String attributeId = attribute.getString("id");
+                                        String attributeName = attribute.getString("name");
+
+                                        ProgramResponse.Attribute at = new ProgramResponse.Attribute();
+                                        at.id = attributeId;
+                                        at.name = attributeName;
+                                        ProgramResponse.AttributeValue atv = new ProgramResponse.AttributeValue();
+                                        atv.value = value;
+                                        atv.attribute = at;
+                                        attributeValues.add(atv);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("TAG", "Server Attributes *** Error " + e.getMessage());
+            }
+        }
+        return attributeValues;
     }
 
     private String extractCurrentAttributeValue(String teiUid) {
@@ -252,11 +365,42 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
         return null;
     }
 
-    private void createInputField(TrackedEntityAttribute item, String value) {
+    private boolean extractAttributeValue(String target, List<ProgramResponse.AttributeValue> attributeValueList) {
+
+        boolean isHidden = false;
+        if (attributeValueList.isEmpty()) isHidden = false;
+        else {
+            for (ProgramResponse.AttributeValue patr : attributeValueList) {
+                ProgramResponse.Attribute data = patr.attribute;
+                if (data.name.equalsIgnoreCase(target)) {
+                    isHidden = patr.value.equalsIgnoreCase("true");
+                }
+            }
+        }
+        return isHidden;
+    }
+
+    private String generateRequiredField(String text) {
+        String data = null;
+        try {
+            data = text + " <font color='red'>*</font>";
+
+        } catch (Exception e) {
+            data = text;
+        }
+        return data;
+
+    }
+
+    private void createInputField(TrackedEntityAttribute item, String value, List<ProgramResponse.AttributeValue> attributeValueList) {
         String valueType = item.valueType().toString();
         String label = item.displayName();
         LayoutInflater inflater = LayoutInflater.from(this);
         LinearLayout linearLayout = findViewById(R.id.linearLayout);
+        boolean isHidden = extractAttributeValue("Hidden", attributeValueList);
+        boolean isDisabled = extractAttributeValue("Disabled", attributeValueList);
+        boolean isRequired = extractAttributeValue("Required", attributeValueList);
+        boolean disableFutureDate = extractAttributeValue("disableFutureDate", attributeValueList);
 
 
         switch (valueType) {
@@ -268,10 +412,20 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                     TextView tvElement = itemView.findViewById(R.id.tv_element);
                     TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                     TextInputEditText editText = itemView.findViewById(R.id.editText);
-
-                    tvName.setText(item.displayName());
+                    String name = item.displayName();
+                    if (isRequired) {
+                        name = generateRequiredField(name);
+                    }
+                    tvName.setText(Html.fromHtml(name));
                     tvElement.setText(item.uid());
                     editText.setText(value);
+
+                    if (isDisabled) {
+                        editText.setKeyListener(null);
+                        editText.setCursorVisible(false);
+                        editText.setFocusable(false);
+                        editText.setEnabled(false);
+                    }
                     editText.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
@@ -281,7 +435,8 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                         public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                             String value = charSequence.toString();
                             if (!value.isEmpty()) {
-                                saveFormField(item.uid(), value);
+
+                                new StringValueTask(TrackedEntityRegistrationActivity.this, item.uid(), value, true).execute();
                             }
                         }
 
@@ -290,7 +445,9 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
 
                         }
                     });
-                    linearLayout.addView(itemView);
+                    if (!isHidden) {
+                        linearLayout.addView(itemView);
+                    }
                 } else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_autocomplete, linearLayout, false);
 
@@ -310,7 +467,11 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                     }
                     ArrayAdapter<String> adp = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, optionsStringList);
 
-                    tvName.setText(item.displayName());
+                    String name = item.displayName();
+                    if (isRequired) {
+                        name = generateRequiredField(name);
+                    }
+                    tvName.setText(Html.fromHtml(name));
                     autoCompleteTextView.setAdapter(adp);
                     adp.notifyDataSetChanged();
 
@@ -334,7 +495,9 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
 
                         }
                     });
-                    linearLayout.addView(itemView);
+                    if (!isHidden) {
+                        linearLayout.addView(itemView);
+                    }
                 }
                 break;
             case "DATE": {
@@ -343,9 +506,12 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
                 TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (isRequired) {
+                    name = generateRequiredField(name);
+                }
+                tvName.setText(Html.fromHtml(name));
                 tvElement.setText(item.uid());
-                List<String> keywords = Arrays.asList("Birth", "Death");
                 editText.setKeyListener(null);
                 editText.setCursorVisible(false);
                 editText.setFocusable(false);
@@ -353,13 +519,19 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                     value = new FormatterClass().extractValid(value);
                     editText.setText(value);
                 }
+                if (isDisabled) {
+                    editText.setEnabled(false);
+                }
                 editText.setOnClickListener(v -> {
                     Calendar calendar = Calendar.getInstance();
-                    new DatePickerDialog(this, (datePicker, year, month, day) -> {
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(this, (datePicker, year, month, day) -> {
                         String valueCurrent = getDate(year, month, day);
                         editText.setText(valueCurrent);
-
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                    if (disableFutureDate) {
+                        datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+                    }
+                    datePickerDialog.show();
                 });
                 editText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -371,7 +543,8 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                     public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                         String value = charSequence.toString();
                         if (!value.isEmpty()) {
-                            saveFormField(item.uid(), value);
+//                            saveFormField(item.uid(), value);
+                            new StringValueTask(TrackedEntityRegistrationActivity.this, item.uid(), value, true).execute();
                         }
                     }
 
@@ -381,7 +554,9 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                         // You can perform actions here based on the updated text.
                     }
                 });
-                linearLayout.addView(itemView);
+                if (!isHidden) {
+                    linearLayout.addView(itemView);
+                }
                 break;
             }
             case "INTEGER":
@@ -391,12 +566,21 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
                 TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (isRequired) {
+                    name = generateRequiredField(name);
+                }
+                tvName.setText(Html.fromHtml(name));
                 tvElement.setText(item.uid());
                 if (value != null) {
                     editText.setText(value);
                 }
-
+                if (isDisabled) {
+                    editText.setKeyListener(null);
+                    editText.setCursorVisible(false);
+                    editText.setFocusable(false);
+                    editText.setEnabled(false);
+                }
                 editText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -407,7 +591,7 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                     public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                         String value = charSequence.toString();
                         if (!value.isEmpty()) {
-                            saveFormField(item.uid(), value);
+                            new StringValueTask(TrackedEntityRegistrationActivity.this, item.uid(), value, true).execute();
                         }
                     }
 
@@ -417,7 +601,9 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                         // You can perform actions here based on the updated text.
                     }
                 });
-                linearLayout.addView(itemView);
+                if (!isHidden) {
+                    linearLayout.addView(itemView);
+                }
                 break;
             }
             case "BOOLEAN": {
@@ -430,7 +616,14 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                 radioGroup = itemView.findViewById(R.id.radioGroup);
                 RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (isRequired) {
+                    name = generateRequiredField(name);
+                }
+                if (isDisabled) {
+                    radioGroup.setEnabled(false);
+                }
+                tvName.setText(Html.fromHtml(name));
                 if (value != null && value.equals("true")) {
                     radioGroup.check(R.id.radioButtonYes);
                 } else if (value != null && value.equals("false")) {
@@ -438,7 +631,26 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                 } else {
                     radioGroup.clearCheck();
                 }
-                linearLayout.addView(itemView);
+                if (!isHidden) {
+                    linearLayout.addView(itemView);
+                }
+                radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                    String dataValue = null;
+                    switch (checkedId) {
+                        case R.id.radioButtonYes:
+                            dataValue = "true";
+                            break;
+                        case R.id.radioButtonNo:
+                            dataValue = "false";
+                            break;
+                        default:
+                            dataValue = null;
+                            break;
+                    }
+
+                    new StringValueTask(TrackedEntityRegistrationActivity.this, item.uid(), dataValue, true).execute();
+
+                });
                 break;
             }
         }
@@ -483,11 +695,11 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
         builder.setPositiveButton("Yes", (dialog, which) -> {
 
             if (isNew != null) {
-                if (isNew.equalsIgnoreCase("true")) {
-                    manipulateUserInputForUnique();
-                } else {
-                    TrackedEntityRegistrationActivity.super.onBackPressed();
-                }
+//                if (isNew.equalsIgnoreCase("true")) {
+                manipulateUserInputForUnique();
+//                } else {
+                TrackedEntityRegistrationActivity.super.onBackPressed();
+//                }
             } else {
                 TrackedEntityRegistrationActivity.super.onBackPressed();
             }
@@ -525,6 +737,8 @@ public class TrackedEntityRegistrationActivity extends ListWithoutBindingsActivi
                 saveFormField("AP13g7NcBOf", patient_identification);
                 TrackedEntityRegistrationActivity.super.onBackPressed();
 
+            } else {
+                TrackedEntityRegistrationActivity.super.onBackPressed();
             }
         } catch (Exception e) {
             e.printStackTrace();

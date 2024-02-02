@@ -40,6 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
+
     }
 
     @Override

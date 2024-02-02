@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
+import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
 import com.nacare.capture.ui.main.MainActivity;
 import com.nacare.capture.ui.main.SyncActivity;
@@ -36,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public static Intent getLoginActivityIntent(Context context) {
-        return new Intent(context,LoginActivity.class);
+        return new Intent(context, LoginActivity.class);
     }
 
     @Override
@@ -74,11 +75,11 @@ public class LoginActivity extends AppCompatActivity {
                 showLoginFailed(loginResult.getError());
             }
             if (loginResult.getSuccess() != null) {
-                if (Sdk.d2().programModule().programs().blockingCount() > 0) {
-                    ActivityStarter.startActivity(this, SyncActivity.getIntent(this),true);
-                } else {
-                    ActivityStarter.startActivity(this, SyncActivity.getIntent(this),true);
-                }
+                new FormatterClass().saveSharedPref("url", serverUrlEditText.getText().toString(), LoginActivity.this);
+                new FormatterClass().saveSharedPref("username", usernameEditText.getText().toString(), LoginActivity.this);
+                new FormatterClass().saveSharedPref("password", passwordEditText.getText().toString(), LoginActivity.this);
+                ActivityStarter.startActivity(this, SyncActivity.getIntent(this), true);
+
             }
             setResult(Activity.RESULT_OK);
         });
@@ -126,7 +127,9 @@ public class LoginActivity extends AppCompatActivity {
         disposable = loginViewModel
                 .login(username, password, serverUrl)
                 .doOnTerminate(() -> loginButton.setVisibility(View.VISIBLE))
-                .subscribe(u -> {}, t -> {});
+                .subscribe(u -> {
+                }, t -> {
+                });
     }
 
     @Override
