@@ -156,7 +156,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
     private List<ProgramResponse.AttributeValue> extractElementAttribute(DataElement currentElement) {
         List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
         String serverProgram = new FormatterClass().getSharedPref("notification_attribute_data", context);
-        Log.e("TAG", "Notification Attributes *** " + serverProgram);
+
         if (serverProgram != null) {
 
             try {
@@ -209,7 +209,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
     private List<ProgramResponse.AttributeValue> extractElementAttributes(TrackedEntityAttribute currentElement) {
         List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
         String serverProgram = new FormatterClass().getSharedPref("notification_attribute_data", context);
-        Log.e("TAG", "Notification Attributes *** " + serverProgram);
+
         if (serverProgram != null) {
             try {
                 // Parse the JSON data
@@ -398,6 +398,49 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         return isHidden;
     }
 
+    private static String[] extractValues(String input) {
+        String[] parts = input.split(":");
+        if (parts.length >= 2) {
+            // Assuming the values are enclosed in double quotes
+            String value1 = parts[0].trim().replaceAll("\"", "");
+            String value2 = parts[1].trim().replaceAll("\"", "");
+            String value3 = parts[2].trim().replaceAll("\"", "");
+
+            return new String[]{value1, value2, value3};
+        } else {
+            // Handle invalid input
+            System.err.println("Invalid input format");
+            return null;
+        }
+    }
+
+    private boolean showIfCheck(String target, List<ProgramResponse.AttributeValue> attributeValueList) {
+
+        boolean isHidden = false;
+        if (attributeValueList.isEmpty()) isHidden = false;
+        else {
+            for (ProgramResponse.AttributeValue patr : attributeValueList) {
+                ProgramResponse.Attribute data = patr.attribute;
+                if (data.name.equalsIgnoreCase(target)) {
+                    String value = patr.value;
+                    Log.e("TAG", "Extracted Section Value **** " + value);
+                    if (value != null) {
+                        if (value.contains(":")) {
+                            String[] extractedValues = extractValues(value);
+
+                            if (extractedValues != null) {
+                                for (String inner : extractedValues) {
+                                    Log.e("TAG", "Extracted Section Value **** " + inner);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return isHidden;
+    }
+
     private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String value, List<ProgramResponse.AttributeValue> attributeValueList) {
         String valueType = item.valueType().toString();
         String label = item.displayName();
@@ -406,6 +449,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         boolean isDisabled = extractAttributeValue("Disabled", attributeValueList);
         boolean isRequired = extractAttributeValue("Required", attributeValueList);
         boolean disableFutureDate = extractAttributeValue("disableFutureDate", attributeValueList);
+        boolean showIf = showIfCheck("showIf", attributeValueList);
 
 
         switch (valueType) {
@@ -930,6 +974,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
         }
 
     }
+
     private String extractOptionUid(String name, String uid, String value) {
         List<String> keywords = Arrays.asList("Sex", "Site", "Type of facility", "County of Usual Residence", "Insurance Cover");
         Option option = Sdk.d2().optionModule().options().byOptionSetUid().eq(uid).byDisplayName().eq(value).one().blockingGet();
