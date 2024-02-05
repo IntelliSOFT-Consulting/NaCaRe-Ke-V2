@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,15 +17,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
+import com.nacare.capture.data.adapters.TreeAdapter;
 import com.nacare.capture.data.model.FormatterClass;
+import com.nacare.capture.data.model.OrgTreeNode;
 import com.nacare.capture.data.service.ActivityStarter;
+import com.nacare.capture.data.sync.OrganizationTask;
 import com.nacare.capture.ui.programs.ProgramsActivity;
+import com.nacare.capture.ui.tracked_entity_instances.TrackedEntityInstanceAdapter;
 
 import org.hisp.dhis.android.core.arch.repositories.scope.RepositoryScope;
 import org.hisp.dhis.android.core.organisationunit.OrganisationUnit;
@@ -38,7 +45,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class OrganizationActivity extends AppCompatActivity {
+public class OrganizationActivity extends AppCompatActivity implements OrganizationTask.OnTaskCompletedListener {
     private Disposable disposable;
     private MaterialButton nextButton;
     private AutoCompleteTextView autoCompleteTextView;
@@ -46,6 +53,8 @@ public class OrganizationActivity extends AppCompatActivity {
 
     private Map<String, String> stringMap;
     private ArrayAdapter adapter;
+    private RecyclerView programsRecyclerView;
+    private ProgressBar syncProgressBar;
 
     public static Intent getOrganizationActivityIntent(Context context) {
         return new Intent(context, OrganizationActivity.class);
@@ -60,6 +69,8 @@ public class OrganizationActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Cancer Notification Tool");
+        syncProgressBar = findViewById(R.id.syncProgressBar);
+        programsRecyclerView = findViewById(R.id.programsRecyclerView);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         nextButton = findViewById(R.id.btn_proceed);
         String orgName = new FormatterClass().getSharedPref("orgName", this);
@@ -111,6 +122,8 @@ public class OrganizationActivity extends AppCompatActivity {
             }
         });
 
+        loadOrganizations();
+
 
     }
 
@@ -137,7 +150,6 @@ public class OrganizationActivity extends AppCompatActivity {
                                     // Access information about each organisationUnit
                                     String name = organisationUnit.displayName();
                                     String uid = organisationUnit.uid();
-                                    String level = String.valueOf(organisationUnit.level());
                                     stringList.add(name);
                                     stringMap.put(name, uid);
                                 }
@@ -145,10 +157,11 @@ public class OrganizationActivity extends AppCompatActivity {
                                         android.R.layout.simple_list_item_1, stringList);
                                 autoCompleteTextView.setAdapter(adapter);
                             },
-                            throwable -> {
-                                // Handle errors here
-                                throwable.printStackTrace();
+
+                            error -> {
+                                Log.e("TAG", "Error Encountered **** " + error.getMessage());
                             }
+
                     );
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,60 +169,61 @@ public class OrganizationActivity extends AppCompatActivity {
     }
 
     private void loadOrganizations() {
-        disposable = Sdk.d2().organisationUnitModule().organisationUnits()
-                .byRootOrganisationUnit(true)
-                .get()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-
-                .subscribe(
-                        organisationUnits -> {
-                            // Handle the list of organizations here
-                            for (OrganisationUnit organisationUnit : organisationUnits) {
-                                // Access information about each organisationUnit
-                                String name = organisationUnit.displayName();
-                                String uid = organisationUnit.uid();
-                                String level = String.valueOf(organisationUnit.level());
+        try {
+            // Handle errors here
+            disposable = Sdk.d2().organisationUnitModule().organisationUnits()
+                    .byRootOrganisationUnit(true)
+                    .get()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            organisationUnits -> {
+                                // Handle the list of organizations here
+                                for (OrganisationUnit organisationUnit : organisationUnits) {
+                                    Log.e("TAG", "Organization Data ***** " + organisationUnit);
+//                                    fetchOrganisationUnits(organisationUnit.uid());
+                                    new OrganizationTask(OrganizationActivity.this, organisationUnit.uid(), this).execute();
+                                }
+                            },
+                            error -> {
+                                Log.e("TAG", "Error Encountered **** " + error.getMessage());
                             }
-                        },
-                        throwable -> {
-                            // Handle errors here
-                            throwable.printStackTrace();
-                        }
-                );
+                    );
+        } catch (Exception e) {
+            Log.e("TAG", "Organization Error **** " + e.getMessage());
+        }
     }
 
     private void fetchOrganisationUnits(String parentUid) {
-        disposable = Sdk.d2().organisationUnitModule().organisationUnits()
-                .byParentUid().like(parentUid)
-                .get()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        organisationUnits -> {
-                            // Handle the list of organizations here
-                            for (OrganisationUnit organisationUnit : organisationUnits) {
-                                // Access information about each organisationUnit
-                                String name = organisationUnit.displayName();
-                                String uid = organisationUnit.uid();
-                                String level = String.valueOf(organisationUnit.level());
-                                // ... other properties
-                                Log.e("TAG", "Organization Unit ***** " + name);
-                                Log.e("TAG", "Organization Unit ***** " + uid);
-                                Log.e("TAG", "Organization Unit ***** " + level);
-
-                                // Check if the level is less than 5 before fetching children
-//                                if (organisationUnit.level() < 5) {
-//                                    // Recursive call to fetch children for the current organization unit
-//                                    fetchOrganisationUnits(uid);
-//                                }
+        try {
+            // Handle errors here
+            disposable = Sdk.d2().organisationUnitModule().organisationUnits()
+                    .byParentUid().eq(parentUid)
+                    .get()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            organisationUnits -> {
+                                // Handle the list of organizations here
+                                for (OrganisationUnit organisationUnit : organisationUnits) {
+                                    Log.e("TAG", "Organization Data ***** " + organisationUnit);
+                                    if (organisationUnit.level() != null) {
+                                        // Check if the level is less than 5 before fetching children
+                                        if (organisationUnit.level() < 5) {
+                                            // Recursive call to fetch children for the current organization unit
+                                            fetchOrganisationUnits(organisationUnit.uid());
+                                        }
+                                    }
+                                }
+                            },
+                            error -> {
+                                Log.e("TAG", "Error Encountered **** " + error.getMessage());
                             }
-                        },
-                        throwable -> {
-                            // Handle errors here
-                            throwable.printStackTrace();
-                        }
-                );
+                    );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -222,4 +236,34 @@ public class OrganizationActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
+
+    @Override
+    public void onTaskCompleted(ArrayList<OrgTreeNode> orgTreeNodes) {
+        if (!orgTreeNodes.isEmpty()) {
+            Log.e("TAG", "Data Retrieved **** " + orgTreeNodes);
+            TreeAdapter adapter = new TreeAdapter(this, orgTreeNodes, this::handleClick);
+            programsRecyclerView.setAdapter(adapter);
+            programsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        }
+    }
+
+    @Override
+    public void startStopProgress(boolean show) {
+        if (show) {
+            syncProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            syncProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void handleClick(OrgTreeNode otn) {
+        Log.e("TAG", "Data Retrieved **** " + otn.getLabel());
+        new FormatterClass().saveSharedPref("orgCode", otn.getCode(), this);
+        new FormatterClass().saveSharedPref("orgName", otn.getLabel(), this);
+        autoCompleteTextView.setText(otn.getLabel(), false);
+        ActivityStarter.startActivity(OrganizationActivity.this,
+                ProgramsActivity.getProgramActivityIntent(OrganizationActivity.this), false);
+    }
+
 }
