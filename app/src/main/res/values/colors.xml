@@ -14,7 +14,7 @@
     <color name="selected">#DEC8E4</color>
     <color name="purple_200">#6B2D7A</color>
     <color name="purple_500">@color/purple_200</color>
-    <color name="purple_700">@color/purple_200</color>
+    <color name="purple_700">#DB90ED</color>
     <color name="teal_200">@color/colorPrimary</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
@@ -33,6 +33,7 @@
     <color name="button_pressed_color">#1565C0</color>
     <color name="green">#4CAF50</color>
     <color name="greyish">#aaa8a8</color>
+    <color name="greyColor">#F1EDED</color>
     <color name="mine_shaft">#303030</color>
     <color name="awesome">#DBEFFF</color>
 </resources>

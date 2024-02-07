@@ -36,15 +36,18 @@
                 android:id="@+id/editTextOne"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/xxx"
                 android:inputType="textCapSentences"
                 android:maxLength="3"
                 android:maxLines="1"
                 android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <View
+        <ImageView
             android:layout_width="@dimen/_10dp"
-            android:layout_height="@dimen/_10dp" />
+            android:layout_height="@dimen/_10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/dash_drawable" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutTwo"
@@ -58,15 +61,18 @@
                 android:id="@+id/editTextTwo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/xxx"
                 android:inputType="textCapSentences"
                 android:maxLength="3"
                 android:maxLines="1"
                 android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <View
+        <ImageView
             android:layout_width="@dimen/_10dp"
-            android:layout_height="@dimen/_10dp" />
+            android:layout_height="@dimen/_10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/dash_drawable" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutThree"
@@ -80,15 +86,19 @@
                 android:id="@+id/editTextThree"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/xx"
                 android:inputType="number"
                 android:maxLength="2"
                 android:maxLines="1"
                 android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <View
+        <ImageView
             android:layout_width="@dimen/_10dp"
-            android:layout_height="@dimen/_10dp" />
+            android:layout_height="@dimen/_10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/dash_drawable" />
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutFour"
@@ -102,6 +112,7 @@
                 android:id="@+id/editTextFour"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/xxxx"
                 android:inputType="number"
                 android:maxLength="4"
                 android:maxLines="1"
@@ -113,8 +124,8 @@
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:boxBackgroundMode="outline">
 
         <com.google.android.material.textfield.TextInputEditText

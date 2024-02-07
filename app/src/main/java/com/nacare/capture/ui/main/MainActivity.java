@@ -388,8 +388,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             syncStatusText.setText(R.string.wiping_data);
             wipeData();
         } else if (id == R.id.navSyncData) {
-            setSyncing();
-            uploadData();
+            try {
+                setSyncing();
+                uploadData();
+                loadDataAttributeValues();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else if (id == R.id.navExit) {
             try {
                 compositeDisposable.add(LogOutService.logOut(this));

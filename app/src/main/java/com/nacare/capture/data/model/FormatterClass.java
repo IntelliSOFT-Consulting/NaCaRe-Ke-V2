@@ -38,6 +38,7 @@ public class FormatterClass {
         editor.remove(key);
         editor.apply();
     }
+
     public Date getNowWithoutTime() {
         final GregorianCalendar gc = new GregorianCalendar();
         gc.setTime(new Date());
@@ -94,5 +95,17 @@ public class FormatterClass {
 
         // If none of the formats match, return an error message or handle it as needed
         return null;
+    }
+
+    public String generateRequiredField(String text) {
+        String data = null;
+        try {
+            data = text + " <font color='red'>*</font>";
+
+        } catch (Exception e) {
+            data = text;
+        }
+        return data;
+
     }
 }

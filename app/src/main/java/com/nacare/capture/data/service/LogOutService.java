@@ -1,5 +1,7 @@
 package com.nacare.capture.data.service;
 
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.nacare.capture.data.Sdk;
@@ -16,6 +18,8 @@ public class LogOutService {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> ActivityStarter.startActivity(activity, LoginActivity.getLoginActivityIntent(activity.getApplicationContext()), true),
-                        Throwable::printStackTrace);
+                        error -> {
+                            Log.e("TAG", "Login Error ***** " + error.getMessage());
+                        });
     }
 }

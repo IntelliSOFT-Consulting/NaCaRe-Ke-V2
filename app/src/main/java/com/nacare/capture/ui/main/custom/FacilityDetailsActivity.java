@@ -42,6 +42,8 @@ import com.nacare.capture.data.model.HomeData;
 import com.nacare.capture.data.response.ProgramResponse;
 import com.nacare.capture.data.service.forms.EventFormService;
 import com.nacare.capture.data.service.forms.RuleEngineService;
+import com.nacare.capture.data.sync.FacilityTask;
+import com.nacare.capture.data.sync.StringValueTask;
 import com.nacare.capture.databinding.ActivityFacilityDetailsBinding;
 
 import org.hisp.dhis.android.core.arch.call.D2Progress;
@@ -65,6 +67,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import io.reactivex.Observable;
@@ -121,7 +124,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         String program = new FormatterClass().getSharedPref("program", this);
         if (!TextUtils.isEmpty(orgName)) {
             String formattedText = "Saving to <b>" + program + "</b> in <b>" + orgName + "</b>";
-            binding.textViewNote.setText(Html.fromHtml(formattedText, Html.FROM_HTML_MODE_LEGACY));
+            binding.textViewNote.setText(Html.fromHtml(formattedText));
         }
 
         try {
@@ -231,13 +234,14 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         if (collectedInputs.size() > 0) {
             String orgCode = new FormatterClass().getSharedPref("orgCode", this);
             if (!TextUtils.isEmpty(orgCode)) {
-                try {
-                    SaveDataAsyncTask saveDataAsyncTask = new SaveDataAsyncTask(this, eventUid, collectedInputs);
-                    saveDataAsyncTask.execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e("TAG", "Form Field ***** Async Error " + e.getMessage());
-                }
+//                try {
+//                    SaveDataAsyncTask saveDataAsyncTask = new SaveDataAsyncTask(this, eventUid, collectedInputs);
+//                    saveDataAsyncTask.execute();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Log.e("TAG", "Form Field ***** Async Error " + e.getMessage());
+//                }
+                onBackPressed();
             }
         } else {
             Toast.makeText(this, "Please enter at least a value", Toast.LENGTH_SHORT).show();
@@ -273,9 +277,8 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
 
                 return true;
-            } catch (D2Error d2Error) {
+            } catch (Exception d2Error) {
                 // Handle the error appropriately
-
                 Log.e("TAG", "Form Field ***** Event Data Saved  Error" + d2Error.getMessage());
                 return false;
             }
@@ -333,21 +336,15 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     .withDataElements()
                     .byProgramStageUid().eq(programStage.uid())
                     .blockingGet();
-//        new DataAttributeTask("notification").execute();
-//        new DataAttributeTask("facility").execute();
-//        new DataAttributeTask("notification").execute();
-//        new DataAttributeTask("facility").execute();
 
             List<DataElement> flattenedList = programStageSections.stream()
                     .flatMap(section -> section.dataElements().stream())
                     .distinct()
                     .collect(Collectors.toList());
-//            List<String> exclusionIds = Arrays.asList("OeUTTmDXAye", "QHprEcvWSQV", "TUR7b6PuifD");
 
             for (DataElement dataElement : flattenedList) {
-//                if (!exclusionIds.contains(dataElement.uid())) {
                 createSearchFieldsDataElement(binding.formLinearLayout, dataElement, retrieveCurrentValue(dataElement), extractElementAttributes(dataElement));
-//                }
+
             }
         }
     }
@@ -356,6 +353,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
     private List<ProgramResponse.AttributeValue> extractElementAttributes(DataElement currentElement) {
         List<ProgramResponse.AttributeValue> attributeValues = new ArrayList<>();
         String serverProgram = new FormatterClass().getSharedPref("facility_attribute_data", this);
+
         if (serverProgram != null) {
             try {
                 JSONObject jsonObject = new JSONObject(serverProgram);
@@ -420,7 +418,6 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         boolean isHidden = confirmHiddenValues("Hidden", attributeValueList);
         boolean isDisabled = confirmHiddenValues("Disabled", attributeValueList);
         boolean isRequired = confirmHiddenValues("Required", attributeValueList);
-        //exclude hidden values
 
         switch (valueType) {
             case "TEXT":
@@ -435,15 +432,37 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                     TextView tvElement = itemView.findViewById(R.id.tv_element);
                     TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                     TextInputEditText editText = itemView.findViewById(R.id.editText);
-
                     String name = item.displayName();
-                    tvName.setText(name);
+                    if (isRequired) {
+                        name = new FormatterClass().generateRequiredField(name);
+                    }
+                    tvName.setText(Html.fromHtml(name));
+
                     tvElement.setText(item.uid());
                     inputFieldMap.put(item.uid(), editText);
                     editText.setText(currentValue);
                     if (!isHidden) {
                         linearLayout.addView(itemView);
                     }
+                    editText.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            String value = s.toString();
+                            if (!value.isEmpty()) {
+                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+
+                        }
+                    });
                 } else {
                     LinearLayout itemView = (LinearLayout) inflater.inflate(
                             R.layout.item_autocomplete,
@@ -471,30 +490,34 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                             android.R.layout.simple_list_item_1,
                             optionsStringList
                     );
-
                     String name = item.displayName();
-                    tvName.setText(name);
+                    if (isRequired) {
+                        name = new FormatterClass().generateRequiredField(name);
+                    }
+                    tvName.setText(Html.fromHtml(name));
                     autoCompleteTextView.setAdapter(adp);
-//                    String currentData = generateOptionNameFromId(currentValue);
-//                    if (currentData != null) {
-//                        autoCompleteTextView.setText(currentData, false);
-//                    }
-                    autoCompleteTextView.setText(currentValue, false);
+                    String currentData = generateOptionNameFromId(currentValue);
+                    if (currentData != null) {
+                        autoCompleteTextView.setText(currentData, false);
+                    }
                     autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                         @Override
-                        public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
-                            // This method is called to notify you that somewhere within charSequence, the text is about to be changed.
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
                         }
 
                         @Override
-                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                            // This method is called to notify you that somewhere within charSequence, the text has been changed.
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            String value = s.toString();
+                            if (!value.isEmpty()) {
+                                value = generateAnswerOption(item.uid(), value);
+                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
+                            }
                         }
 
                         @Override
-                        public void afterTextChanged(Editable editable) {
-                            // This method is called to notify you that the characters within editable have been changed.
-                            // You can perform actions here based on the updated text.
+                        public void afterTextChanged(Editable s) {
+
                         }
                     });
                     adp.notifyDataSetChanged();
@@ -517,8 +540,11 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 TextView tvElement = itemView.findViewById(R.id.tv_element);
                 TextInputLayout textInputLayout = itemView.findViewById(R.id.textInputLayout);
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
-
-                tvName.setText(item.displayName());
+                String name = item.displayName();
+                if (isRequired) {
+                    name = new FormatterClass().generateRequiredField(name);
+                }
+                tvName.setText(Html.fromHtml(name));
                 tvElement.setText(item.uid());
                 inputFieldMap.put(item.uid(), editText);
                 editText.addTextChangedListener(new TextWatcher() {
@@ -529,7 +555,9 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s != null) {
+                        String value = s.toString();
+                        if (!value.isEmpty()) {
+                            new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
                         }
                     }
 
@@ -556,7 +584,10 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 RadioButton radioButtonYes = itemView.findViewById(R.id.radioButtonYes);
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
                 String name = item.displayName();
-                tvName.setText(name);
+                if (isRequired) {
+                    name = new FormatterClass().generateRequiredField(name);
+                }
+                tvName.setText(Html.fromHtml(name));
 
                 if (currentValue != null && currentValue.equals("true")) {
                     radioGroup.check(R.id.radioButtonYes);
@@ -569,6 +600,25 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                 if (!isHidden) {
                     linearLayout.addView(itemView);
                 }
+
+                radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                    String dataValue = null;
+                    switch (checkedId) {
+                        case R.id.radioButtonYes:
+                            dataValue = "true";
+                            break;
+                        case R.id.radioButtonNo:
+                            dataValue = "false";
+                            break;
+                        default:
+                            dataValue = null;
+                            break;
+                    }
+                    if (dataValue != null) {
+                        new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), dataValue).execute();
+                    }
+
+                });
                 break;
             }
         }

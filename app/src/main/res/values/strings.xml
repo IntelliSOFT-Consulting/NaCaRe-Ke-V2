@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NaCaRe-Ke</string>
+    <string name="app_name">NaCaRe-KE Demo</string>
     <!-- Strings related to login -->
     <string name="title_activity_login">Log in</string>
     <string name="prompt_server_url">Server url</string>
@@ -52,7 +52,7 @@
     <string name="title_activity_tracked_entity_instances">Your tracked entity instances</string>
     <string name="tracked_entity_instance_name">Tracked Entity Instance Name</string>
     <string name="unique_id">1234</string>
-    <string name="no_tracked_entity_instances_found">No tracked entity instances found</string>
+    <string name="no_tracked_entity_instances_found">No Patient Notifications Found</string>
     <!--Strings related to events-->
     <string name="title_activity_events">Events</string>
     <string name="no_events_found">No events found</string>
@@ -135,4 +135,11 @@
     <string name="alert">Alert</string>
     <string name="update_an_existing_cancer_case">Update an Existing Cancer Case</string>
     <string name="add_new_primary_cancer_info">Add New Primary Cancer Info</string>
+    <string name="please_completely_fill_at_least_one_field">Please completely fill at least one field</string>
+    <string name="xxx">XXX</string>
+    <string name="xx">XX</string>
+    <string name="xxxx">XXXX</string>
+    <string name="info">Info</string>
+    <string name="warning">Warning</string>
+    <string name="cancel_image">Cancel Image</string>
 </resources>

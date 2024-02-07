@@ -30,8 +30,10 @@ public class RetrofitCalls {
         executor.execute(() -> {
             FormatterClass formatterClass = new FormatterClass();
             String baseUrl = formatterClass.getSharedPref("serverUrl", context);
-
             String username = formatterClass.getSharedPref("username", context);
+
+            Log.e("TAG", "Response Data *****" + baseUrl);
+            Log.e("TAG", "Response Data *****" + username);
             if (baseUrl != null && username != null) {
                 Interface apiService = RetrofitBuilder.getRetrofit(context, baseUrl).create(Interface.class);
                 try {
@@ -42,7 +44,6 @@ public class RetrofitCalls {
                         if (statusCode == 200 || statusCode == 201) {
                             if (body != null) {
                                 String responseBodyString = new Gson().toJson(body);
-                                Log.e("TAG", "Response Data *****" + responseBodyString);
                                 new FormatterClass().saveSharedPref(program + "_attribute_data", responseBodyString, context);
 
                             }
@@ -50,7 +51,7 @@ public class RetrofitCalls {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e("TAG", "Exception: " + e.getMessage());
+                    Log.e("TAG", "Response Data ***** " + e.getMessage());
                 }
             }
         });

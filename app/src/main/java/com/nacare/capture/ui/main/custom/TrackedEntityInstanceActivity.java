@@ -110,11 +110,6 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
         List<ExpandableItem> itemList = generateSampleData();
         ExpandableListAdapter adapter = new ExpandableListAdapter(itemList, this);
         recyclerView.setAdapter(adapter);
-//        if (itemList.size() > 0) {
-//            for (ExpandableItem item : itemList) {
-//                createSectionItem(linearLayout, item);
-//            }
-//        }
 
         loadCurrentTrackedEntity();
     }
@@ -748,7 +743,7 @@ public class TrackedEntityInstanceActivity extends ListWithoutBindingsActivity {
         Log.e("TAG", "Tracked Entity Enrollment" + enrollment);
 
         if (enrollment != null) {
-            new EventTask(this, enrollment, selectedProgram, selectedOrgUnit).execute();
+//            new EventTask(this, enrollment, selectedProgram, selectedOrgUnit).execute();
         } else {
             System.out.println("No enrollments found for the specified criteria.");
             Log.e("TAG", "");

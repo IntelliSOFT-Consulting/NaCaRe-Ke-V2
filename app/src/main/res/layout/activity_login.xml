@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
+    android:background="@color/purple_200"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -111,8 +111,8 @@
                         android:id="@+id/usernameEdittext"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="11dp"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:padding="11dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -171,6 +171,7 @@
         android:padding="@dimen/_20dp">
 
         <TextView
+            android:id="@+id/tv_recovery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -179,6 +180,7 @@
             android:textColor="@color/white" />
 
         <TextView
+            android:id="@+id/tv_mailer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/for_assistance_on_the_national_cancer_registry_of_n_kenya_system_click_here_or_send_an_email_to_n_help_nacare_on_spiceworks_com"

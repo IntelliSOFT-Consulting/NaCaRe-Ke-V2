@@ -5,9 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText usernameEditText;
     private TextInputEditText passwordEditText;
     private MaterialButton loginButton;
+    private TextView textView, mailer;
 
 
     public static Intent getLoginActivityIntent(Context context) {
@@ -50,6 +58,35 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.usernameEdittext);
         passwordEditText = findViewById(R.id.passwordEdittext);
         loginButton = findViewById(R.id.loginButton);
+
+        String recover = "<a href=\"https://nacareke.on.spiceworks.com/portal/registrations\"><u>Account Recovery</u></a>";
+        String mail = "For assistance on the National Cancer <br>Registry of Kenya System, click here or send an email to<br><br> <a href=\"mailto:help@nacare.on.spiceworks.com\">help@nacare.on.spiceworks.com</a>";
+        textView = findViewById(R.id.tv_recovery);
+        mailer = findViewById(R.id.tv_mailer);
+
+        // Use Html.fromHtml() to interpret the HTML formatting
+        SpannableString span = new SpannableString(Html.fromHtml(recover));
+
+        int start_span = span.toString().indexOf("Account Recovery");
+        int end_span = start_span + "Account Recovery".length();
+
+        span.setSpan(new ForegroundColorSpan(getResources().getColor(android.R.color.white)), start_span, end_span, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new UnderlineSpan(), start_span, end_span, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(span);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // Use Html.fromHtml() to interpret the HTML formatting
+        SpannableString spannableString = new SpannableString(Html.fromHtml(mail));
+
+        // Customize the appearance of the link (white color and underline)
+        int start = spannableString.toString().indexOf("help@nacare.on.spiceworks.com");
+        int end = start + "help@nacare.on.spiceworks.com".length();
+
+        spannableString.setSpan(new ForegroundColorSpan(getResources().getColor(android.R.color.white)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        mailer.setText(spannableString);
+        mailer.setMovementMethod(LinkMovementMethod.getInstance());
 
         loginViewModel.getLoginFormState().observe(this, loginFormState -> {
             if (loginFormState == null) {
@@ -75,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                 showLoginFailed(loginResult.getError());
             }
             if (loginResult.getSuccess() != null) {
-                new FormatterClass().saveSharedPref("url", serverUrlEditText.getText().toString(), LoginActivity.this);
+                new FormatterClass().saveSharedPref("serverUrl", serverUrlEditText.getText().toString(), LoginActivity.this);
                 new FormatterClass().saveSharedPref("username", usernameEditText.getText().toString(), LoginActivity.this);
                 new FormatterClass().saveSharedPref("password", passwordEditText.getText().toString(), LoginActivity.this);
                 ActivityStarter.startActivity(this, SyncActivity.getIntent(this), true);

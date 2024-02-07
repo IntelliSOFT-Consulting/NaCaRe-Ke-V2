@@ -7,6 +7,7 @@ import android.util.Log;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
 
+import org.hisp.dhis.android.core.arch.repositories.scope.RepositoryScope;
 import org.hisp.dhis.android.core.enrollment.Enrollment;
 import org.hisp.dhis.android.core.event.Event;
 import org.hisp.dhis.android.core.event.EventCollectionRepository;
@@ -33,6 +34,7 @@ public class EventTask extends AsyncTask<Void, Void, String> {
             EventCollectionRepository eventCollectionRepository = Sdk.d2().eventModule().events().withTrackedEntityDataValues();
             List<Event> events = eventCollectionRepository
                     .byEnrollmentUid().eq(enrollment.uid())
+                    .orderByCreated(RepositoryScope.OrderByDirection.ASC)
                     .blockingGet();
 
             if (events.isEmpty()) {
@@ -51,17 +53,17 @@ public class EventTask extends AsyncTask<Void, Void, String> {
                         );
                 Log.e("TAG", "Data Here **** New event created for enrollment: " + enrollment.uid());
                 Log.e("TAG", "Data Here **** New event created for enrollment with event: " + eventUid);
-                new FormatterClass().saveSharedPref("tracked_event",eventUid,context);
+                new FormatterClass().saveSharedPref("tracked_event_old", eventUid, context);
             } else {
                 // Now you have a list of events related to the specified enrollment
                 for (Event event : events) {
                     // Do something with each event
                     Log.e("TAG", "Data Here **** Event UID: " + event.uid());
                     Log.e("TAG", "Data Here **** Event Lists " + event.trackedEntityDataValues());
-                    new FormatterClass().saveSharedPref("tracked_event", event.uid(), context);
+                    new FormatterClass().saveSharedPref("tracked_event_old", event.uid(), context);
                 }
             }
-            String eventUid=new FormatterClass().getSharedPref("tracked_event", context);
+            String eventUid = new FormatterClass().getSharedPref("tracked_event", context);
             try {
                 EventObjectRepository ev = Sdk.d2().eventModule().events().uid(eventUid);
                 Event event = Sdk.d2().eventModule().events().uid(eventUid).blockingGet();

@@ -101,8 +101,7 @@ public class TrackedEntityInstancesActivity extends ListActivity {
                 adapter.submitList(trackedEntityInstancePagedList);
                 findViewById(R.id.trackedEntityInstancesNotificator).setVisibility(
                         trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
-                findViewById(R.id.circularProgressBar).setVisibility(
-                        trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
+//                findViewById(R.id.circularProgressBar).setVisibility(                        trackedEntityInstancePagedList.isEmpty() ? View.VISIBLE : View.GONE);
             });
         } catch (Exception e) {
             e.printStackTrace();
