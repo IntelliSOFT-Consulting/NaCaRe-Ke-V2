@@ -29,11 +29,15 @@ public class FacilityTask  extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... voids) {
         try { // Assuming you want events for the first enrollment
-
+            Log.e("TAG", "Data Here ****: " + eventUid);
+            Log.e("TAG", "Data Here ****: " + itemUid);
+            Log.e("TAG", "Data Here ****: " + itemValue);
             TrackedEntityDataValueObjectRepository valueRepository =
                     Sdk.d2().trackedEntityModule().trackedEntityDataValues()
                             .value(eventUid, itemUid);
             valueRepository.blockingSet(itemValue);
+
+            Log.e("TAG", "Data Here ****: Record saved successfully" );
         } catch (Exception e) {
             Log.e("TAG", "Data Here **** Error: " + e.getMessage());
         }

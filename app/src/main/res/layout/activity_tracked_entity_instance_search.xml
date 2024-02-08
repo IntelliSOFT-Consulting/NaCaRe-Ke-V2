@@ -63,6 +63,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/_10dp"
+                        android:layout_gravity="center"
                         android:text="@string/please_completely_fill_at_least_one_field" />
                 </LinearLayout>
 

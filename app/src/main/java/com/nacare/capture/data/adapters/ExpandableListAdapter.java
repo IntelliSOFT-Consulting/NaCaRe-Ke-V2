@@ -327,13 +327,18 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
     }
 
     private String extractCurrentValue(String programUid, String programStageUid, String orgUnit, String selectedTei, DataElement dataElement) {
-        String eventUid = new FormatterClass().getSharedPref("tracked_event", context);
-        TrackedEntityDataValueObjectRepository valueRepository =
-                Sdk.d2().trackedEntityModule().trackedEntityDataValues()
-                        .value(eventUid, dataElement.uid());
+        try {
+            String eventUid = new FormatterClass().getSharedPref("tracked_event", context);
+            TrackedEntityDataValueObjectRepository valueRepository =
+                    Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+                            .value(eventUid, dataElement.uid());
 
-        return valueRepository.blockingExists() ?
-                valueRepository.blockingGet().value() : "";
+
+            return valueRepository.blockingExists() ?
+                    valueRepository.blockingGet().value() : "";
+        } catch (Exception e) {
+            return "";
+        }
 
         /**
          * Get the event based on the organization and program stage**/
@@ -603,7 +608,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 RadioButton radioButtonNo = itemView.findViewById(R.id.radioButtonNo);
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 tvName.setText(Html.fromHtml(name));
                 if (value != null && value.equals("true")) {
@@ -646,7 +651,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 CheckBox checkBox = itemView.findViewById(R.id.checkBox);
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 if (isDisabled) {
                     checkBox.setEnabled(false);
@@ -674,7 +679,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 TextInputEditText editText = itemView.findViewById(R.id.editText);
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 tvName.setText(Html.fromHtml(name));
                 tvElement.setText(item.uid());
@@ -715,7 +720,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
 
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 if (isDisabled) {
                     editText.setEnabled(false);
@@ -776,7 +781,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                     }
                     String name = item.displayName();
                     if (isRequired) {
-                        name =new FormatterClass(). generateRequiredField(name);
+                        name = new FormatterClass().generateRequiredField(name);
                     }
                     tvName.setText(Html.fromHtml(name));
                     tvElement.setText(item.uid());
@@ -869,7 +874,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 }
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 tvName.setText(Html.fromHtml(name));
                 tvElement.setText(item.uid());
@@ -929,7 +934,7 @@ public class ExpandableListAdapter extends RecyclerView.Adapter<ExpandableListAd
                 }
                 String name = item.displayName();
                 if (isRequired) {
-                    name =new FormatterClass(). generateRequiredField(name);
+                    name = new FormatterClass().generateRequiredField(name);
                 }
                 tvName.setText(Html.fromHtml(name));
                 if (value != null && value.equals("true")) {

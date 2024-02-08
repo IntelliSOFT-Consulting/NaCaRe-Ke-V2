@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSyncing();
         syncMetadata();
         downloadData();
-//        uploadData();
         loadDataAttributeValues();
     }
 

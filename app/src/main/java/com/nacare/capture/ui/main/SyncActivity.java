@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
@@ -36,6 +37,7 @@ public class SyncActivity extends AppCompatActivity {
         compositeDisposable = new CompositeDisposable();
         setSyncing();
         syncMetadata();
+        downloadData();
     }
 
     private Observable<D2Progress> downloadMetadata() {
@@ -57,26 +59,34 @@ public class SyncActivity extends AppCompatActivity {
     }
 
     private void downloadData() {
-        compositeDisposable.add(
-                Observable.merge(
-                                downloadTrackedEntityInstances(),
-                                downloadSingleEvents(),
-                                downloadAggregatedData()
-                        )
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnComplete(() -> {
-                            ActivityStarter.startActivity(this, MainActivity.getMainActivityIntent(this), true);
-                        })
-                        .doOnError(Throwable::printStackTrace)
-                        .subscribe());
+        try {
+            compositeDisposable.add(
+                    Observable.merge(
+                                    downloadTrackedEntityInstances(),
+                                    downloadSingleEvents(),
+                                    downloadAggregatedData()
+                            )
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnComplete(() -> {
+                                ActivityStarter.startActivity(this, MainActivity.getMainActivityIntent(this), true);
+                            })
+                            .doOnError(error -> {
+                                Toast.makeText(SyncActivity.this, "Please try again later...", Toast.LENGTH_SHORT).show();
+                            })
+                            .subscribe());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void syncMetadata() {
         compositeDisposable.add(downloadMetadata()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(Throwable::printStackTrace)
+                .doOnError(error -> {
+                    Toast.makeText(SyncActivity.this, "Please try again later...", Toast.LENGTH_SHORT).show();
+                })
                 .doOnComplete(this::downloadData)
                 .subscribe());
     }

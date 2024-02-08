@@ -142,4 +142,5 @@
     <string name="info">Info</string>
     <string name="warning">Warning</string>
     <string name="cancel_image">Cancel Image</string>
+    <string name="new_facility_form">New Facility Form</string>
 </resources>

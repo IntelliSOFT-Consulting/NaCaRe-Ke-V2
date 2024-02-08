@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "361332943123",
+    "project_id": "nacare-b64b9",
+    "storage_bucket": "nacare-b64b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361332943123:android:12bd666d969d680e8c12e6",
+        "android_client_info": {
+          "package_name": "com.nacare.capture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjiE-Bg0v-XBGUiOrr6BOUSxYk-NDjyhw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,10 +2,12 @@ package com.nacare.capture.ui.events;
 
 import static android.text.TextUtils.isEmpty;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +17,8 @@ import com.nacare.capture.R;
 import com.nacare.capture.data.Sdk;
 import com.nacare.capture.data.model.FormatterClass;
 import com.nacare.capture.data.service.ActivityStarter;
+import com.nacare.capture.data.sync.FacilityEvent;
+import com.nacare.capture.data.sync.FacilityTask;
 import com.nacare.capture.ui.base.ListActivity;
 import com.nacare.capture.ui.main.custom.FacilityDetailsActivity;
 
@@ -65,51 +69,73 @@ public class EventsActivity extends ListActivity {
         });
 
         findViewById(R.id.eventButton).setOnClickListener(view -> {
+                    findViewById(R.id.eventButton).setEnabled(false);
 
                     String orgCode = new FormatterClass().getSharedPref("orgCode", this);
                     if (TextUtils.isEmpty(orgCode)) {
                         Toast.makeText(this, "Please Select Organization Unit", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    compositeDisposable.add(
+                    if (TextUtils.isEmpty(selectedProgram)) {
+                        Toast.makeText(this, "Please Select a Program to Proceed", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                            Sdk.d2().programModule().programs().uid(selectedProgram).get()
-                                    .map(program -> {
-                                        String orgUnit = Sdk.d2().organisationUnitModule().organisationUnits()
-                                                .byUid().eq(orgCode)
-                                                .byProgramUids(Collections.singletonList(selectedProgram))
-                                                .byOrganisationUnitScope(OrganisationUnit.Scope.SCOPE_DATA_CAPTURE)
-                                                .one().blockingGet().uid();
-                                        String stage = Sdk.d2().programModule().programStages()
-                                                .byProgramUid().eq(program.uid())
-                                                .one().blockingGet().uid();
-                                        String attrOptionCombo = program.categoryCombo() != null ?
-                                                Sdk.d2().categoryModule().categoryOptionCombos()
-                                                        .byCategoryComboUid().eq(program.categoryComboUid())
-                                                        .one().blockingGet().uid() : null;
 
-                                        return Sdk.d2().eventModule().events()
-                                                .blockingAdd(
-                                                        EventCreateProjection.builder()
-                                                                .organisationUnit(orgUnit)
-                                                                .program(program.uid())
-                                                                .programStage(stage)
-                                                                .attributeOptionCombo(attrOptionCombo)
-                                                                .build()
-                                                );
-                                    })
-                                    .map(eventUid ->
-                                            FacilityDetailsActivity.getIntent(EventsActivity.this,
-                                                    eventUid,
-                                                    selectedProgram, orgCode, FacilityDetailsActivity.FormType.CREATE))
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                            activityIntent ->
+                    try {
+
+//                        new FacilityEvent(EventsActivity.this,selectedProgram,orgCode).execute();
+                        ProgressDialog progressDialog = new ProgressDialog(this);
+                        progressDialog.setMessage("Please wait...");
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+                        compositeDisposable.add(
+                                Sdk.d2().programModule().programs().uid(selectedProgram).get()
+                                        .map(program -> {
+                                            String stage = Sdk.d2().programModule().programStages()
+                                                    .byProgramUid().eq(program.uid())
+                                                    .one().blockingGet().uid();
+                                            String attrOptionCombo = program.categoryCombo() != null ?
+                                                    Sdk.d2().categoryModule().categoryOptionCombos()
+                                                            .byCategoryComboUid().eq(program.categoryComboUid())
+                                                            .one().blockingGet().uid() : null;
+
+                                            return Sdk.d2().eventModule().events()
+                                                    .blockingAdd(
+                                                            EventCreateProjection.builder()
+                                                                    .organisationUnit(orgCode)
+                                                                    .program(program.uid())
+                                                                    .programStage(stage)
+                                                                    .attributeOptionCombo(attrOptionCombo)
+                                                                    .build()
+                                                    );
+                                        })
+                                        .map(eventUid ->
+                                                FacilityDetailsActivity.getIntent(EventsActivity.this,
+                                                        eventUid,
+                                                        selectedProgram, orgCode, FacilityDetailsActivity.FormType.CREATE))
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(
+                                                activityIntent -> {
+                                                    if (progressDialog.isShowing()) {
+                                                        progressDialog.dismiss();
+                                                    }
                                                     ActivityStarter.startActivityForResult(
-                                                            EventsActivity.this, activityIntent, EVENT_RQ),
-                                            Throwable::printStackTrace
-                                    ));
+                                                            EventsActivity.this, activityIntent, EVENT_RQ);
+                                                },
+                                                error -> {
+                                                    if (progressDialog.isShowing()) {
+                                                        progressDialog.dismiss();
+                                                    }
+                                                    if (error != null) {
+                                                        Toast.makeText(this, "Experienced problems " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                        ));
+                    } catch (Exception e) {
+//                       Toast.makeText(this, "Experienced problems " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
         );
 

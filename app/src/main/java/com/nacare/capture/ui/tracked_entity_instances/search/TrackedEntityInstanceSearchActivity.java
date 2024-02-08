@@ -1,5 +1,6 @@
 package com.nacare.capture.ui.tracked_entity_instances.search;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -195,32 +196,51 @@ public class TrackedEntityInstanceSearchActivity extends ListWithoutBindingsActi
             if (programUid != null && orgCode != null && trackedEntityType != null) {
 
                 Toast.makeText(this, "Creating an Enrollment", Toast.LENGTH_SHORT).show();
-                compositeDisposable.add(
-                        Sdk.d2().programModule().programs().uid(programUid).get()
-                                .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
-                                        .blockingAdd(
-                                                TrackedEntityInstanceCreateProjection.builder()
-                                                        .organisationUnit(orgCode)
-                                                        .trackedEntityType(trackedEntityType)
-                                                        .build()
-                                        ))
-                                .map(teiUid -> TrackedEntityRegistrationActivity.getIntent(
-                                        this,
-                                        teiUid,
-                                        programUid,
-                                        orgCode, collectedInputs, "true"
-                                ))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        activityIntent ->
-//                                                Log.e("TAG", "Creation **** Success **** ")
+                try {
+                    ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setMessage("Please wait...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+
+                    compositeDisposable.add(
+                            Sdk.d2().programModule().programs().uid(programUid).get()
+                                    .map(program -> Sdk.d2().trackedEntityModule().trackedEntityInstances()
+                                            .blockingAdd(
+                                                    TrackedEntityInstanceCreateProjection.builder()
+                                                            .organisationUnit(orgCode)
+                                                            .trackedEntityType(trackedEntityType)
+                                                            .build()
+                                            ))
+                                    .map(teiUid -> TrackedEntityRegistrationActivity.getIntent(
+                                            this,
+                                            teiUid,
+                                            programUid,
+                                            orgCode, collectedInputs, "true"
+                                    ))
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            activityIntent -> {
+                                                if (progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                }
                                                 ActivityStarter.startActivity(
-                                                        this, activityIntent, true),
-                                        Throwable::printStackTrace
+                                                        this, activityIntent, true);
+                                            },
+                                            error -> {
+                                                if (progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                }
+                                                Toast.makeText(this, "Experienced problems " + error.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                            }
 
 
-                                ));
+                                    ));
+                } catch (Exception e) {
+                    Toast.makeText(this, "Experienced problems " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                }
 
 
             } else {

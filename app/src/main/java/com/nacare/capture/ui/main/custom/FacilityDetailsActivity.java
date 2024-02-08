@@ -71,6 +71,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -402,12 +403,16 @@ public class FacilityDetailsActivity extends AppCompatActivity {
     }
 
     private String retrieveCurrentValue(DataElement dataElement) {
-        TrackedEntityDataValueObjectRepository valueRepository =
-                Sdk.d2().trackedEntityModule().trackedEntityDataValues()
-                        .value(eventUid, dataElement.uid());
+        try {
+            TrackedEntityDataValueObjectRepository valueRepository =
+                    Sdk.d2().trackedEntityModule().trackedEntityDataValues()
+                            .value(eventUid, dataElement.uid());
 
-        return valueRepository.blockingExists() ?
-                valueRepository.blockingGet().value() : "";
+            return valueRepository.blockingExists() ?
+                    valueRepository.blockingGet().value() : "";
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void createSearchFieldsDataElement(LinearLayout linearLayout, DataElement item, String currentValue,
@@ -419,6 +424,7 @@ public class FacilityDetailsActivity extends AppCompatActivity {
         boolean isDisabled = confirmHiddenValues("Disabled", attributeValueList);
         boolean isRequired = confirmHiddenValues("Required", attributeValueList);
 
+        Log.e("TAG", "Data Here ****: Current Value" + currentValue);
         switch (valueType) {
             case "TEXT":
                 if (item.optionSet() == null) {
@@ -452,15 +458,15 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            String value = s.toString();
-                            if (!value.isEmpty()) {
-                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
-                            }
+
                         }
 
                         @Override
                         public void afterTextChanged(Editable s) {
-
+                            String value = s.toString();
+                            if (!value.isEmpty()) {
+                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
+                            }
                         }
                     });
                 } else {
@@ -508,16 +514,43 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            String value = s.toString();
-                            if (!value.isEmpty()) {
-                                value = generateAnswerOption(item.uid(), value);
-                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
-                            }
+
                         }
 
                         @Override
                         public void afterTextChanged(Editable s) {
-
+                            String value = s.toString();
+                            if (!value.isEmpty()) {
+                                String dataValue = generateAnswerOption(item.uid(), value);
+                                new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), dataValue).execute();
+//                                try {
+//                                    Disposable disposable = Single.fromCallable(() -> {
+//                                                TrackedEntityDataValueObjectRepository valueRepository = Sdk.d2()
+//                                                        .trackedEntityModule()
+//                                                        .trackedEntityDataValues().value(eventUid, item.uid());
+//                                                valueRepository.blockingSet(dataValue);
+//                                                return true;
+//                                            })
+//                                            .subscribeOn(Schedulers.io())
+//                                            .observeOn(AndroidSchedulers.mainThread())
+//                                            .subscribe(
+//                                                    result -> {
+//                                                        // Success
+//                                                        // Handle the result if needed
+//                                                        Log.e("TAG", "Set Tracked Entity Data Value Success: " + result);
+//                                                    },
+//                                                    error -> {
+//                                                        // Error
+//                                                        Log.e("TAG", "Set Tracked Entity Data Value Error: " + error.getMessage());
+//                                                    });
+//
+//// Add disposable to compositeDisposable if needed
+////                                    compositeDisposable.add(disposable);
+//
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+                            }
                         }
                     });
                     adp.notifyDataSetChanged();
@@ -555,16 +588,17 @@ public class FacilityDetailsActivity extends AppCompatActivity {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        String value = s.toString();
-                        if (!value.isEmpty()) {
-                            new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
-                        }
+
                     }
 
                     @Override
                     public void afterTextChanged(Editable s) {
                         // This method is called after the text has changed.
                         // You can perform actions here based on the updated text.
+                        String value = s.toString();
+                        if (!value.isEmpty()) {
+                            new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), value).execute();
+                        }
                     }
                 });
 
@@ -614,6 +648,8 @@ public class FacilityDetailsActivity extends AppCompatActivity {
                             dataValue = null;
                             break;
                     }
+
+                    Log.e("TAG", "Data Here ****: Boolean Value " + dataValue);
                     if (dataValue != null) {
                         new FacilityTask(FacilityDetailsActivity.this, eventUid, item.uid(), dataValue).execute();
                     }
