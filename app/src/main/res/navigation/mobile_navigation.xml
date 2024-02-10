@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.imeja.nacare_live.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.imeja.nacare_live.ui.organization.OrganizarionFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="com.imeja.nacare_live.ui.slideshow.SlideshowFragment"
+        android:label="@string/menu_slideshow"
+        tools:layout="@layout/fragment_slideshow" />
+    <fragment
+        android:id="@+id/patientListFragment"
+        android:name="com.imeja.nacare_live.ui.patients.PatientListFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_patient_list" />
+    <fragment
+        android:id="@+id/programsFragment"
+        android:name="com.imeja.nacare_live.ui.programs.ProgramsFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_programs" />
+    <fragment
+        android:id="@+id/facilityListFragment"
+        android:name="com.imeja.nacare_live.ui.facility.FacilityListFragment"
+        android:label="@string/facility_details_capture_tool"
+        tools:layout="@layout/fragment_facility_list" />
+</navigation>

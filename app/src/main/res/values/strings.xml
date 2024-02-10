@@ -1,0 +1,156 @@
+<resources>
+    <string name="app_name">NaCaRe-KE Demo</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Cancer Notification Tool</string>
+    <string name="menu_gallery">@string/menu_home</string>
+    <string name="menu_slideshow">@string/menu_home</string>
+
+    <string name="title_activity_login">Log in</string>
+    <string name="prompt_server_url">Server url</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="invalid_server_url">Not a valid server url</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must have more than 5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <!-- Strings related to list item -->
+    <string name="sync_icon">Sync icon</string>
+    <string name="item_icon">Icon</string>
+    <string name="item_bitmap">Bitmap</string>
+    <string name="item_title">Item title</string>
+    <string name="item_right_text">12/03 23:05:12</string>
+    <string name="item_subtitle_1">Item subtitle 1</string>
+    <string name="item_subtitle_2">Item subtitle 2</string>
+    <string name="sync">SYNC</string>
+    <!-- Strings related to main -->
+    <string name="title_activity_main">Home</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="lorem_ipsum">"Lorem ipsum dolor sit amet"</string>
+    <string name="syncing_metadata">Syncing metadata…</string>
+    <string name="syncing_data">Syncing data…</string>
+    <string name="sync_metadata">Sync metadata</string>
+    <string name="sync_data">Sync data</string>
+    <string name="upload_data">Upload data</string>
+    <string name="uploading_data">Uploading data…</string>
+    <string name="wiping_data">Wiping data…</string>
+    <string name="log_out">Log out</string>
+    <string name="wipe_data">Wipe data</string>
+    <string name="programs">Programs</string>
+    <string name="data_sets">Data sets</string>
+    <string name="tracked_entity_instances">Tracked entity instances</string>
+    <string name="events_without_registration">Events without registration</string>
+    <string name="data_values">Data values</string>
+    <string name="zero">0</string>
+    <!-- Strings related to programs -->
+    <string name="title_activity_programs">Your programs</string>
+    <string name="program_name">Program Name</string>
+    <string name="program_icon">Program Icon</string>
+    <string name="program_stages">2 Program stages</string>
+    <string name="no_programs_found">No programs found</string>
+    <!-- Strings related to tracked entity instances search -->
+    <string name="title_activity_tracked_entity_search">Tracked entities search</string>
+    <string name="search_data">Search data</string>
+    <string name="searching">Searching data…</string>
+    <!-- Strings related to tracked entity instances -->
+    <string name="title_activity_tracked_entity_instances">Your tracked entity instances</string>
+    <string name="tracked_entity_instance_name">Tracked Entity Instance Name</string>
+    <string name="unique_id">1234</string>
+    <string name="no_tracked_entity_instances_found">No Patient Notifications Found</string>
+    <!--Strings related to events-->
+    <string name="title_activity_events">Events</string>
+    <string name="no_events_found">No events found</string>
+    <!-- Strings related to navigation -->
+    <string name="data_management">Data management</string>
+    <string name="session">Session</string>
+    <!-- Strings related to errors -->
+    <string name="title_activity_d2_errors">Your errors</string>
+    <string name="no_d2_errors_found">No errors found</string>
+    <!-- Strings related to errors -->
+    <string name="title_activity_fk_violations">Foreign key violations</string>
+    <string name="no_fk_violations_found">No foreign key violations found</string>
+    <!-- Strings related to data sets -->
+    <string name="title_activity_data_sets">Your data sets</string>
+    <string name="no_data_sets_found">No data sets found</string>
+    <!-- Strings related to data set instances -->
+    <string name="title_activity_data_set_instances">Your data set instances</string>
+    <string name="no_data_set_instances_found">No data set instances found</string>
+    <!-- Strings related to the code executor-->
+    <string name="executing">Executing…</string>
+    <string name="code_executed">Code executed</string>
+    <string name="waiting_for_execution">Waiting for execution…</string>
+    <string name="execute_code">Execute</string>
+    <string name="code_executor">Code executor</string>
+    <!-- Strings related to enrollment forms -->
+    <string name="title_activity_enrollment_form">Enrollment form</string>
+    <string name="title_activity_event_form">Event form</string>
+    <string name="date_button_text">Click to select date</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="filter_background">filterBackground</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="server_url">Server URL</string>
+    <string name="login">Login</string>
+    <string name="account_recover">Account Recover</string>
+    <string name="for_assistance_on_the_national_cancer_registry_of_n_kenya_system_click_here_or_send_an_email_to_n_help_nacare_on_spiceworks_com">For assistance on the National Cancer Registry of\n Kenya System, click here or send an email to\n help@nacare.on.spiceworks.com</string>
+    <string name="some_data">Some Data</string>
+    <string name="help_desk">Help Desk</string>
+    <string name="about">About</string>
+    <string name="settings">Settings</string>
+    <string name="dashboard">Dashboard</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="number_of_notifications_made_by_facility">Notifications by Facility</string>
+    <string name="view_notifications">View All Notifications</string>
+    <string name="_70">70</string>
+    <string name="cancer_notification">Enter Registration Organization Unit</string>
+    <string name="next_button">Next</string>
+    <string name="search">Search</string>
+    <string name="cancer_notification_tool">Cancer Notification Tool</string>
+    <string name="previous">Previous</string>
+    <string name="select_tool">Select a Tool</string>
+    <string name="date_captured">Date Facility Details Captured</string>
+    <string name="status">Status</string>
+    <string name="action">Action</string>
+    <string name="facility_details_capture_tool">Facility Details Capture Tool</string>
+    <string name="save">Save</string>
+    <string name="register_new">Register New Case</string>
+    <string name="reported_cases">Reported Cases</string>
+    <string name="firstname">First Name</string>
+    <string name="lastname">Last Name</string>
+    <string name="diagnosis">Diagnosis</string>
+    <string name="date_created">Date Created</string>
+    <string name="search_patient">Search Patient</string>
+    <string name="search_results">Search Results</string>
+    <string name="no_record_found_for_the_patient_with_the_details_provided">No record found for the patient with the details provided</string>
+    <string name="register_new_patient">Register New Patient</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit_form">Submit Form</string>
+    <string name="patient_unique_id">Unique ID</string>
+    <string name="hospital_number">Hospital No</string>
+    <string name="identification">Identification</string>
+    <string name="patient_name">Patient Name</string>
+    <string name="alert">Alert</string>
+    <string name="update_an_existing_cancer_case">Update an Existing Cancer Case</string>
+    <string name="add_new_primary_cancer_info">Add New Primary Cancer Info</string>
+    <string name="please_completely_fill_at_least_one_field">Please completely fill at least one field</string>
+    <string name="xxx">XXX</string>
+    <string name="xx">XX</string>
+    <string name="xxxx">XXXX</string>
+    <string name="info">Info</string>
+    <string name="warning">Warning</string>
+    <string name="cancel_image">Cancel Image</string>
+    <string name="new_facility_form">New Facility Form</string>
+    <string name="your_data_will_shortly_be_synced">Your data will shortly be synced</string>
+    <string name="syncing_your_configuration">Syncing your configuration</string>
+    <string name="national_cancer_registry_of_kenya_nnacare_ke">National Cancer Registry of Kenya\nNaCaRe-Ke</string>
+    <string name="back">Back</string>
+    <string name="no_record_found_of_patient_searched_with_those_parameters">No Record found of Patient Searched with those parameters</string>
+</resources>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/_15dp"
+    tools:context=".ui.patients.PatientListFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewWithArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10dp"
+            android:clickable="true"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="@string/back"
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/baseline_arrow_back_ios_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/enrollmentButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="@dimen/_15dp"
+            android:gravity="center"
+            android:text="@string/register_new"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_search" />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5dp"
+            android:text="@string/reported_cases" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/purple_700"
+            android:paddingTop="@dimen/_5dp"
+            android:paddingBottom="@dimen/_5dp">
+
+            <include
+                layout="@layout/item_cases_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackedEntityInstancesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            tools:listitem="@layout/item_cases_data" />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/trackedEntityInstancesNotificator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/no_tracked_entity_instances_found"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</RelativeLayout>
