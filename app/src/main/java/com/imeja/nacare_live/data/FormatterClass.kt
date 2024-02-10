@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.net.ParseException
 import com.imeja.nacare_live.R
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -15,6 +16,12 @@ class FormatterClass {
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
     private val dateInverseFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
+      fun getDate(year: Int, month: Int, day: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar[year, month] = day
+        val date: Date = calendar.time
+        return FormatterClass().formatCurrentDate(date)
+    }
     fun formatDate(date: Date?): String? {
         if (date == null) {
             return null

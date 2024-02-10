@@ -173,6 +173,10 @@ data class TrackedEntityInstanceAttributes(
     val attribute: String,
     val value: String,
 )
+data class DataValue(
+    val dataElement: String,
+    val value: String,
+)
 
 data class MultipleTrackedEntityInstances(
     val trackedEntityInstances: List<TrackedEntityInstancePostData>

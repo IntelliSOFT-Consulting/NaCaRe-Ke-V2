@@ -3,7 +3,6 @@ package com.imeja.nacare_live.room
 import android.content.Context
 import com.google.gson.Gson
 import com.imeja.nacare_live.data.FormatterClass
-import com.imeja.nacare_live.model.ProgramDetails
 import com.imeja.nacare_live.model.TrackedEntityInstance
 
 class MainRepository(private val roomDao: RoomDao) {
@@ -76,8 +75,17 @@ class MainRepository(private val roomDao: RoomDao) {
         roomDao.wipeData()
     }
 
-    fun loadAllTrackedEntities(): List<TrackedEntityInstanceData>? {
-        return roomDao.loadAllTrackedEntities()
+    fun loadAllTrackedEntities(orgUnit: String): List<TrackedEntityInstanceData>? {
+        return roomDao.loadAllTrackedEntities(orgUnit)
+    }
+
+    fun saveEvent(data: EventData) {
+        val exists = roomDao.checkEvent(data.uid)
+        if (exists) {
+            roomDao.updateEvent(data.dataValues, data.uid)
+        } else {
+            roomDao.saveEvent(data)
+        }
     }
 
 }

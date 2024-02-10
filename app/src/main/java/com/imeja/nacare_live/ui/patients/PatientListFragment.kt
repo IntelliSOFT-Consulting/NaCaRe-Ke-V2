@@ -10,14 +10,11 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.imeja.nacare_live.R
-import com.imeja.nacare_live.adapters.SearchResultsAdapter
 import com.imeja.nacare_live.adapters.TrackedEntityAdapter
+import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.FragmentPatientListBinding
 import com.imeja.nacare_live.model.EntityData
-import com.imeja.nacare_live.model.ProgramDetails
-import com.imeja.nacare_live.model.SearchResult
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.MainViewModel
 
@@ -46,6 +43,7 @@ class PatientListFragment : Fragment() {
 
     private lateinit var binding: FragmentPatientListBinding
     private lateinit var viewModel: MainViewModel
+    private val formatter = FormatterClass()
     private val dataList = ArrayList<EntityData>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,32 +67,36 @@ class PatientListFragment : Fragment() {
     }
 
     private fun loadTrackedEntities() {
-        val data = viewModel.loadAllTrackedEntities(requireContext())
-        if (data != null) {
-            dataList.clear()
-            data.forEach {
-                val single = EntityData(
-                    date = it.enrollDate,
-                    fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
-                    lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
-                    diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes)
+        val orgUnit = formatter.getSharedPref("orgCode", requireContext())
+        if (orgUnit != null) {
+            val data = viewModel.loadAllTrackedEntities(orgUnit,requireContext())
+            if (data != null) {
+                dataList.clear()
+                data.forEach {
+                    val single = EntityData(
+                        date = it.enrollDate,
+                        fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
+                        lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
+                        diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes)
 
-                )
-                dataList.add(single)
+                    )
+                    dataList.add(single)
 
+                }
             }
-        }
 
-        val adapterProgram = TrackedEntityAdapter(dataList, requireContext(), this::handleClick)
+            val adapterProgram = TrackedEntityAdapter(dataList, requireContext(), this::handleClick)
 
-        binding.apply {
-            val manager = LinearLayoutManager(requireContext())
-            trackedEntityInstancesRecyclerView.apply {
-                adapter = adapterProgram
-                layoutManager = manager
-                val divider = DividerItemDecoration(context, manager.orientation)
-                divider.setDrawable(context.getDrawable(R.drawable.divider)!!)
+            binding.apply {
+                val manager = LinearLayoutManager(requireContext())
+                trackedEntityInstancesRecyclerView.apply {
+                    adapter = adapterProgram
+                    layoutManager = manager
+                    val divider = DividerItemDecoration(context, manager.orientation)
+                    divider.setDrawable(context.getDrawable(R.drawable.divider)!!)
 //                addItemDecoration(divider)
+                }
+
             }
         }
     }

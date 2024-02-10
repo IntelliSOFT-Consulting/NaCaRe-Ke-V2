@@ -1,6 +1,5 @@
 package com.imeja.nacare_live.room
 
-import android.content.Context
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -51,9 +50,16 @@ interface RoomDao {
     @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced  ORDER BY id DESC")
     fun loadTrackedEntities(isSynced: Boolean): List<TrackedEntityInstanceData>?
 
-    @Query("SELECT * FROM trackedEntity ORDER BY id DESC")
-    fun loadAllTrackedEntities(): List<TrackedEntityInstanceData>?
+    @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit ORDER BY id DESC")
+    fun loadAllTrackedEntities(orgUnit: String): List<TrackedEntityInstanceData>?
 
     @Query("DELETE FROM trackedEntity")
     fun wipeData()
+
+    @Query("SELECT EXISTS (SELECT 1 FROM event WHERE uid =:uid)")
+    fun checkEvent(uid: String): Boolean
+    @Query("UPDATE event SET dataValues =:dataValues WHERE  uid =:uid")
+    fun updateEvent(dataValues: String, uid: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveEvent(data: EventData)
 }

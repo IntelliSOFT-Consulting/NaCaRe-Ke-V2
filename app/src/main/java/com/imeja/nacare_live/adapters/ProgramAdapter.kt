@@ -36,6 +36,7 @@ class ProgramAdapter(
         holder.itemView.setOnClickListener {
             val formatter = FormatterClass()
             formatter.saveSharedPref("programUid", data.id, context)
+            formatter.saveSharedPref("program", data.name, context)
             if (data.name.contains("Registry")) {
                 data.trackedEntityType?.let { it1 ->
                     formatter.saveSharedPref(
