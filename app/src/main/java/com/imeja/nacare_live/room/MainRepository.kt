@@ -65,4 +65,12 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
+    fun loadTrackedEntities(context: Context): List<TrackedEntityInstanceData>? {
+        return roomDao.loadTrackedEntities(false)
+    }
+
+    fun wipeData(context: Context) {
+        roomDao.wipeData()
+    }
+
 }

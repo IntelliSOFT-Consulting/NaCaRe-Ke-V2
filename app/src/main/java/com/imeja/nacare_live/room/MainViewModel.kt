@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.imeja.nacare_live.model.TrackedEntityInstance
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import okhttp3.internal.wait
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -44,5 +45,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveTrackedEntity(context: Context, data: TrackedEntityInstance) = runBlocking{
 
         repository.saveTrackedEntity(context,data)
+    }
+
+    fun loadTrackedEntities(context: Context)= runBlocking {
+        repository.loadTrackedEntities(context)
+    }
+
+    fun wipeData(context: Context) = runBlocking{
+        repository.wipeData(context)
+
     }
 }

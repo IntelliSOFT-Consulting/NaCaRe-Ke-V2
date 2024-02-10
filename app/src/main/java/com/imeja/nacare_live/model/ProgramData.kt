@@ -150,7 +150,26 @@ data class TrackedEntityInstance(
     val attributes: List<TrackedEntityInstanceAttributes>
 )
 
+data class TrackedEntityInstancePostData(
+    val trackedEntity: String,
+    val orgUnit: String,
+    val attributes: List<TrackedEntityInstanceAttributes>,
+    val trackedEntityType: String,
+    val enrollments: List<EnrollmentPostData>,
+)
+
+data class EnrollmentPostData(
+    val orgUnit: String,
+    val program: String,
+    val enrollmentDate: String,
+    val incidentDate: String,
+
+)
 data class TrackedEntityInstanceAttributes(
     val attribute: String,
     val value: String,
+)
+
+data class MultipleTrackedEntityInstances(
+    val trackedEntityInstances: List<TrackedEntityInstancePostData>
 )

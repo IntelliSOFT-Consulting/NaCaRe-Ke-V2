@@ -1,5 +1,7 @@
 package com.imeja.nacare_live.network
 
+import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
+import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
@@ -11,6 +13,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -24,14 +27,27 @@ interface Interface {
     @GET("/api/me.json?fields=id,username,surname,firstName,organisationUnits[name,id]")
     suspend fun signIn(): Response<UserLoginData>
 
-@GET("/api/40/trackedEntityInstances.json")
-suspend fun searchPatient(
-    @Query("program") program: String,
-    @Query("ouMode") ouMode: String = "ALL",
-    @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]",
-    @Query("filter") filter: String
-): Response<SearchPatientResponse>
-    @GET("/api/40/organisationUnits/{code}?fields=name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children]]]]")
+    @GET("/api/trackedEntityInstances.json")
+    suspend fun searchPatient(
+        @Query("program") program: String,
+        @Query("ouMode") ouMode: String = "ALL",
+        @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]",
+        @Query("filter") filter: String
+    ): Response<SearchPatientResponse>
+
+    @GET("/api/organisationUnits/{code}?fields=name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children]]]]")
     suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
+
+
+    @PUT("/api/trackedEntityInstances/{code}?strategy=CREATE_AND_UPDATE")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadTrackedEntity(
+        @Path("code") code: String,
+        @Body payload: TrackedEntityInstancePostData
+    ): Response<Any>//Response<PatientRegistrationResponse>
+
+    @POST("/api/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadMultipleTrackedEntity(@Body payload: MultipleTrackedEntityInstances): Response<Any>
 
 }

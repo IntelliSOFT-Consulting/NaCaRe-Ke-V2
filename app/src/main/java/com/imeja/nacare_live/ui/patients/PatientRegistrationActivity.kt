@@ -830,9 +830,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 val data = TrackedEntityInstance(
                     trackedEntity = formatter.generateUUID(11),
                     orgUnit = orgCode,
-                    attributes = attributeValueList
+                    attributes = attributeValueList,
                 )
                 viewModel.saveTrackedEntity(this, data)
+
+                this@PatientRegistrationActivity.finish()
             } else {
                 Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
             }

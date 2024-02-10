@@ -2,8 +2,10 @@ package com.imeja.nacare_live.room
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.imeja.nacare_live.model.CountyUnit
 import com.imeja.nacare_live.model.ProgramData
+import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
 import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
@@ -54,6 +56,14 @@ class Converters {
         // convert json to MyJsonData object
         return gson.fromJson(json, UserLoginData::class.java)
     }
+
+    @TypeConverter
+    fun fromJsonAttribute(json: String): List<TrackedEntityInstanceAttributes> {
+        val listType = object : TypeToken<List<TrackedEntityInstanceAttributes>>() {}.type
+        return gson.fromJson(json, listType)
+    }
+
+
     @TypeConverter
     fun fromJsonOrgUnit(json: String): CountyUnit {
         // convert json to MyJsonData object

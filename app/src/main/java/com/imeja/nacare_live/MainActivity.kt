@@ -1,5 +1,6 @@
 package com.imeja.nacare_live
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -14,29 +15,43 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.navigation.fragment.NavHostFragment
+import com.google.gson.Gson
 import com.imeja.nacare_live.auth.LoginActivity
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityMainBinding
+import com.imeja.nacare_live.model.EnrollmentPostData
+import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
+import com.imeja.nacare_live.model.TrackedEntityAttributes
+import com.imeja.nacare_live.model.TrackedEntityInstance
+import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
+import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.network.RetrofitCalls
+import com.imeja.nacare_live.room.Converters
+import com.imeja.nacare_live.room.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var viewModel: MainViewModel
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private val retrofitCalls = RetrofitCalls()
-    private val formatterClass = FormatterClass()
+    private val formatter = FormatterClass()
+    private val trackedEntityInstances = ArrayList<TrackedEntityInstancePostData>()
+    private val enrollments = ArrayList<EnrollmentPostData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.appBarMain.toolbar)
 
+        viewModel = MainViewModel(this.applicationContext as Application)
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -60,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.navExit -> {
                     // Handle click for additionalMenuItem1
-                    formatterClass.deleteSharedPref("isLoggedIn", this)
+                    formatter.deleteSharedPref("isLoggedIn", this)
                     val intent = Intent(this@MainActivity, LoginActivity::class.java)
                     startActivity(intent)
                     finishAffinity()
@@ -83,6 +98,9 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
+                    handleDataSync()
+//                    viewModel.wipeData(this)
+                    drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
                 // Add more cases for other menu items not in the setOf
@@ -92,6 +110,52 @@ class MainActivity : AppCompatActivity() {
 
 
         loadPrograms()
+    }
+
+    private fun handleDataSync() {
+        val tei = viewModel.loadTrackedEntities(this)
+        if (tei != null) {
+            trackedEntityInstances.clear()
+
+            tei.forEach {
+                val attributes = Converters().fromJsonAttribute(it.attributes)
+                val trackedEntityType = formatter.getSharedPref(
+                    "trackedEntity", this
+                )
+                val programUid = formatter.getSharedPref(
+                    "programUid", this
+                )
+                enrollments.clear()
+                enrollments.add(
+                    EnrollmentPostData(
+                        orgUnit = it.orgUnit,
+                        program = programUid.toString(),
+                        enrollmentDate = formatter.formatCurrentDate(Date()),
+                        incidentDate = formatter.formatCurrentDate(Date()),
+                    )
+                )
+                val server = formatter.generateUUID(11)
+                val inst = TrackedEntityInstancePostData(
+                    orgUnit = it.orgUnit,
+                    trackedEntity = server,//it.trackedEntity,
+                    attributes = attributes,
+                    trackedEntityType = trackedEntityType.toString(),
+                    enrollments = enrollments
+
+                )
+                trackedEntityInstances.add(inst)
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    retrofitCalls.uploadSingleTrackedEntity(this@MainActivity, inst, server)
+//                }
+            }
+            val payload = MultipleTrackedEntityInstances(
+                trackedEntityInstances = trackedEntityInstances
+            )
+
+            CoroutineScope(Dispatchers.IO).launch {
+                retrofitCalls.uploadTrackedEntity(this@MainActivity, payload)
+            }
+        }
     }
 
     private fun loadPrograms() {

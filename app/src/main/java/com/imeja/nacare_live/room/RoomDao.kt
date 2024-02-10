@@ -47,4 +47,9 @@ interface RoomDao {
 
     @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  orgUnit =:orgUnit AND trackedEntity =:trackedEntity")
     fun updateTrackedEntity(orgUnit: String, trackedEntity: String, attributes: String)
+
+    @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced  ORDER BY id DESC")
+    fun loadTrackedEntities(isSynced: Boolean): List<TrackedEntityInstanceData>?
+    @Query("DELETE FROM trackedEntity")
+    fun wipeData()
 }

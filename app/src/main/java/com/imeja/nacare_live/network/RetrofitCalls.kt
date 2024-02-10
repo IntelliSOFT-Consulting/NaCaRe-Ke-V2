@@ -16,6 +16,8 @@ import com.imeja.nacare_live.R
 import com.imeja.nacare_live.auth.SyncActivity
 import com.imeja.nacare_live.data.Constants
 import com.imeja.nacare_live.data.FormatterClass
+import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
+import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.MainViewModel
 import com.imeja.nacare_live.room.ProgramData
@@ -269,6 +271,108 @@ class RetrofitCalls {
 
                     }
                 }
+            }
+        }
+    }
+
+    fun uploadTrackedEntity(context: Context, payload: MultipleTrackedEntityInstances) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.uploadMultipleTrackedEntity(payload)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "child units error:::: $body")
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+
+//                                try {
+//                                    val conf = Converters().toJsonOrgUnit(body)
+//                                    try {
+//                                        val json = Gson().fromJson(
+//                                            conf,
+//                                            JsonObject::class.java
+//                                        )
+//                                        viewModel.createUpdateOrg(
+//                                            context,
+//                                            orgUid,
+//                                            json.toString()
+//                                        )
+//                                    } catch (e: Exception) {
+//                                        e.printStackTrace()
+//                                        Log.e("TAG", "child units error:::: ${e.message}")
+//                                    }
+//                                } catch (e: Exception) {
+//                                    e.printStackTrace()
+//                                    Log.e("TAG", "json:::: ${e.message}")
+//                                }
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun uploadSingleTrackedEntity(
+        context: Context,
+        payload: TrackedEntityInstancePostData,
+        trackedEntity: String
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.uploadTrackedEntity(trackedEntity, payload)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "child units error:::: $body")
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
             }
         }
     }
