@@ -1,5 +1,6 @@
 package com.imeja.nacare_live.network
 
+import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
 import com.imeja.nacare_live.response.UserLoginData
@@ -30,5 +31,7 @@ suspend fun searchPatient(
     @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]",
     @Query("filter") filter: String
 ): Response<SearchPatientResponse>
+    @GET("/api/40/organisationUnits/{code}?fields=name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children]]]]")
+    suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
 
 }

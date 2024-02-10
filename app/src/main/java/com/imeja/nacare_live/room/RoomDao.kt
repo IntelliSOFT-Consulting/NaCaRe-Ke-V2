@@ -26,4 +26,25 @@ interface RoomDao {
 
     @Query("SELECT * FROM program where userId =:userId LIMIT 1")
     fun loadSingleProgram(userId: String): ProgramData?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM organization WHERE parentUid =:orgUid)")
+    fun checkOrganizationExist(orgUid: String): Boolean
+
+    @Query("UPDATE organization SET children =:json WHERE parentUid =:orgUid")
+    fun updateOrganization(json: String, orgUid: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun createOrganization(data: OrganizationData)
+
+    @Query("SELECT * FROM organization ORDER BY id DESC")
+    fun loadOrganization(): List<OrganizationData>?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveTrackedEntity(data: TrackedEntityInstanceData)
+
+    @Query("SELECT EXISTS (SELECT 1 FROM trackedEntity WHERE orgUnit =:orgUnit AND trackedEntity =:trackedEntity)")
+    fun checkTrackedEntity(orgUnit: String, trackedEntity: String): Boolean
+
+    @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  orgUnit =:orgUnit AND trackedEntity =:trackedEntity")
+    fun updateTrackedEntity(orgUnit: String, trackedEntity: String, attributes: String)
 }

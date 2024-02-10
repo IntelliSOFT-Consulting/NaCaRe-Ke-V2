@@ -4,7 +4,6 @@ import android.R
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Telephony.Carriers.PORT
 import android.text.Html
 import android.text.SpannableString
 import android.text.Spanned
@@ -15,17 +14,18 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.imeja.nacare_live.MainActivity
-import com.imeja.nacare_live.data.Constants
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityLoginBinding
 import com.imeja.nacare_live.network.RetrofitCalls
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
     private lateinit var binding: ActivityLoginBinding
-
-
+    private lateinit var progressDialog: ProgressDialog
     override fun onStart() {
         super.onStart()
         val login = formatter.getSharedPref("isLoggedIn", this@LoginActivity)
@@ -41,9 +41,11 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
-
-
         setContentView(binding.root)
+
+        progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Please wait...") // Set your message
+        progressDialog.setCancelable(true)
         binding.apply {
 
             val recover =
@@ -104,51 +106,23 @@ class LoginActivity : AppCompatActivity() {
     private fun validateData() {
         val username = binding.usernameEdittext.text.toString()
         val password = binding.passwordEdittext.text.toString()
+        if (username.isEmpty()) {
+            Toast.makeText(this, "Enter Username", Toast.LENGTH_SHORT).show()
+            binding.usernameEdittext.requestFocus()
+            return
+        }
+        if (password.isEmpty()) {
+            Toast.makeText(this, "Enter Password", Toast.LENGTH_SHORT).show()
+            binding.passwordEdittext.requestFocus()
+            return
+        }
 
         val credentials = "$username:$password"
+
         val encodedString = Base64.encodeToString(credentials.toByteArray(), Base64.NO_WRAP)
         formatter.saveSharedPref("encodedString", encodedString, this@LoginActivity)
-        retrofitCalls.signIn(this)
+        retrofitCalls.signIn(this@LoginActivity, progressDialog)
 
-//        val config = Dhis2Config(Constants.BASE_URL, username, password)
-//
-//        val dhis2 = Dhis2(config)
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                progressDialog.show()
-//                val isLoggedIn = dhis2.status.is2xxSuccessful
-//
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    progressDialog.dismiss()
-//                    if (isLoggedIn) {
-//                        formatter.saveSharedPref("username", "admin", this@LoginActivity)
-//                        formatter.saveSharedPref("password", "district", this@LoginActivity)
-//                        formatter.saveSharedPref(
-//                            "serverUrl",
-//                            Constants.BASE_URL,
-//                            this@LoginActivity
-//                        )
-//                        formatter.saveSharedPref("isLoggedIn", "true", this@LoginActivity)
-//                        val intent = Intent(this@LoginActivity, SyncActivity::class.java)
-//                        startActivity(intent)
-//                        finish()
-//                    } else {
-//                        Toast.makeText(this@LoginActivity, "Login Failed", Toast.LENGTH_SHORT)
-//                            .show()
-//                    }
-//                }
-//            } catch (e: java.lang.Exception) {
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    progressDialog.dismiss()
-//                    Toast.makeText(
-//                        this@LoginActivity,
-//                        "Couldn't establish the connection,Please try again later.",
-//                        Toast.LENGTH_SHORT
-//                    )
-//                        .show()
-//                }
-//            }
-//        }
+
     }
 }

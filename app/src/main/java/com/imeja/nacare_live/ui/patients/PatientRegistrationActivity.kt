@@ -16,7 +16,10 @@ import android.widget.DatePicker
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
@@ -29,6 +32,8 @@ import com.imeja.nacare_live.model.AttributeValues
 import com.imeja.nacare_live.model.CodeValuePair
 import com.imeja.nacare_live.model.Option
 import com.imeja.nacare_live.model.TrackedEntityAttributes
+import com.imeja.nacare_live.model.TrackedEntityInstance
+import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
 import com.imeja.nacare_live.network.RetrofitCalls
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.MainViewModel
@@ -36,8 +41,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 
 class PatientRegistrationActivity : AppCompatActivity() {
@@ -46,9 +53,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
     private val searchList = ArrayList<TrackedEntityAttributes>()
     private val emptyList = ArrayList<TrackedEntityAttributes>()
     private val completeList = ArrayList<TrackedEntityAttributes>()
+    private val attributeValueList = ArrayList<TrackedEntityInstanceAttributes>()
     private var searchParameters = ArrayList<CodeValuePair>()
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +79,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
             btnSave.apply {
                 setOnClickListener {
+                    formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
                     validateSearchData()
                 }
             }
             btnCancel.apply {
                 setOnClickListener {
-                    onBeginBatchEdit()
+                    onBackPressed()
                 }
             }
         }
@@ -240,7 +250,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
-                            Log.e("TAG", "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower")
+                            Log.e(
+                                "TAG",
+                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
+                            )
                             val result = when (part2) {
                                 "eq" -> previousAnswer == part3Lower
                                 "ne" -> previousAnswer != part3Lower
@@ -374,9 +387,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             autoCompleteTextView.setAdapter(null)
                         }
                         if (showIf) {
-
                             val showNow = showIfRespondedAttribute(item.attributeValues)
-                            itemView.visibility = View.GONE
+                            if (showNow) {
+                                itemView.visibility = View.GONE
+                            } else {
+                                itemView.visibility = View.VISIBLE
+                            }
                         }
 
                     }
@@ -438,7 +454,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         editText.isEnabled = false
                     }
                     if (showIf) {
-                        itemView.visibility = View.GONE
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -515,7 +536,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         editText.isEnabled = false;
                     }
                     if (showIf) {
-                        itemView.visibility = View.GONE
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -574,7 +600,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         editText.isEnabled = false;
                     }
                     if (showIf) {
-                        itemView.visibility = View.GONE
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -656,15 +687,18 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         radioGroup.isEnabled = false
                     }
                     if (showIf) {
-                        itemView.visibility = View.GONE
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
             }
 
         }
-
-
     }
 
     private fun getDate(year: Int, month: Int, day: Int): String {
@@ -696,8 +730,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         Log.e("TAG", "Growing List $searchParameters")
-        reloadActivity()
-
+        val reloadPage = formatter.getSharedPref("reload", this@PatientRegistrationActivity)
+        if (reloadPage == null) {
+            reloadActivity()
+        }
     }
 
     private fun reloadActivity() {
@@ -711,7 +747,101 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateSearchData() {
+    private fun extractDesiredValue(dateString: String, format: String): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val data = try {
+            val date: Date = dateFormat.parse(dateString)
+            val desireFormat = SimpleDateFormat(format)
+            desireFormat.format(date)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            dateString
+        }
+        return data
+    }
 
+    private fun validateSearchData() {
+        try {
+            var firstname: String = extractCurrentValues("R1vaUuILrDy")
+            var lastname: String = extractCurrentValues("hzVijy6tEUF")
+            val dob: String = extractCurrentValues("mPpjmOxwsEZ")
+            val month: String = extractDesiredValue(dob, "MM")
+            val year: String = extractDesiredValue(dob, "yyyy")
+            firstname = if (firstname != null && firstname.length > 3) {
+                firstname.substring(0, 3).uppercase(Locale.getDefault())
+            } else {
+                firstname!!.uppercase(Locale.getDefault())
+            }
+            lastname = if (lastname != null && lastname.length > 3) {
+                lastname.substring(0, 3).uppercase(Locale.getDefault())
+            } else {
+                lastname!!.uppercase(Locale.getDefault())
+            }
+            if (month != null && year != null) {
+                val patient_identification = "$firstname-$lastname-$month-$year"
+                saveValued("AP13g7NcBOf", patient_identification)
+                val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
+                if (existingIndex != -1) {
+                    // Update the existing entry if the code is found
+                    searchParameters[existingIndex] =
+                        CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                } else {
+                    // Add a new entry if the code is not found
+                    val data = CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                    searchParameters.add(data)
+                }
+                formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+                Log.e("TAG", "Growing List $searchParameters")
+                saveConfirmation()
+
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            Log.e("TAG", "Error Generating the Unique ID ****" + e.message)
+        }
+    }
+
+    private fun saveConfirmation() {
+        val dialogBuilder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.item_submit_cancel, null)
+        dialogBuilder.setView(dialogView)
+
+        val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
+        val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
+        val yesButton: MaterialButton = dialogView.findViewById(R.id.yes_button)
+        val noButton: MaterialButton = dialogView.findViewById(R.id.no_button)
+        val dialog = dialogBuilder.create()
+        tvTitle.text = getString(R.string.search_results)
+        tvMessage.text =
+            getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
+
+        yesButton.setOnClickListener {
+            dialog.dismiss()
+            val orgCode = formatter.getSharedPref("orgCode", this)
+            if (orgCode != null) {
+                attributeValueList.clear()
+                searchParameters.forEach {
+                    val attr = TrackedEntityInstanceAttributes(
+                        attribute = it.code,
+                        value = it.value
+                    )
+                    attributeValueList.add(attr)
+                }
+                val data = TrackedEntityInstance(
+                    trackedEntity = formatter.generateUUID(11),
+                    orgUnit = orgCode,
+                    attributes = attributeValueList
+                )
+                viewModel.saveTrackedEntity(this, data)
+            } else {
+                Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+        noButton.setOnClickListener {
+            dialog.dismiss()
+
+        }
+        dialog.show()
     }
 }

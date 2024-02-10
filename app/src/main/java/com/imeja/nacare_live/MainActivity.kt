@@ -18,6 +18,9 @@ import com.imeja.nacare_live.auth.LoginActivity
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityMainBinding
 import com.imeja.nacare_live.network.RetrofitCalls
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -92,8 +95,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadPrograms() {
-        retrofitCalls.loadProgram(this, "notification")
-        retrofitCalls.loadProgram(this, "facility")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            retrofitCalls.loadOrganization(this@MainActivity)
+            retrofitCalls.loadProgram(this@MainActivity, "notification")
+            retrofitCalls.loadProgram(this@MainActivity, "facility")
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

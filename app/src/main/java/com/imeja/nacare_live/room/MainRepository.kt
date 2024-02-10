@@ -1,8 +1,10 @@
 package com.imeja.nacare_live.room
 
 import android.content.Context
+import com.google.gson.Gson
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.model.ProgramDetails
+import com.imeja.nacare_live.model.TrackedEntityInstance
 
 class MainRepository(private val roomDao: RoomDao) {
 
@@ -29,6 +31,38 @@ class MainRepository(private val roomDao: RoomDao) {
     fun loadSingleProgram(context: Context, userId: String): ProgramData? {
         return roomDao.loadSingleProgram(userId)
 
+    }
+
+    fun createUpdateOrg(context: Context, orgUid: String, json: String) {
+        val exists = roomDao.checkOrganizationExist(orgUid)
+        if (exists) {
+            roomDao.updateOrganization(json, orgUid)
+        } else {
+            val data = OrganizationData(parentUid = orgUid, jsonData = json)
+            roomDao.createOrganization(data)
+        }
+    }
+
+    fun loadOrganization(context: Context): List<OrganizationData>? {
+        return roomDao.loadOrganization()
+    }
+
+    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance) {
+        val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
+        if (exists) {
+            roomDao.updateTrackedEntity(
+                data.orgUnit,
+                data.trackedEntity,
+                Gson().toJson(data.attributes)
+            )
+        } else {
+            val save = TrackedEntityInstanceData(
+                trackedEntity = data.trackedEntity,
+                orgUnit = data.orgUnit,
+                attributes = Gson().toJson(data.attributes)
+            )
+            roomDao.saveTrackedEntity(save)
+        }
     }
 
 }

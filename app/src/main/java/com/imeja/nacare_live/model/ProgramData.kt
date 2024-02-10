@@ -125,3 +125,32 @@ data class SearchResult(
     val identification: String,
     val diagnosis: String
 )
+
+data class CountyUnit(
+    val name: String,
+    val id: String,
+    val level: String,
+    val children: List<CountyUnit>,
+)
+
+data class OrgTreeNode(
+    val label: String,
+    val code: String,
+    val level: String,
+    val children: List<OrgTreeNode> = emptyList(),
+    var isExpanded: Boolean = false
+)
+
+/****
+ * Creating a new tracked Entity
+ */
+data class TrackedEntityInstance(
+    val trackedEntity: String,
+    val orgUnit: String,
+    val attributes: List<TrackedEntityInstanceAttributes>
+)
+
+data class TrackedEntityInstanceAttributes(
+    val attribute: String,
+    val value: String,
+)

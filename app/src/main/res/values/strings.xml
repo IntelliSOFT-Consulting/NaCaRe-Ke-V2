@@ -153,4 +153,5 @@
     <string name="national_cancer_registry_of_kenya_nnacare_ke">National Cancer Registry of Kenya\nNaCaRe-Ke</string>
     <string name="back">Back</string>
     <string name="no_record_found_of_patient_searched_with_those_parameters">No Record found of Patient Searched with those parameters</string>
+    <string name="are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved">Are you sure you wan to save?\nYou will not be able to edit this patient info once saved</string>
 </resources>

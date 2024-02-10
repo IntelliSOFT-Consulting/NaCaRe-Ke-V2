@@ -1,13 +1,17 @@
 package com.imeja.nacare_live.network
 
 import android.app.Application
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.imeja.nacare_live.R
 import com.imeja.nacare_live.auth.SyncActivity
 import com.imeja.nacare_live.data.Constants
@@ -61,27 +65,49 @@ class RetrofitCalls {
         }
     }
 
-    fun signIn(context: Context) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun signIn(context: Context, progressDialog: ProgressDialog) {
+        CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
 
             val apiService = RetrofitBuilder.getRetrofit(context, BASE_URL = Constants.BASE_URL)
                 .create(Interface::class.java)
             try {
+                progressDialog.show()
                 val apiInterface = apiService.signIn()
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
+                    if (progressDialog.isShowing) {
+                        progressDialog.dismiss()
+                    }
                     if (statusCode == 200 || statusCode == 201) {
                         formatter.saveSharedPref("username", "admin", context)
                         formatter.saveSharedPref("password", "district", context)
                         formatter.saveSharedPref("isLoggedIn", "true", context)
+
+                        if (body != null) {
+                            val converters = Converters().toUserJson(body)
+                            formatter.saveSharedPref("user_data", converters, context)
+                        }
                         val intent = Intent(context, SyncActivity::class.java)
                         context.startActivity(intent)
+                    } else {
+                        if (progressDialog.isShowing) {
+                            progressDialog.dismiss()
+                        }
+                        Toast.makeText(
+                            context,
+                            "Experienced Problems Authenticating ",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
+                if (progressDialog.isShowing) {
+                    progressDialog.dismiss()
+                }
             }
         }
 
@@ -178,6 +204,73 @@ class RetrofitCalls {
 
         }
         dialog.show()
+    }
+
+    fun loadOrganization(context: Context) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val results = formatter.getSharedPref("user_data", context)
+            var orgUid: String = ""
+            if (results != null) {
+                val converters = Converters().fromJsonUser(results)
+                converters.organisationUnits.forEach {
+                    orgUid = it.id
+                }
+                Log.e("TAG", "Results $orgUid")
+                if (orgUid.isNotEmpty()) {
+
+                    val apiService =
+                        RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                            .create(Interface::class.java)
+                    try {
+                        val apiInterface =
+                            apiService.loadChildUnits(orgUid)
+                        if (apiInterface.isSuccessful) {
+                            val statusCode = apiInterface.code()
+                            val body = apiInterface.body()
+                            when (statusCode) {
+                                200 -> {
+                                    if (body != null) {
+                                        try {
+                                            val conf = Converters().toJsonOrgUnit(body)
+                                            try {
+                                                val json = Gson().fromJson(
+                                                    conf,
+                                                    JsonObject::class.java
+                                                )
+                                                viewModel.createUpdateOrg(
+                                                    context,
+                                                    orgUid,
+                                                    json.toString()
+                                                )
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                                Log.e("TAG", "child units error:::: ${e.message}")
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                            Log.e("TAG", "json:::: ${e.message}")
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            val statusCode = apiInterface.code()
+                            val errorBody = apiInterface.errorBody()?.string()
+                            when (statusCode) {
+                                409 -> {}
+                                500 -> {}
+                            }
+                        }
+                    } catch (e: Exception) {
+                        print(e)
+                        Log.e("TAG", "Success Error:::: ${e.message}")
+
+                    }
+                }
+            }
+        }
     }
 }
 

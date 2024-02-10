@@ -1,5 +1,6 @@
 package com.imeja.nacare_live.response
 
+import com.imeja.nacare_live.model.CountyUnit
 import com.imeja.nacare_live.model.Pager
 import com.imeja.nacare_live.model.ProgramDetails
 import com.imeja.nacare_live.model.TrackedEntityInstances
@@ -23,4 +24,11 @@ data class ProgramResponse(
 
 data class SearchPatientResponse(
     val trackedEntityInstances: List<TrackedEntityInstances>
+)
+
+data class OrganizationUnitResponse(
+    val name: String,
+    val id: String,
+    val level: String,
+    val children: List<CountyUnit>,
 )
