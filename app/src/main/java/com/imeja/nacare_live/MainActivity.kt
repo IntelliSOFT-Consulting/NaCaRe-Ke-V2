@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -108,8 +109,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
+// Access the header view
+        val headerView = navView.getHeaderView(0)
+        // Set data to the header view
+        headerView.findViewById<TextView>(R.id.tv_name).text = getUserData("surname")
+        headerView.findViewById<TextView>(R.id.tv_email).text = getUserData("email")
         loadPrograms()
+    }
+
+    private fun getUserData(s: String): String {
+        var data = ""
+        val userData = formatter.getSharedPref("user_data", this)
+        if (userData != null) {
+            val converters = Converters().fromJsonUser(userData)
+            if (s == "surname") {
+                data = converters.surname
+            }
+            if (s == "email") {
+                data = converters.email
+            }
+        }
+        return data
     }
 
     private fun handleDataSync() {

@@ -10,6 +10,8 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -18,6 +20,7 @@ import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.impl.Schedulers
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
@@ -30,7 +33,7 @@ import com.imeja.nacare_live.model.AttributeValues
 import com.imeja.nacare_live.model.CodeValuePair
 import com.imeja.nacare_live.model.DataElements
 import com.imeja.nacare_live.model.DataValue
-import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
+import com.imeja.nacare_live.model.Option
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.EventData
 import com.imeja.nacare_live.room.MainViewModel
@@ -38,8 +41,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Throwable
 import java.util.Calendar
 import java.util.Date
+import kotlin.Boolean
+import kotlin.CharSequence
+import kotlin.Exception
+import kotlin.Int
+import kotlin.String
+import kotlin.apply
+import kotlin.toString
 
 
 class FacilityDetailActivity : AppCompatActivity() {
@@ -54,7 +65,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         binding = ActivityFacilityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
-
+        searchParameters.clear()
         populateViews()
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
@@ -171,6 +182,15 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
         return isHidden
     }
+    private fun getCodeFromText(value: String, options: List<Option>): String {
+        //loop though the options, if the value matches the name, returns the code
+        for (option in options) {
+            if (option.displayName == value) {
+                return option.code
+            }
+        }
+        return value
+    }
 
     private fun populateSearchFields(
         item: DataElements,
@@ -232,7 +252,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     }
                     editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {                            // Save the data when the EditText loses focus
-//                            saveValued(item.id, editText.text.toString())
+                            saveValued(item.id, editText.text.toString())
                         }
                     }
 
@@ -307,8 +327,8 @@ class FacilityDetailActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
-//                                val dataValue = getCodeFromText(value, item.optionSet.options)
-//                                saveValued(item.id, dataValue)
+                                val dataValue = getCodeFromText(value, item.optionSet.options)
+                                saveValued(item.id, dataValue)
                             }
                         }
                     })
@@ -392,7 +412,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-//                            saveValued(item.id, value)
+                            saveValued(item.id, value)
                         }
                     }
                 })
@@ -454,7 +474,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-//                            saveValued(item.id, value)
+                            saveValued(item.id, value)
                         }
                     }
 
@@ -519,7 +539,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-//                            saveValued(item.id, value)
+                            saveValued(item.id, value)
                         }
                     }
 
@@ -568,7 +588,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                         }
                         if (dataValue != null) {
                             isProgrammaticChange = true
-//                            saveValued(item.id, dataValue)
+                            saveValued(item.id, dataValue)
                             isProgrammaticChange = false
                         }
                     }
@@ -646,4 +666,25 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
         return ArrayList()
     }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle menu item clicks here
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                prepareFacilityEvent()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun prepareFacilityEvent() {
+
+    }
+
+
 }

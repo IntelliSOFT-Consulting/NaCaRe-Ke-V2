@@ -48,6 +48,7 @@
                 android:clipToPadding="false"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/list_item_update" />
         </LinearLayout>
 
@@ -71,6 +72,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/new_facility_form"
+        android:visibility="gone"
         app:backgroundTint="@color/purple_200"
         app:srcCompat="@drawable/ic_add_white" />
 

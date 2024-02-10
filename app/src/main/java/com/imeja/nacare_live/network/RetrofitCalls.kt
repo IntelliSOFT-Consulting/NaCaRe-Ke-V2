@@ -16,9 +16,11 @@ import com.imeja.nacare_live.R
 import com.imeja.nacare_live.auth.SyncActivity
 import com.imeja.nacare_live.data.Constants
 import com.imeja.nacare_live.data.FormatterClass
+import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.room.Converters
+import com.imeja.nacare_live.room.EventData
 import com.imeja.nacare_live.room.MainViewModel
 import com.imeja.nacare_live.room.ProgramData
 import com.imeja.nacare_live.ui.patients.PatientRegistrationActivity
@@ -349,6 +351,45 @@ class RetrofitCalls {
             try {
                 val apiInterface =
                     apiService.uploadTrackedEntity(trackedEntity, payload)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "child units error:::: $body")
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun uploadFacilityData(context: Context,data: EventUploadData) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.uploadFacilityData(data)
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()

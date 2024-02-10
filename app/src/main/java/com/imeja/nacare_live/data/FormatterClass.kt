@@ -5,6 +5,9 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.net.ParseException
 import com.imeja.nacare_live.R
+import com.imeja.nacare_live.model.HomeData
+import com.imeja.nacare_live.room.MainViewModel
+import java.text.MessageFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -13,15 +16,40 @@ import java.util.UUID
 
 
 class FormatterClass {
+
+    fun generateHomeData(viewModel: MainViewModel): List<HomeData> {
+        // Replace this logic with your actual implementation
+        val homeDataList: MutableList<HomeData> = ArrayList()
+        // Example: Adding dummy data
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Number of notifications made by facility"
+            )
+        )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Number of active notifications made by facility (not closed within 60 days)"
+            )
+        )
+        return homeDataList
+    }
+
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
     private val dateInverseFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
-      fun getDate(year: Int, month: Int, day: Int): String {
+    fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
         return FormatterClass().formatCurrentDate(date)
     }
+
     fun formatDate(date: Date?): String? {
         if (date == null) {
             return null

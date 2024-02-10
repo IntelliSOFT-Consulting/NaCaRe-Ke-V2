@@ -173,6 +173,7 @@ data class TrackedEntityInstanceAttributes(
     val attribute: String,
     val value: String,
 )
+
 data class DataValue(
     val dataElement: String,
     val value: String,
@@ -187,4 +188,23 @@ data class EntityData(
     val fName: String,
     val lName: String,
     val diagnosis: String
+)
+
+data class FacilitySummary(
+    val uid: String,
+    val date: String,
+    val status: String
+)
+
+data class HomeData(
+    val id: String,
+    val name: String
+)
+
+data class EventUploadData(
+    val eventDate: String,
+    val orgUnit: String,
+    val program: String,
+    val status: String,
+    val dataValues:List<DataValue>
 )

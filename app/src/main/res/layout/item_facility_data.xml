@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/_10dp"
-    android:paddingTop="@dimen/_10dp"
-    android:paddingBottom="@dimen/_10dp"
-    android:orientation="horizontal">
+    android:layout_marginBottom="@dimen/_5dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/_5dp"
+    android:paddingBottom="@dimen/_10dp">
 
     <TextView
         android:id="@+id/dateTextView"
@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/date_captured"
-        android:textColor="@color/white"
         android:textSize="12sp" />
 
     <TextView
@@ -24,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/status"
-        android:textColor="@color/white"
         android:textSize="12sp" />
 
     <TextView
@@ -34,7 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
         android:text="@string/action"
-        android:textColor="@color/white"
         android:textSize="12sp" />
 
 </LinearLayout>

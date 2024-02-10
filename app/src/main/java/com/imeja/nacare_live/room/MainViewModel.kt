@@ -62,4 +62,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEvent(context: Context, data: EventData) = runBlocking {
         repository.saveEvent(data)
     }
+
+    fun loadEvents(orgUnit: String, context: Context)= runBlocking {
+        repository.loadEvents(orgUnit)
+    }
+
+    fun countEntities()= runBlocking {
+        repository.countEntities()
+    }
+
+    fun loadEvent(uid: String, requireContext: Context)= runBlocking {
+        repository.loadEvent(uid)
+    }
+
+
 }

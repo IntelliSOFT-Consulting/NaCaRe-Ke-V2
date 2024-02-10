@@ -56,10 +56,20 @@ interface RoomDao {
     @Query("DELETE FROM trackedEntity")
     fun wipeData()
 
-    @Query("SELECT EXISTS (SELECT 1 FROM event WHERE uid =:uid)")
-    fun checkEvent(uid: String): Boolean
-    @Query("UPDATE event SET dataValues =:dataValues WHERE  uid =:uid")
-    fun updateEvent(dataValues: String, uid: String)
+    @Query("SELECT EXISTS (SELECT 1 FROM event WHERE program =:program AND orgUnit =:orgUnit)")
+    fun checkEvent(program: String, orgUnit: String): Boolean
+
+    @Query("UPDATE event SET dataValues =:dataValues WHERE program =:program AND orgUnit =:orgUnit")
+    fun updateEvent(dataValues: String, program: String, orgUnit: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEvent(data: EventData)
+
+    @Query("SELECT * FROM event WHERE orgUnit =:orgUnit ORDER BY id DESC")
+    fun loadEvents(orgUnit: String): List<EventData>?
+
+    @Query("SELECT COUNT(*) FROM trackedEntity")
+    fun countEntities(): Int
+    @Query("SELECT * FROM event WHERE uid =:uid ORDER BY id DESC")
+    fun loadEvent(uid: String): EventData?
 }

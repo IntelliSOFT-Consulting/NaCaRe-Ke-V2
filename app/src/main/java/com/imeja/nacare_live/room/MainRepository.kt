@@ -80,12 +80,26 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun saveEvent(data: EventData) {
-        val exists = roomDao.checkEvent(data.uid)
+        val exists = roomDao.checkEvent(data.program, data.orgUnit)
         if (exists) {
-            roomDao.updateEvent(data.dataValues, data.uid)
+            roomDao.updateEvent(data.dataValues, data.program, data.orgUnit)
         } else {
             roomDao.saveEvent(data)
         }
+    }
+
+    fun loadEvents(orgUnit: String): List<EventData>? {
+        return roomDao.loadEvents(orgUnit)
+
+    }
+
+    fun countEntities(): String {
+        val data = roomDao.countEntities()
+        return "$data"
+    }
+
+    fun loadEvent(uid: String) : EventData? {
+        return roomDao.loadEvent(uid)
     }
 
 }

@@ -1,11 +1,13 @@
 package com.imeja.nacare_live.network
 
+import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
 import com.imeja.nacare_live.response.UserLoginData
+import com.imeja.nacare_live.room.EventData
 
 import retrofit2.Call
 import retrofit2.Response
@@ -24,7 +26,7 @@ interface Interface {
         @Query("filter") filter: String? = null
     ): Response<ProgramResponse>
 
-    @GET("/api/me.json?fields=id,username,surname,firstName,organisationUnits[name,id]")
+    @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id]")
     suspend fun signIn(): Response<UserLoginData>
 
     @GET("/api/trackedEntityInstances.json")
@@ -49,5 +51,11 @@ interface Interface {
     @POST("/api/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
     @Headers("Content-Type: application/json")
     suspend fun uploadMultipleTrackedEntity(@Body payload: MultipleTrackedEntityInstances): Response<Any>
+
+    @POST("/api/events")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadFacilityData(
+        @Body payload: EventUploadData
+    ): Response<Any>
 
 }

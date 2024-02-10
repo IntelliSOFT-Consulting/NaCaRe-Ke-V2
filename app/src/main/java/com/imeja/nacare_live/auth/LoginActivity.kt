@@ -117,7 +117,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        val credentials = "$username:$password"
+        val credentials = "${username.trim()}:${password.trim()}"
 
         val encodedString = Base64.encodeToString(credentials.toByteArray(), Base64.NO_WRAP)
         formatter.saveSharedPref("encodedString", encodedString, this@LoginActivity)

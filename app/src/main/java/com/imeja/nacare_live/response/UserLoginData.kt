@@ -9,6 +9,7 @@ data class UserLoginData(
     val id: String,
     val username: String,
     val surname: String,
+    val email: String,
     val organisationUnits: List<OrgUnits>
 )
 
