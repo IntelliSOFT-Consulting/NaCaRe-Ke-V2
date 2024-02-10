@@ -50,6 +50,10 @@ interface RoomDao {
 
     @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced  ORDER BY id DESC")
     fun loadTrackedEntities(isSynced: Boolean): List<TrackedEntityInstanceData>?
+
+    @Query("SELECT * FROM trackedEntity ORDER BY id DESC")
+    fun loadAllTrackedEntities(): List<TrackedEntityInstanceData>?
+
     @Query("DELETE FROM trackedEntity")
     fun wipeData()
 }

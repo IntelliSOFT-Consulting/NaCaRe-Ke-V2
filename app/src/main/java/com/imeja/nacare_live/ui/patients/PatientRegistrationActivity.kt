@@ -829,6 +829,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
                 val data = TrackedEntityInstance(
                     trackedEntity = formatter.generateUUID(11),
+                    enrollment=formatter.generateUUID(11),
+                    enrollDate=formatter.formatCurrentDate(Date()),
                     orgUnit = orgCode,
                     attributes = attributeValueList,
                 )

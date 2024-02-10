@@ -59,7 +59,10 @@ class MainRepository(private val roomDao: RoomDao) {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
                 orgUnit = data.orgUnit,
+                enrollment = data.enrollment,
+                enrollDate = data.enrollDate,
                 attributes = Gson().toJson(data.attributes)
+
             )
             roomDao.saveTrackedEntity(save)
         }
@@ -71,6 +74,10 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun wipeData(context: Context) {
         roomDao.wipeData()
+    }
+
+    fun loadAllTrackedEntities(): List<TrackedEntityInstanceData>? {
+        return roomDao.loadAllTrackedEntities()
     }
 
 }

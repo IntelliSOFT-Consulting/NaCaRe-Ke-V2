@@ -55,4 +55,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.wipeData(context)
 
     }
+
+    fun loadAllTrackedEntities(context: Context)= runBlocking {
+        repository.loadAllTrackedEntities()
+    }
 }

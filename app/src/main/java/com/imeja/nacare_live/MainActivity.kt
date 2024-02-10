@@ -128,10 +128,11 @@ class MainActivity : AppCompatActivity() {
                 enrollments.clear()
                 enrollments.add(
                     EnrollmentPostData(
+                        enrollment = it.enrollment,
                         orgUnit = it.orgUnit,
                         program = programUid.toString(),
-                        enrollmentDate = formatter.formatCurrentDate(Date()),
-                        incidentDate = formatter.formatCurrentDate(Date()),
+                        enrollmentDate = it.enrollDate,
+                        incidentDate = it.enrollDate,
                     )
                 )
                 val server = formatter.generateUUID(11)

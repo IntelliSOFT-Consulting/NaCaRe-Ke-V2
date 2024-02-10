@@ -146,6 +146,8 @@ data class OrgTreeNode(
  */
 data class TrackedEntityInstance(
     val trackedEntity: String,
+    val enrollment: String,
+    val enrollDate: String,
     val orgUnit: String,
     val attributes: List<TrackedEntityInstanceAttributes>
 )
@@ -159,12 +161,14 @@ data class TrackedEntityInstancePostData(
 )
 
 data class EnrollmentPostData(
+    val enrollment: String,
     val orgUnit: String,
     val program: String,
     val enrollmentDate: String,
     val incidentDate: String,
 
-)
+    )
+
 data class TrackedEntityInstanceAttributes(
     val attribute: String,
     val value: String,
@@ -172,4 +176,11 @@ data class TrackedEntityInstanceAttributes(
 
 data class MultipleTrackedEntityInstances(
     val trackedEntityInstances: List<TrackedEntityInstancePostData>
+)
+
+data class EntityData(
+    val date: String,
+    val fName: String,
+    val lName: String,
+    val diagnosis: String
 )
