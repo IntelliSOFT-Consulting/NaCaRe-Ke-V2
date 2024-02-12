@@ -658,6 +658,70 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 })
             }
 
+            "PHONE_NUMBER" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_number,
+                    findViewById(R.id.lnParent),
+                    false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                if (currentValue.isNotEmpty()) {
+                    editText.setText(currentValue)
+                }
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        editText.keyListener = null;
+                        editText.isCursorVisible = false;
+                        editText.isFocusable = false;
+                        editText.isEnabled = false;
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            saveValued(index, item.id, value)
+                        }
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                    }
+                })
+            }
+
             "BOOLEAN" -> {
                 val itemView = inflater.inflate(
                     R.layout.item_boolean_field,
@@ -875,7 +939,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
             if (month != null && year != null) {
                 val patient_identification = "$firstname-$lastname-$month-$year"
-                saveValued(0,"AP13g7NcBOf", patient_identification)
+                saveValued(0, "AP13g7NcBOf", patient_identification)
                 val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
                 if (existingIndex != -1) {
                     // Update the existing entry if the code is found
@@ -931,7 +995,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     attributes = attributeValueList,
                 )
                 viewModel.saveTrackedEntity(this, data)
-
+formatter.deleteSharedPref("index",this@PatientRegistrationActivity)
                 this@PatientRegistrationActivity.finish()
             } else {
                 Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()

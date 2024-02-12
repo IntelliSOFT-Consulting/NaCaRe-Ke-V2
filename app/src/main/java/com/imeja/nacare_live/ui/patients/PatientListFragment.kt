@@ -83,7 +83,8 @@ class PatientListFragment : Fragment() {
                         date = it.enrollDate,
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
                         lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
-                        diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes)
+                        diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes),
+                        attributes = it.attributes
 
                     )
                     dataList.add(single)
