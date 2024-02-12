@@ -90,6 +90,7 @@ class PatientSearchActivity : AppCompatActivity() {
         }
         val inflater = LayoutInflater.from(this)
         formatter.saveSharedPref("initial_data", Gson().toJson(searchParametersString), this)
+        formatter.deleteSharedPref("reload", this@PatientSearchActivity)
         retrofitCalls.performPatientSearch(
             this,
             programUid,

@@ -19,7 +19,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ContentInfoCompat.Flags
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -102,7 +101,14 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
             }
         }
-
+        val index = formatter.getSharedPref("index", this@PatientRegistrationActivity)
+        if (index != null) {
+            val viewToFocus: View? = binding.lnParent.getChildAt(index.toInt())
+//            viewToFocus?.requestFocus()
+            binding.scrollView.post {
+                binding.scrollView.smoothScrollTo(0, viewToFocus?.top ?: 0)
+            }
+        }
     }
 
     private fun scrollToTheLast() {
@@ -163,8 +169,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
             completeList.addAll(emptyList)
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
-            completeList.forEach {
-                populateSearchFields(it, binding.lnParent, extractCurrentValues(it.id))
+            completeList.forEachIndexed { index, item ->
+                populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
 
             }
             scrollToTheLast()
@@ -298,6 +304,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
     private fun populateSearchFields(
+        index: Int,
         item: TrackedEntityAttributes,
         lnParent: LinearLayout,
         currentValue: String
@@ -305,7 +312,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val label: String = item.name
         val inflater = LayoutInflater.from(this)
-        Log.e("TAG", "Data Populated $valueType")
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
@@ -356,7 +362,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     }
                     editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(item.id, editText.text.toString())
+                            saveValued(index, item.id, editText.text.toString())
                         }
                     }
 
@@ -432,8 +438,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                calculateRelevant(item, value)
-                                saveValued(item.id, dataValue)
+                                calculateRelevant(index, item, value)
+                                saveValued(index, item.id, dataValue)
                             }
                         }
                     })
@@ -517,8 +523,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             //check if it is date of birth, calculate relevant
-                            calculateRelevant(item, value)
-                            saveValued(item.id, value)
+                            calculateRelevant(index, item, value)
+                            saveValued(index, item.id, value)
                         }
                     }
                 })
@@ -579,7 +585,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(item.id, value)
+                            saveValued(index, item.id, value)
                         }
                     }
 
@@ -643,7 +649,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(item.id, value)
+                            saveValued(index, item.id, value)
                         }
                     }
 
@@ -691,7 +697,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         }
                         if (dataValue != null) {
                             isProgrammaticChange = true
-                            saveValued(item.id, dataValue)
+                            saveValued(index, item.id, dataValue)
                             isProgrammaticChange = false
                         }
                     }
@@ -735,7 +741,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         return Pair(years, months)
     }
 
-    private fun calculateRelevant(item: TrackedEntityAttributes, value: String) {
+    private fun calculateRelevant(index: Int, item: TrackedEntityAttributes, value: String) {
 
         when (item.id) {
             DATE_OF_BIRTH -> {
@@ -747,8 +753,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
 
                 Log.e("TAG", "Age: $years years and $months months")
-                saveValued(AGE_YEARS, "$years")
-                saveValued(AGE_MONTHS, "$months")
+                saveValued(index, AGE_YEARS, "$years")
+                saveValued(index, AGE_MONTHS, "$months")
             }
 
             DIAGNOSIS -> {
@@ -762,17 +768,17 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     val siteValue = generateRespectiveValue(site, dataValue)
                     Log.e("TAG", "Match found: $siteValue")
                     if (siteValue.isNotEmpty()) {
-                        saveValued(DIAGNOSIS_SITE, siteValue)
+                        saveValued(index, DIAGNOSIS_SITE, siteValue)
                     }
                 }
                 if (category != null && dataValue != null) {
                     val categoryValue = generateRespectiveValue(category, dataValue)
                     Log.e("TAG", "Match found: $categoryValue")
                     if (categoryValue.isNotEmpty()) {
-                        saveValued(DIAGNOSIS_CATEGORY, categoryValue)
+                        saveValued(index, DIAGNOSIS_CATEGORY, categoryValue)
                     }
                 }
-                saveValued(ICD_CODE, "$dataValue")
+                saveValued(index, ICD_CODE, "$dataValue")
             }
         }
     }
@@ -806,7 +812,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         return value
     }
 
-    private fun saveValued(id: String, value: String) {
+    private fun saveValued(index: Int, id: String, value: String) {
         val existingIndex = searchParameters.indexOfFirst { it.code == id }
         if (existingIndex != -1) {
             // Update the existing entry if the code is found
@@ -817,6 +823,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             searchParameters.add(data)
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+        formatter.saveSharedPref("index", "$index", this)
         Log.e("TAG", "Growing List $searchParameters")
         val reloadPage = formatter.getSharedPref("reload", this@PatientRegistrationActivity)
         if (reloadPage == null) {
@@ -829,7 +836,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             delay(100)
             val intent =
                 Intent(this@PatientRegistrationActivity, PatientRegistrationActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP //or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
             overridePendingTransition(0, 0) // Disable transition animation
@@ -868,7 +875,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
             if (month != null && year != null) {
                 val patient_identification = "$firstname-$lastname-$month-$year"
-                saveValued("AP13g7NcBOf", patient_identification)
+                saveValued(0,"AP13g7NcBOf", patient_identification)
                 val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
                 if (existingIndex != -1) {
                     // Update the existing entry if the code is found

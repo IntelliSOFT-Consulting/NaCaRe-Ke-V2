@@ -36,7 +36,21 @@
             android:clipToPadding="false"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
-            android:visibility="visible"
+            android:visibility="gone"
             tools:listitem="@layout/list_layout_tracked" />
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/lnParent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/_10dp" />
+        </ScrollView>
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

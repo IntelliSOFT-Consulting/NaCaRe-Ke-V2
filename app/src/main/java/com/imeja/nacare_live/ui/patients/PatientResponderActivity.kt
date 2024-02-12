@@ -3,8 +3,11 @@ package com.imeja.nacare_live.ui.patients
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.imeja.nacare_live.R
@@ -118,19 +121,50 @@ class PatientResponderActivity : AppCompatActivity() {
                     )
                 }
 
-                val adapterProgram = ExpandableListAdapter(expandableList, this)
-
-                binding.apply {
-                    val manager = LinearLayoutManager(this@PatientResponderActivity)
-                    trackedEntityInstanceRecyclerView.apply {
-                        adapter = adapterProgram
-                        layoutManager = manager
-                    }
-
+                expandableList.forEach {
+                    createFormField(it)
                 }
+//                val adapterProgram = ExpandableListAdapter(expandableList, this)
+//
+//                binding.apply {
+//                    val manager = LinearLayoutManager(this@PatientResponderActivity)
+//                    trackedEntityInstanceRecyclerView.apply {
+//                        adapter = adapterProgram
+//                        layoutManager = manager
+//                    }
+//
+//                }
             }
         } else {
             Toast.makeText(this, "Please select Patient to proceed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createFormField(it: ExpandableItem) {
+        binding.apply {
+            // Create a new instance of TextView
+            val textView = TextView(this@PatientResponderActivity)
+
+            // Set text and other properties if needed
+            textView.text = it.groupName
+            // Define layout parameters for the TextView
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Width
+                LinearLayout.LayoutParams.WRAP_CONTENT  // Height
+            )
+            // Add some margins to the TextView (optional)
+            layoutParams.setMargins(16, 16, 16, 16)
+
+            // Set the layout parameters for the TextView
+            textView.layoutParams = layoutParams
+
+            textView.apply {
+                setOnClickListener {
+                    Log.e("TAG", textView.text.toString())
+                }
+            }
+            lnParent.addView(textView)
+
         }
     }
 }
