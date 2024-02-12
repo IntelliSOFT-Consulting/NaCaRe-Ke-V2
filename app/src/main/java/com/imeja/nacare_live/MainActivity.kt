@@ -99,8 +99,10 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
-                    handleDataSync()
+//                    handleDataSync()
 //                    viewModel.wipeData(this)
+                    retrofitCalls.loadAllCategories(this)
+                    retrofitCalls.loadAllSites(this)
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }

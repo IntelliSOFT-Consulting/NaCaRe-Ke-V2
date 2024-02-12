@@ -79,5 +79,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveEvent(data)
     }
 
+    fun addDataStore(data: DataStoreData) = runBlocking{
+        repository.addDataStore(data)
+    }
+
 
 }

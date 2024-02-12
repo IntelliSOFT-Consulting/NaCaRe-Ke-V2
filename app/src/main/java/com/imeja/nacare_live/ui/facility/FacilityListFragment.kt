@@ -143,6 +143,7 @@ class FacilityListFragment : Fragment() {
             if (data != null) {
 
                 formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
+                formatter.saveSharedPref("current_event_date", facilitySummary.date, requireContext())
                 formatter.saveSharedPref("existing_event", "true", requireContext())
 
                 val typeToken = object : TypeToken<List<DataValue>>() {}.type

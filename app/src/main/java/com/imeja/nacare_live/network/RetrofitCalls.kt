@@ -22,7 +22,9 @@ import com.imeja.nacare_live.model.DataValue
 import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
+import com.imeja.nacare_live.response.DataStoreResponse
 import com.imeja.nacare_live.room.Converters
+import com.imeja.nacare_live.room.DataStoreData
 import com.imeja.nacare_live.room.EventData
 import com.imeja.nacare_live.room.MainViewModel
 import com.imeja.nacare_live.room.ProgramData
@@ -294,7 +296,6 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "child units error:::: $body")
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
@@ -357,7 +358,6 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "child units error:::: $body")
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
@@ -396,7 +396,6 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "child units error:::: $body")
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
@@ -441,7 +440,6 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "child units error:::: $body")
                     progressBar.visibility = View.GONE
                     when (statusCode) {
                         200 -> {
@@ -488,6 +486,150 @@ class RetrofitCalls {
             }
         }
     }
+
+    fun loadAllEvents(context: Context) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.loadAllFacilityEvents()
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                body.instances.forEach { q ->
+                                    val innerValues = mutableListOf<DataValue>()
+                                    q.dataValues.forEach {
+                                        val da = DataValue(
+                                            dataElement = it.dataElement,
+                                            value = it.value
+                                        )
+                                        innerValues.add(da)
+                                    }
+                                    val eventData = EventData(
+                                        dataValues = Gson().toJson(innerValues),
+                                        uid = q.event,
+                                        program = q.program,
+                                        orgUnit = q.orgUnit,
+                                        eventDate = q.createdAt,
+                                        status = q.status,
+                                        isSynced = true,
+                                    )
+                                    viewModel.addUpdateFacilityEvent(eventData)
+                                }
+
+                            }
+                        }
+                    }
+                } else {
+
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun loadAllSites(context: Context) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.loadAllSites()
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                Log.e("TAG", "Data Response **** $body")
+                                val data= DataStoreData(uid = "site", dataValues = Gson().toJson(body))
+                                viewModel.addDataStore(data)
+
+                            }
+                        }
+                    }
+                } else {
+
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun loadAllCategories(context: Context) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.loadAllCategories()
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "Data Response **** $body")
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                Log.e("TAG", "Data Response **** $body")
+                                val data= DataStoreData(uid = "category", dataValues = Gson().toJson(body))
+                                viewModel.addDataStore(data)
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    Log.e("TAG", "Data Response **** Error $errorBody")
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+
 }
 
 

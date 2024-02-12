@@ -49,3 +49,12 @@ data class EventData(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }
+
+@Entity(tableName = "dataStore")
+data class DataStoreData(
+    @ColumnInfo(name = "dataValues") val dataValues: String,
+    var uid: String
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}

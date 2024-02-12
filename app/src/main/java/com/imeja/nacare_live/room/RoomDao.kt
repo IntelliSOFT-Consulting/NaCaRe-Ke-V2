@@ -70,7 +70,17 @@ interface RoomDao {
 
     @Query("SELECT COUNT(*) FROM trackedEntity")
     fun countEntities(): Int
+
     @Query("SELECT * FROM event WHERE uid =:uid ORDER BY id DESC")
     fun loadEvent(uid: String): EventData?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM dataStore WHERE uid =:uid)")
+    fun checkDataStore(uid: String): Boolean
+
+    @Query("UPDATE dataStore SET dataValues =:dataValues WHERE uid =:uid")
+    fun updateDataStore(dataValues: String, uid: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addDataStore(data: DataStoreData)
 
 }

@@ -41,3 +41,7 @@ data class FacilityEventResponse(
     val instances: List<EventInstances>
 )
 
+data class DataStoreResponse(
+    val name: String,
+    val codes: List<String>
+)

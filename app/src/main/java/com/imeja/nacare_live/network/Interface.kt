@@ -3,6 +3,7 @@ package com.imeja.nacare_live.network
 import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
+import com.imeja.nacare_live.response.DataStoreResponse
 import com.imeja.nacare_live.response.FacilityEventResponse
 import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
@@ -66,5 +67,17 @@ interface Interface {
         @Query("paging") paging: Boolean = false,
         @Query("fields") fields: String = "event,program,programStage,orgUnit,status,occurredAt,completedDate,createdAt,dataValues[createdAt,updatedAt,dataElement, value]",
     ): Response<FacilityEventResponse>
+
+    @GET("api/tracker/events")
+    suspend fun loadAllFacilityEvents(
+        @Query("paging") paging: Boolean = false,
+        @Query("fields") fields: String = "event,program,programStage,orgUnit,status,occurredAt,completedDate,createdAt,dataValues[createdAt,updatedAt,dataElement, value]",
+    ): Response<FacilityEventResponse>
+
+    @GET("api/dataStore/cancer_sites/sites")
+    suspend fun loadAllSites(): Response<List<DataStoreResponse>>
+
+    @GET("api/dataStore/cancer_categories/categories")
+    suspend fun loadAllCategories(): Response<List<DataStoreResponse>>
 
 }

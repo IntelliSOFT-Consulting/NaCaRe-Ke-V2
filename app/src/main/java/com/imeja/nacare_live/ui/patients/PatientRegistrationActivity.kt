@@ -25,6 +25,11 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.imeja.nacare_live.R
+import com.imeja.nacare_live.data.Constants.AGE_MONTHS
+import com.imeja.nacare_live.data.Constants.AGE_YEARS
+import com.imeja.nacare_live.data.Constants.DATE_OF_BIRTH
+import com.imeja.nacare_live.data.Constants.DIAGNOSIS
+import com.imeja.nacare_live.data.Constants.ICD_CODE
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityPatientRegistrationBinding
 import com.imeja.nacare_live.model.Attribute
@@ -42,6 +47,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -368,7 +376,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         optionsStringList
                     )
                     if (currentValue.isNotEmpty()) {
-                        autoCompleteTextView.setText(currentValue, false)
+                        val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
+                        autoCompleteTextView.setText(answer, false)
                     }
                     val name = if (isRequired) generateRequiredField(item.name) else item.name
                     tvName.text = Html.fromHtml(name)
@@ -418,6 +427,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
+                                calculateRelevant(item, value)
                                 saveValued(item.id, dataValue)
                             }
                         }
@@ -501,6 +511,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
+                            //check if it is date of birth, calculate relevant
+                            calculateRelevant(item, value)
                             saveValued(item.id, value)
                         }
                     }
@@ -701,6 +713,42 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
     }
 
+    private fun getDisplayNameFromCode(options: List<Option>, value: String): String {
+        for (option in options) {
+            if (option.code == value) {
+                return option.displayName
+            }
+        }
+        return value
+    }
+
+
+    fun calculateAge(birthDate: LocalDate, currentDate: LocalDate): Pair<Int, Int> {
+        val period = Period.between(birthDate, currentDate)
+        val years = period.years
+        val months = period.months
+        return Pair(years, months)
+    }
+
+    private fun calculateRelevant(item: TrackedEntityAttributes, value: String) {
+
+        if (item.id == DATE_OF_BIRTH) {
+            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val birthDate = LocalDate.parse(value, dateFormatter)
+            // Get the current date
+            val currentDate = LocalDate.now()
+            val (years, months) = calculateAge(birthDate, currentDate)
+
+
+            Log.e("TAG", "Age: $years years and $months months")
+            saveValued(AGE_YEARS, "$years")
+            saveValued(AGE_MONTHS, "$months")
+        } else if (item.id == DIAGNOSIS) {
+            val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
+            saveValued(ICD_CODE, "$dataValue")
+        }
+    }
+
     private fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
@@ -829,8 +877,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
                 val data = TrackedEntityInstance(
                     trackedEntity = formatter.generateUUID(11),
-                    enrollment=formatter.generateUUID(11),
-                    enrollDate=formatter.formatCurrentDate(Date()),
+                    enrollment = formatter.generateUUID(11),
+                    enrollDate = formatter.formatCurrentDate(Date()),
                     orgUnit = orgCode,
                     attributes = attributeValueList,
                 )

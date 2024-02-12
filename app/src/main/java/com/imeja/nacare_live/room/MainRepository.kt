@@ -102,4 +102,13 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadEvent(uid)
     }
 
+    fun addDataStore(data: DataStoreData) {
+        val exists = roomDao.checkDataStore(data.uid,)
+        if (exists) {
+            roomDao.updateDataStore(data.dataValues, data.uid)
+        } else {
+            roomDao.addDataStore(data)
+        }
+    }
+
 }

@@ -98,14 +98,22 @@ class FacilityDetailActivity : AppCompatActivity() {
     private fun validateSearchData() {
         val orgCode = formatter.getSharedPref("orgCode", this)
         val programUid = formatter.getSharedPref("programUid", this)
+        var eventUid = formatter.getSharedPref("current_event", this)
+        var eventDate = formatter.getSharedPref("current_event_date", this)
         if (orgCode != null) {
             dataValueList.clear()
+            if (eventUid == null) {
+                eventUid = formatter.generateUUID(11)
+            }
+            if (eventDate == null) {
+                eventDate = formatter.formatCurrentDate(Date())
+            }
 
             val data = EventData(
-                uid = formatter.generateUUID(11),
+                uid = eventUid,
                 program = programUid.toString(),
                 orgUnit = orgCode,
-                eventDate = formatter.formatCurrentDate(Date()),
+                eventDate = eventDate,
                 status = "ACTIVE",
                 dataValues = Gson().toJson(searchParameters)
             )
@@ -177,6 +185,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
         return isHidden
     }
+
     private fun getCodeFromText(value: String, options: List<Option>): String {
         //loop though the options, if the value matches the name, returns the code
         for (option in options) {
@@ -661,11 +670,13 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
         return ArrayList()
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.main, menu)
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle menu item clicks here
         return when (item.itemId) {
@@ -673,6 +684,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                 prepareFacilityEvent()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
