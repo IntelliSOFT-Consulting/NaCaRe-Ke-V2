@@ -1,10 +1,10 @@
 <rotate xmlns:android="http://schemas.android.com/apk/res/android"
     android:fromDegrees="0"
-    android:toDegrees="90"
     android:pivotX="50%"
-    android:pivotY="50%">
+    android:pivotY="50%"
+    android:toDegrees="0">
     <bitmap
-        android:src="@drawable/upload"
-        android:gravity="center" />
+        android:gravity="center"
+        android:src="@drawable/arrow_proceed" />
 </rotate>
 

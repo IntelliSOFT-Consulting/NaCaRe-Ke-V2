@@ -4,6 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.imeja.nacare_live.R
 import com.imeja.nacare_live.holders.TrackedEntityHolder
@@ -32,14 +35,24 @@ class TrackedEntityAdapter(
         holder.lastnameTextView.text = data.lName
         holder.actionTextView.text = data.diagnosis
 
-        val upDrawable = context.resources.getDrawable(R.drawable.arrow_up)
-        val downDrawable = context.resources.getDrawable(R.drawable.arrow_down)
+        holder.tv_place_of_notification.text = context.getString(R.string.place_of_notification)
+        holder.tv_patient_name.text = context.getString(R.string.patient_name)
+        holder.tv_phone_no.text = context.getString(R.string.phone_no)
+        holder.tv_hospital_no.text = context.getString(R.string.hospital_no)
+        holder.tv_id_doc_no.text = context.getString(R.string.id_doc_no)
+        holder.tv_patient_id.text = context.getString(R.string.patient_id)
+
+        val upDrawable = ContextCompat.getDrawable(context, R.drawable.resized_icon)
+        val downDrawable = ContextCompat.getDrawable(context, R.drawable.resized_icon_down)
+
+
         holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
             downDrawable,
             null,
             null,
             null
         )
+
 
         holder.dateTextView.setOnClickListener { v ->
             if (holder.hiddenLayout.visibility === View.VISIBLE) {
@@ -61,7 +74,7 @@ class TrackedEntityAdapter(
             }
         }
 
-        holder.itemView.apply {
+        holder.ln_next_page.apply {
             setOnClickListener {
                 click(data)
             }

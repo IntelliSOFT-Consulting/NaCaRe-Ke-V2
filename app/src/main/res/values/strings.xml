@@ -136,7 +136,7 @@
     <string name="patient_unique_id">Unique ID</string>
     <string name="hospital_number">Hospital No</string>
     <string name="identification">Identification</string>
-    <string name="patient_name">Patient Name</string>
+    <string name="patient_name">Patient Name:</string>
     <string name="alert">Alert</string>
     <string name="update_an_existing_cancer_case">Update an Existing Cancer Case</string>
     <string name="add_new_primary_cancer_info">Add New Primary Cancer Info</string>
@@ -154,4 +154,12 @@
     <string name="back">Back</string>
     <string name="no_record_found_of_patient_searched_with_those_parameters">No Record found of Patient Searched with those parameters</string>
     <string name="are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved">Are you sure you wan to save?\nYou will not be able to edit this patient info once saved</string>
+    <string name="id_doc">ID Doc:</string>
+    <string name="unique_id_">Unique ID:</string>
+    <string name="hospital_no">Hospital No:</string>
+    <string name="id_doc_no">ID Doc No:</string>
+    <string name="patient_id">Patient ID:</string>
+    <string name="phone_no">Phone No:</string>
+    <string name="place_of_notification">Place of Notification:</string>
+    <string name="proceed">Proceed</string>
 </resources>

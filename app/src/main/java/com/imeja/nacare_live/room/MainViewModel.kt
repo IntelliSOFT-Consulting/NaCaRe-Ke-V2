@@ -83,5 +83,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addDataStore(data)
     }
 
+    fun loadDataStore(context: Context,uid:String)= runBlocking {
+        repository.loadDataStore(uid)
+    }
+
 
 }

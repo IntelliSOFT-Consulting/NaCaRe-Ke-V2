@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ContentInfoCompat.Flags
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -29,6 +30,8 @@ import com.imeja.nacare_live.data.Constants.AGE_MONTHS
 import com.imeja.nacare_live.data.Constants.AGE_YEARS
 import com.imeja.nacare_live.data.Constants.DATE_OF_BIRTH
 import com.imeja.nacare_live.data.Constants.DIAGNOSIS
+import com.imeja.nacare_live.data.Constants.DIAGNOSIS_CATEGORY
+import com.imeja.nacare_live.data.Constants.DIAGNOSIS_SITE
 import com.imeja.nacare_live.data.Constants.ICD_CODE
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityPatientRegistrationBinding
@@ -40,7 +43,9 @@ import com.imeja.nacare_live.model.TrackedEntityAttributes
 import com.imeja.nacare_live.model.TrackedEntityInstance
 import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
 import com.imeja.nacare_live.network.RetrofitCalls
+import com.imeja.nacare_live.response.DataStoreResponse
 import com.imeja.nacare_live.room.Converters
+import com.imeja.nacare_live.room.DataStoreData
 import com.imeja.nacare_live.room.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -732,21 +737,56 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     private fun calculateRelevant(item: TrackedEntityAttributes, value: String) {
 
-        if (item.id == DATE_OF_BIRTH) {
-            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val birthDate = LocalDate.parse(value, dateFormatter)
-            // Get the current date
-            val currentDate = LocalDate.now()
-            val (years, months) = calculateAge(birthDate, currentDate)
+        when (item.id) {
+            DATE_OF_BIRTH -> {
+                val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                val birthDate = LocalDate.parse(value, dateFormatter)
+                // Get the current date
+                val currentDate = LocalDate.now()
+                val (years, months) = calculateAge(birthDate, currentDate)
 
 
-            Log.e("TAG", "Age: $years years and $months months")
-            saveValued(AGE_YEARS, "$years")
-            saveValued(AGE_MONTHS, "$months")
-        } else if (item.id == DIAGNOSIS) {
-            val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
-            saveValued(ICD_CODE, "$dataValue")
+                Log.e("TAG", "Age: $years years and $months months")
+                saveValued(AGE_YEARS, "$years")
+                saveValued(AGE_MONTHS, "$months")
+            }
+
+            DIAGNOSIS -> {
+                val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
+                // load sites
+                val site = viewModel.loadDataStore(this, "site")
+                //load categories
+                val category = viewModel.loadDataStore(this, "category")
+
+                if (site != null && dataValue != null) {
+                    val siteValue = generateRespectiveValue(site, dataValue)
+                    Log.e("TAG", "Match found: $siteValue")
+                    if (siteValue.isNotEmpty()) {
+                        saveValued(DIAGNOSIS_SITE, siteValue)
+                    }
+                }
+                if (category != null && dataValue != null) {
+                    val categoryValue = generateRespectiveValue(category, dataValue)
+                    Log.e("TAG", "Match found: $categoryValue")
+                    if (categoryValue.isNotEmpty()) {
+                        saveValued(DIAGNOSIS_CATEGORY, categoryValue)
+                    }
+                }
+                saveValued(ICD_CODE, "$dataValue")
+            }
         }
+    }
+
+    private fun generateRespectiveValue(site: DataStoreData, dataValue: String): String {
+        val type = object : TypeToken<List<DataStoreResponse>>() {}.type
+        val codesList: List<DataStoreResponse> = Gson().fromJson(site.dataValues, type)
+        var validAnswer = ""
+        for (code in codesList) {
+            if (code.codes.contains(dataValue)) {
+                validAnswer = code.name
+            }
+        }
+        return validAnswer
     }
 
     private fun getDate(year: Int, month: Int, day: Int): String {
@@ -789,6 +829,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             delay(100)
             val intent =
                 Intent(this@PatientRegistrationActivity, PatientRegistrationActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
             overridePendingTransition(0, 0) // Disable transition animation

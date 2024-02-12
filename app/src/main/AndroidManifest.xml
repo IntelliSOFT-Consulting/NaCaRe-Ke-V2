@@ -17,6 +17,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.patients.PatientResponderActivity"
+            android:exported="false"
+            android:label=""
+            android:theme="@style/Theme.Nacarelive.NoActionBar" />
+        <activity
             android:name=".auth.SyncActivity"
             android:exported="false"
             android:label=""
@@ -38,9 +43,9 @@
             android:theme="@style/Theme.Nacarelive.NoActionBar" />
         <activity
             android:name=".ui.facility.FacilityDetailActivity"
+            android:exported="false"
             android:label="@string/facility_details_capture_tool"
-            android:theme="@style/Theme.Nacarelive.NoActionBar"
-            android:exported="false" />
+            android:theme="@style/Theme.Nacarelive.NoActionBar" />
         <activity
             android:name=".auth.LoginActivity"
             android:exported="true"

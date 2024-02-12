@@ -1,5 +1,6 @@
 package com.imeja.nacare_live.ui.patients
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
@@ -81,7 +82,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleClick(searchResult: SearchResult) {
+    private fun handleClick(data: SearchResult) {
         val builder = AlertDialog.Builder(this)
         val inflater = LayoutInflater.from(this)
         val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
@@ -107,26 +108,40 @@ class PatientSearchResultsActivity : AppCompatActivity() {
 
         noButton.apply {
             setOnClickListener {
+                alertDialog.dismiss()
                 // add new event
+                formatter.saveSharedPref(
+                    "current_patient",
+                    data.trackedEntityInstance,
+                    this@PatientSearchResultsActivity
+                )
+                startActivity(Intent(this@PatientSearchResultsActivity, PatientResponderActivity::class.java))
                 Log.e(
                     "TAG",
-                    "Creation Data **** Only need enrollment ${searchResult.enrollmentUid}"
+                    "Creation Data **** Only need enrollment ${data.enrollmentUid}"
 
                 )
-                val eventUid=formatter.generateUUID(11)
+                val eventUid = formatter.generateUUID(11)
+                formatter.saveSharedPref(
+                    "current_patient",
+                    data.trackedEntityInstance,
+                    this@PatientSearchResultsActivity
+                )
+                startActivity(Intent(this@PatientSearchResultsActivity, PatientResponderActivity::class.java))
                 Log.e(
                     "TAG",
-                    "Creation Data **** Only need enrollment ${searchResult.enrollmentUid} Generated UID $eventUid"
+                    "Creation Data **** Only need enrollment ${data.enrollmentUid} Generated UID $eventUid"
 
                 )
             }
         }
         yesButton.apply {
             setOnClickListener {
+                alertDialog.dismiss()
                 // get latest event
                 Log.e(
                     "TAG",
-                    "Creation Data **** ${searchResult.eventUid} for Enrollment ${searchResult.enrollmentUid}"
+                    "Creation Data **** ${data.eventUid} for Enrollment ${data.enrollmentUid}"
                 )
             }
         }

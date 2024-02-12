@@ -7,4 +7,6 @@ object Constants {
     const val AGE_MONTHS = "vgK2f8ampTy"
     const val DIAGNOSIS = "BzhDnF5fG4x"
     const val ICD_CODE = "Lhoe9ecBhZi"
+    const val DIAGNOSIS_SITE="AyuVgasCLyM"
+    const val DIAGNOSIS_CATEGORY="vPICBz6JEmK"
 }

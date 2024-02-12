@@ -111,4 +111,8 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
+    fun loadDataStore(uid: String):DataStoreData?{
+        return roomDao.loadDataStore(uid)
+    }
+
 }

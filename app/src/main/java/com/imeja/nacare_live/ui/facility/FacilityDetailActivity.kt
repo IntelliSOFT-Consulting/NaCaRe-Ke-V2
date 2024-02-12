@@ -642,6 +642,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             delay(100)
             val intent =
                 Intent(this@FacilityDetailActivity, FacilityDetailActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
             overridePendingTransition(0, 0) // Disable transition animation

@@ -82,5 +82,7 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDataStore(data: DataStoreData)
+    @Query("SELECT * FROM dataStore WHERE uid =:uid ORDER BY id DESC")
+    fun loadDataStore(uid: String): DataStoreData?
 
 }

@@ -3,13 +3,18 @@ package com.imeja.nacare_live.ui.patients
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.imeja.nacare_live.R
 import com.imeja.nacare_live.adapters.TrackedEntityAdapter
 import com.imeja.nacare_live.data.FormatterClass
@@ -69,11 +74,12 @@ class PatientListFragment : Fragment() {
     private fun loadTrackedEntities() {
         val orgUnit = formatter.getSharedPref("orgCode", requireContext())
         if (orgUnit != null) {
-            val data = viewModel.loadAllTrackedEntities(orgUnit,requireContext())
+            val data = viewModel.loadAllTrackedEntities(orgUnit, requireContext())
             if (data != null) {
                 dataList.clear()
                 data.forEach {
                     val single = EntityData(
+                        uid = it.trackedEntity,
                         date = it.enrollDate,
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
                         lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
@@ -115,6 +121,49 @@ class PatientListFragment : Fragment() {
 
     private fun handleClick(data: EntityData) {
 
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = LayoutInflater.from(requireContext())
+        val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
+        builder.setView(customView)
+        val alertDialog = builder.create()
+        val tvTitle = customView.findViewById<TextView>(R.id.tv_title)
+        val tvMessage = customView.findViewById<TextView>(R.id.tv_message)
+        val noButton = customView.findViewById<MaterialButton>(R.id.no_button)
+        val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
+
+        val htmlText = "Please select an action for the selected record:<br><br>1." +
+                "<b>Add new primary cancer information for an existing patient:</b> " +
+                "Choose this option if this is new primary cancer information for an existing patient.<br><br> " +
+                "2.<b>Update an Existing Cancer Case:</b> Choose this option if you want to update any other additional information " +
+                "relating to an existing cancer case."
+
+        tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+        tvTitle.setText(R.string.alert)
+        tvMessage.text = Html.fromHtml(htmlText)
+        tvMessage.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+        noButton.setText(R.string.add_new_primary_cancer_info)
+        yesButton.setText(R.string.update_an_existing_cancer_case)
+
+        noButton.apply {
+            setOnClickListener {
+                alertDialog.dismiss()
+                // add new event
+//                val eventUid=formatter.generateUUID(11)
+                formatter.saveSharedPref("current_patient", data.uid, requireContext())
+                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+
+            }
+        }
+        yesButton.apply {
+            setOnClickListener {
+                alertDialog.dismiss()
+                // get latest event
+                formatter.saveSharedPref("current_patient", data.uid, requireContext())
+                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+            }
+        }
+
+        alertDialog.show()
     }
 
 

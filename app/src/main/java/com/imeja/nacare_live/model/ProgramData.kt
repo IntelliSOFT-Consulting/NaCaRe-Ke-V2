@@ -185,6 +185,7 @@ data class MultipleTrackedEntityInstances(
 )
 
 data class EntityData(
+    val uid: String,
     val date: String,
     val fName: String,
     val lName: String,
@@ -220,4 +221,16 @@ data class EventInstances(
     val createdAt: String,
     val dataValues: List<DataValue>
 
+)
+
+
+data class ExpandableItem(
+    val groupName: String,
+    val dataElements: String,
+    val programUid: String,
+    val programStageUid: String,
+    val selectedOrgUnit: String,
+    val selectedTei: String,
+    val isExpanded: Boolean = false,
+    val isProgram: Boolean = false
 )
