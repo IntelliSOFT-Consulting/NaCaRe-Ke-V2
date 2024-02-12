@@ -84,6 +84,7 @@ data class Attribute(
 )
 
 data class CodeValuePair(val code: String, val value: String)
+data class CodeValueEventPair(val dataElement: String, val value: String)
 
 data class TrackedEntityInstances(
     val trackedEntityType: String,
@@ -206,5 +207,17 @@ data class EventUploadData(
     val orgUnit: String,
     val program: String,
     val status: String,
-    val dataValues:List<DataValue>
+    val dataValues: List<DataValue>
+)
+
+data class EventInstances(
+    val event: String,
+    val status: String,
+    val program: String,
+    val programStage: String,
+    val orgUnit: String,
+    val occurredAt: String,
+    val createdAt: String,
+    val dataValues: List<DataValue>
+
 )

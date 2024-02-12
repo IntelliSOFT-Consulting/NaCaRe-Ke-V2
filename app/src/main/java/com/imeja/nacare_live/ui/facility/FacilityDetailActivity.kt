@@ -30,6 +30,7 @@ import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityFacilityDetailBinding
 import com.imeja.nacare_live.model.Attribute
 import com.imeja.nacare_live.model.AttributeValues
+import com.imeja.nacare_live.model.CodeValueEventPair
 import com.imeja.nacare_live.model.CodeValuePair
 import com.imeja.nacare_live.model.DataElements
 import com.imeja.nacare_live.model.DataValue
@@ -58,7 +59,7 @@ class FacilityDetailActivity : AppCompatActivity() {
     private val formFieldsData = ArrayList<DataElements>()
     private lateinit var viewModel: MainViewModel
     private val formatter = FormatterClass()
-    private var searchParameters = ArrayList<CodeValuePair>()
+    private var searchParameters = ArrayList<DataValue>()
     private var dataValueList = ArrayList<DataValue>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,20 +100,14 @@ class FacilityDetailActivity : AppCompatActivity() {
         val programUid = formatter.getSharedPref("programUid", this)
         if (orgCode != null) {
             dataValueList.clear()
-            searchParameters.forEach {
-                val attr = DataValue(
-                    dataElement = it.code,
-                    value = it.value
-                )
-                dataValueList.add(attr)
-            }
+
             val data = EventData(
                 uid = formatter.generateUUID(11),
                 program = programUid.toString(),
                 orgUnit = orgCode,
                 eventDate = formatter.formatCurrentDate(Date()),
                 status = "ACTIVE",
-                dataValues = Gson().toJson(dataValueList)
+                dataValues = Gson().toJson(searchParameters)
             )
             viewModel.saveEvent(this, data)
             this@FacilityDetailActivity.finish()
@@ -616,13 +611,13 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun saveValued(id: String, value: String) {
-        val existingIndex = searchParameters.indexOfFirst { it.code == id }
+        val existingIndex = searchParameters.indexOfFirst { it.dataElement == id }
         if (existingIndex != -1) {
             // Update the existing entry if the code is found
-            searchParameters[existingIndex] = CodeValuePair(code = id, value = value)
+            searchParameters[existingIndex] = DataValue(dataElement = id, value = value)
         } else {
             // Add a new entry if the code is not found
-            val data = CodeValuePair(code = id, value = value)
+            val data = DataValue(dataElement = id, value = value)
             searchParameters.add(data)
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
@@ -649,17 +644,17 @@ class FacilityDetailActivity : AppCompatActivity() {
         if (response != null) {
             searchParameters = getSavedValues()
             Log.e("TAG", "Manipulated Data ***** $searchParameters")
-            val foundItem = searchParameters.find { it.code == id }
+            val foundItem = searchParameters.find { it.dataElement == id }
             return foundItem?.value ?: ""
         }
         return ""
     }
 
-    private fun getSavedValues(): ArrayList<CodeValuePair> {
+    private fun getSavedValues(): ArrayList<DataValue> {
         val savedData = formatter.getSharedPref("current_data", this)
         if (savedData != null) {
             return if (savedData.isNotEmpty()) {
-                Gson().fromJson(savedData, object : TypeToken<ArrayList<CodeValuePair>>() {}.type)
+                Gson().fromJson(savedData, object : TypeToken<ArrayList<DataValue>>() {}.type)
             } else {
                 ArrayList()
             }

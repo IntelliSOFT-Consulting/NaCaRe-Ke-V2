@@ -3,6 +3,7 @@ package com.imeja.nacare_live.network
 import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
+import com.imeja.nacare_live.response.FacilityEventResponse
 import com.imeja.nacare_live.response.OrganizationUnitResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
@@ -57,5 +58,13 @@ interface Interface {
     suspend fun uploadFacilityData(
         @Body payload: EventUploadData
     ): Response<Any>
+
+    @GET("api/tracker/events")
+    suspend fun loadFacilityEvents(
+        @Query("program") program: String,
+        @Query("orgUnit") orgUnit: String,
+        @Query("paging") paging: Boolean = false,
+        @Query("fields") fields: String = "event,program,programStage,orgUnit,status,occurredAt,completedDate,createdAt,dataValues[createdAt,updatedAt,dataElement, value]",
+    ): Response<FacilityEventResponse>
 
 }

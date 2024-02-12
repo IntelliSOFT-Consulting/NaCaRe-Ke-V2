@@ -1,6 +1,7 @@
 package com.imeja.nacare_live.response
 
 import com.imeja.nacare_live.model.CountyUnit
+import com.imeja.nacare_live.model.EventInstances
 import com.imeja.nacare_live.model.Pager
 import com.imeja.nacare_live.model.ProgramDetails
 import com.imeja.nacare_live.model.TrackedEntityInstances
@@ -33,3 +34,10 @@ data class OrganizationUnitResponse(
     val level: String,
     val children: List<CountyUnit>,
 )
+
+data class FacilityEventResponse(
+    val page: String,
+    val pageSize: String,
+    val instances: List<EventInstances>
+)
+

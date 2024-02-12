@@ -2,12 +2,13 @@ package com.imeja.nacare_live.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.imeja.nacare_live.R
 import com.imeja.nacare_live.holders.TrackedEntityHolder
 import com.imeja.nacare_live.model.EntityData
+
 
 class TrackedEntityAdapter(
     private val dataList: List<EntityData>,
@@ -30,11 +31,35 @@ class TrackedEntityAdapter(
         holder.firstnameTextView.text = data.fName
         holder.lastnameTextView.text = data.lName
         holder.actionTextView.text = data.diagnosis
-//        holder.uniqueTextView.setTextColor(context.resources.getColor(R.color.black))
-//        holder.hospitalNo.setTextColor(context.resources.getColor(R.color.black))
-//        holder.patientName.setTextColor(context.resources.getColor(R.color.black))
-//        holder.identificationDoc.setTextColor(context.resources.getColor(R.color.black))
-//        holder.diagnosis.setTextColor(context.resources.getColor(R.color.black))
+
+        val upDrawable = context.resources.getDrawable(R.drawable.arrow_up)
+        val downDrawable = context.resources.getDrawable(R.drawable.arrow_down)
+        holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            downDrawable,
+            null,
+            null,
+            null
+        )
+
+        holder.dateTextView.setOnClickListener { v ->
+            if (holder.hiddenLayout.visibility === View.VISIBLE) {
+                holder.hiddenLayout.visibility = View.GONE
+                holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    downDrawable,
+                    null,
+                    null,
+                    null
+                )
+            } else {
+                holder.hiddenLayout.visibility = View.VISIBLE
+                holder.dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    upDrawable,
+                    null,
+                    null,
+                    null
+                )
+            }
+        }
 
         holder.itemView.apply {
             setOnClickListener {

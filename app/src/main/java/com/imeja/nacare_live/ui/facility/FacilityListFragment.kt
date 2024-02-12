@@ -15,12 +15,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.imeja.nacare_live.R
 import com.imeja.nacare_live.adapters.FacilityAdapter
-import com.imeja.nacare_live.adapters.TrackedEntityAdapter
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.FragmentFacilityListBinding
 import com.imeja.nacare_live.model.DataElements
 import com.imeja.nacare_live.model.DataValue
-import com.imeja.nacare_live.model.EntityData
 import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.FacilitySummary
 import com.imeja.nacare_live.network.RetrofitCalls
@@ -84,8 +82,8 @@ class FacilityListFragment : Fragment() {
             val data = viewModel.loadEvents(orgUnit, requireContext())
             Log.e("TAG", " Facility Data Saved $data")
             if (data != null) {
-
                 if (data.isEmpty()) {
+                    loadLiveEvents(orgUnit)
                     binding.apply {
                         eventButton.visibility = View.VISIBLE
                         eventsNotificator.visibility = View.VISIBLE
@@ -126,6 +124,17 @@ class FacilityListFragment : Fragment() {
         }
     }
 
+    private fun loadLiveEvents(orgUnit: String) {
+        val program = formatter.getSharedPref("programUid", requireContext())
+        retrofitCalls.loadFacilityEvents(
+            requireContext(),
+            program.toString(),
+            orgUnit,
+            binding.progressBar
+        )
+
+    }
+
     private fun handleClick(facilitySummary: FacilitySummary) {
         val orgUnit = formatter.getSharedPref("orgCode", requireContext())
         val data = viewModel.loadEvent(facilitySummary.uid, requireContext())
@@ -146,8 +155,10 @@ class FacilityListFragment : Fragment() {
                     status = data.status,
                     dataValues = dataValuesList
                 )
-                Log.e("TAG", " Facility Data Saved $payload")
-                uploadFacilityData(payload)
+                Log.e("TAG", " Facility Data Saved ${data.dataValues}")
+//                uploadFacilityData(payload)
+                formatter.saveSharedPref("current_data", data.dataValues, requireContext())
+                formatter.deleteSharedPref("reload",   requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))
             }
         }

@@ -75,5 +75,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadEvent(uid)
     }
 
+    fun addUpdateFacilityEvent(data: EventData)= runBlocking {
+        repository.saveEvent(data)
+    }
+
 
 }

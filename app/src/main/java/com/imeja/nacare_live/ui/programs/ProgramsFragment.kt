@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.imeja.nacare_live.adapters.ProgramAdapter
 import com.imeja.nacare_live.databinding.FragmentProgramsBinding
@@ -54,8 +55,10 @@ class ProgramsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val programs = viewModel.loadPrograms(requireContext())
+        binding.apply { btnProceed.apply { setOnClickListener {
+            NavHostFragment.findNavController(this@ProgramsFragment).navigateUp()
+        } } }
         if (!programs.isEmpty()) {
             programList.clear()
             programs.forEach {

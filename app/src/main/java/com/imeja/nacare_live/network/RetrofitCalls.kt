@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -16,6 +18,7 @@ import com.imeja.nacare_live.R
 import com.imeja.nacare_live.auth.SyncActivity
 import com.imeja.nacare_live.data.Constants
 import com.imeja.nacare_live.data.FormatterClass
+import com.imeja.nacare_live.model.DataValue
 import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
@@ -379,7 +382,7 @@ class RetrofitCalls {
         }
     }
 
-    fun uploadFacilityData(context: Context,data: EventUploadData) {
+    fun uploadFacilityData(context: Context, data: EventUploadData) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
             val viewModel = MainViewModel(context.applicationContext as Application)
@@ -413,6 +416,74 @@ class RetrofitCalls {
                 print(e)
                 Log.e("TAG", "Success Error:::: ${e.message}")
 
+
+            }
+        }
+    }
+
+    fun loadFacilityEvents(
+        context: Context,
+        program: String,
+        orgUnit: String,
+        progressBar: ProgressBar
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            progressBar.visibility = View.VISIBLE
+            try {
+
+                val apiInterface =
+                    apiService.loadFacilityEvents(program, orgUnit)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "child units error:::: $body")
+                    progressBar.visibility = View.GONE
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                body.instances.forEach { q ->
+                                    val innerValues = mutableListOf<DataValue>()
+                                    q.dataValues.forEach {
+                                        val da = DataValue(
+                                            dataElement = it.dataElement,
+                                            value = it.value
+                                        )
+                                        innerValues.add(da)
+                                    }
+                                    val eventData = EventData(
+                                        dataValues = Gson().toJson(innerValues),
+                                        uid = q.event,
+                                        program = q.program,
+                                        orgUnit = q.orgUnit,
+                                        eventDate = q.createdAt,
+                                        status = q.status,
+                                        isSynced = true,
+                                    )
+
+                                    viewModel.addUpdateFacilityEvent(eventData)
+                                }
+
+                            }
+                        }
+                    }
+                } else {
+                    progressBar.visibility = View.GONE
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+                progressBar.visibility = View.GONE
 
             }
         }

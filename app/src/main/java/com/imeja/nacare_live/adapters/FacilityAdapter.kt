@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.imeja.nacare_live.R
+import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.holders.FacilityHolder
 import com.imeja.nacare_live.model.FacilitySummary
 
@@ -26,7 +27,9 @@ class FacilityAdapter(
 
     override fun onBindViewHolder(holder: FacilityHolder, position: Int) {
         val data = dataList[position]
-        holder.dateTextView.text = data.date
+        val formatter = FormatterClass()
+        val date = formatter.convertDateFormat(data.date)//convertDateFormat("hhhh")
+        holder.dateTextView.text = date
         holder.statusTextView.text = data.status
         val htmlText = "<a href=\"\">Edit</a>"
         holder.actionTextView.text = Html.fromHtml(htmlText)

@@ -72,4 +72,5 @@ interface RoomDao {
     fun countEntities(): Int
     @Query("SELECT * FROM event WHERE uid =:uid ORDER BY id DESC")
     fun loadEvent(uid: String): EventData?
+
 }
