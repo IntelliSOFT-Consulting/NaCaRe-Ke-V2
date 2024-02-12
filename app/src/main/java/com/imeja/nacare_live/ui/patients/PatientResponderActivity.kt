@@ -11,7 +11,10 @@ import com.imeja.nacare_live.R
 import com.imeja.nacare_live.adapters.ExpandableListAdapter
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityPatientResponderBinding
+
 import com.imeja.nacare_live.model.ExpandableItem
+import com.imeja.nacare_live.model.ProgramSections
+import com.imeja.nacare_live.model.ProgramStageSections
 import com.imeja.nacare_live.model.TrackedEntityAttributes
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.MainViewModel
@@ -23,6 +26,7 @@ class PatientResponderActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private val formatter = FormatterClass()
     private val emptyList = ArrayList<TrackedEntityAttributes>()
+    private val elementList = ArrayList<ProgramStageSections>()
     private val completeList = ArrayList<TrackedEntityAttributes>()
     private val searchList = ArrayList<TrackedEntityAttributes>()
     private val expandableList = ArrayList<ExpandableItem>()
@@ -57,6 +61,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 val converters = Converters().fromJson(data.jsonData)
                 searchList.clear()
                 emptyList.clear()
+                completeList.clear()
                 converters.programs.forEach { it ->
                     it.programSections.forEach {
                         if (it.name == "SEARCH PATIENT") {
@@ -71,10 +76,16 @@ class PatientResponderActivity : AppCompatActivity() {
 
                         }
                     }
+                    elementList.clear()
+                    it.programStages.forEach { q ->
+                        q.programStageSections.forEach {
+                            elementList.add(it)
+                        }
+
+                    }
                 }
                 completeList.addAll(searchList)
                 completeList.addAll(emptyList)
-
 
 
                 expandableList.add(
@@ -91,6 +102,21 @@ class PatientResponderActivity : AppCompatActivity() {
                     )
                 )
 
+                elementList.forEach {
+                    expandableList.add(
+                        ExpandableItem(
+                            groupName = it.displayName,
+                            dataElements = Gson().toJson(it.dataElements),
+                            programUid = formatter.getSharedPref("programUid", this).toString(),
+                            programStageUid = formatter.getSharedPref("programUid", this)
+                                .toString(),
+                            selectedOrgUnit = formatter.getSharedPref("orgCode", this).toString(),
+                            selectedTei = patientUid,
+                            isExpanded = false,
+                            isProgram = true
+                        )
+                    )
+                }
 
                 val adapterProgram = ExpandableListAdapter(expandableList, this)
 
