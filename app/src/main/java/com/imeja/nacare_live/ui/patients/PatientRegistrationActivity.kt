@@ -995,7 +995,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     attributes = attributeValueList,
                 )
                 viewModel.saveTrackedEntity(this, data)
-formatter.deleteSharedPref("index",this@PatientRegistrationActivity)
+                formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
                 this@PatientRegistrationActivity.finish()
             } else {
                 Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()

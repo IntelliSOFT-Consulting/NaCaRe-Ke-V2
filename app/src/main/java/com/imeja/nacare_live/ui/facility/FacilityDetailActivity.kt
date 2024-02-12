@@ -93,6 +93,15 @@ class FacilityDetailActivity : AppCompatActivity() {
             }
 
         }
+
+        val index = formatter.getSharedPref("index", this@FacilityDetailActivity)
+        if (index != null) {
+            val viewToFocus: View? = binding.lnParent.getChildAt(index.toInt())
+//            viewToFocus?.requestFocus()
+            binding.scrollView.post {
+                binding.scrollView.smoothScrollTo(0, viewToFocus?.top ?: 0)
+            }
+        }
     }
 
     private fun validateSearchData() {
@@ -137,8 +146,8 @@ class FacilityDetailActivity : AppCompatActivity() {
             }
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
-            formFieldsData.forEach {
-                populateSearchFields(it, binding.lnParent, extractCurrentValues(it.id))
+            formFieldsData.forEachIndexed { index, item ->
+                populateSearchFields(index,item, binding.lnParent, extractCurrentValues(item.id))
             }
         }
     }
@@ -195,8 +204,67 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
         return value
     }
+    private fun showIfRespondedAttribute(
+        attributeValueList: List<AttributeValues>
+    ): Boolean {
+        var isHidden = false
+        if (attributeValueList.isEmpty()) isHidden = false else {
+            for (patr in attributeValueList) {
+                val data: Attribute = patr.attribute
+                if (data.name == "showIf") {
+                    Log.e("TAG", "Show me the Response to Compared ${patr.value}")
+                    val currentValidator = patr.value
+                    val parts = currentValidator.split(':')
 
+                    if (parts.size == 3) {
+                        val part1 = parts[0] // this is the attribute to get it's answer
+                        val part2 = parts[1] //comparator
+                        val part3 = parts[2] // required answer
+                        println("Part 1: $part1")
+                        println("Part 2: $part2")
+                        println("Part 3: $part3")
+
+                        var previousAnswer = extractCurrentValues(part1)
+                        if (previousAnswer.isNotEmpty()) {
+                            Log.e("TAG", "Show me the Response to Compared $previousAnswer")
+                            previousAnswer = previousAnswer.lowercase()
+                            val part3Lower = parts[2].lowercase()
+
+                            Log.e(
+                                "TAG",
+                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
+                            )
+                            val result = when (part2) {
+                                "eq" -> previousAnswer == part3Lower
+                                "ne" -> previousAnswer != part3Lower
+                                "gt" -> previousAnswer > part3Lower
+                                "ge" -> previousAnswer >= part3Lower
+                                "lt" -> previousAnswer < part3Lower
+                                "le" -> previousAnswer <= part3Lower
+                                "null" -> false
+                                "notnull" -> true
+                                else -> false
+                            }
+                            isHidden = !result
+
+                        } else {
+                            isHidden = true
+                            break
+                        }
+
+
+                    } else {
+                        println("The input string does not have three parts separated by a colon.")
+                        isHidden = true
+                        break
+                    }
+                }
+            }
+        }
+        return isHidden
+    }
     private fun populateSearchFields(
+        index:Int,
         item: DataElements,
         lnParent: LinearLayout,
         currentValue: String
@@ -246,17 +314,17 @@ class FacilityDetailActivity : AppCompatActivity() {
                             editText.isEnabled = false;
                         }
                         if (showIf) {
-//                            val showNow = showIfRespondedAttribute(item.attributeValues)
-//                            if (showNow) {
-//                                itemView.visibility = View.GONE
-//                            } else {
-//                                itemView.visibility = View.VISIBLE
-//                            }
+                            val showNow = showIfRespondedAttribute(item.attributeValues)
+                            if (showNow) {
+                                itemView.visibility = View.GONE
+                            } else {
+                                itemView.visibility = View.VISIBLE
+                            }
                         }
                     }
                     editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(item.id, editText.text.toString())
+                            saveValued(index,item.id, editText.text.toString())
                         }
                     }
 
@@ -301,12 +369,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                             autoCompleteTextView.setAdapter(null)
                         }
                         if (showIf) {
-//                            val showNow = showIfRespondedAttribute(item.attributeValues)
-//                            if (showNow) {
-//                                itemView.visibility = View.GONE
-//                            } else {
-//                                itemView.visibility = View.VISIBLE
-//                            }
+                            val showNow = showIfRespondedAttribute(item.attributeValues)
+                            if (showNow) {
+                                itemView.visibility = View.GONE
+                            } else {
+                                itemView.visibility = View.VISIBLE
+                            }
                         }
 
                     }
@@ -332,7 +400,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                saveValued(item.id, dataValue)
+                                saveValued(index,item.id, dataValue)
                             }
                         }
                     })
@@ -369,12 +437,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                         editText.isEnabled = false
                     }
                     if (showIf) {
-//                        val showNow = showIfRespondedAttribute(item.attributeValues)
-//                        if (showNow) {
-//                            itemView.visibility = View.GONE
-//                        } else {
-//                            itemView.visibility = View.VISIBLE
-//                        }
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -416,7 +484,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(item.id, value)
+                            saveValued(index,item.id, value)
                         }
                     }
                 })
@@ -452,12 +520,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                         editText.isEnabled = false;
                     }
                     if (showIf) {
-//                        val showNow = showIfRespondedAttribute(item.attributeValues)
-//                        if (showNow) {
-//                            itemView.visibility = View.GONE
-//                        } else {
-//                            itemView.visibility = View.VISIBLE
-//                        }
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -478,7 +546,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(item.id, value)
+                            saveValued(index,item.id, value)
                         }
                     }
 
@@ -517,12 +585,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                         editText.isEnabled = false;
                     }
                     if (showIf) {
-//                        val showNow = showIfRespondedAttribute(item.attributeValues)
-//                        if (showNow) {
-//                            itemView.visibility = View.GONE
-//                        } else {
-//                            itemView.visibility = View.VISIBLE
-//                        }
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -543,7 +611,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     ) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(item.id, value)
+                            saveValued(index,item.id, value)
                         }
                     }
 
@@ -592,7 +660,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                         }
                         if (dataValue != null) {
                             isProgrammaticChange = true
-                            saveValued(item.id, dataValue)
+                            saveValued(index,item.id, dataValue)
                             isProgrammaticChange = false
                         }
                     }
@@ -605,12 +673,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                         radioGroup.isEnabled = false
                     }
                     if (showIf) {
-//                        val showNow = showIfRespondedAttribute(item.attributeValues)
-//                        if (showNow) {
-//                            itemView.visibility = View.GONE
-//                        } else {
-//                            itemView.visibility = View.VISIBLE
-//                        }
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
                     }
 
                 }
@@ -619,7 +687,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveValued(id: String, value: String) {
+    private fun saveValued(index: Int,id: String, value: String) {
         val existingIndex = searchParameters.indexOfFirst { it.dataElement == id }
         if (existingIndex != -1) {
             // Update the existing entry if the code is found
@@ -629,6 +697,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             val data = DataValue(dataElement = id, value = value)
             searchParameters.add(data)
         }
+        formatter.saveSharedPref("index", "$index", this)
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         Log.e("TAG", "Growing List $searchParameters")
         val reloadPage = formatter.getSharedPref("reload", this@FacilityDetailActivity)
@@ -642,7 +711,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             delay(100)
             val intent =
                 Intent(this@FacilityDetailActivity, FacilityDetailActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP //or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
             overridePendingTransition(0, 0) // Disable transition animation

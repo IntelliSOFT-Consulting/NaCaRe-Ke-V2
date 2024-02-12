@@ -58,3 +58,16 @@ data class DataStoreData(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }
+@Entity(tableName = "enrollmentevent")
+data class EnrollmentEventData(
+    @ColumnInfo(name = "dataValues") val dataValues: String,
+    var uid: String,
+    var program: String,
+    var orgUnit: String,
+    var eventDate: String,
+    var status: String,
+    val isSynced: Boolean = false,
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}

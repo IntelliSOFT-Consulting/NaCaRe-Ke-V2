@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -149,7 +150,8 @@ class PatientListFragment : Fragment() {
             setOnClickListener {
                 alertDialog.dismiss()
                 // add new event
-//                val eventUid=formatter.generateUUID(11)
+                val eventUid = formatter.generateUUID(11)
+                formatter.saveSharedPref("eventUid", eventUid, requireContext())
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
                 startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 
@@ -160,7 +162,8 @@ class PatientListFragment : Fragment() {
                 alertDialog.dismiss()
                 // get latest event
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
-                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+//                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+                Toast.makeText(requireContext(), "Under development", Toast.LENGTH_SHORT).show()
             }
         }
 

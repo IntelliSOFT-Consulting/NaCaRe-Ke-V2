@@ -24,70 +24,122 @@
                 android:orientation="horizontal"
                 android:padding="6dp">
 
-                <!-- TextView -->
                 <TextView
                     android:id="@+id/textViewName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="0.8"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large.Inverse"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="Left Aligned TextView"
                     android:textColor="@color/purple_200" />
 
-                <!-- ImageView -->
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/info"
-                    app:tint="@color/black" />
-
-                <!-- Small TextView -->
-                <TextView
-                    android:id="@+id/smallTextView"
+                <LinearLayout
+                    android:id="@+id/inner_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="8dp"
-                    android:text="0/10"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                    android:layout_gravity="end"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+                    <!-- ImageView -->
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/info"
+                        app:tint="@color/black" />
 
-                <!-- First Small ImageView -->
-                <ImageView
-                    android:id="@+id/smallImageView1"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/lock"
-                    app:tint="@color/black" />
+                    <!-- Small TextView -->
+                    <TextView
+                        android:id="@+id/smallTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
 
-                <!-- Second Small ImageView -->
-                <ImageView
-                    android:id="@+id/rotationImageView"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="4dp"
-                    android:rotation="180"
-                    android:src="@drawable/upload"
-                    app:tint="@color/black" />
+                    <!-- First Small ImageView -->
+                    <ImageView
+                        android:id="@+id/smallImageView1"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/lock"
+                        app:tint="@color/black" />
+
+                    <!-- Second Small ImageView -->
+                    <ImageView
+                        android:id="@+id/rotationImageView"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="4dp"
+                        android:rotation="180"
+                        android:src="@drawable/upload"
+                        app:tint="@color/black" />
+                </LinearLayout>
 
             </LinearLayout>
 
-
-            <LinearLayout
-                android:id="@+id/linearLayout"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_height="wrap_content">
 
-            </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/ln_with_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/linearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/_15dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/yes_button"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="@dimen/_5dp"
+                            android:layout_weight="1"
+                            android:text="@string/submit_btn"
+                            android:textAllCaps="false"
+                            app:cornerRadius="@dimen/_2dp"
+                            app:strokeColor="@color/purple_200"
+                            app:strokeWidth="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/no_button"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="@dimen/_5dp"
+                            android:layout_weight="1"
+                            android:text="@string/next_button"
+                            android:textAllCaps="false"
+                            app:cornerRadius="@dimen/_2dp"
+                            app:strokeColor="@color/purple_200"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
