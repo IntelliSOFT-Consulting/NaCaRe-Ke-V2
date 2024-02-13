@@ -137,7 +137,8 @@ data class SearchResult(
     val patientName: String,
     val identification: String,
     val diagnosis: String,
-    val attributeValues: List<TrackedEntityInstanceAttributes>
+    val attributeValues: List<TrackedEntityInstanceAttributes>,
+    val enrollmentEvents: List<Enrollments>
 )
 
 data class CountyUnit(

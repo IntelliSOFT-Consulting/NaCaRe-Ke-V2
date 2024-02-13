@@ -24,6 +24,7 @@ import com.nacare.capture.model.SearchResult
 import com.nacare.capture.model.TrackedEntityInstance
 import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.room.Converters
+import com.nacare.capture.room.EnrollmentEventData
 import com.nacare.capture.room.MainViewModel
 import java.util.Date
 
@@ -77,8 +78,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     patientName = extractValue("R1vaUuILrDy", it.attributes, true),
                     identification = extractValue("oob3a4JM7H6", it.attributes, false),
                     diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false),
-                    attributeValues = attributesList
-
+                    attributeValues = attributesList,
+                    enrollmentEvents = it.enrollments
                 )
                 searchResult.add(data)
 
@@ -149,10 +150,76 @@ class PatientSearchResultsActivity : AppCompatActivity() {
             setOnClickListener {
                 alertDialog.dismiss()
                 // get latest event
-                Log.e(
-                    "TAG",
-                    "Creation Data **** ${data.eventUid} for Enrollment ${data.enrollmentUid}"
+                var eventUid = formatter.generateUUID(11)
+                var enrollmentUid = formatter.generateUUID(11)
+                var programStage =
+                    formatter.getSharedPref("programUid", this@PatientSearchResultsActivity)
+                var program =
+                    formatter.getSharedPref("programUid", this@PatientSearchResultsActivity)
+                data.enrollmentEvents.forEach { q ->
+                    Log.e("TAG", "Creation Data **** ${q.events}")
+                    enrollmentUid = q.enrollment
+                    program = q.program
+                    q.events.forEach {
+                        eventUid = it.event
+                        programStage = it.programStage
+                        formatter.saveSharedPref(
+                            "eventUid",
+                            it.event,
+                            this@PatientSearchResultsActivity
+                        )
+                        formatter.deleteSharedPref(
+                            "current_data",
+                            this@PatientSearchResultsActivity
+                        )
+                        formatter.saveSharedPref(
+                            "current_patient",
+                            data.trackedEntityInstance,
+                            this@PatientSearchResultsActivity
+                        )
+                        formatter.saveSharedPref(
+                            "current_patient_id",
+                            data.trackedEntityInstance,
+                            this@PatientSearchResultsActivity
+                        )
+
+                    }
+                }
+
+                val entityData = TrackedEntityInstance(
+                    trackedEntity = data.trackedEntityInstance,
+                    enrollment = enrollmentUid,
+                    enrollDate = formatter.formatCurrentDate(Date()),
+                    orgUnit = formatter.getSharedPref("orgCode", this@PatientSearchResultsActivity)
+                        .toString(),
+                    attributes = data.attributeValues
                 )
+
+                val enrollment = EnrollmentEventData(
+                    dataValues = "",
+                    uid = enrollmentUid,
+                    eventUid = eventUid,
+                    program = program.toString(),
+                    programStage = programStage.toString(),
+                    orgUnit = formatter.getSharedPref("orgCode", context).toString(),
+                    eventDate = formatter.formatCurrentDate(Date()),
+                    status = "ACTIVE",
+                    trackedEntity = data.trackedEntityInstance
+                )
+
+                viewModel.saveTrackedEntityWithEnrollment(
+                    this@PatientSearchResultsActivity,
+                    entityData,
+                    enrollment
+                )
+
+                startActivity(
+                    Intent(
+                        this@PatientSearchResultsActivity,
+                        PatientResponderActivity::class.java
+                    )
+                )
+
             }
         }
 

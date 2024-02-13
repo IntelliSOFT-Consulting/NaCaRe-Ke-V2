@@ -3,6 +3,7 @@ package com.nacare.capture.room
 import android.content.Context
 import com.google.gson.Gson
 import com.nacare.capture.data.FormatterClass
+import com.nacare.capture.model.Enrollments
 import com.nacare.capture.model.TrackedEntityInstance
 import java.util.Date
 
@@ -82,6 +83,48 @@ class MainRepository(private val roomDao: RoomDao) {
             formatter.saveSharedPref("eventUid", eventUid, context)
             formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
             roomDao.saveEnrollment(enrollment)
+        }
+    }
+
+    fun saveTrackedEntityWithEnrollment(
+        context: Context,
+        data: TrackedEntityInstance,
+        enrollment: EnrollmentEventData
+    ) {
+        val formatter = FormatterClass()
+        val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
+        if (exists) {
+            roomDao.updateTrackedEntity(
+                data.orgUnit,
+                data.trackedEntity,
+                Gson().toJson(data.attributes)
+            )
+        } else {
+            val save = TrackedEntityInstanceData(
+                trackedEntity = data.trackedEntity,
+                orgUnit = data.orgUnit,
+                enrollment = data.enrollment,
+                enrollDate = data.enrollDate,
+                attributes = Gson().toJson(data.attributes)
+
+            )
+            val savedItemId = roomDao.saveTrackedEntity(save)
+            val enrollmentUid = enrollment.uid
+            val eventUid = enrollment.eventUid
+            val child = EnrollmentEventData(
+                dataValues = "",
+                uid = enrollmentUid,
+                eventUid = eventUid,
+                program = enrollment.program,
+                programStage = enrollment.programStage,
+                orgUnit = enrollment.orgUnit,
+                eventDate = formatter.formatCurrentDate(Date()),
+                status = "ACTIVE",
+                trackedEntity = savedItemId.toString()
+            )
+            formatter.saveSharedPref("eventUid", eventUid, context)
+            formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
+            roomDao.saveEnrollment(child)
         }
     }
 

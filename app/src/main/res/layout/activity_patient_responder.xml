@@ -29,15 +29,6 @@
         android:padding="@dimen/_10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trackedEntityInstanceRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:visibility="gone"
-            tools:listitem="@layout/list_layout_tracked" />
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -45,12 +36,29 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/lnParent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/_10dp" />
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/syncProgressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:max="100"
+                    android:progress="50"
+                    android:visibility="visible" />
+
+                <LinearLayout
+                    android:id="@+id/lnParent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/_10dp" />
+            </LinearLayout>
         </ScrollView>
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

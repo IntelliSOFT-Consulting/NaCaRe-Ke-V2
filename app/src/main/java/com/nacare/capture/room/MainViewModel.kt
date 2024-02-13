@@ -155,5 +155,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addEnrollmentData(data)
     }
 
+    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData) =
+        runBlocking{
+        repository.saveTrackedEntityWithEnrollment(context,data,enrollment)
+    }
+
 
 }

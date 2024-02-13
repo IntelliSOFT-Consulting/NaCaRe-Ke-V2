@@ -201,7 +201,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             )
                         )
                     }
-
+                    binding.syncProgressBar.visibility = View.GONE
                     expandableList.forEachIndexed { index, item ->
                         createFormField(index, item)
                     }
