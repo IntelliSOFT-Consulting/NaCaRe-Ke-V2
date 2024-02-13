@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.nacare.capture" />
+                  <option name="mobileSdkAppId" value="1:361332943123:android:12bd666d969d680e8c12e6" />
+                  <option name="projectId" value="nacare-b64b9" />
+                  <option name="projectNumber" value="361332943123" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

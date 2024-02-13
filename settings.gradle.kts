@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "nacare-live"
+rootProject.name = "nacare-app"
 include(":app")
