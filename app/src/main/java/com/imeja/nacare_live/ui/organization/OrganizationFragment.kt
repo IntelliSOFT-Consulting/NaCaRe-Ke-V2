@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
@@ -16,6 +17,7 @@ import com.imeja.nacare_live.data.AppUtils
 import com.imeja.nacare_live.data.FormatterClass
 
 import com.imeja.nacare_live.databinding.FragmentGalleryBinding
+import com.imeja.nacare_live.model.CodeValuePair
 import com.imeja.nacare_live.model.OrgTreeNode
 import com.imeja.nacare_live.room.Converters
 import com.imeja.nacare_live.room.MainViewModel
@@ -24,6 +26,7 @@ class OrganizationFragment : Fragment() {
     val hashMap1 = mutableMapOf<String, String>()
     private var _binding: FragmentGalleryBinding? = null
     private val formatter = FormatterClass()
+    private var searchParameters = ArrayList<CodeValuePair>()
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -48,24 +51,36 @@ class OrganizationFragment : Fragment() {
         binding.apply {
             btnProceed.apply {
                 setOnClickListener {
+                    val organization = binding.autoCompleteTextView.text.toString()
+                    if (organization.isNullOrEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Select Org Unit to Proceed",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnClickListener
+                    }
+                    try {
+                        val found = searchParameters.firstOrNull { it.value == organization }
+                        if (found != null) {
+                            Log.e("TAG", "OrgUnit ${found.code} and ${found.value}")
 
-//                    val organization = binding.autoCompleteTextView.text
-//                    if (organization.isNullOrEmpty()) {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "Select Org Unit to Proceed",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                        return@setOnClickListener
-//                    }
-
-                    NavHostFragment.findNavController(this@OrganizationFragment)
-                        .navigate(R.id.programsFragment)
+                            formatter.saveSharedPref("orgCode", found.code, requireContext())
+                            formatter.saveSharedPref("orgName", found.value, requireContext())
+                        }
+                        NavHostFragment.findNavController(this@OrganizationFragment)
+                            .navigate(R.id.programsFragment)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
+
         }
         loadOrganization()
+
     }
+
 
     private fun loadOrganization() {
         val organization = viewModel.loadOrganization(requireContext())
@@ -89,9 +104,66 @@ class OrganizationFragment : Fragment() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+
             val adapter = TreeAdapter(requireContext(), treeNodes, this::selectOrganization)
             binding.programsRecyclerView.adapter = adapter
             binding.programsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            val resultList = mutableListOf<OrgTreeNode>()
+            treeNodes.forEach {
+                if (it.children.isNotEmpty()) {
+                    manipulateChildren(it, it.level.toInt(), resultList)
+                }
+            }
+            Log.e("TAG", "Collected Organizations **** $resultList")
+            prepareSearchData(resultList)
+        }
+    }
+
+    private fun prepareSearchData(resultList: MutableList<OrgTreeNode>) {
+
+        try {
+            val optionsStringList: MutableList<String> = ArrayList()
+            resultList.forEach {
+                optionsStringList.add(it.label)
+                saveValue(it.code, it.label)
+            }
+            val adp = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                optionsStringList
+            )
+            binding.autoCompleteTextView.setAdapter(adp)
+            adp.notifyDataSetChanged()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun saveValue(id: String, value: String) {
+        val existingIndex = searchParameters.indexOfFirst { it.code == id }
+        if (existingIndex != -1) {
+            // Update the existing entry if the code is found
+            searchParameters[existingIndex] = CodeValuePair(code = id, value = value)
+        } else {
+            // Add a new entry if the code is not found
+            val data = CodeValuePair(code = id, value = value)
+            searchParameters.add(data)
+        }
+    }
+
+    private fun manipulateChildren(
+        data: OrgTreeNode,
+        level: Int,
+        resultList: MutableList<OrgTreeNode>
+    ) {
+        if (level == 5) {
+            // Add current node to the result list
+            resultList.add(data)
+        } else {
+            // Recursively process children nodes
+            data.children.forEach { child ->
+                manipulateChildren(child, level + 1, resultList)
+            }
         }
     }
 

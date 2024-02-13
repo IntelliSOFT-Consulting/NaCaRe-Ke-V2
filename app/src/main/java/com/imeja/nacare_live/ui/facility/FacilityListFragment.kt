@@ -143,7 +143,11 @@ class FacilityListFragment : Fragment() {
             if (data != null) {
 
                 formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
-                formatter.saveSharedPref("current_event_date", facilitySummary.date, requireContext())
+                formatter.saveSharedPref(
+                    "current_event_date",
+                    facilitySummary.date,
+                    requireContext()
+                )
                 formatter.saveSharedPref("existing_event", "true", requireContext())
 
                 val typeToken = object : TypeToken<List<DataValue>>() {}.type
@@ -159,7 +163,7 @@ class FacilityListFragment : Fragment() {
                 Log.e("TAG", " Facility Data Saved ${data.dataValues}")
 //                uploadFacilityData(payload)
                 formatter.saveSharedPref("current_data", data.dataValues, requireContext())
-                formatter.deleteSharedPref("reload",   requireContext())
+                formatter.deleteSharedPref("reload", requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))
             }
         }
@@ -200,6 +204,8 @@ class FacilityListFragment : Fragment() {
             }
             eventButton.apply {
                 setOnClickListener {
+                    formatter.deleteSharedPref("current_facility_data", requireContext())
+                    formatter.deleteSharedPref("facility_reload", requireContext())
                     val intent = Intent(requireContext(), FacilityDetailActivity::class.java)
                     startActivity(intent)
                 }

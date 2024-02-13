@@ -9,7 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.imeja.nacare_live.R
+import com.imeja.nacare_live.data.FormatterClass
+import com.imeja.nacare_live.model.DataValue
 import com.imeja.nacare_live.model.OrgTreeNode
 
 
@@ -19,6 +22,8 @@ class TreeAdapter(
     private val click: (OrgTreeNode) -> Unit
 ) :
     RecyclerView.Adapter<TreeAdapter.TreeViewHolder>() {
+    private var searchParameters = ArrayList<DataValue>()
+    private val formatter = FormatterClass()
 
     inner class TreeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -47,6 +52,10 @@ class TreeAdapter(
         // Handle click to expand/collapse
         itemView.setOnClickListener {
             toggleNode(position, holder)
+        }
+
+        if (node.level == "5") {
+//            saveOrganizationData(node)
         }
 
         // Handle visibility based on whether the node has children and is expanded
@@ -91,6 +100,25 @@ class TreeAdapter(
 
         // Set child RecyclerView visibility based on the expand/collapse state
         childRecyclerView.visibility = if (node.isExpanded) View.VISIBLE else View.GONE
+    }
+
+    private fun saveOrganizationData(node: OrgTreeNode) {
+        try{val existingIndex = searchParameters.indexOfFirst { it.dataElement == node.code }
+        if (existingIndex != -1) {
+            // Update the existing entry if the code is found
+            searchParameters[existingIndex] = DataValue(dataElement = node.code, value = node.label)
+        } else {
+            // Add a new entry if the code is not found
+            val data = DataValue(dataElement = node.code, value = node.label)
+            searchParameters.add(data)
+        }
+        formatter.saveSharedPref(
+            "current_organization_data",
+            Gson().toJson(searchParameters),
+            context
+        )}catch (e:Exception){
+            e.printStackTrace()
+        }
     }
 
     private fun getTreeLevel(node: OrgTreeNode): Int {

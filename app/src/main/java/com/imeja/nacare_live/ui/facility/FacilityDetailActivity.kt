@@ -80,7 +80,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             }
             btnSave.apply {
                 setOnClickListener {
-                    formatter.saveSharedPref("reload", "true", this@FacilityDetailActivity)
+                    formatter.saveSharedPref("facility_reload", "true", this@FacilityDetailActivity)
                     validateSearchData()
                 }
             }
@@ -700,7 +700,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         formatter.saveSharedPref("index", "$index", this)
         formatter.saveSharedPref("current_facility_data", Gson().toJson(searchParameters), this)
         Log.e("TAG", "Growing List $searchParameters")
-        val reloadPage = formatter.getSharedPref("reload", this@FacilityDetailActivity)
+        val reloadPage = formatter.getSharedPref("facility_reload", this@FacilityDetailActivity)
         if (reloadPage == null) {
             reloadActivity()
         }
