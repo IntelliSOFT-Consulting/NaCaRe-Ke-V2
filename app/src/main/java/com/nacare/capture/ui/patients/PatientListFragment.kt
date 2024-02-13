@@ -75,6 +75,16 @@ class PatientListFragment : Fragment() {
         if (orgUnit != null) {
             val data = viewModel.loadAllTrackedEntities(orgUnit, requireContext())
             if (data != null) {
+                if (data.isEmpty()) {
+                    binding.apply {
+
+                        trackedEntityInstancesNotificator.visibility = View.VISIBLE
+                    }
+                } else {
+                    binding.apply {
+                        trackedEntityInstancesNotificator.visibility = View.GONE
+                    }
+                }
                 dataList.clear()
                 data.forEach {
                     val single = EntityData(
@@ -177,7 +187,7 @@ class PatientListFragment : Fragment() {
                         latestEnrollment.eventUid,
                         requireContext()
                     )
-                }else{
+                } else {
                     val eventUid = formatter.generateUUID(11)
                     formatter.saveSharedPref("eventUid", eventUid, requireContext())
                 }

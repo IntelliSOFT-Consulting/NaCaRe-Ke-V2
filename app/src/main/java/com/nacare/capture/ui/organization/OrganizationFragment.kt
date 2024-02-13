@@ -63,8 +63,6 @@ class OrganizationFragment : Fragment() {
                     try {
 //                        val found = searchParameters.firstOrNull { it.value == organization }
 //                        if (found != null) {
-//                            Log.e("TAG", "OrgUnit ${found.code} and ${found.value}")
-//
 //                            formatter.saveSharedPref("orgCode", found.code, requireContext())
 //                            formatter.saveSharedPref("orgName", found.value, requireContext())
 //                        }

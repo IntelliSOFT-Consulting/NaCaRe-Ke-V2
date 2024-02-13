@@ -54,7 +54,7 @@ class TrackedEntityAdapter(
                 data.attributes
             )
         holder.tv_id_doc_no.text =
-            context.getString(R.string.id_doc_no) + extractValueFromAttributes("", data.attributes)
+            context.getString(R.string.id_doc_no) + extractValueFromAttributes("eFbT7iTnljR", data.attributes)
         holder.tv_patient_id.text =
             context.getString(R.string.patient_id) + extractValueFromAttributes(
                 "AP13g7NcBOf",

@@ -79,7 +79,7 @@ data class AttributeValues(
 )
 
 data class RefinedAttributeValues(
-    val parent:String,
+    val parent: String,
     val value: String,
 )
 
@@ -94,6 +94,8 @@ data class Attribute(
 )
 
 data class CodeValuePair(val code: String, val value: String)
+
+data class CodeValuePairPatient(val code: String, val value: String, val isProgram: Boolean = false)
 data class CodeValueEventPair(val dataElement: String, val value: String)
 
 data class TrackedEntityInstances(

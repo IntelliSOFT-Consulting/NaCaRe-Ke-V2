@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.model.TrackedEntityInstance
+import java.util.Date
 
 class MainRepository(private val roomDao: RoomDao) {
 
@@ -47,6 +48,7 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun saveTrackedEntity(context: Context, data: TrackedEntityInstance) {
+        val formatter = FormatterClass()
         val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
             roomDao.updateTrackedEntity(
@@ -63,7 +65,21 @@ class MainRepository(private val roomDao: RoomDao) {
                 attributes = Gson().toJson(data.attributes)
 
             )
-            roomDao.saveTrackedEntity(save)
+            val savedItemId = roomDao.saveTrackedEntity(save)
+
+            val enrollment = EnrollmentEventData(
+                dataValues = "",
+                uid = formatter.generateUUID(11),
+                eventUid = formatter.generateUUID(11),
+                program = formatter.getSharedPref("programUid", context).toString(),
+                programStage = formatter.getSharedPref("programUid", context).toString(),
+                orgUnit = formatter.getSharedPref("orgCode", context).toString(),
+                eventDate = formatter.formatCurrentDate(Date()),
+                status = "ACTIVE",
+                trackedEntity = savedItemId.toString()
+            )
+
+            roomDao.saveEnrollment(enrollment)
         }
     }
 
@@ -180,6 +196,14 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun updateFacilityEvent(id: String, reference: String) {
         roomDao.updateFacilityEvent(id, reference, true)
+    }
+
+    fun loadTrackedEntity(id: String): TrackedEntityInstanceData? {
+        return roomDao.loadTrackedEntity(id)
+    }
+
+    fun loadEnrollment(context: Context, eventUid: String):EnrollmentEventData? {
+        return roomDao.loadEnrollment(eventUid)
     }
 
 }

@@ -139,8 +139,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadAllEvents(isSynced)
     }
 
-    fun updateFacilityEvent(id: String, reference: String)= runBlocking {
-        repository.updateFacilityEvent(id,reference)
+    fun updateFacilityEvent(id: String, reference: String) = runBlocking {
+        repository.updateFacilityEvent(id, reference)
+    }
+
+    fun loadTrackedEntity(id: String) = runBlocking {
+        repository.loadTrackedEntity(id)
+    }
+
+    fun loadEnrollment(context: Context, eventUid: String)= runBlocking {
+        repository.loadEnrollment(context,eventUid)
     }
 
 

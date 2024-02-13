@@ -10,6 +10,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.DatePicker
@@ -38,6 +39,8 @@ import com.nacare.capture.model.Attribute
 import com.nacare.capture.model.AttributeValues
 import com.nacare.capture.model.CodeValuePair
 import com.nacare.capture.model.Option
+import com.nacare.capture.model.ParentAttributeValues
+import com.nacare.capture.model.RefinedAttributeValues
 import com.nacare.capture.model.TrackedEntityAttributes
 import com.nacare.capture.model.TrackedEntityInstance
 import com.nacare.capture.model.TrackedEntityInstanceAttributes
@@ -69,6 +72,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
     private var searchParameters = ArrayList<CodeValuePair>()
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
+    private var attributeList = ArrayList<ParentAttributeValues>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +80,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         binding = ActivityPatientRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
-
+        attributeList.clear()
         loadSearchParameters()
 
         binding.apply {
@@ -101,36 +105,24 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
             }
         }
-        val index = formatter.getSharedPref("index", this@PatientRegistrationActivity)
-        if (index != null) {
-            val viewToFocus: View? = binding.lnParent.getChildAt(index.toInt())
-//            viewToFocus?.requestFocus()
-            binding.scrollView.post {
-                binding.scrollView.smoothScrollTo(0, viewToFocus?.top ?: 0)
-            }
-        }
-    }
 
+    }
 
 
     private fun loadSearchParameters() {
         val data = viewModel.loadSingleProgram(this, "notification")
         if (data != null) {
-            Log.e("TAG", "Program Data Retrieved $data")
             val converters = Converters().fromJson(data.jsonData)
-            Log.e("TAG", "Program Data Retrieved $converters")
             searchList.clear()
             emptyList.clear()
             converters.programs.forEach { it ->
                 it.programSections.forEach {
                     if (it.name == "SEARCH PATIENT") {
                         val section = it.trackedEntityAttributes
-                        Log.e("TAG", "Program Data Retrieved $section")
                         searchList.addAll(section)
 
                     } else {
                         val section = it.trackedEntityAttributes
-                        Log.e("TAG", "Program Data Retrieved Other  $section")
                         emptyList.addAll(section)
 
                     }
@@ -141,6 +133,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
             completeList.forEachIndexed { index, item ->
+                attributeList.add(ParentAttributeValues(item.id, item.attributeValues))
                 populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
 
             }
@@ -409,8 +402,35 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                calculateRelevant(index, item, value)
+                                calculateRelevant(lnParent, index, item, value)
                                 saveValued(index, item.id, dataValue)
+                                val list = checkIfParentHasChildren(item.id)
+                                for (i in 0 until lnParent.childCount) {
+                                    val child: View = lnParent.getChildAt(i)
+                                    // Check if any inner data of the list matches the child's tag
+                                    val matchFound = list.any { innerData ->
+                                        // Replace the condition below with the appropriate comparison between innerData and child's tag
+                                        innerData.parent == child.tag
+                                    }
+                                    if (matchFound) {
+                                        val validAnswer =
+                                            checkProvidedAnswer(
+                                                child.tag.toString(),
+                                                list,
+                                                dataValue
+                                            )
+                                        if (validAnswer) {
+                                            child.visibility = View.VISIBLE
+                                        } else {
+                                            child.visibility = View.GONE
+                                        }
+                                    } else {
+                                        // If no match is found, leave the visibility unchanged
+                                        if (child.visibility != View.VISIBLE) {
+                                            child.visibility = View.GONE
+                                        }
+                                    }
+                                }
                             }
                         }
                     })
@@ -494,7 +514,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             //check if it is date of birth, calculate relevant
-                            calculateRelevant(index, item, value)
+                            calculateRelevant(lnParent, index, item, value)
                             saveValued(index, item.id, value)
                         }
                     }
@@ -734,6 +754,29 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             isProgrammaticChange = true
                             saveValued(index, item.id, dataValue)
                             isProgrammaticChange = false
+                            val list = checkIfParentHasChildren(item.id)
+                            for (i in 0 until lnParent.childCount) {
+                                val child: View = lnParent.getChildAt(i)
+                                // Check if any inner data of the list matches the child's tag
+                                val matchFound = list.any { innerData ->
+                                    // Replace the condition below with the appropriate comparison between innerData and child's tag
+                                    innerData.parent == child.tag
+                                }
+                                if (matchFound) {
+                                    val validAnswer =
+                                        checkProvidedAnswer(child.tag.toString(), list, dataValue)
+                                    if (validAnswer) {
+                                        child.visibility = View.VISIBLE
+                                    } else {
+                                        child.visibility = View.GONE
+                                    }
+                                } else {
+                                    // If no match is found, leave the visibility unchanged
+                                    if (child.visibility != View.VISIBLE) {
+                                        child.visibility = View.GONE
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -759,6 +802,79 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkProvidedAnswer(
+        parent: String,
+        list: List<RefinedAttributeValues>,
+        dataValue: String
+    ): Boolean {
+        var resultResponse = false
+        try {
+            val single = list.singleOrNull { it.parent == parent }
+            Log.e(
+                "TAG",
+                "We are looking the answer here **** $parent value need is $dataValue $single"
+            )
+            val lowercaseAnswer = dataValue.lowercase()
+            if (single != null) {
+                val parts = single.value.split(':')
+                if (parts.size == 3) {
+                    val part1 = parts[0]
+                    val part2 = parts[1]
+                    val part3 = parts[2]
+                    val part3Lower = parts[2].lowercase()
+                    val result = when (part2) {
+                        "eq" -> lowercaseAnswer == part3Lower
+                        "ne" -> lowercaseAnswer != part3Lower
+                        "gt" -> lowercaseAnswer > part3Lower
+                        "ge" -> lowercaseAnswer >= part3Lower
+                        "lt" -> lowercaseAnswer < part3Lower
+                        "le" -> lowercaseAnswer <= part3Lower
+                        "null" -> false
+                        "notnull" -> true
+                        else -> false
+                    }
+                    resultResponse = result
+                } else {
+                    resultResponse = false
+                }
+            }
+        } catch (e: Exception) {
+            resultResponse = false
+        }
+
+        return resultResponse
+
+    }
+
+    private fun checkIfParentHasChildren(id: String): List<RefinedAttributeValues> {
+        val childItem = mutableListOf<RefinedAttributeValues>()
+        attributeList.forEach { q ->
+            q.attributeValues.forEach {
+                if (it.attribute.name == "showIf") {
+                    Log.e("TAG", "Available Attribute **** ${it.attribute} ${it.value}")
+                    try {
+                        val currentValidator = it.value
+                        val parts = currentValidator.split(':')
+                        if (parts.size == 3) {
+                            val part1 = parts[0]
+                            if (part1 == id) {
+                                childItem.add(
+                                    RefinedAttributeValues(
+                                        q.parent,
+                                        currentValidator
+                                    )
+                                )
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        return childItem
+    }
+
     private fun getDisplayNameFromCode(options: List<Option>, value: String): String {
         for (option in options) {
             if (option.code == value) {
@@ -776,7 +892,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
         return Pair(years, months)
     }
 
-    private fun calculateRelevant(index: Int, item: TrackedEntityAttributes, value: String) {
+    private fun calculateRelevant(
+        lnParent: LinearLayout,
+        index: Int,
+        item: TrackedEntityAttributes,
+        value: String
+    ) {
 
         when (item.id) {
             DATE_OF_BIRTH -> {
@@ -786,6 +907,29 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 val currentDate = LocalDate.now()
                 val (years, months) = calculateAge(birthDate, currentDate)
 
+                for (i in 0 until lnParent.childCount) {
+                    val child: View = lnParent.getChildAt(i)
+                    if (child.tag == AGE_YEARS) {
+                        if (child is ViewGroup) {
+                            for (j in 0 until child.childCount) {
+                                val view: View = child.getChildAt(j)
+                                if (view is TextInputEditText) {
+                                    view.setText(years)
+                                }
+                            }
+                        }
+                    }
+                    if (child.tag == AGE_MONTHS) {
+                        if (child is ViewGroup) {
+                            for (j in 0 until child.childCount) {
+                                val view: View = child.getChildAt(j)
+                                if (view is TextInputEditText) {
+                                    view.setText(years)
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Log.e("TAG", "Age: $years years and $months months")
                 saveValued(index, AGE_YEARS, "$years")
@@ -860,17 +1004,17 @@ class PatientRegistrationActivity : AppCompatActivity() {
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         formatter.saveSharedPref("index", "$index", this)
         Log.e("TAG", "Growing List $searchParameters")
-        val reloadPage = formatter.getSharedPref("reload", this@PatientRegistrationActivity)
-        if (reloadPage == null) {
-            reloadActivity()
-        }
+
     }
 
     private fun reloadActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             delay(100)
             val intent =
-                Intent(this@PatientRegistrationActivity, PatientRegistrationActivity::class.java)
+                Intent(
+                    this@PatientRegistrationActivity,
+                    PatientRegistrationActivity::class.java
+                )
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP //or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
@@ -918,7 +1062,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
                 } else {
                     // Add a new entry if the code is not found
-                    val data = CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                    val data =
+                        CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
                     searchParameters.add(data)
                 }
                 formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
@@ -967,6 +1112,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 )
                 viewModel.saveTrackedEntity(this, data)
                 formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
+                startActivity(
+                    Intent(
+                        this@PatientRegistrationActivity,
+                        PatientResponderActivity::class.java
+                    )
+                )
                 this@PatientRegistrationActivity.finish()
             } else {
                 Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
