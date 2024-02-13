@@ -1,5 +1,6 @@
 package com.nacare.capture.ui.patients
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -12,23 +13,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
 import com.nacare.capture.R
 import com.nacare.capture.adapters.SearchResultsAdapter
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientSearchResultsBinding
+import com.nacare.capture.model.AttributeValues
 import com.nacare.capture.model.Attributes
 import com.nacare.capture.model.SearchResult
+import com.nacare.capture.model.TrackedEntityInstance
+import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.room.Converters
+import com.nacare.capture.room.MainViewModel
+import java.util.Date
 
 
 class PatientSearchResultsActivity : AppCompatActivity() {
     val formatter = FormatterClass()
     private lateinit var binding: ActivityPatientSearchResultsBinding
     private val searchResult = ArrayList<SearchResult>()
+    private lateinit var viewModel: MainViewModel
+    private val attributesList = mutableListOf<TrackedEntityInstanceAttributes>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientSearchResultsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = MainViewModel(this.applicationContext as Application)
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
             supportActionBar?.apply {
@@ -52,6 +62,12 @@ class PatientSearchResultsActivity : AppCompatActivity() {
             searchResult.clear()
             Log.e("TAG", "Results $converters")
             converters.trackedEntityInstances.forEach {
+                attributesList.clear()
+
+                it.attributes.forEach {
+                    attributesList.add(TrackedEntityInstanceAttributes(it.attribute, it.value))
+                }
+                it.attributes
                 val data = SearchResult(
                     trackedEntityInstance = it.trackedEntityInstance,
                     enrollmentUid = it.enrollments.getOrNull(0)?.enrollment.orEmpty(),
@@ -60,7 +76,9 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     hospitalNo = extractValue("MiXrdHDZ6Hw", it.attributes, false),
                     patientName = extractValue("R1vaUuILrDy", it.attributes, true),
                     identification = extractValue("oob3a4JM7H6", it.attributes, false),
-                    diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false)
+                    diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false),
+                    attributeValues = attributesList
+
                 )
                 searchResult.add(data)
 
@@ -109,30 +127,22 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
-                // add new event
-                formatter.saveSharedPref(
-                    "current_patient",
-                    data.trackedEntityInstance,
-                    this@PatientSearchResultsActivity
+                val entityData = TrackedEntityInstance(
+                    trackedEntity = formatter.generateUUID(11),
+                    enrollment = formatter.generateUUID(11),
+                    enrollDate = formatter.formatCurrentDate(Date()),
+                    orgUnit = formatter.getSharedPref("orgCode", this@PatientSearchResultsActivity)
+                        .toString(),
+                    attributes = data.attributeValues
                 )
-                startActivity(Intent(this@PatientSearchResultsActivity, PatientResponderActivity::class.java))
-                Log.e(
-                    "TAG",
-                    "Creation Data **** Only need enrollment ${data.enrollmentUid}"
-
+                viewModel.saveTrackedEntity(this@PatientSearchResultsActivity, entityData)
+                startActivity(
+                    Intent(
+                        this@PatientSearchResultsActivity,
+                        PatientResponderActivity::class.java
+                    )
                 )
-                val eventUid = formatter.generateUUID(11)
-                formatter.saveSharedPref(
-                    "current_patient",
-                    data.trackedEntityInstance,
-                    this@PatientSearchResultsActivity
-                )
-                startActivity(Intent(this@PatientSearchResultsActivity, PatientResponderActivity::class.java))
-                Log.e(
-                    "TAG",
-                    "Creation Data **** Only need enrollment ${data.enrollmentUid} Generated UID $eventUid"
-
-                )
+                this@PatientSearchResultsActivity.finish()
             }
         }
         yesButton.apply {

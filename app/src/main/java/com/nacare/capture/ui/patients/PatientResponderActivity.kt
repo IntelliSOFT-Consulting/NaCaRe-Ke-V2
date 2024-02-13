@@ -104,11 +104,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)
 
                 if (dataEnrollment != null) {
-                    val elementAttributes =
-                        Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
-                    elementAttributes.forEachIndexed { index, attribute ->
-                        Log.e("TAG", "Data Element Answers **** $attribute")
-                        saveValued(index, attribute.dataElement, attribute.value, true)
+                    if (dataEnrollment.dataValues.isNotEmpty()) {
+                        val elementAttributes =
+                            Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
+                        elementAttributes.forEachIndexed { index, attribute ->
+                            Log.e("TAG", "Data Element Answers **** $attribute")
+                            saveValued(index, attribute.dataElement, attribute.value, true)
+                        }
                     }
                 }
             }

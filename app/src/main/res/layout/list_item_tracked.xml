@@ -129,7 +129,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/proceed"
                     android:textColor="@color/black"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:layout_width="@dimen/_20dp"

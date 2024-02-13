@@ -151,5 +151,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadEnrollment(context,eventUid)
     }
 
+    fun addEnrollmentData(data: EnrollmentEventData) = runBlocking{
+        repository.addEnrollmentData(data)
+    }
+
 
 }

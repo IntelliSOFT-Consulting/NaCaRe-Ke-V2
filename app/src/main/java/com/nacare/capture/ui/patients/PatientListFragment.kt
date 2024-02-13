@@ -20,7 +20,9 @@ import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.FragmentPatientListBinding
 import com.nacare.capture.model.EntityData
 import com.nacare.capture.room.Converters
+import com.nacare.capture.room.EnrollmentEventData
 import com.nacare.capture.room.MainViewModel
+import java.util.Date
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -160,10 +162,24 @@ class PatientListFragment : Fragment() {
                 alertDialog.dismiss()
                 // add new event
                 val eventUid = formatter.generateUUID(11)
+
                 formatter.saveSharedPref("eventUid", eventUid, requireContext())
                 formatter.deleteSharedPref("current_data", requireContext())
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
                 formatter.saveSharedPref("current_patient_id", data.id, requireContext())
+
+                val enrollment = EnrollmentEventData(
+                    dataValues = "",
+                    uid = formatter.generateUUID(11),
+                    eventUid = eventUid,
+                    program = formatter.getSharedPref("programUid", context).toString(),
+                    programStage = formatter.getSharedPref("programUid", context).toString(),
+                    orgUnit = formatter.getSharedPref("orgCode", context).toString(),
+                    eventDate = formatter.formatCurrentDate(Date()),
+                    status = "ACTIVE",
+                    trackedEntity = data.id
+                )
+                viewModel.addEnrollmentData(enrollment)
                 startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 
             }

@@ -66,11 +66,12 @@ class MainRepository(private val roomDao: RoomDao) {
 
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
-
+            val enrollmentUid = formatter.generateUUID(11)
+            val eventUid = formatter.generateUUID(11)
             val enrollment = EnrollmentEventData(
                 dataValues = "",
-                uid = formatter.generateUUID(11),
-                eventUid = formatter.generateUUID(11),
+                uid = enrollmentUid,
+                eventUid = eventUid,
                 program = formatter.getSharedPref("programUid", context).toString(),
                 programStage = formatter.getSharedPref("programUid", context).toString(),
                 orgUnit = formatter.getSharedPref("orgCode", context).toString(),
@@ -78,7 +79,8 @@ class MainRepository(private val roomDao: RoomDao) {
                 status = "ACTIVE",
                 trackedEntity = savedItemId.toString()
             )
-
+            formatter.saveSharedPref("eventUid", eventUid, context)
+            formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
             roomDao.saveEnrollment(enrollment)
         }
     }
@@ -202,8 +204,13 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadTrackedEntity(id)
     }
 
-    fun loadEnrollment(context: Context, eventUid: String):EnrollmentEventData? {
+    fun loadEnrollment(context: Context, eventUid: String): EnrollmentEventData? {
         return roomDao.loadEnrollment(eventUid)
+    }
+
+    fun addEnrollmentData(data: EnrollmentEventData) {
+        roomDao.saveEnrollment(data)
+
     }
 
 }
