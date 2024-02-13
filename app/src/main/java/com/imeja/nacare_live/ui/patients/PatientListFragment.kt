@@ -80,6 +80,7 @@ class PatientListFragment : Fragment() {
                 dataList.clear()
                 data.forEach {
                     val single = EntityData(
+                        id = it.id.toString(),
                         uid = it.trackedEntity,
                         date = it.enrollDate,
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
@@ -152,7 +153,9 @@ class PatientListFragment : Fragment() {
                 // add new event
                 val eventUid = formatter.generateUUID(11)
                 formatter.saveSharedPref("eventUid", eventUid, requireContext())
+                formatter.deleteSharedPref("current_data", requireContext())
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
+                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
                 startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 
             }
@@ -162,8 +165,26 @@ class PatientListFragment : Fragment() {
                 alertDialog.dismiss()
                 // get latest event
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
-//                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
-                Toast.makeText(requireContext(), "Under development", Toast.LENGTH_SHORT).show()
+                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
+                val latestEnrollment = viewModel.getLatestEnrollment(
+                    requireContext(),
+                    data.id,
+                    formatter.getSharedPref("programUid", requireContext()).toString(),
+                    formatter.getSharedPref("orgCode", requireContext()).toString(),
+                )
+
+                if (latestEnrollment != null) {
+                    formatter.saveSharedPref(
+                        "eventUid",
+                        latestEnrollment.eventUid,
+                        requireContext()
+                    )
+                }else{
+                    val eventUid = formatter.generateUUID(11)
+                    formatter.saveSharedPref("eventUid", eventUid, requireContext())
+                }
+                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+//                Toast.makeText(requireContext(), "Under development", Toast.LENGTH_SHORT).show()
             }
         }
 

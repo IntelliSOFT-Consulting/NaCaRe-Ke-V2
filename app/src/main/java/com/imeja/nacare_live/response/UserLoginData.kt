@@ -2,8 +2,10 @@ package com.imeja.nacare_live.response
 
 import com.imeja.nacare_live.model.CountyUnit
 import com.imeja.nacare_live.model.EventInstances
+import com.imeja.nacare_live.model.FacilityUpload
 import com.imeja.nacare_live.model.Pager
 import com.imeja.nacare_live.model.ProgramDetails
+import com.imeja.nacare_live.model.RegistrationResponse
 import com.imeja.nacare_live.model.TrackedEntityInstances
 
 data class UserLoginData(
@@ -44,4 +46,24 @@ data class FacilityEventResponse(
 data class DataStoreResponse(
     val name: String,
     val codes: List<String>
+)
+
+data class PatientRegistrationResponse(
+    val httpStatus: String,
+    val httpStatusCode: String,
+    val status: String,
+    val message: String,
+    val response: RegistrationResponse
+)
+
+data class EnrollmentSingle(
+    val trackedEntityInstances: List<TrackedEntityInstances>
+)
+
+data class FacilityUploadResponse(
+    val httpStatus: String,
+    val httpStatusCode: String,
+    val status: String,
+    val message: String,
+    val response: FacilityUpload
 )

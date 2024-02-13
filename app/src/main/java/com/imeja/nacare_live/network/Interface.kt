@@ -4,8 +4,11 @@ import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.response.DataStoreResponse
+import com.imeja.nacare_live.response.EnrollmentSingle
 import com.imeja.nacare_live.response.FacilityEventResponse
+import com.imeja.nacare_live.response.FacilityUploadResponse
 import com.imeja.nacare_live.response.OrganizationUnitResponse
+import com.imeja.nacare_live.response.PatientRegistrationResponse
 import com.imeja.nacare_live.response.ProgramResponse
 import com.imeja.nacare_live.response.SearchPatientResponse
 import com.imeja.nacare_live.response.UserLoginData
@@ -43,12 +46,11 @@ interface Interface {
     suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
 
 
-    @PUT("/api/trackedEntityInstances/{code}?strategy=CREATE_AND_UPDATE")
+    @POST("/api/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
     @Headers("Content-Type: application/json")
     suspend fun uploadTrackedEntity(
-        @Path("code") code: String,
         @Body payload: TrackedEntityInstancePostData
-    ): Response<Any>//Response<PatientRegistrationResponse>
+    ): Response<PatientRegistrationResponse>
 
     @POST("/api/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
     @Headers("Content-Type: application/json")
@@ -58,7 +60,7 @@ interface Interface {
     @Headers("Content-Type: application/json")
     suspend fun uploadFacilityData(
         @Body payload: EventUploadData
-    ): Response<Any>
+    ): Response<FacilityUploadResponse>
 
     @GET("api/tracker/events")
     suspend fun loadFacilityEvents(
@@ -79,5 +81,17 @@ interface Interface {
 
     @GET("api/dataStore/cancer_categories/categories")
     suspend fun loadAllCategories(): Response<List<DataStoreResponse>>
+
+    @POST("/api/trackedEntityInstances?strategy=CREATE_AND_UPDATE")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadTrackedEntityRetry(@Body payload: TrackedEntityInstancePostData): Response<Any>
+
+    @GET("api/trackedEntityInstances")
+    suspend fun getTrackedEntiry(
+        @Query("program") program: String,
+        @Query("ouMode") ouMode: String = "ALL",
+        @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,enrollments[*]",
+        @Query("trackedEntityInstance") reference: String
+    ): Response<EnrollmentSingle>
 
 }

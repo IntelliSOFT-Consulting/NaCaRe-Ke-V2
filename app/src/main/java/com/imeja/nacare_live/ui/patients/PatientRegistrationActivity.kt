@@ -111,35 +111,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
     }
 
-    private fun scrollToTheLast() {
-        binding.apply {
-            val response = formatter.getSharedPref("current_data", this@PatientRegistrationActivity)
-            if (response != null) {
-                searchParameters = getSavedValues()
-                val lastAnswerUID = searchParameters.lastOrNull()?.code
-
-                Log.e("TAG", "LAst UID  $lastAnswerUID")
-                if (lastAnswerUID != null) {
-                    // Iterate through the child views of the LinearLayout
-                    for (i in 0 until lnParent.childCount) {
-                        val view = lnParent.getChildAt(i)
-                        // Check if the view's tag matches the last answer UID
-                        if (view.tag == lastAnswerUID) {
-                            // Get the Y-coordinate of the target view
-                            val y = view.y.toInt()
-                            // Scroll to the target view
-                            scrollView.post {
-                                scrollView.smoothScrollTo(0, y)
-                            }
-                            break // Exit the loop after finding the target view
-                        }
-                    }
-                }
-
-            }
-
-        }
-    }
 
 
     private fun loadSearchParameters() {
@@ -173,7 +144,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
 
             }
-            scrollToTheLast()
+
         }
     }
 

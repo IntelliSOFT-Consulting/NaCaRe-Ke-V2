@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.imeja.nacare_live.model.EnrollmentPostData
 
 
 @Dao
@@ -50,6 +51,9 @@ interface RoomDao {
     @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced  ORDER BY id DESC")
     fun loadTrackedEntities(isSynced: Boolean): List<TrackedEntityInstanceData>?
 
+    @Query("SELECT * FROM trackedEntity WHERE trackedEntity =:uid  ORDER BY id DESC")
+    fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData?
+
     @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit ORDER BY id DESC")
     fun loadAllTrackedEntities(orgUnit: String): List<TrackedEntityInstanceData>?
 
@@ -67,6 +71,8 @@ interface RoomDao {
 
     @Query("SELECT * FROM event WHERE orgUnit =:orgUnit ORDER BY id DESC")
     fun loadEvents(orgUnit: String): List<EventData>?
+    @Query("SELECT * FROM event WHERE isSynced =:isSynced  ORDER BY id DESC")
+    fun loadAllEvents(isSynced: Boolean): List<EventData>?
 
     @Query("SELECT COUNT(*) FROM trackedEntity")
     fun countEntities(): Int
@@ -82,7 +88,44 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDataStore(data: DataStoreData)
+
     @Query("SELECT * FROM dataStore WHERE uid =:uid ORDER BY id DESC")
     fun loadDataStore(uid: String): DataStoreData?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit)")
+    fun checkProgramStageEnrollment(
+        eventUid: String,
+        program: String,
+        programStage: String,
+        orgUnit: String
+    ): Boolean
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addProgramStageEnrollment(payload: EnrollmentEventData)
+
+    @Query(" UPDATE enrollmentevent SET dataValues =:dataValues WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit")
+    fun updateProgramStageEnrollment(
+        dataValues: String,
+        eventUid: String,
+        program: String,
+        programStage: String,
+        orgUnit: String
+    )
+
+    @Query("UPDATE trackedEntity SET isSynced=:isSynced, trackedEntity =:reference WHERE trackedEntity =:trackedEntity")
+    fun updateEntity(trackedEntity: String, reference: String, isSynced: Boolean)
+  @Query("UPDATE trackedEntity SET isSynced=:isSynced, enrollment =:reference WHERE trackedEntity =:trackedEntity")
+    fun updateEnrollmentEntity(trackedEntity: String, reference: String, isSynced: Boolean)
+
+    @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC")
+    fun getTrackedEvents(synced: Boolean): List<EnrollmentEventData>?
+    @Query("SELECT * FROM enrollmentevent WHERE trackedEntity =:trackedEntity AND program =:programUid AND orgUnit=:orgUnit  ORDER BY id DESC LIMIT 1")
+    fun getLatestEnrollment(trackedEntity: String, programUid: String, orgUnit: String): EnrollmentEventData?
+    @Query("SELECT * FROM enrollmentevent WHERE eventUid =:eventUid  ORDER BY id DESC LIMIT 1")
+    fun loadLatestEvent(eventUid: String): EnrollmentEventData?
+    @Query(" UPDATE trackedEntity SET enrollment =:enrollment WHERE  trackedEntity =:trackedEntity  AND orgUnit =:orgUnit")
+    fun updateEnrollmentPerOrgAndProgram(trackedEntity: String, enrollment: String, orgUnit: String)
+    @Query("UPDATE event SET isSynced=:isSynced, uid =:reference WHERE id =:id")
+    fun updateFacilityEvent(id: String, reference: String, isSynced: Boolean)
 
 }

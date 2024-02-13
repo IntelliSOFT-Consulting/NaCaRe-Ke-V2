@@ -62,10 +62,13 @@ data class DataStoreData(
 data class EnrollmentEventData(
     @ColumnInfo(name = "dataValues") val dataValues: String,
     var uid: String,
+    var eventUid: String,
     var program: String,
+    var programStage: String,
     var orgUnit: String,
     var eventDate: String,
     var status: String,
+    var trackedEntity: String,
     val isSynced: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)

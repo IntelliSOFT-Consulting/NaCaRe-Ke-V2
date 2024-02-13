@@ -698,7 +698,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             searchParameters.add(data)
         }
         formatter.saveSharedPref("index", "$index", this)
-        formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+        formatter.saveSharedPref("current_facility_data", Gson().toJson(searchParameters), this)
         Log.e("TAG", "Growing List $searchParameters")
         val reloadPage = formatter.getSharedPref("reload", this@FacilityDetailActivity)
         if (reloadPage == null) {
@@ -719,7 +719,7 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun extractCurrentValues(id: String): String {
-        val response = formatter.getSharedPref("current_data", this)
+        val response = formatter.getSharedPref("current_facility_data", this)
         if (response != null) {
             searchParameters = getSavedValues()
             Log.e("TAG", "Manipulated Data ***** $searchParameters")
@@ -730,7 +730,7 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun getSavedValues(): ArrayList<DataValue> {
-        val savedData = formatter.getSharedPref("current_data", this)
+        val savedData = formatter.getSharedPref("current_facility_data", this)
         if (savedData != null) {
             return if (savedData.isNotEmpty()) {
                 Gson().fromJson(savedData, object : TypeToken<ArrayList<DataValue>>() {}.type)

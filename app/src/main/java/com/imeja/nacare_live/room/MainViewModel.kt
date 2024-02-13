@@ -46,8 +46,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveTrackedEntity(context, data)
     }
 
-    fun loadTrackedEntities(context: Context) = runBlocking {
-        repository.loadTrackedEntities(context)
+    fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
+        repository.loadTrackedEntities(context, isSynced)
+    }
+
+    fun loadAllTrackedEntity(context: String) = runBlocking {
+        repository.loadAllTrackedEntity(context)
     }
 
     fun wipeData(context: Context) = runBlocking {
@@ -63,28 +67,80 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveEvent(data)
     }
 
-    fun loadEvents(orgUnit: String, context: Context)= runBlocking {
+    fun loadEvents(orgUnit: String, context: Context) = runBlocking {
         repository.loadEvents(orgUnit)
     }
 
-    fun countEntities()= runBlocking {
+    fun countEntities() = runBlocking {
         repository.countEntities()
     }
 
-    fun loadEvent(uid: String, requireContext: Context)= runBlocking {
+    fun loadEvent(uid: String, requireContext: Context) = runBlocking {
         repository.loadEvent(uid)
     }
 
-    fun addUpdateFacilityEvent(data: EventData)= runBlocking {
+    fun addUpdateFacilityEvent(data: EventData) = runBlocking {
         repository.saveEvent(data)
     }
 
-    fun addDataStore(data: DataStoreData) = runBlocking{
+    fun addDataStore(data: DataStoreData) = runBlocking {
         repository.addDataStore(data)
     }
 
-    fun loadDataStore(context: Context,uid:String)= runBlocking {
+    fun loadDataStore(context: Context, uid: String) = runBlocking {
         repository.loadDataStore(uid)
+    }
+
+    fun addProgramStage(context: Context, payload: EnrollmentEventData) = runBlocking {
+        repository.addProgramStage(payload)
+    }
+
+    fun updateEntity(trackedEntity: String, reference: String) = runBlocking {
+        repository.updateEntity(trackedEntity, reference)
+    }
+
+    fun updateEnrollmentEntity(trackedEntity: String, reference: String) = runBlocking {
+        repository.updateEnrollmentEntity(trackedEntity, reference)
+    }
+
+    fun getTrackedEvents(context: Context, isSynced: Boolean) = runBlocking {
+        repository.getTrackedEvents(context, isSynced)
+    }
+
+    fun getLatestEnrollment(
+        context: Context,
+        trackedEntity: String,
+        programUid: String,
+        orgUnit: String
+    ) =
+        runBlocking {
+            repository.getLatestEnrollment(context, trackedEntity, programUid, orgUnit)
+        }
+
+    fun loadLatestEvent(eventUid: String) = runBlocking {
+        repository.loadLatestEvent(eventUid)
+
+    }
+
+    fun resetEnrollments(context: Context) = runBlocking {
+//repository.resetEnrollments()
+    }
+
+    fun updateEnrollmentPerOrgAndProgram(
+        entityReference: String,
+        enrollment: String,
+        programUid: String,
+        orgUnit: String
+    ) {
+        repository.updateEnrollmentPerOrgAndProgram(entityReference, enrollment, orgUnit)
+    }
+
+    fun loadAllEvents(context: Context, isSynced: Boolean) = runBlocking {
+        repository.loadAllEvents(isSynced)
+    }
+
+    fun updateFacilityEvent(id: String, reference: String)= runBlocking {
+        repository.updateFacilityEvent(id,reference)
     }
 
 

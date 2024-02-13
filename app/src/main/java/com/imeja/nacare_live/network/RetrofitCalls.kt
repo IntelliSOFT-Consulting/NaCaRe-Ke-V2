@@ -354,14 +354,29 @@ class RetrofitCalls {
                     .create(Interface::class.java)
             try {
                 val apiInterface =
-                    apiService.uploadTrackedEntity(trackedEntity, payload)
+                    apiService.uploadTrackedEntity(payload)
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-
+                                Log.e("TAG", "Upload Data Here **** Server Response $body")
+                                val data = body.response.importSummaries.forEach {
+                                    val serverReference = it.reference
+                                    viewModel.updateEntity(trackedEntity, it.reference)
+                                    it.enrollments.importSummaries.forEach {
+                                        Log.e(
+                                            "TAG",
+                                            "Upload Data Here **** Enrollment Id ${it.reference} Tracked $serverReference"
+                                        )
+                                        viewModel.updateEnrollmentEntity(
+                                            serverReference,
+                                            it.reference
+                                        )
+                                    }
+//                                    retrieveServerEnrollments(context, it.reference)
+                                }
                             }
                         }
                     }
@@ -369,7 +384,10 @@ class RetrofitCalls {
                     val statusCode = apiInterface.code()
                     val errorBody = apiInterface.errorBody()?.string()
                     when (statusCode) {
-                        409 -> {}
+                        409 -> {
+                            uploadTrackedEntityRetry(context, payload)
+                        }
+
                         500 -> {}
                     }
                 }
@@ -382,7 +400,108 @@ class RetrofitCalls {
         }
     }
 
-    fun uploadFacilityData(context: Context, data: EventUploadData) {
+    private fun retrieveServerEnrollments(
+        context: Context,
+        entityReference: String
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val program = formatter.getSharedPref("programUid", context)
+            val orgCode = formatter.getSharedPref("orgCode", context)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface = apiService.getTrackedEntiry(
+                    program = program.toString(),
+                    reference = entityReference
+                )
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                Log.e(
+                                    "TAG",
+                                    "Upload Data Here Enrolled **** $entityReference **** $body"
+                                )
+                                body.trackedEntityInstances.forEach {
+                                    it.enrollments.forEach {
+                                        viewModel.updateEnrollmentPerOrgAndProgram(
+                                            entityReference,
+                                            it.enrollment,
+                                            program.toString(),
+                                            orgCode.toString()
+                                        )
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {
+//                            uploadTrackedEntityRetry(context, payload)
+                        }
+
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    private fun uploadTrackedEntityRetry(context: Context, payload: TrackedEntityInstancePostData) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.uploadTrackedEntityRetry(payload)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                Log.e("TAG", "Data Response Created ***** $body")
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {
+                        }
+
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun uploadFacilityData(context: Context, data: EventUploadData, id: String) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
             val viewModel = MainViewModel(context.applicationContext as Application)
@@ -399,7 +518,10 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-
+                                Log.e("TAG", "Event Upload Response:::: Event $id ****  $body")
+                                body.response.importSummaries.forEach {
+                                    viewModel.updateFacilityEvent(id, it.reference)
+                                }
                             }
                         }
                     }
@@ -564,7 +686,8 @@ class RetrofitCalls {
                         200 -> {
                             if (body != null) {
                                 Log.e("TAG", "Data Response **** $body")
-                                val data= DataStoreData(uid = "site", dataValues = Gson().toJson(body))
+                                val data =
+                                    DataStoreData(uid = "site", dataValues = Gson().toJson(body))
                                 viewModel.addDataStore(data)
 
                             }
@@ -606,7 +729,10 @@ class RetrofitCalls {
                         200 -> {
                             if (body != null) {
                                 Log.e("TAG", "Data Response **** $body")
-                                val data= DataStoreData(uid = "category", dataValues = Gson().toJson(body))
+                                val data = DataStoreData(
+                                    uid = "category",
+                                    dataValues = Gson().toJson(body)
+                                )
                                 viewModel.addDataStore(data)
                             }
                         }

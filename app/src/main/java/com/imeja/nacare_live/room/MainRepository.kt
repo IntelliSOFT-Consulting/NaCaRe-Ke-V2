@@ -1,8 +1,10 @@
 package com.imeja.nacare_live.room
 
 import android.content.Context
+import androidx.work.impl.utils.isDefaultProcess
 import com.google.gson.Gson
 import com.imeja.nacare_live.data.FormatterClass
+import com.imeja.nacare_live.model.EnrollmentPostData
 import com.imeja.nacare_live.model.TrackedEntityInstance
 
 class MainRepository(private val roomDao: RoomDao) {
@@ -67,8 +69,12 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun loadTrackedEntities(context: Context): List<TrackedEntityInstanceData>? {
-        return roomDao.loadTrackedEntities(false)
+    fun loadTrackedEntities(context: Context, isSynced: Boolean): List<TrackedEntityInstanceData>? {
+        return roomDao.loadTrackedEntities(isSynced)
+    }
+
+    fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData? {
+        return roomDao.loadAllTrackedEntity(uid)
     }
 
     fun wipeData(context: Context) {
@@ -98,12 +104,12 @@ class MainRepository(private val roomDao: RoomDao) {
         return "$data"
     }
 
-    fun loadEvent(uid: String) : EventData? {
+    fun loadEvent(uid: String): EventData? {
         return roomDao.loadEvent(uid)
     }
 
     fun addDataStore(data: DataStoreData) {
-        val exists = roomDao.checkDataStore(data.uid,)
+        val exists = roomDao.checkDataStore(data.uid)
         if (exists) {
             roomDao.updateDataStore(data.dataValues, data.uid)
         } else {
@@ -111,8 +117,71 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun loadDataStore(uid: String):DataStoreData?{
+    fun loadDataStore(uid: String): DataStoreData? {
         return roomDao.loadDataStore(uid)
+    }
+
+    fun addProgramStage(payload: EnrollmentEventData) {
+        val exists = roomDao.checkProgramStageEnrollment(
+            payload.eventUid,
+            payload.program,
+            payload.programStage,
+            payload.orgUnit
+        )
+        if (exists) {
+            roomDao.updateProgramStageEnrollment(
+                payload.dataValues,
+                payload.eventUid,
+                payload.program,
+                payload.programStage,
+                payload.orgUnit
+            )
+        } else {
+            roomDao.addProgramStageEnrollment(payload)
+        }
+    }
+
+    fun updateEntity(trackedEntity: String, reference: String) {
+        roomDao.updateEntity(trackedEntity, reference, true)
+
+    }
+
+    fun updateEnrollmentEntity(trackedEntity: String, reference: String) {
+        roomDao.updateEnrollmentEntity(trackedEntity, reference, true)
+
+    }
+
+    fun getTrackedEvents(context: Context, synced: Boolean): List<EnrollmentEventData>? {
+        return roomDao.getTrackedEvents(synced)
+    }
+
+    fun getLatestEnrollment(
+        context: Context,
+        trackedEntity: String,
+        programUid: String,
+        orgUnit: String
+    ): EnrollmentEventData? {
+        return roomDao.getLatestEnrollment(trackedEntity, programUid, orgUnit)
+    }
+
+    fun loadLatestEvent(eventUid: String): EnrollmentEventData? {
+        return roomDao.loadLatestEvent(eventUid)
+    }
+
+    fun updateEnrollmentPerOrgAndProgram(
+        entityReference: String,
+        enrollment: String,
+        orgUnit: String
+    ) {
+        roomDao.updateEnrollmentPerOrgAndProgram(entityReference, enrollment, orgUnit)
+    }
+
+    fun loadAllEvents(synced: Boolean): List<EventData>? {
+        return roomDao.loadAllEvents(synced)
+    }
+
+    fun updateFacilityEvent(id: String, reference: String) {
+        roomDao.updateFacilityEvent(id, reference, true)
     }
 
 }

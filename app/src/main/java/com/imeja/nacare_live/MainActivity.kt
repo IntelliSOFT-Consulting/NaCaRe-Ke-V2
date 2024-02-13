@@ -3,9 +3,9 @@ package com.imeja.nacare_live
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.TextView
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -15,16 +15,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.navigation.fragment.NavHostFragment
-import com.google.gson.Gson
 import com.imeja.nacare_live.auth.LoginActivity
 import com.imeja.nacare_live.data.FormatterClass
 import com.imeja.nacare_live.databinding.ActivityMainBinding
+import com.imeja.nacare_live.model.DataValue
 import com.imeja.nacare_live.model.EnrollmentPostData
-import com.imeja.nacare_live.model.MultipleTrackedEntityInstances
-import com.imeja.nacare_live.model.TrackedEntityAttributes
-import com.imeja.nacare_live.model.TrackedEntityInstance
-import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
+import com.imeja.nacare_live.model.EventUploadData
 import com.imeja.nacare_live.model.TrackedEntityInstancePostData
 import com.imeja.nacare_live.network.RetrofitCalls
 import com.imeja.nacare_live.room.Converters
@@ -32,9 +28,6 @@ import com.imeja.nacare_live.room.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
 
         viewModel = MainViewModel(this.applicationContext as Application)
-
+        viewModel.resetEnrollments(this)
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -100,10 +93,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
 //                    handleDataSync()
-//                    viewModel.wipeData(this)
-//                    retrofitCalls.loadAllCategories(this)
-//                    retrofitCalls.loadAllSites(this)
+//                    uploadTrackedEvents()
+                    handleEventUploads()
 //                    retrofitCalls.uploadFacilityData(this)
+
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -119,6 +112,40 @@ class MainActivity : AppCompatActivity() {
         headerView.findViewById<TextView>(R.id.tv_email).text = getUserData("email")
         loadPrograms()
     }
+
+    private fun handleEventUploads() {
+        val data = viewModel.loadAllEvents(this, false)
+        if (data != null) {
+            if (data.isNotEmpty()) {
+                Log.e("TAG", "Facility Events Here **** $data")
+                CoroutineScope(Dispatchers.IO).launch {
+                    data.forEach {
+                        val attributes = Converters().fromJsonDataAttribute(it.dataValues)
+                        val payload = EventUploadData(
+                            eventDate = it.eventDate,
+                            orgUnit = it.orgUnit,
+                            program = it.program,
+                            status = it.status,
+                            dataValues = attributes
+                        )
+                        Log.e("TAG", "Facility Events Here **** $payload")
+                        retrofitCalls.uploadFacilityData(this@MainActivity, payload,it.id.toString())
+
+                    }
+                }
+            }
+        }
+    }
+
+    private fun uploadTrackedEvents() {
+        val data = viewModel.getTrackedEvents(this, false)
+        if (data != null) {
+            if (data.isNotEmpty()) {
+                Log.e("TAG", "Tracked Events Here **** $data")
+            }
+        }
+    }
+
 
     private fun getUserData(s: String): String {
         var data = ""
@@ -136,7 +163,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleDataSync() {
-        val tei = viewModel.loadTrackedEntities(this)
+        val tei = viewModel.loadTrackedEntities(this, false)
         if (tei != null) {
             trackedEntityInstances.clear()
 
@@ -158,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                         incidentDate = it.enrollDate,
                     )
                 )
-                val server = formatter.generateUUID(11)
+                val server = it.trackedEntity//formatter.generateUUID(11)
                 val inst = TrackedEntityInstancePostData(
                     orgUnit = it.orgUnit,
                     trackedEntity = server,//it.trackedEntity,
@@ -167,18 +194,19 @@ class MainActivity : AppCompatActivity() {
                     enrollments = enrollments
 
                 )
+                Log.e("TAG", "Upload Data Here Enrolled **** $inst")
                 trackedEntityInstances.add(inst)
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    retrofitCalls.uploadSingleTrackedEntity(this@MainActivity, inst, server)
-//                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    retrofitCalls.uploadSingleTrackedEntity(this@MainActivity, inst, server)
+                }
             }
-            val payload = MultipleTrackedEntityInstances(
-                trackedEntityInstances = trackedEntityInstances
-            )
+//            val payload = MultipleTrackedEntityInstances(
+//                trackedEntityInstances = trackedEntityInstances
+//            )
 
-            CoroutineScope(Dispatchers.IO).launch {
-                retrofitCalls.uploadTrackedEntity(this@MainActivity, payload)
-            }
+//            CoroutineScope(Dispatchers.IO).launch {
+//                retrofitCalls.uploadTrackedEntity(this@MainActivity, payload)
+//            }
         }
     }
 
@@ -188,6 +216,9 @@ class MainActivity : AppCompatActivity() {
             retrofitCalls.loadOrganization(this@MainActivity)
             retrofitCalls.loadProgram(this@MainActivity, "notification")
             retrofitCalls.loadProgram(this@MainActivity, "facility")
+            retrofitCalls.loadAllSites(this@MainActivity)
+            retrofitCalls.loadAllCategories(this@MainActivity)
+            retrofitCalls.loadAllEvents(this@MainActivity)
         }
 
     }

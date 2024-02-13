@@ -190,11 +190,6 @@ class FacilityListFragment : Fragment() {
 
     }
 
-    private fun uploadFacilityData(data: EventUploadData) {
-        retrofitCalls.uploadFacilityData(requireContext(), data)
-
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {

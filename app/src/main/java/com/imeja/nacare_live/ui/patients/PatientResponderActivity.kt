@@ -35,15 +35,22 @@ import com.imeja.nacare_live.model.Attribute
 import com.imeja.nacare_live.model.AttributeValues
 import com.imeja.nacare_live.model.CodeValuePair
 import com.imeja.nacare_live.model.DataElements
+import com.imeja.nacare_live.model.DataValue
 
 import com.imeja.nacare_live.model.ExpandableItem
 import com.imeja.nacare_live.model.Option
 import com.imeja.nacare_live.model.ProgramStageSections
 import com.imeja.nacare_live.model.TrackedEntityAttributes
+import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
 import com.imeja.nacare_live.room.Converters
+import com.imeja.nacare_live.room.EnrollmentEventData
 import com.imeja.nacare_live.room.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 import java.util.Calendar
+import java.util.Date
 
 
 class PatientResponderActivity : AppCompatActivity() {
@@ -56,12 +63,17 @@ class PatientResponderActivity : AppCompatActivity() {
     private val completeList = ArrayList<TrackedEntityAttributes>()
     private val searchList = ArrayList<TrackedEntityAttributes>()
     private val expandableList = ArrayList<ExpandableItem>()
+    private val attributeValueList = ArrayList<DataValue>()
+    private var linearLayouts: Array<LinearLayout?>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientResponderBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         viewModel = MainViewModel(this.applicationContext as Application)
+        val current_patient = formatter.getSharedPref("current_patient", this)
+        if (current_patient != null) {
+            populateAvailableData(current_patient)
+        }
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
             supportActionBar?.apply {
@@ -73,86 +85,120 @@ class PatientResponderActivity : AppCompatActivity() {
                 onBackPressed() // Or implement your own logic
             }
         }
-
         loadProgramDetails()
-
     }
 
-    private fun loadProgramDetails() {
-
-        val patientUid = formatter.getSharedPref("current_patient", this)
-        if (patientUid != null) {
-            val data = viewModel.loadSingleProgram(this, "notification")
-            if (data != null) {
-                val converters = Converters().fromJson(data.jsonData)
-                searchList.clear()
-                emptyList.clear()
-                completeList.clear()
-                converters.programs.forEach { it ->
-                    it.programSections.forEach {
-                        if (it.name == "SEARCH PATIENT") {
-                            val section = it.trackedEntityAttributes
-                            Log.e("TAG", "Program Data Retrieved $section")
-                            searchList.addAll(section)
-
-                        } else {
-                            val section = it.trackedEntityAttributes
-                            Log.e("TAG", "Program Data Retrieved Other  $section")
-                            emptyList.addAll(section)
-
-                        }
-                    }
-                    elementList.clear()
-                    it.programStages.forEach { q ->
-                        q.programStageSections.forEach {
-                            elementList.add(it)
-                        }
-
-                    }
-                }
-                completeList.addAll(searchList)
-                completeList.addAll(emptyList)
-
-                expandableList.add(
-                    ExpandableItem(
-                        groupName = "Patient Details and Cancer Information",
-                        dataElements = Gson().toJson(completeList),
-                        programUid = formatter.getSharedPref("programUid", this).toString(),
-                        programStageUid = formatter.getSharedPref("programUid", this)
-                            .toString(),
-                        selectedOrgUnit = formatter.getSharedPref("orgCode", this).toString(),
-                        selectedTei = patientUid,
-                        isExpanded = false,
-                        isProgram = false
-                    )
-                )
-
-                elementList.forEach {
-                    expandableList.add(
-                        ExpandableItem(
-                            groupName = it.displayName,
-                            dataElements = Gson().toJson(it.dataElements),
-                            programUid = formatter.getSharedPref("programUid", this).toString(),
-                            programStageUid = formatter.getSharedPref("programUid", this)
-                                .toString(),
-                            selectedOrgUnit = formatter.getSharedPref("orgCode", this).toString(),
-                            selectedTei = patientUid,
-                            isExpanded = false,
-                            isProgram = true
-                        )
-                    )
-                }
-
-                expandableList.forEachIndexed { index, item ->
-                    createFormField(index, item)
-                }
+    private fun populateAvailableData(currentPatient: String) {
+        val data = viewModel.loadLatestEvent(formatter.getSharedPref("eventUid", this).toString())
+        if (data != null) {
+            val attributes = Converters().fromJsonDataAttribute(data.dataValues)
+            attributes.forEachIndexed { index, attribute ->
+                Log.e("TAG", "Data Element Answers **** $attribute")
+                saveValued(index, attribute.dataElement, attribute.value)
             }
-        } else {
-            Toast.makeText(this, "Please select Patient to proceed", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun createFormField(index: Int, it: ExpandableItem) {
+    private fun loadProgramDetails() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val patientUid =
+                formatter.getSharedPref("current_patient", this@PatientResponderActivity)
+            if (patientUid != null) {
+                val data =
+                    viewModel.loadSingleProgram(this@PatientResponderActivity, "notification")
+                if (data != null) {
+                    val converters = Converters().fromJson(data.jsonData)
+                    searchList.clear()
+                    emptyList.clear()
+                    completeList.clear()
+                    converters.programs.forEach { it ->
+                        it.programSections.forEach {
+                            if (it.name == "SEARCH PATIENT") {
+                                val section = it.trackedEntityAttributes
+                                Log.e("TAG", "Program Data Retrieved $section")
+                                searchList.addAll(section)
+
+                            } else {
+                                val section = it.trackedEntityAttributes
+                                Log.e("TAG", "Program Data Retrieved Other  $section")
+                                emptyList.addAll(section)
+
+                            }
+                        }
+                        elementList.clear()
+                        it.programStages.forEach { q ->
+                            q.programStageSections.forEach {
+                                elementList.add(it)
+                            }
+
+                        }
+                    }
+                    completeList.addAll(searchList)
+                    completeList.addAll(emptyList)
+
+                    expandableList.add(
+                        ExpandableItem(
+                            groupName = "Patient Details and Cancer Information",
+                            dataElements = Gson().toJson(completeList),
+                            programUid = formatter.getSharedPref(
+                                "programUid",
+                                this@PatientResponderActivity
+                            ).toString(),
+                            programStageUid = formatter.getSharedPref(
+                                "programUid",
+                                this@PatientResponderActivity
+                            )
+                                .toString(),
+                            selectedOrgUnit = formatter.getSharedPref(
+                                "orgCode",
+                                this@PatientResponderActivity
+                            ).toString(),
+                            selectedTei = patientUid,
+                            isExpanded = false,
+                            isProgram = false
+                        )
+                    )
+
+                    elementList.forEach {
+                        expandableList.add(
+                            ExpandableItem(
+                                groupName = it.displayName,
+                                dataElements = Gson().toJson(it.dataElements),
+                                programUid = formatter.getSharedPref(
+                                    "programUid",
+                                    this@PatientResponderActivity
+                                ).toString(),
+                                programStageUid = formatter.getSharedPref(
+                                    "programUid",
+                                    this@PatientResponderActivity
+                                )
+                                    .toString(),
+                                selectedOrgUnit = formatter.getSharedPref(
+                                    "orgCode",
+                                    this@PatientResponderActivity
+                                ).toString(),
+                                selectedTei = patientUid,
+                                isExpanded = false,
+                                isProgram = true
+                            )
+                        )
+                    }
+
+                    expandableList.forEachIndexed { index, item ->
+                        createFormField(index, item)
+                    }
+                }
+            } else {
+                Toast.makeText(
+                    this@PatientResponderActivity,
+                    "Please select Patient to proceed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun createFormField(index: Int, data: ExpandableItem) {
         binding.apply {
             val inflater = LayoutInflater.from(this@PatientResponderActivity)
             val itemView = inflater.inflate(R.layout.list_layout_tracked, null) as LinearLayout
@@ -168,35 +214,49 @@ class PatientResponderActivity : AppCompatActivity() {
             val yes_button: MaterialButton = itemView.findViewById(R.id.yes_button)
             val no_button: MaterialButton = itemView.findViewById(R.id.no_button)
             // Set text and other properties if needed
-            textViewName.text = it.groupName
+            textViewName.text = data.groupName
+            if (index == 0) {
+                ln_with_buttons.visibility = View.VISIBLE
+            }
 
             itemView.setOnClickListener {
+                // Iterate through each child of lnParent
+                for (i in 0 until lnParent.childCount) {
+                    val childView = lnParent.getChildAt(i)
+                    val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
 
-                if (ln_with_buttons.isVisible) {
-                    ln_with_buttons.visibility = View.GONE
-                    lnLinearLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this@PatientResponderActivity,
-                            R.color.unselected
+                    if (childView == itemView) { // For clicked item
+                        // Toggle visibility and appearance of ln_with_buttons
+                        ln_with_buttons.visibility =
+                            if (ln_with_buttons.isVisible) View.GONE else View.VISIBLE
+                        val bgColor =
+                            if (ln_with_buttons.isVisible) R.color.selected else R.color.unselected
+                        lnLinearLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this@PatientResponderActivity,
+                                bgColor
+                            )
                         )
-                    )
-                    rotationImageView.rotation = 180f
-                } else {
-                    lnLinearLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this@PatientResponderActivity,
-                            R.color.selected
+                        rotationImageView.rotation = if (ln_with_buttons.isVisible) 0f else 180f
+                    } else { // For other items
+                        // Hide ln_with_buttons
+                        lnWithButtons.visibility = View.GONE
+                        lnLinearLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this@PatientResponderActivity,
+                                R.color.unselected
+                            )
                         )
-                    )
-                    rotationImageView.rotation = 0f
-                    ln_with_buttons.visibility = View.VISIBLE
+                        rotationImageView.rotation = 180f
+                    }
                 }
             }
-            if (!it.isProgram) {
+
+            if (!data.isProgram) {
                 val gson = Gson()
                 val listType: Type = object : TypeToken<List<TrackedEntityAttributes>>() {}.type
                 val dataElements: List<TrackedEntityAttributes> =
-                    gson.fromJson(it.dataElements, listType)
+                    gson.fromJson(data.dataElements, listType)
                 smallTextView.text = "0/${dataElements.count()}"
                 for (element in dataElements) {
                     Log.e("TAG", "Program DataValues **** ${element.name}")
@@ -208,10 +268,10 @@ class PatientResponderActivity : AppCompatActivity() {
                     )
                 }
             }
-            if (it.isProgram) {
+            if (data.isProgram) {
                 val gson = Gson()
                 val listType: Type = object : TypeToken<List<DataElements>>() {}.type
-                val dataElements: List<DataElements> = gson.fromJson(it.dataElements, listType)
+                val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
                 smallTextView.text = "0/${dataElements.count()}"
                 for (element in dataElements) {
                     Log.e("TAG", "Program DataValues **** ${element.displayName}")
@@ -234,18 +294,50 @@ class PatientResponderActivity : AppCompatActivity() {
                         context.getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
                     nextButton.setOnClickListener {
                         dialog.dismiss()
-                        formatter.saveSharedPref(
-                            "current_data",
-                            Gson().toJson(searchParameters),
-                            this@PatientResponderActivity
+//                        formatter.saveSharedPref(
+//                            "current_data",
+//                            Gson().toJson(searchParameters),
+//                            this@PatientResponderActivity
+//                        )
+                        attributeValueList.clear()
+                        searchParameters.forEach {
+                            val attr = DataValue(
+                                dataElement = it.code,
+                                value = it.value
+                            )
+                            attributeValueList.add(attr)
+                        }
+
+                        val payload = EnrollmentEventData(
+                            dataValues = Gson().toJson(attributeValueList),
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.getSharedPref(
+                                "eventUid",
+                                this@PatientResponderActivity
+                            ).toString(),
+                            program = data.programUid,
+                            programStage = data.programStageUid,
+                            orgUnit = formatter.getSharedPref(
+                                "orgCode",
+                                this@PatientResponderActivity
+                            ).toString(),
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            trackedEntity = formatter.getSharedPref(
+                                "current_patient_id",
+                                this@PatientResponderActivity
+                            ).toString()
                         )
+                        Log.e("TAG", "Payload Data **** $payload")
+                        viewModel.addProgramStage(this@PatientResponderActivity, payload)
+
 
                     }
                     dialog.show()
                 }
             }
-            lnParent.addView(itemView)
 
+            lnParent.addView(itemView)
 
         }
     }
@@ -260,7 +352,7 @@ class PatientResponderActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         Log.e("TAG", "Data Populated $valueType")
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        val isDisabled: Boolean =true// extractAttributeValue("Disabled", item.attributeValues)
+        val isDisabled: Boolean = true// extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
@@ -477,7 +569,6 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                 })
             }
-
 
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(

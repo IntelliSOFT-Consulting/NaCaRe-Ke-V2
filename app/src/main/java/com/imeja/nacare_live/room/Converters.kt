@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.imeja.nacare_live.model.CountyUnit
+import com.imeja.nacare_live.model.DataValue
 import com.imeja.nacare_live.model.ProgramData
 import com.imeja.nacare_live.model.TrackedEntityInstanceAttributes
 import com.imeja.nacare_live.response.OrganizationUnitResponse
@@ -60,6 +61,12 @@ class Converters {
     @TypeConverter
     fun fromJsonAttribute(json: String): List<TrackedEntityInstanceAttributes> {
         val listType = object : TypeToken<List<TrackedEntityInstanceAttributes>>() {}.type
+        return gson.fromJson(json, listType)
+    }
+
+    @TypeConverter
+    fun fromJsonDataAttribute(json: String): List<DataValue> {
+        val listType = object : TypeToken<List<DataValue>>() {}.type
         return gson.fromJson(json, listType)
     }
 

@@ -185,6 +185,7 @@ data class MultipleTrackedEntityInstances(
 )
 
 data class EntityData(
+    val id: String,
     val uid: String,
     val date: String,
     val fName: String,
@@ -234,4 +235,41 @@ data class ExpandableItem(
     val selectedTei: String,
     val isExpanded: Boolean = false,
     val isProgram: Boolean = false
+)
+
+data class RegistrationResponse(
+    val responseType: String,
+    val status: String,
+    val importSummaries: List<ImportSummaries>
+)
+
+data class ImportSummaries(
+    val responseType: String,
+    val status: String,
+    val reference: String,
+    val enrollments: ImportEnrollments
+)
+
+data class ImportEnrollments(
+    val responseType: String,
+    val status: String,
+    val importSummaries: List<EnrollmentImportSummaries>
+)
+
+data class EnrollmentImportSummaries(
+    val responseType: String,
+    val status: String,
+    val reference: String,
+)
+
+data class FacilityUpload(
+    val responseType: String,
+    val status: String,
+    val importSummaries: List<FacilityImportSummaries>
+)
+
+data class FacilityImportSummaries(
+    val responseType: String,
+    val status: String,
+    val reference: String,
 )
