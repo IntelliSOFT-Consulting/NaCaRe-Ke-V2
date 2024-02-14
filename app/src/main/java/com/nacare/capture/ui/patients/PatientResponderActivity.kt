@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.CheckBox
 import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -135,10 +136,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                 formatter.generateRespectiveValue(category, attribute.value)
                             if (categoryValue.isNotEmpty()) {
                                 saveValued(
-                                    index,
-                                    Constants.DIAGNOSIS_CATEGORY,
-                                    categoryValue,
-                                    false
+                                    index, Constants.DIAGNOSIS_CATEGORY, categoryValue, false
                                 )
                             }
                         }
@@ -210,17 +208,13 @@ class PatientResponderActivity : AppCompatActivity() {
                             groupName = "Patient Details and Cancer Information",
                             dataElements = Gson().toJson(completeList),
                             programUid = formatter.getSharedPref(
-                                "programUid",
-                                this@PatientResponderActivity
+                                "programUid", this@PatientResponderActivity
                             ).toString(),
                             programStageUid = formatter.getSharedPref(
-                                "programUid",
-                                this@PatientResponderActivity
-                            )
-                                .toString(),
+                                "programUid", this@PatientResponderActivity
+                            ).toString(),
                             selectedOrgUnit = formatter.getSharedPref(
-                                "orgCode",
-                                this@PatientResponderActivity
+                                "orgCode", this@PatientResponderActivity
                             ).toString(),
                             selectedTei = patientUid,
                             isExpanded = false,
@@ -234,17 +228,13 @@ class PatientResponderActivity : AppCompatActivity() {
                                 groupName = it.displayName,
                                 dataElements = Gson().toJson(it.dataElements),
                                 programUid = formatter.getSharedPref(
-                                    "programUid",
-                                    this@PatientResponderActivity
+                                    "programUid", this@PatientResponderActivity
                                 ).toString(),
                                 programStageUid = formatter.getSharedPref(
-                                    "programUid",
-                                    this@PatientResponderActivity
-                                )
-                                    .toString(),
+                                    "programUid", this@PatientResponderActivity
+                                ).toString(),
                                 selectedOrgUnit = formatter.getSharedPref(
-                                    "orgCode",
-                                    this@PatientResponderActivity
+                                    "orgCode", this@PatientResponderActivity
                                 ).toString(),
                                 selectedTei = patientUid,
                                 isExpanded = false,
@@ -309,8 +299,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (ln_with_buttons.isVisible) R.color.selected else R.color.unselected
                         lnLinearLayout.setBackgroundColor(
                             ContextCompat.getColor(
-                                this@PatientResponderActivity,
-                                bgColor
+                                this@PatientResponderActivity, bgColor
                             )
                         )
                         rotationImageView.rotation = if (ln_with_buttons.isVisible) 0f else 180f
@@ -319,8 +308,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         lnWithButtons.visibility = View.GONE
                         lnLinearLayout.setBackgroundColor(
                             ContextCompat.getColor(
-                                this@PatientResponderActivity,
-                                R.color.unselected
+                                this@PatientResponderActivity, R.color.unselected
                             )
                         )
                         rotationImageView.rotation = 180f
@@ -337,10 +325,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 for (element in dataElements) {
                     Log.e("TAG", "Program DataValues **** ${element.name}")
                     createFormFieldsAttribute(
-                        index,
-                        element,
-                        linearLayout,
-                        extractCurrentValues(element.id), false
+                        index, element, linearLayout, extractCurrentValues(element.id), false
                     )
                 }
             }
@@ -352,10 +337,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 for (element in dataElements) {
                     attributeList.add(ParentAttributeValues(element.id, element.attributeValues))
                     createFormFields(
-                        index,
-                        element,
-                        linearLayout,
-                        extractCurrentValues(element.id), true
+                        index, element, linearLayout, extractCurrentValues(element.id), true
                     )
                 }
             }
@@ -373,16 +355,14 @@ class PatientResponderActivity : AppCompatActivity() {
                     val nextButton: MaterialButton = dialogView.findViewById(R.id.yes_button)
                     dialog = dialogBuilder.create()
                     tvTitle.text = context.getString(R.string.search_results)
-                    tvMessage.text =
-                        context.getString(R.string.save_and_continue)
+                    tvMessage.text = context.getString(R.string.save_and_continue)
                     nextButton.setOnClickListener {
                         dialog.dismiss()
                         attributeValueList.clear()
                         searchParameters.forEach {
                             if (it.isProgram) {
                                 val attr = DataValue(
-                                    dataElement = it.code,
-                                    value = it.value
+                                    dataElement = it.code, value = it.value
                                 )
                                 attributeValueList.add(attr)
                             }
@@ -392,20 +372,17 @@ class PatientResponderActivity : AppCompatActivity() {
                             dataValues = Gson().toJson(attributeValueList),
                             uid = formatter.generateUUID(11),
                             eventUid = formatter.getSharedPref(
-                                "eventUid",
-                                this@PatientResponderActivity
+                                "eventUid", this@PatientResponderActivity
                             ).toString(),
                             program = data.programUid,
                             programStage = data.programStageUid,
                             orgUnit = formatter.getSharedPref(
-                                "orgCode",
-                                this@PatientResponderActivity
+                                "orgCode", this@PatientResponderActivity
                             ).toString(),
                             eventDate = formatter.formatCurrentDate(Date()),
                             status = "ACTIVE",
                             trackedEntity = formatter.getSharedPref(
-                                "current_patient_id",
-                                this@PatientResponderActivity
+                                "current_patient_id", this@PatientResponderActivity
                             ).toString()
                         )
                         Log.e("TAG", "Payload Data **** $payload")
@@ -469,7 +446,6 @@ class PatientResponderActivity : AppCompatActivity() {
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
-        Log.e("TAG", "Data Populated $valueType")
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = true// extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
@@ -481,16 +457,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (item.optionSet == null) {
 
                     val itemView = inflater.inflate(
-                        R.layout.item_edittext, lnParent,
-                        false
+                        R.layout.item_edittext, lnParent, false
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                     val textInputLayout =
                         itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                    val name =
-                        if (isRequired) generateRequiredField(item.name) else item.name
+                    val name = if (isRequired) generateRequiredField(item.name) else item.name
                     tvName.text = Html.fromHtml(name)
                     tvElement.text = item.id
                     itemView.tag = item.id
@@ -520,18 +494,12 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     editText.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
+                            s: CharSequence?, start: Int, count: Int, after: Int
                         ) {
                         }
 
                         override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
+                            s: CharSequence?, start: Int, before: Int, count: Int
                         ) {
 
                         }
@@ -546,8 +514,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
                 } else {
                     val itemView = inflater.inflate(
-                        R.layout.item_autocomplete, lnParent,
-                        false
+                        R.layout.item_autocomplete, lnParent, false
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
@@ -559,16 +526,13 @@ class PatientResponderActivity : AppCompatActivity() {
                         optionsStringList.add(it.displayName)
                     }
                     val adp = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        optionsStringList
+                        this, android.R.layout.simple_list_item_1, optionsStringList
                     )
                     if (currentValue.isNotEmpty()) {
                         val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
                     }
-                    val name =
-                        if (isRequired) generateRequiredField(item.name) else item.name
+                    val name = if (isRequired) generateRequiredField(item.name) else item.name
                     tvName.text = Html.fromHtml(name)
                     autoCompleteTextView.setAdapter(adp)
                     adp.notifyDataSetChanged()
@@ -596,18 +560,12 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     autoCompleteTextView.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
+                            s: CharSequence?, start: Int, count: Int, after: Int
                         ) {
                         }
 
                         override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
+                            s: CharSequence?, start: Int, before: Int, count: Int
                         ) {
 
                         }
@@ -626,17 +584,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "DATE" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_date,
-                    lnParent,
-                    false
+                    R.layout.item_edittext_date, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name =
-                    if (isRequired) generateRequiredField(item.name) else item.name
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 editText.setKeyListener(null)
@@ -687,18 +641,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -714,17 +662,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number,
-                    findViewById(R.id.lnParent),
-                    false
+                    R.layout.item_edittext_number, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name =
-                    if (isRequired) generateRequiredField(item.name) else item.name
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
@@ -753,18 +697,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -780,16 +718,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "INTEGER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent,
-                    false
+                    R.layout.item_edittext_number, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name =
-                    if (isRequired) generateRequiredField(item.name) else item.name
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
@@ -818,18 +753,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -845,16 +774,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent,
-                    false
+                    R.layout.item_edittext_number, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name =
-                    if (isRequired) generateRequiredField(item.name) else item.name
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
@@ -883,18 +809,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -910,14 +830,12 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "BOOLEAN" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_boolean_field, lnParent,
-                    false
+                    R.layout.item_boolean_field, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                 val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
-                val name =
-                    if (isRequired) generateRequiredField(item.name) else item.name
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 itemView.tag = item.id
@@ -993,7 +911,6 @@ class PatientResponderActivity : AppCompatActivity() {
             for (patr in attributeValueList) {
                 val data: Attribute = patr.attribute
                 if (data.name == "showIf") {
-                    Log.e("TAG", "Show me the Response to Compared ${patr.value}")
                     val currentValidator = patr.value
                     val parts = currentValidator.split(':')
 
@@ -1001,27 +918,28 @@ class PatientResponderActivity : AppCompatActivity() {
                         val part1 = parts[0] // this is the attribute to get it's answer
                         val part2 = parts[1] //comparator
                         val part3 = parts[2] // required answer
-                        println("Part 1: $part1")
-                        println("Part 2: $part2")
-                        println("Part 3: $part3")
+
 
                         var previousAnswer = extractCurrentValues(part1)
                         if (previousAnswer.isNotEmpty()) {
-                            Log.e("TAG", "Show me the Response to Compared $previousAnswer")
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
-
+                            var lowercaseAnswer = previousAnswer.lowercase()
+                            if (lowercaseAnswer.contains("other", ignoreCase = true)) {
+                                lowercaseAnswer = "other"
+                            }
                             Log.e(
                                 "TAG",
                                 "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
                             )
                             val result = when (part2) {
-                                "eq" -> previousAnswer == part3Lower
-                                "ne" -> previousAnswer != part3Lower
-                                "gt" -> previousAnswer > part3Lower
-                                "ge" -> previousAnswer >= part3Lower
-                                "lt" -> previousAnswer < part3Lower
-                                "le" -> previousAnswer <= part3Lower
+                                "eq" -> lowercaseAnswer == part3Lower
+                                "ne" -> lowercaseAnswer != part3Lower
+                                "gt" -> lowercaseAnswer > part3Lower
+                                "ge" -> lowercaseAnswer >= part3Lower
+                                "lt" -> lowercaseAnswer < part3Lower
+                                "le" -> lowercaseAnswer <= part3Lower
+                                "like" -> lowercaseAnswer == part3Lower
                                 "null" -> false
                                 "notnull" -> true
                                 else -> false
@@ -1062,8 +980,7 @@ class PatientResponderActivity : AppCompatActivity() {
     }
 
     private fun showIfAttribute(
-        target: String,
-        attributeValueList: List<AttributeValues>
+        target: String, attributeValueList: List<AttributeValues>
     ): Boolean {
         var isHidden = false
         if (attributeValueList.isEmpty()) isHidden = false else {
@@ -1082,7 +999,6 @@ class PatientResponderActivity : AppCompatActivity() {
         val response = formatter.getSharedPref("current_data", this)
         if (response != null) {
             searchParameters = getSavedValues()
-            Log.e("TAG", "Manipulated Data ***** $searchParameters")
             val foundItem = searchParameters.find { it.code == id }
             return foundItem?.value ?: ""
         }
@@ -1125,13 +1041,20 @@ class PatientResponderActivity : AppCompatActivity() {
 
     }
 
+    private fun removeSavedItems(index: Int, id: String, isProgram: Boolean) {
+        val existingIndex = searchParameters.indexOfFirst { it.code == id }
+        if (existingIndex != -1) {
+            searchParameters.removeAt(existingIndex)
+        }
+        formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+    }
+
     private fun getSavedValues(): ArrayList<CodeValuePairPatient> {
         val savedData = formatter.getSharedPref("current_data", this)
         if (savedData != null) {
             return if (savedData.isNotEmpty()) {
                 Gson().fromJson(
-                    savedData,
-                    object : TypeToken<ArrayList<CodeValuePairPatient>>() {}.type
+                    savedData, object : TypeToken<ArrayList<CodeValuePairPatient>>() {}.type
                 )
             } else {
                 ArrayList()
@@ -1161,8 +1084,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (item.optionSet == null) {
 
                     val itemView = inflater.inflate(
-                        R.layout.item_edittext, lnParent,
-                        false
+                        R.layout.item_edittext, lnParent, false
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
@@ -1200,18 +1122,12 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     editText.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
+                            s: CharSequence?, start: Int, count: Int, after: Int
                         ) {
                         }
 
                         override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
+                            s: CharSequence?, start: Int, before: Int, count: Int
                         ) {
 
                         }
@@ -1226,8 +1142,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
                 } else {
                     val itemView = inflater.inflate(
-                        R.layout.item_autocomplete, lnParent,
-                        false
+                        R.layout.item_autocomplete, lnParent, false
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
@@ -1239,9 +1154,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         optionsStringList.add(it.displayName)
                     }
                     val adp = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        optionsStringList
+                        this, android.R.layout.simple_list_item_1, optionsStringList
                     )
                     if (currentValue.isNotEmpty()) {
                         val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
@@ -1276,18 +1189,12 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     autoCompleteTextView.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
+                            s: CharSequence?, start: Int, count: Int, after: Int
                         ) {
                         }
 
                         override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
+                            s: CharSequence?, start: Int, before: Int, count: Int
                         ) {
 
                         }
@@ -1306,12 +1213,9 @@ class PatientResponderActivity : AppCompatActivity() {
                                         innerData.parent == child.tag
                                     }
                                     if (matchFound) {
-                                        val validAnswer =
-                                            checkProvidedAnswer(
-                                                child.tag.toString(),
-                                                list,
-                                                dataValue
-                                            )
+                                        val validAnswer = checkProvidedAnswer(
+                                            child.tag.toString(), list, dataValue
+                                        )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
                                         } else {
@@ -1332,14 +1236,11 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "DATE" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_date,
-                    lnParent,
-                    false
+                    R.layout.item_edittext_date, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -1388,18 +1289,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -1415,17 +1310,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 })
             }
 
-
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number,
-                    findViewById(R.id.lnParent),
-                    false
+                    R.layout.item_edittext_number, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -1457,18 +1348,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -1484,13 +1369,11 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "INTEGER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent,
-                    false
+                    R.layout.item_edittext_number, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -1522,18 +1405,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -1549,13 +1426,11 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent,
-                    false
+                    R.layout.item_edittext_number, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout =
-                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -1587,18 +1462,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 editText.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
+                        s: CharSequence?, start: Int, count: Int, after: Int
                     ) {
                     }
 
                     override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
+                        s: CharSequence?, start: Int, before: Int, count: Int
                     ) {
 
                     }
@@ -1614,8 +1483,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "BOOLEAN" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_boolean_field, lnParent,
-                    false
+                    R.layout.item_boolean_field, lnParent, false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
@@ -1661,12 +1529,9 @@ class PatientResponderActivity : AppCompatActivity() {
                                     innerData.parent == child.tag
                                 }
                                 if (matchFound) {
-                                    val validAnswer =
-                                        checkProvidedAnswer(
-                                            child.tag.toString(),
-                                            list,
-                                            dataValue
-                                        )
+                                    val validAnswer = checkProvidedAnswer(
+                                        child.tag.toString(), list, dataValue
+                                    )
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
                                     } else {
@@ -1702,26 +1567,79 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
 
+            "TRUE_ONLY" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_checkbox_field, lnParent, false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
+                val name =
+                    if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                var isProgrammaticChange = false
+                checkBox.setOnCheckedChangeListener(null)
+                when (currentValue) {
+                    "true" -> {
+                        checkBox.isChecked = true
+                    }
+
+                    "false" -> {
+                        checkBox.isChecked = false
+                    }
+
+                    else -> {
+                        checkBox.isChecked = false
+                    }
+                }
+                checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                    if (isChecked) {
+                        saveValued(index, item.id, "true", isProgram)
+                    } else {
+                        removeSavedItems(index, item.id, isProgram)
+                    }
+                }
+
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        checkBox.isEnabled = false
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+            }
+
         }
     }
 
     private fun checkProvidedAnswer(
-        parent: String,
-        list: List<RefinedAttributeValues>,
-        dataValue: String
+        parent: String, list: List<RefinedAttributeValues>, dataValue: String
     ): Boolean {
         var resultResponse = false
         try {
             val single = list.singleOrNull { it.parent == parent }
-            Log.e(
-                "TAG",
-                "We are looking the answer here **** $parent value need is $dataValue $single"
-            )
+
 
             var lowercaseAnswer = dataValue.lowercase()
-            if (lowercaseAnswer.contains("other")) {
+            if (lowercaseAnswer.contains("other", ignoreCase = true)) {
                 lowercaseAnswer = "other"
             }
+            Log.e(
+                "TAG",
+                "We are looking the answer here **** $parent value need is $dataValue \nfinal value $lowercaseAnswer and Comparator $single"
+            )
             if (single != null) {
                 val parts = single.value.split(':')
                 if (parts.size == 3) {
@@ -1736,6 +1654,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         "ge" -> lowercaseAnswer >= part3Lower
                         "lt" -> lowercaseAnswer < part3Lower
                         "le" -> lowercaseAnswer <= part3Lower
+                        "like" -> lowercaseAnswer == part3Lower
                         "null" -> false
                         "notnull" -> true
                         else -> false
@@ -1758,7 +1677,7 @@ class PatientResponderActivity : AppCompatActivity() {
         attributeList.forEach { q ->
             q.attributeValues.forEach {
                 if (it.attribute.name == "showIf") {
-                    Log.e("TAG", "Available Attribute **** ${it.attribute} ${it.value}")
+
                     try {
                         val currentValidator = it.value
                         val parts = currentValidator.split(':')
@@ -1767,8 +1686,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (part1 == id) {
                                 childItem.add(
                                     RefinedAttributeValues(
-                                        q.parent,
-                                        currentValidator
+                                        q.parent, currentValidator
                                     )
                                 )
                             }
