@@ -131,6 +131,7 @@ data class Events(
 data class SearchResult(
     val trackedEntityInstance: String,
     val enrollmentUid: String,
+    val orgUnit: String,
     val eventUid: String,
     val uniqueId: String,
     val hospitalNo: String,

@@ -41,9 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadOrganization(context)
     }
 
-    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance) = runBlocking {
+    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance,parentOrg:String) = runBlocking {
 
-        repository.saveTrackedEntity(context, data)
+        repository.saveTrackedEntity(context, data,parentOrg)
     }
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
@@ -155,9 +155,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addEnrollmentData(data)
     }
 
-    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData) =
+    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData,parentOrg:String) =
         runBlocking{
-        repository.saveTrackedEntityWithEnrollment(context,data,enrollment)
+        repository.saveTrackedEntityWithEnrollment(context,data,enrollment,parentOrg)
     }
 
 

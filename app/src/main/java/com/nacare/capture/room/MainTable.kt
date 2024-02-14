@@ -28,8 +28,10 @@ data class TrackedEntityInstanceData(
     @ColumnInfo(name = "attributes") val attributes: String,
     var trackedEntity: String,
     var orgUnit: String,
+    var parentOrg: String,
     var enrollment: String,
     var enrollDate: String,
+    val isLocal: Boolean = false,
     val isSynced: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)

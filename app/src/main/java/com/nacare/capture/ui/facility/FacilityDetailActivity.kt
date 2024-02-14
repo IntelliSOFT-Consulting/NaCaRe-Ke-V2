@@ -315,11 +315,36 @@ class FacilityDetailActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-                        if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(index, item.id, editText.text.toString())
+//                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+//                        if (!hasFocus) {                            // Save the data when the EditText loses focus
+//                            saveValued(index, item.id, editText.text.toString())
+//                        }
+//                    }
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
-                    }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(index, item.id, value)
+                            }
+                        }
+                    })
 
                 } else {
                     val itemView = inflater.inflate(

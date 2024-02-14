@@ -47,32 +47,34 @@
         android:padding="@dimen/_15dp">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/yes_button"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="@dimen/_5dp"
-            android:layout_weight="1"
-            android:text="@string/yes"
-            android:textAllCaps="false"
-            app:cornerRadius="@dimen/_2dp"
-            app:strokeColor="@color/purple_200"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/no_button"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginStart="@dimen/_5dp"
+            android:layout_marginEnd="@dimen/_5dp"
             android:layout_weight="1"
             android:text="@string/no"
             android:textAllCaps="false"
             app:cornerRadius="@dimen/_2dp"
             app:strokeColor="@color/purple_200"
             app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/yes_button"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/_5dp"
+            android:layout_weight="1"
+
+            android:text="@string/yes"
+            android:textAllCaps="false"
+            app:cornerRadius="@dimen/_2dp"
+            app:strokeColor="@color/purple_200"
+            app:strokeWidth="1dp" />
+
     </LinearLayout>
 
 </LinearLayout>

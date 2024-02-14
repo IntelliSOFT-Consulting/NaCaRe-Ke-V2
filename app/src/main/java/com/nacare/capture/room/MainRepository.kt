@@ -48,7 +48,7 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadOrganization()
     }
 
-    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance) {
+    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance, parentOrg: String) {
         val formatter = FormatterClass()
         val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
@@ -61,17 +61,17 @@ class MainRepository(private val roomDao: RoomDao) {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
                 orgUnit = data.orgUnit,
+                parentOrg = parentOrg,
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 attributes = Gson().toJson(data.attributes)
 
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
-            val enrollmentUid = formatter.generateUUID(11)
             val eventUid = formatter.generateUUID(11)
             val enrollment = EnrollmentEventData(
                 dataValues = "",
-                uid = enrollmentUid,
+                uid = data.enrollment,
                 eventUid = eventUid,
                 program = formatter.getSharedPref("programUid", context).toString(),
                 programStage = formatter.getSharedPref("programUid", context).toString(),
@@ -81,7 +81,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 trackedEntity = savedItemId.toString()
             )
             formatter.saveSharedPref("eventUid", eventUid, context)
-            formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
+            formatter.saveSharedPref("enrollmentUid", data.enrollment, context)
             roomDao.saveEnrollment(enrollment)
         }
     }
@@ -89,7 +89,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun saveTrackedEntityWithEnrollment(
         context: Context,
         data: TrackedEntityInstance,
-        enrollment: EnrollmentEventData
+        enrollment: EnrollmentEventData, parentOrg: String
     ) {
         val formatter = FormatterClass()
         val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
@@ -103,12 +103,14 @@ class MainRepository(private val roomDao: RoomDao) {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
                 orgUnit = data.orgUnit,
+                parentOrg = parentOrg,
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 attributes = Gson().toJson(data.attributes)
 
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
+            formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
             val enrollmentUid = enrollment.uid
             val eventUid = enrollment.eventUid
             val child = EnrollmentEventData(

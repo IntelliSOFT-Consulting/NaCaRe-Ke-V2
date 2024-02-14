@@ -71,6 +71,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 it.attributes
                 val data = SearchResult(
                     trackedEntityInstance = it.trackedEntityInstance,
+                    orgUnit = it.enrollments.getOrNull(0)?.orgUnit.orEmpty(),
                     enrollmentUid = it.enrollments.getOrNull(0)?.enrollment.orEmpty(),
                     eventUid = it.enrollments.getOrNull(0)?.events?.getOrNull(0)?.event.orEmpty(),
                     uniqueId = extractValue("AP13g7NcBOf", it.attributes, false),
@@ -128,15 +129,16 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
+
                 val entityData = TrackedEntityInstance(
-                    trackedEntity = formatter.generateUUID(11),
-                    enrollment = formatter.generateUUID(11),
+                    trackedEntity = data.trackedEntityInstance,
+                    enrollment = data.enrollmentUid,
                     enrollDate = formatter.formatCurrentDate(Date()),
                     orgUnit = formatter.getSharedPref("orgCode", this@PatientSearchResultsActivity)
                         .toString(),
                     attributes = data.attributeValues
                 )
-                viewModel.saveTrackedEntity(this@PatientSearchResultsActivity, entityData)
+                viewModel.saveTrackedEntity(this@PatientSearchResultsActivity, entityData,data.orgUnit)
                 startActivity(
                     Intent(
                         this@PatientSearchResultsActivity,
@@ -151,14 +153,12 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 alertDialog.dismiss()
                 // get latest event
                 var eventUid = formatter.generateUUID(11)
-                var enrollmentUid = formatter.generateUUID(11)
+                val enrollmentUid = data.enrollmentUid
                 var programStage =
                     formatter.getSharedPref("programUid", this@PatientSearchResultsActivity)
                 var program =
                     formatter.getSharedPref("programUid", this@PatientSearchResultsActivity)
                 data.enrollmentEvents.forEach { q ->
-                    Log.e("TAG", "Creation Data **** ${q.events}")
-                    enrollmentUid = q.enrollment
                     program = q.program
                     q.events.forEach {
                         eventUid = it.event
@@ -210,7 +210,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 viewModel.saveTrackedEntityWithEnrollment(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    enrollment
+                    enrollment,data.orgUnit
                 )
 
                 startActivity(

@@ -52,20 +52,20 @@ class OrganizationFragment : Fragment() {
             btnProceed.apply {
                 setOnClickListener {
                     val organization = binding.autoCompleteTextView.text.toString()
-//                    if (organization.isNullOrEmpty()) {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "Select Org Unit to Proceed",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                        return@setOnClickListener
-//                    }
+                    if (organization.isNullOrEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Select Org Unit to Proceed",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnClickListener
+                    }
                     try {
-//                        val found = searchParameters.firstOrNull { it.value == organization }
-//                        if (found != null) {
-//                            formatter.saveSharedPref("orgCode", found.code, requireContext())
-//                            formatter.saveSharedPref("orgName", found.value, requireContext())
-//                        }
+                        val found = searchParameters.firstOrNull { it.value == organization }
+                        if (found != null) {
+                            formatter.saveSharedPref("orgCode", found.code, requireContext())
+                            formatter.saveSharedPref("orgName", found.value, requireContext())
+                        }
                         NavHostFragment.findNavController(this@OrganizationFragment)
                             .navigate(R.id.programsFragment)
                     } catch (e: Exception) {

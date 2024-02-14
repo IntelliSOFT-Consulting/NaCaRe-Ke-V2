@@ -145,7 +145,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val response = formatter.getSharedPref("current_data", this)
         if (response != null) {
             searchParameters = getSavedValues()
-            Log.e("TAG", "Manipulated Data ***** $searchParameters")
             val foundItem = searchParameters.find { it.code == id }
             return foundItem?.value ?: ""
         }
@@ -1110,7 +1109,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     orgUnit = orgCode,
                     attributes = attributeValueList,
                 )
-                viewModel.saveTrackedEntity(this, data)
+                viewModel.saveTrackedEntity(this, data, data.orgUnit)
                 formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
                 startActivity(
                     Intent(

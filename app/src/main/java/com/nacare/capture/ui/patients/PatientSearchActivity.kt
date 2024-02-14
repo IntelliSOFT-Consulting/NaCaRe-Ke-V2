@@ -76,8 +76,7 @@ class PatientSearchActivity : AppCompatActivity() {
             }
         val programUid = formatter.getSharedPref("programUid", this)
         val trackedEntity = formatter.getSharedPref("trackedEntity", this)
-        Log.e("TAG", "Program **** $programUid")
-        Log.e("TAG", "Program **** $trackedEntity")
+
         if (programUid == null) {
             Toast.makeText(this, "Please select program", Toast.LENGTH_SHORT)
                 .show()
@@ -89,7 +88,7 @@ class PatientSearchActivity : AppCompatActivity() {
             return
         }
         val inflater = LayoutInflater.from(this)
-        formatter.saveSharedPref("initial_data", Gson().toJson(searchParametersString), this)
+        formatter.deleteSharedPref("initial_data", this)
         formatter.deleteSharedPref("reload", this@PatientSearchActivity)
         retrofitCalls.performPatientSearch(
             this,
@@ -166,30 +165,6 @@ class PatientSearchActivity : AppCompatActivity() {
                     tvName.text = modifiedLabelName(item.name, item.id)
                     tvElement.text = item.id
                     lnParent.addView(itemView)
-//                    editText.addTextChangedListener(object : TextWatcher {
-//                        override fun beforeTextChanged(
-//                            s: CharSequence?,
-//                            start: Int,
-//                            count: Int,
-//                            after: Int
-//                        ) {
-//                        }
-//
-//                        override fun onTextChanged(
-//                            s: CharSequence?,
-//                            start: Int,
-//                            before: Int,
-//                            count: Int
-//                        ) {
-//                            val value = s.toString()
-//                            if (value.isNotEmpty()) {
-//                                saveValued(item.id, value)
-//                            }
-//                        }
-//
-//                        override fun afterTextChanged(s: Editable?) {
-//                        }
-//                    })
                 } else {
                     val itemView = inflater.inflate(
                         R.layout.item_edittext,
@@ -305,7 +280,7 @@ class PatientSearchActivity : AppCompatActivity() {
             searchParameters.add(data)
         }
 
-        formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+        formatter.deleteSharedPref("current_data", this)
 
     }
 

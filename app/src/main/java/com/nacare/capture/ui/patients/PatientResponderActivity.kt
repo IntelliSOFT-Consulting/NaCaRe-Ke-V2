@@ -31,7 +31,6 @@ import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientResponderBinding
 import com.nacare.capture.model.Attribute
 import com.nacare.capture.model.AttributeValues
-import com.nacare.capture.model.CodeValuePair
 import com.nacare.capture.model.CodeValuePairPatient
 import com.nacare.capture.model.DataElements
 import com.nacare.capture.model.DataValue
@@ -203,7 +202,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     binding.syncProgressBar.visibility = View.GONE
                     expandableList.forEachIndexed { index, item ->
-                        createFormField(index, item)
+                        createFormField(index, item, expandableList.size)
                     }
                 }
             } else {
@@ -216,7 +215,7 @@ class PatientResponderActivity : AppCompatActivity() {
         }
     }
 
-    private fun createFormField(index: Int, data: ExpandableItem) {
+    private fun createFormField(index: Int, data: ExpandableItem, size: Int) {
         binding.apply {
             val inflater = LayoutInflater.from(this@PatientResponderActivity)
             val itemView = inflater.inflate(R.layout.list_layout_tracked, null) as LinearLayout
@@ -235,6 +234,12 @@ class PatientResponderActivity : AppCompatActivity() {
             textViewName.text = data.groupName
             if (index == 1) {
                 ln_with_buttons.visibility = View.VISIBLE
+            }
+            if (data.isProgram) {
+                no_button.visibility = View.GONE
+            } else {
+                yes_button.isEnabled = false
+                no_button.isEnabled = false
             }
 
             itemView.setOnClickListener {
@@ -303,6 +308,8 @@ class PatientResponderActivity : AppCompatActivity() {
             }
             yes_button.apply {
                 setOnClickListener {
+
+                    Log.e("TAG", "Current item ***** $index out of $size")
                     val dialog: AlertDialog
                     val dialogBuilder = AlertDialog.Builder(this@PatientResponderActivity)
                     val dialogView = layoutInflater.inflate(R.layout.item_submit_cancel, null)
@@ -351,6 +358,13 @@ class PatientResponderActivity : AppCompatActivity() {
                         Log.e("TAG", "Payload Data **** $payload")
                         viewModel.addProgramStage(this@PatientResponderActivity, payload)
 
+                        try {
+                            if (index + 1 == size) {
+                                this@PatientResponderActivity.finish()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
 
                     }
                     dialog.show()
@@ -420,11 +434,31 @@ class PatientResponderActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-                        if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(index, item.id, editText.text.toString(), isProgram)
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
-                    }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(index, item.id, value, isProgram)
+                            }
+                        }
+                    })
 
                 } else {
                     val itemView = inflater.inflate(
@@ -525,7 +559,12 @@ class PatientResponderActivity : AppCompatActivity() {
                 editText.isCursorVisible = false
                 editText.isFocusable = false
                 if (currentValue.isNotEmpty()) {
-                    editText.setText(currentValue)
+                    val value = formatter.convertDateFormat(currentValue)
+                    if (value != null) {
+                        editText.setText(value)
+                    } else {
+                        editText.setText(currentValue)
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -583,8 +622,6 @@ class PatientResponderActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            //check if it is date of birth, calculate relevant
-//                            calculateRelevant(item, value)
                             saveValued(index, item.id, value, isProgram)
                         }
                     }
@@ -645,13 +682,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
@@ -709,13 +747,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
@@ -773,13 +812,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
@@ -1074,11 +1114,31 @@ class PatientResponderActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-                        if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(index, item.id, editText.text.toString(), isProgram)
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
-                    }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(index, item.id, value, isProgram)
+                            }
+                        }
+                    })
 
                 } else {
                     val itemView = inflater.inflate(
@@ -1326,13 +1386,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
@@ -1390,13 +1451,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
@@ -1454,13 +1516,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         before: Int,
                         count: Int
                     ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
                         }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
                     }
                 })
             }
