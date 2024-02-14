@@ -4,11 +4,17 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.net.ParseException
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
 import com.nacare.capture.model.HomeData
+import com.nacare.capture.response.DataStoreResponse
+import com.nacare.capture.room.DataStoreData
 import com.nacare.capture.room.MainViewModel
 import java.text.MessageFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -140,5 +146,27 @@ class FormatterClass {
         return null
     }
 
+    fun calculateAge(birthDate: LocalDate, currentDate: LocalDate): Pair<Int, Int> {
+        val period = Period.between(birthDate, currentDate)
+        val years = period.years
+        val months = period.months
+        return Pair(years, months)
+    }
+
+      fun generateRespectiveValue(site: DataStoreData, dataValue: String): String {
+        return try {
+            val type = object : TypeToken<List<DataStoreResponse>>() {}.type
+            val codesList: List<DataStoreResponse> = Gson().fromJson(site.dataValues, type)
+            var validAnswer = ""
+            for (code in codesList) {
+                if (code.codes.contains(dataValue)) {
+                    validAnswer = code.name
+                }
+            }
+            validAnswer
+        } catch (e: Exception) {
+            ""
+        }
+    }
 
 }

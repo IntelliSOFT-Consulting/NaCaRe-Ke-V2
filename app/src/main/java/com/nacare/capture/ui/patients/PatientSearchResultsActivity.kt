@@ -220,6 +220,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     )
                 )
 
+                this@PatientSearchResultsActivity.finish()
+
             }
         }
 

@@ -27,6 +27,11 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
+import com.nacare.capture.data.Constants
+import com.nacare.capture.data.Constants.AGE_MONTHS
+import com.nacare.capture.data.Constants.AGE_YEARS
+import com.nacare.capture.data.Constants.DATE_OF_BIRTH
+import com.nacare.capture.data.Constants.DIAGNOSIS
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientResponderBinding
 import com.nacare.capture.model.Attribute
@@ -48,6 +53,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
@@ -94,7 +101,53 @@ class PatientResponderActivity : AppCompatActivity() {
         if (data != null) {
             val attributes = Converters().fromJsonAttribute(data.attributes)
             attributes.forEachIndexed { index, attribute ->
-                Log.e("TAG", "Data Element Answers **** $attribute")
+                if (attribute.attribute == DATE_OF_BIRTH) {
+                    try {
+                        if (attribute.value.isNotEmpty()) {
+                            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                            val date = formatter.convertDateFormat(attribute.value)
+                            val birthDate = LocalDate.parse(date, dateFormatter)
+                            // Get the current date
+                            val currentDate = LocalDate.now()
+                            val (years, months) = formatter.calculateAge(birthDate, currentDate)
+                            saveValued(index, AGE_YEARS, "$years", false)
+                            saveValued(index, AGE_MONTHS, "$months", false)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                if (attribute.attribute == DIAGNOSIS) {
+                    try {
+                        // load sites
+                        val site = viewModel.loadDataStore(this, "site")
+                        //load categories
+                        val category = viewModel.loadDataStore(this, "category")
+
+                        if (site != null && attribute.value.isNotEmpty()) {
+                            val siteValue = formatter.generateRespectiveValue(site, attribute.value)
+                            if (siteValue.isNotEmpty()) {
+                                saveValued(index, Constants.DIAGNOSIS_SITE, siteValue, false)
+                            }
+                        }
+                        if (category != null && attribute.value.isNotEmpty()) {
+                            val categoryValue =
+                                formatter.generateRespectiveValue(category, attribute.value)
+                            if (categoryValue.isNotEmpty()) {
+                                saveValued(
+                                    index,
+                                    Constants.DIAGNOSIS_CATEGORY,
+                                    categoryValue,
+                                    false
+                                )
+                            }
+                        }
+                        saveValued(index, Constants.ICD_CODE, attribute.value, false)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                }
                 saveValued(index, attribute.attribute, attribute.value, false)
             }
             val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
@@ -107,7 +160,6 @@ class PatientResponderActivity : AppCompatActivity() {
                         val elementAttributes =
                             Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
                         elementAttributes.forEachIndexed { index, attribute ->
-                            Log.e("TAG", "Data Element Answers **** $attribute")
                             saveValued(index, attribute.dataElement, attribute.value, true)
                         }
                     }
@@ -248,7 +300,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     val childView = lnParent.getChildAt(i)
                     val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
 
-                    Log.e("TAG","")
+                    Log.e("TAG", "")
                     if (childView == itemView) { // For clicked item
                         // Toggle visibility and appearance of ln_with_buttons
                         ln_with_buttons.visibility =
@@ -322,7 +374,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     dialog = dialogBuilder.create()
                     tvTitle.text = context.getString(R.string.search_results)
                     tvMessage.text =
-                        context.getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
+                        context.getString(R.string.save_and_continue)
                     nextButton.setOnClickListener {
                         dialog.dismiss()
                         attributeValueList.clear()
@@ -369,10 +421,12 @@ class PatientResponderActivity : AppCompatActivity() {
                                 val childView = lnParent.getChildAt(nextPage)
                                 val currentLnWithButtons =
                                     currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                val currentRotationImageView: ImageView = currentChildView.findViewById(R.id.rotationImageView)
+                                val currentRotationImageView: ImageView =
+                                    currentChildView.findViewById(R.id.rotationImageView)
                                 val lnWithButtons =
                                     childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                val nextRotationImageView: ImageView = childView.findViewById(R.id.rotationImageView)
+                                val nextRotationImageView: ImageView =
+                                    childView.findViewById(R.id.rotationImageView)
                                 currentLnWithButtons.visibility = View.GONE
                                 lnWithButtons.visibility = View.VISIBLE
 
@@ -382,7 +436,7 @@ class PatientResponderActivity : AppCompatActivity() {
 //                                        R.color.selected
 //                                    )
 //                                )
-                                currentRotationImageView.rotation =   180f
+                                currentRotationImageView.rotation = 180f
 
 //                                lnWithButtons.setBackgroundColor(
 //                                    ContextCompat.getColor(
@@ -390,7 +444,7 @@ class PatientResponderActivity : AppCompatActivity() {
 //                                        R.color.selected
 //                                    )
 //                                )
-                                nextRotationImageView.rotation =   0f
+                                nextRotationImageView.rotation = 0f
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()

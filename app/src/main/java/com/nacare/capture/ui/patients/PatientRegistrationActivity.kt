@@ -884,13 +884,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
 
-    fun calculateAge(birthDate: LocalDate, currentDate: LocalDate): Pair<Int, Int> {
-        val period = Period.between(birthDate, currentDate)
-        val years = period.years
-        val months = period.months
-        return Pair(years, months)
-    }
-
     private fun calculateRelevant(
         lnParent: LinearLayout,
         index: Int,
@@ -904,7 +897,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 val birthDate = LocalDate.parse(value, dateFormatter)
                 // Get the current date
                 val currentDate = LocalDate.now()
-                val (years, months) = calculateAge(birthDate, currentDate)
+                val (years, months) = formatter.calculateAge(birthDate, currentDate)
 
                 for (i in 0 until lnParent.childCount) {
                     val child: View = lnParent.getChildAt(i)
@@ -943,14 +936,14 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 val category = viewModel.loadDataStore(this, "category")
 
                 if (site != null && dataValue != null) {
-                    val siteValue = generateRespectiveValue(site, dataValue)
+                    val siteValue = formatter.generateRespectiveValue(site, dataValue)
                     Log.e("TAG", "Match found: $siteValue")
                     if (siteValue.isNotEmpty()) {
                         saveValued(index, DIAGNOSIS_SITE, siteValue)
                     }
                 }
                 if (category != null && dataValue != null) {
-                    val categoryValue = generateRespectiveValue(category, dataValue)
+                    val categoryValue = formatter.generateRespectiveValue(category, dataValue)
                     Log.e("TAG", "Match found: $categoryValue")
                     if (categoryValue.isNotEmpty()) {
                         saveValued(index, DIAGNOSIS_CATEGORY, categoryValue)
@@ -961,17 +954,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateRespectiveValue(site: DataStoreData, dataValue: String): String {
-        val type = object : TypeToken<List<DataStoreResponse>>() {}.type
-        val codesList: List<DataStoreResponse> = Gson().fromJson(site.dataValues, type)
-        var validAnswer = ""
-        for (code in codesList) {
-            if (code.codes.contains(dataValue)) {
-                validAnswer = code.name
-            }
-        }
-        return validAnswer
-    }
+
 
     private fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
