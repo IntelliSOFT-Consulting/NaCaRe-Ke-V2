@@ -47,8 +47,8 @@ interface RoomDao {
     @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  orgUnit =:orgUnit AND trackedEntity =:trackedEntity")
     fun updateTrackedEntity(orgUnit: String, trackedEntity: String, attributes: String)
 
-    @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced  ORDER BY id DESC")
-    fun loadTrackedEntities(isSynced: Boolean): List<TrackedEntityInstanceData>?
+    @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced AND isLocal=:isLocal ORDER BY id DESC")
+    fun loadTrackedEntities(isSynced: Boolean, isLocal: Boolean): List<TrackedEntityInstanceData>?
 
     @Query("SELECT * FROM trackedEntity WHERE trackedEntity =:uid  ORDER BY id DESC")
     fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData?
@@ -142,6 +142,7 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEnrollment(enrollment: EnrollmentEventData)
+
     @Query("SELECT * FROM enrollmentevent WHERE eventUid=:eventUid  ORDER BY id DESC LIMIT 1")
     fun loadEnrollment(eventUid: String): EnrollmentEventData?
 

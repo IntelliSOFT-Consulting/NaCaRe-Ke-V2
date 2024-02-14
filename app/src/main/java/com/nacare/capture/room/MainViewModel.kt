@@ -160,5 +160,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveTrackedEntityWithEnrollment(context,data,enrollment,parentOrg)
     }
 
+    fun getAllFacilityData(context: Context, isSynced: Boolean)= runBlocking {
+        repository.loadAllEvents(isSynced)
+    }
+
 
 }

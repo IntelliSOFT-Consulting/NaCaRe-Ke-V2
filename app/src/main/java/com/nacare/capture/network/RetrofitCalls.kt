@@ -531,6 +531,7 @@ class RetrofitCalls {
                         409 -> {
                             viewModel.updateFacilityEvent(id, data.eventDate)
                         }
+
                         500 -> {}
                     }
                 }
@@ -584,6 +585,7 @@ class RetrofitCalls {
                                         eventDate = q.createdAt,
                                         status = q.status,
                                         isSynced = true,
+                                        isServerSide = true
                                     )
 
                                     viewModel.addUpdateFacilityEvent(eventData)

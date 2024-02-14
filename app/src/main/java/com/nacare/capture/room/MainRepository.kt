@@ -131,7 +131,7 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean): List<TrackedEntityInstanceData>? {
-        return roomDao.loadTrackedEntities(isSynced)
+        return roomDao.loadTrackedEntities(isSynced,true)
     }
 
     fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData? {

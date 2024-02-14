@@ -248,6 +248,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     val childView = lnParent.getChildAt(i)
                     val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
 
+                    Log.e("TAG","")
                     if (childView == itemView) { // For clicked item
                         // Toggle visibility and appearance of ln_with_buttons
                         ln_with_buttons.visibility =
@@ -359,8 +360,37 @@ class PatientResponderActivity : AppCompatActivity() {
                         viewModel.addProgramStage(this@PatientResponderActivity, payload)
 
                         try {
-                            if (index + 1 == size) {
+                            val nextPage = index + 1
+                            if (nextPage == size) {
                                 this@PatientResponderActivity.finish()
+                            } else {
+
+                                val currentChildView = lnParent.getChildAt(index)
+                                val childView = lnParent.getChildAt(nextPage)
+                                val currentLnWithButtons =
+                                    currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                val currentRotationImageView: ImageView = currentChildView.findViewById(R.id.rotationImageView)
+                                val lnWithButtons =
+                                    childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                val nextRotationImageView: ImageView = childView.findViewById(R.id.rotationImageView)
+                                currentLnWithButtons.visibility = View.GONE
+                                lnWithButtons.visibility = View.VISIBLE
+
+//                                currentLnWithButtons.setBackgroundColor(
+//                                    ContextCompat.getColor(
+//                                        this@PatientResponderActivity,
+//                                        R.color.selected
+//                                    )
+//                                )
+                                currentRotationImageView.rotation =   180f
+
+//                                lnWithButtons.setBackgroundColor(
+//                                    ContextCompat.getColor(
+//                                        this@PatientResponderActivity,
+//                                        R.color.selected
+//                                    )
+//                                )
+                                nextRotationImageView.rotation =   0f
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()

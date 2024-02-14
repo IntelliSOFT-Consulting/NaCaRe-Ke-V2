@@ -46,6 +46,7 @@ data class EventData(
     var orgUnit: String,
     var eventDate: String,
     var status: String,
+    val isServerSide: Boolean = false,
     val isSynced: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)
@@ -60,6 +61,7 @@ data class DataStoreData(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }
+
 @Entity(tableName = "enrollmentevent")
 data class EnrollmentEventData(
     @ColumnInfo(name = "dataValues") val dataValues: String,

@@ -92,8 +92,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
                     handleDataSync()
-                    uploadTrackedEvents()
-                    handleEventUploads()
+                    handleFacilityUploads()
+//                    uploadTrackedEvents()
+//                    handleEventUploads()
+
 //                    retrofitCalls.uploadFacilityData(this)
 
                     drawerLayout.closeDrawer(GravityCompat.START)
@@ -112,6 +114,30 @@ class MainActivity : AppCompatActivity() {
         loadPrograms()
     }
 
+    private fun handleFacilityUploads() {
+        val data = viewModel.getAllFacilityData(this, false)
+        if (data != null) {
+            if (data.isNotEmpty()) {
+                data.forEach {
+                    if (!it.isServerSide) {
+                        val attributes = Converters().fromJsonDataAttribute(it.dataValues)
+                        if (attributes.isNotEmpty()) {
+                            val payload = EventUploadData(
+                                eventDate = it.eventDate,
+                                orgUnit = it.orgUnit,
+                                program = it.program,
+                                status = it.status,
+                                dataValues = attributes
+                            )
+                            retrofitCalls.uploadFacilityData(this@MainActivity, payload, "${it.id}")
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
     private fun handleEventUploads() {
         val data = viewModel.loadAllEvents(this, false)
         if (data != null) {
@@ -128,7 +154,11 @@ class MainActivity : AppCompatActivity() {
                             dataValues = attributes
                         )
                         Log.e("TAG", "Facility Events Here **** $payload")
-                        retrofitCalls.uploadFacilityData(this@MainActivity, payload,it.id.toString())
+                        retrofitCalls.uploadFacilityData(
+                            this@MainActivity,
+                            payload,
+                            it.id.toString()
+                        )
 
                     }
                 }
