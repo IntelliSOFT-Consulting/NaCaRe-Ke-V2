@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
 import com.nacare.capture.model.HomeData
+import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.response.DataStoreResponse
 import com.nacare.capture.room.DataStoreData
 import com.nacare.capture.room.MainViewModel
@@ -153,7 +154,7 @@ class FormatterClass {
         return Pair(years, months)
     }
 
-      fun generateRespectiveValue(site: DataStoreData, dataValue: String): String {
+    fun generateRespectiveValue(site: DataStoreData, dataValue: String): String {
         return try {
             val type = object : TypeToken<List<DataStoreResponse>>() {}.type
             val codesList: List<DataStoreResponse> = Gson().fromJson(site.dataValues, type)
@@ -168,5 +169,39 @@ class FormatterClass {
             ""
         }
     }
+
+      fun excludeHiddenFields(): List<String> {
+        return listOf(
+            "AP13g7NcBOf",
+            "uR2Mnlh7sqn",
+            "R1vaUuILrDy",
+            "hn8hJsBAKrh",
+            "mPpjmOxwsEZ",
+            "jf04xeJYfIU",
+            "vgK2f8ampTy",
+            "xED9XkpCeUe",
+            "hzVijy6tEUF",
+            "oob3a4JM7H6",
+            "eFbT7iTnljR",
+        )
+    }
+
+    fun excludeBareMinimumInformation(attributes: List<TrackedEntityInstanceAttributes>): List<TrackedEntityInstanceAttributes> {
+        val attributesToExclude = excludeHiddenFields()
+        val refinedList = mutableListOf<TrackedEntityInstanceAttributes>()
+
+        try {
+            attributes.forEach { attribute ->
+                val id = attribute.attribute
+                if (attributesToExclude.contains(id)) {
+                    refinedList.add(attribute)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return refinedList
+    }
+
 
 }

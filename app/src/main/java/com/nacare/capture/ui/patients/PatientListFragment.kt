@@ -4,21 +4,26 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
 import com.nacare.capture.R
 import com.nacare.capture.adapters.TrackedEntityAdapter
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.FragmentPatientListBinding
 import com.nacare.capture.model.EntityData
+import com.nacare.capture.model.TrackedEntityInstance
+import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.room.Converters
 import com.nacare.capture.room.EnrollmentEventData
 import com.nacare.capture.room.MainViewModel
@@ -133,7 +138,8 @@ class PatientListFragment : Fragment() {
     }
 
     private fun handleClick(data: EntityData) {
-
+        formatter.deleteSharedPref("underTreatment", requireContext())
+        formatter.deleteSharedPref("isRegistration", requireContext())
         val builder = AlertDialog.Builder(requireContext())
         val inflater = LayoutInflater.from(requireContext())
         val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
@@ -161,26 +167,50 @@ class PatientListFragment : Fragment() {
             setOnClickListener {
                 alertDialog.dismiss()
                 // add new event
-                val eventUid = formatter.generateUUID(11)
+                val attributes = Converters().fromJsonAttribute(data.attributes)
+                val trackedEntityInstance = formatter.generateUUID(11)
+                val orgCode = formatter.getSharedPref("orgCode", context).toString()
 
-                formatter.saveSharedPref("eventUid", eventUid, requireContext())
-                formatter.deleteSharedPref("current_data", requireContext())
-                formatter.saveSharedPref("current_patient", data.uid, requireContext())
-                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
-
-                val enrollment = EnrollmentEventData(
-                    dataValues = "",
-                    uid = formatter.generateUUID(11),
-                    eventUid = eventUid,
-                    program = formatter.getSharedPref("programUid", context).toString(),
-                    programStage = formatter.getSharedPref("programUid", context).toString(),
-                    orgUnit = formatter.getSharedPref("orgCode", context).toString(),
-                    eventDate = formatter.formatCurrentDate(Date()),
-                    status = "ACTIVE",
-                    trackedEntity = data.id
+                val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
+                val entityData = TrackedEntityInstance(
+                    trackedEntity = trackedEntityInstance,
+                    enrollment = trackedEntityInstance,
+                    enrollDate = formatter.formatCurrentDate(Date()),
+                    orgUnit = orgCode,
+                    attributes = refinedAttributes
                 )
-                viewModel.addEnrollmentData(enrollment)
-                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+                viewModel.saveTrackedEntity(
+                    context,
+                    entityData,
+                    orgCode
+                )
+
+                startActivity(
+                    Intent(
+                        context, PatientResponderActivity::class.java
+                    )
+                )
+
+//                val eventUid = formatter.generateUUID(11)
+//
+//                formatter.saveSharedPref("eventUid", eventUid, requireContext())
+//                formatter.deleteSharedPref("current_data", requireContext())
+//                formatter.saveSharedPref("current_patient", data.uid, requireContext())
+//                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
+//
+//                val enrollment = EnrollmentEventData(
+//                    dataValues = "",
+//                    uid = formatter.generateUUID(11),
+//                    eventUid = eventUid,
+//                    program = formatter.getSharedPref("programUid", context).toString(),
+//                    programStage = formatter.getSharedPref("programStage", context).toString(),
+//                    orgUnit = formatter.getSharedPref("orgCode", context).toString(),
+//                    eventDate = formatter.formatCurrentDate(Date()),
+//                    status = "ACTIVE",
+//                    trackedEntity = data.id
+//                )
+//                viewModel.addEnrollmentData(enrollment)
+//                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 
             }
         }
@@ -190,25 +220,17 @@ class PatientListFragment : Fragment() {
                 // get latest event
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
                 formatter.saveSharedPref("current_patient_id", data.id, requireContext())
-                val latestEnrollment = viewModel.getLatestEnrollment(
-                    requireContext(),
-                    data.id,
-                    formatter.getSharedPref("programUid", requireContext()).toString(),
-                    formatter.getSharedPref("orgCode", requireContext()).toString(),
-                )
-
-                if (latestEnrollment != null) {
-                    formatter.saveSharedPref(
-                        "eventUid",
-                        latestEnrollment.eventUid,
-                        requireContext()
-                    )
+                val single = viewModel.getLatestEnrollment(requireContext(), data.id)
+                if (single != null) {
+                    formatter.saveSharedPref("eventUid", single.eventUid, requireContext())
+                    startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
                 } else {
-                    val eventUid = formatter.generateUUID(11)
-                    formatter.saveSharedPref("eventUid", eventUid, requireContext())
+                    Toast.makeText(
+                        requireContext(),
+                        "Loading... please refresh",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
-//                Toast.makeText(requireContext(), "Under development", Toast.LENGTH_SHORT).show()
             }
         }
 

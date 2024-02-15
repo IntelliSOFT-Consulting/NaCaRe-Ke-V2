@@ -118,14 +118,12 @@ interface RoomDao {
     @Query("UPDATE trackedEntity SET isSynced=:isSynced, enrollment =:reference WHERE trackedEntity =:trackedEntity")
     fun updateEnrollmentEntity(trackedEntity: String, reference: String, isSynced: Boolean)
 
-    @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC")
+    @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC LIMIT 3")
     fun getTrackedEvents(synced: Boolean): List<EnrollmentEventData>?
 
-    @Query("SELECT * FROM enrollmentevent WHERE trackedEntity =:trackedEntity AND program =:programUid AND orgUnit=:orgUnit  ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM enrollmentevent WHERE trackedEntity =:trackedEntity ORDER BY id DESC LIMIT 1")
     fun getLatestEnrollment(
-        trackedEntity: String,
-        programUid: String,
-        orgUnit: String
+        trackedEntity: String
     ): EnrollmentEventData?
 
     @Query("SELECT * FROM enrollmentevent WHERE eventUid =:eventUid  ORDER BY id DESC LIMIT 1")
@@ -165,5 +163,7 @@ interface RoomDao {
 
     @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit AND trackedEntity =:trackedEntity LIMIT 1")
     fun getSpecificTracked(orgUnit: String, trackedEntity: String): TrackedEntityInstanceData?
+    @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  id =:patientUid")
+    fun updateTrackedAttributes(attributes: String, patientUid: String)
 
 }

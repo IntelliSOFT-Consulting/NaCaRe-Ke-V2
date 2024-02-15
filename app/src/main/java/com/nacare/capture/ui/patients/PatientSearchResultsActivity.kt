@@ -103,6 +103,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
     }
 
     private fun handleClick(data: SearchResult) {
+        formatter.deleteSharedPref("underTreatment", this@PatientSearchResultsActivity)
+        formatter.deleteSharedPref("isRegistration", this@PatientSearchResultsActivity)
         val builder = AlertDialog.Builder(this)
         val inflater = LayoutInflater.from(this)
         val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
@@ -129,14 +131,15 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
-
+                val refinedAttributes =
+                    formatter.excludeBareMinimumInformation(data.attributeValues)
                 val entityData = TrackedEntityInstance(
                     trackedEntity = data.trackedEntityInstance,
                     enrollment = data.enrollmentUid,
                     enrollDate = formatter.formatCurrentDate(Date()),
                     orgUnit = formatter.getSharedPref("orgCode", this@PatientSearchResultsActivity)
                         .toString(),
-                    attributes = data.attributeValues
+                    attributes = refinedAttributes
                 )
                 viewModel.saveTrackedEntity(
                     this@PatientSearchResultsActivity,
@@ -157,7 +160,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 alertDialog.dismiss()
                 // get latest event
                 var eventUid = formatter.generateUUID(11)
-                val enrollmentUid = data.enrollmentUid
+                val enrollmentUid = formatter.generateUUID(11)//data.enrollmentUid
                 var programStage =
                     formatter.getSharedPref("programUid", this@PatientSearchResultsActivity)
                 var program =

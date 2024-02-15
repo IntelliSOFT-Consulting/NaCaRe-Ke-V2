@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val data = viewModel.getTrackedEvents(this@MainActivity, true)
+                val data = viewModel.getTrackedEvents(this@MainActivity, false)
                 if (data != null) {
                     if (data.isNotEmpty()) {
                         data.forEach {
@@ -232,7 +232,6 @@ class MainActivity : AppCompatActivity() {
         val tei = viewModel.loadTrackedEntities(this, false)
         if (tei != null) {
             trackedEntityInstances.clear()
-
             tei.forEach {
                 val attributes = Converters().fromJsonAttribute(it.attributes)
                 val trackedEntityType = formatter.getSharedPref(
@@ -244,14 +243,17 @@ class MainActivity : AppCompatActivity() {
                 enrollments.clear()
                 enrollments.add(
                     EnrollmentPostData(
-                        enrollment = it.enrollment,
+                        enrollment = formatter.generateUUID(11),
                         orgUnit = it.orgUnit,
                         program = programUid.toString(),
                         enrollmentDate = it.enrollDate,
                         incidentDate = it.enrollDate,
                     )
                 )
-                val server = it.trackedEntity//formatter.generateUUID(11)
+                if (it.isSynced){
+
+                }
+                val server = it.trackedEntity//
                 val inst = TrackedEntityInstancePostData(
                     orgUnit = it.orgUnit,
                     trackedEntity = server,//it.trackedEntity,

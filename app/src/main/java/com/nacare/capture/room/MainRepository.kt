@@ -51,7 +51,7 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun saveTrackedEntity(context: Context, data: TrackedEntityInstance, parentOrg: String) {
         val formatter = FormatterClass()
-        val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
+        val exists = false// roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
             roomDao.updateTrackedEntity(
                 data.orgUnit,
@@ -62,25 +62,28 @@ class MainRepository(private val roomDao: RoomDao) {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
                 orgUnit = data.orgUnit,
-                parentOrg = parentOrg,
+                parentOrgUnit = parentOrg,
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
+                isLocal = true,
                 attributes = Gson().toJson(data.attributes)
 
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
             val eventUid = formatter.generateUUID(11)
+            val enrollmentUid = formatter.generateUUID(11)
             val enrollment = EnrollmentEventData(
                 dataValues = "",
-                uid = data.enrollment,
+                uid = enrollmentUid,
                 eventUid = eventUid,
                 program = formatter.getSharedPref("programUid", context).toString(),
-                programStage = formatter.getSharedPref("programUid", context).toString(),
+                programStage = formatter.getSharedPref("programStage", context).toString(),
                 orgUnit = formatter.getSharedPref("orgCode", context).toString(),
                 eventDate = formatter.formatCurrentDate(Date()),
                 status = "ACTIVE",
                 trackedEntity = savedItemId.toString()
             )
+            formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
             formatter.saveSharedPref("eventUid", eventUid, context)
             formatter.saveSharedPref("enrollmentUid", data.enrollment, context)
             roomDao.saveEnrollment(enrollment)
@@ -93,7 +96,7 @@ class MainRepository(private val roomDao: RoomDao) {
         enrollment: EnrollmentEventData, parentOrg: String
     ) {
 
-        val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
+        val exists = false//roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
             roomDao.updateTrackedEntity(
                 data.orgUnit,
@@ -108,7 +111,7 @@ class MainRepository(private val roomDao: RoomDao) {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
                 orgUnit = data.orgUnit,
-                parentOrg = parentOrg,
+                parentOrgUnit = parentOrg,
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 attributes = Gson().toJson(data.attributes)
@@ -242,10 +245,8 @@ class MainRepository(private val roomDao: RoomDao) {
     fun getLatestEnrollment(
         context: Context,
         trackedEntity: String,
-        programUid: String,
-        orgUnit: String
     ): EnrollmentEventData? {
-        return roomDao.getLatestEnrollment(trackedEntity, programUid, orgUnit)
+        return roomDao.getLatestEnrollment(trackedEntity)
     }
 
     fun loadLatestEvent(eventUid: String): EnrollmentEventData? {
@@ -287,6 +288,11 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun updateNotificationEvent(reference: String, uid: String, initialUpload: Boolean) {
         roomDao.updateNotificationEvent(reference, uid, true, initialUpload)
+    }
+
+    fun updateTrackedAttributes(attributes: String, patientUid: String) {
+        roomDao.updateTrackedAttributes(attributes,patientUid)
+
     }
 
 }

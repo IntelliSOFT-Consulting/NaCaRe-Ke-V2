@@ -109,12 +109,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getLatestEnrollment(
         context: Context,
-        trackedEntity: String,
-        programUid: String,
-        orgUnit: String
+        trackedEntity: String
     ) =
         runBlocking {
-            repository.getLatestEnrollment(context, trackedEntity, programUid, orgUnit)
+            repository.getLatestEnrollment(context, trackedEntity)
         }
 
     fun loadLatestEvent(eventUid: String) = runBlocking {
@@ -170,6 +168,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateNotificationEvent(uid: String, reference: String, initialUpload: Boolean) = runBlocking{
         repository.updateNotificationEvent(reference,uid,initialUpload)
+    }
+
+    fun updateTrackedAttributes(attributes: String, patientUid: String)= runBlocking {
+        repository.updateTrackedAttributes(attributes,patientUid)
     }
 
 

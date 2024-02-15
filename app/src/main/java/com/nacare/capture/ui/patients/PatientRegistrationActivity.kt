@@ -96,6 +96,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             btnSave.apply {
                 setOnClickListener {
                     formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
+                    formatter.saveSharedPref("isRegistration", "true", this@PatientRegistrationActivity)
                     validateSearchData()
                 }
             }
