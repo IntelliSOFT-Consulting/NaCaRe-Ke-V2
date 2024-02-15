@@ -228,6 +228,17 @@ data class EventUploadData(
     val dataValues: List<DataValue>
 )
 
+data class EnrollmentEventUploadData(
+    val eventDate: String,
+    val orgUnit: String,
+    val program: String,
+    val trackedEntityInstance: String,
+    val programStage: String,
+    val enrollment: String,
+    val status: String,
+    val dataValues: List<DataValue>
+)
+
 data class EventInstances(
     val event: String,
     val status: String,

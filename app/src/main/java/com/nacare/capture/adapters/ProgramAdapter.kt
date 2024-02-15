@@ -44,6 +44,15 @@ class ProgramAdapter(
                         context
                     )
                 }
+                data.programStages.forEach {
+
+                    formatter.saveSharedPref(
+                        "programStage",
+                        it.id,
+                        context
+                    )
+                }
+
                 NavHostFragment.findNavController(fragment)
                     .navigate(R.id.patientListFragment)
             } else {

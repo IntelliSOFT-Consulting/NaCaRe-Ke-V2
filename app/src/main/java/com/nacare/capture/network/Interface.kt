@@ -1,5 +1,6 @@
 package com.nacare.capture.network
 
+import com.nacare.capture.model.EnrollmentEventUploadData
 import com.nacare.capture.model.EventUploadData
 import com.nacare.capture.model.MultipleTrackedEntityInstances
 import com.nacare.capture.model.TrackedEntityInstancePostData
@@ -14,12 +15,7 @@ import com.nacare.capture.response.SearchPatientResponse
 import com.nacare.capture.response.UserLoginData
 
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface Interface {
     @GET("/api/programs")
@@ -90,5 +86,17 @@ interface Interface {
         @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,enrollments[*]",
         @Query("trackedEntityInstance") reference: String
     ): Response<EnrollmentSingle>
+
+    @POST("/api/events")
+
+    @Headers("Content-Type: application/json")
+    suspend fun uploadEnrollmentData(@Body payload: EnrollmentEventUploadData): Response<FacilityUploadResponse>
+
+    @PUT("/api/events/{eventUid}")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadEnrollmentDataUpdate(
+        @Body payload: EnrollmentEventUploadData,
+        @Path("eventUid") eventUid: String
+    ): Response<FacilityUploadResponse>
 
 }

@@ -1,6 +1,7 @@
 package com.nacare.capture.room
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.model.Enrollments
@@ -91,7 +92,7 @@ class MainRepository(private val roomDao: RoomDao) {
         data: TrackedEntityInstance,
         enrollment: EnrollmentEventData, parentOrg: String
     ) {
-        val formatter = FormatterClass()
+
         val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
             roomDao.updateTrackedEntity(
@@ -99,6 +100,10 @@ class MainRepository(private val roomDao: RoomDao) {
                 data.trackedEntity,
                 Gson().toJson(data.attributes)
             )
+            val patient = roomDao.getSpecificTracked(data.orgUnit, data.trackedEntity)
+            if (patient != null) {
+                completeRegistration(context, "${patient.id}", enrollment)
+            }
         } else {
             val save = TrackedEntityInstanceData(
                 trackedEntity = data.trackedEntity,
@@ -110,28 +115,46 @@ class MainRepository(private val roomDao: RoomDao) {
 
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
-            formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
-            val enrollmentUid = enrollment.uid
-            val eventUid = enrollment.eventUid
-            val child = EnrollmentEventData(
-                dataValues = "",
-                uid = enrollmentUid,
-                eventUid = eventUid,
-                program = enrollment.program,
-                programStage = enrollment.programStage,
-                orgUnit = enrollment.orgUnit,
-                eventDate = formatter.formatCurrentDate(Date()),
-                status = "ACTIVE",
-                trackedEntity = savedItemId.toString()
-            )
-            formatter.saveSharedPref("eventUid", eventUid, context)
-            formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
-            roomDao.saveEnrollment(child)
+            completeRegistration(context, "$savedItemId", enrollment)
+
         }
     }
 
+    private fun completeRegistration(
+        context: Context,
+        savedItemId: String,
+        enrollment: EnrollmentEventData
+    ) {
+        val formatter = FormatterClass()
+        formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
+        val enrollmentUid = enrollment.uid
+        val eventUid = enrollment.eventUid
+        val child = EnrollmentEventData(
+            dataValues = "",
+            uid = enrollmentUid,
+            eventUid = eventUid,
+            program = enrollment.program,
+            programStage = enrollment.programStage,
+            orgUnit = enrollment.orgUnit,
+            eventDate = formatter.formatCurrentDate(Date()),
+            status = "ACTIVE",
+            trackedEntity = savedItemId.toString()
+        )
+        val eventExists = roomDao.checkEnrollmentEvent(eventUid)
+        Log.e("TAG", "There is an existing Event $eventExists")
+        if (eventExists) {
+            roomDao.updateEnrollmentEvent(true, eventUid)
+
+        } else {
+            child.initialUpload = true
+            roomDao.saveEnrollment(child)
+        }
+        formatter.saveSharedPref("eventUid", eventUid, context)
+        formatter.saveSharedPref("enrollmentUid", enrollmentUid, context)
+    }
+
     fun loadTrackedEntities(context: Context, isSynced: Boolean): List<TrackedEntityInstanceData>? {
-        return roomDao.loadTrackedEntities(isSynced,true)
+        return roomDao.loadTrackedEntities(isSynced, true)
     }
 
     fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData? {
@@ -256,6 +279,14 @@ class MainRepository(private val roomDao: RoomDao) {
     fun addEnrollmentData(data: EnrollmentEventData) {
         roomDao.saveEnrollment(data)
 
+    }
+
+    fun updateEnrollment(enrollment: String, uid: String) {
+        roomDao.updateEnrollment(enrollment, uid)
+    }
+
+    fun updateNotificationEvent(reference: String, uid: String, initialUpload: Boolean) {
+        roomDao.updateNotificationEvent(reference, uid, true, initialUpload)
     }
 
 }

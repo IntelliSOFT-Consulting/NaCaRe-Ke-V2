@@ -19,6 +19,7 @@ import com.nacare.capture.auth.SyncActivity
 import com.nacare.capture.data.Constants
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.model.DataValue
+import com.nacare.capture.model.EnrollmentEventUploadData
 import com.nacare.capture.model.EventUploadData
 import com.nacare.capture.model.MultipleTrackedEntityInstances
 import com.nacare.capture.model.TrackedEntityInstancePostData
@@ -743,7 +744,6 @@ class RetrofitCalls {
                 } else {
                     val statusCode = apiInterface.code()
                     val errorBody = apiInterface.errorBody()?.string()
-                    Log.e("TAG", "Data Response **** Error $errorBody")
                     when (statusCode) {
                         409 -> {}
                         500 -> {}
@@ -752,6 +752,59 @@ class RetrofitCalls {
             } catch (e: Exception) {
                 print(e)
                 Log.e("TAG", "Success Error:::: ${e.message}")
+
+
+            }
+        }
+    }
+
+    fun uploadEnrollmentData(
+        context: Context,
+        payload: EnrollmentEventUploadData,
+        uid: String,
+        initialUpload: Boolean,
+        eventUid: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    if (initialUpload) apiService.uploadEnrollmentData(payload) else apiService.uploadEnrollmentDataUpdate(
+                        payload,
+                        eventUid
+                    )
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    Log.e("TAG", "Data Response **** $body")
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                Log.e("TAG", "Server Data Response **** $body")
+                                if (!initialUpload) {
+                                    body.response.importSummaries.forEach {
+                                        viewModel.updateNotificationEvent(uid, it.reference, true)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    Log.e("TAG", "Server Data Response **** Error $errorBody")
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Server Data Response ****:::: ${e.message}")
 
 
             }

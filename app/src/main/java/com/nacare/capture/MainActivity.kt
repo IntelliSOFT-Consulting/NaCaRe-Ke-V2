@@ -18,6 +18,7 @@ import androidx.core.view.GravityCompat
 import com.nacare.capture.auth.LoginActivity
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityMainBinding
+import com.nacare.capture.model.EnrollmentEventUploadData
 import com.nacare.capture.model.EnrollmentPostData
 import com.nacare.capture.model.EventUploadData
 import com.nacare.capture.model.TrackedEntityInstancePostData
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.facilityListFragment
             ), drawerLayout
         )
+//        viewModel.updateEnrollment("nRrZ49MDxBy", "1")
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         // Assuming navView is your NavigationView
@@ -93,11 +95,7 @@ class MainActivity : AppCompatActivity() {
                     // Handle click for additionalMenuItem2
                     handleDataSync()
                     handleFacilityUploads()
-//                    uploadTrackedEvents()
-//                    handleEventUploads()
-
-//                    retrofitCalls.uploadFacilityData(this)
-
+                    uploadTrackedEvents()
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -167,11 +165,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadTrackedEvents() {
-        val data = viewModel.getTrackedEvents(this, false)
-        if (data != null) {
-            if (data.isNotEmpty()) {
-                Log.e("TAG", "Tracked Events Here **** $data")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val data = viewModel.getTrackedEvents(this@MainActivity, true)
+                if (data != null) {
+                    if (data.isNotEmpty()) {
+                        data.forEach {
+                            val trackedEntity = viewModel.loadTrackedEntity(it.trackedEntity)
+                            if (trackedEntity != null) {
+                                if (it.dataValues.isNotEmpty()) {
+                                    val attributes =
+                                        Converters().fromJsonDataAttribute(it.dataValues)
+                                    if (attributes.isNotEmpty()) {
+                                        val payload = EnrollmentEventUploadData(
+                                            eventDate = it.eventDate,
+                                            orgUnit = it.orgUnit,
+                                            program = it.program,
+                                            programStage = formatter.getSharedPref(
+                                                "programStage",
+                                                this@MainActivity
+                                            ).toString(),
+                                            enrollment = trackedEntity.enrollment,
+                                            trackedEntityInstance = trackedEntity.trackedEntity,
+                                            status = it.status,
+                                            dataValues = attributes
+                                        )
+
+                                        Log.e("TAG", "Tracked Events Here **** $payload")
+                                        retrofitCalls.uploadEnrollmentData(
+                                            this@MainActivity,
+                                            payload, "${it.id}", it.initialUpload, it.eventUid
+                                        )
+
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
         }
     }
 

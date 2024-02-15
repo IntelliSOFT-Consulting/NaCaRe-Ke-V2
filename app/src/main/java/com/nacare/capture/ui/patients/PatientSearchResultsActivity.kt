@@ -138,7 +138,11 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                         .toString(),
                     attributes = data.attributeValues
                 )
-                viewModel.saveTrackedEntity(this@PatientSearchResultsActivity, entityData,data.orgUnit)
+                viewModel.saveTrackedEntity(
+                    this@PatientSearchResultsActivity,
+                    entityData,
+                    data.orgUnit
+                )
                 startActivity(
                     Intent(
                         this@PatientSearchResultsActivity,
@@ -204,13 +208,13 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     orgUnit = formatter.getSharedPref("orgCode", context).toString(),
                     eventDate = formatter.formatCurrentDate(Date()),
                     status = "ACTIVE",
-                    trackedEntity = data.trackedEntityInstance
+                    trackedEntity = data.trackedEntityInstance,
+                    initialUpload = true
                 )
-
                 viewModel.saveTrackedEntityWithEnrollment(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    enrollment,data.orgUnit
+                    enrollment, data.orgUnit
                 )
 
                 startActivity(

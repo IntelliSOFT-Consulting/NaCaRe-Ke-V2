@@ -73,6 +73,7 @@ data class EnrollmentEventData(
     var eventDate: String,
     var status: String,
     var trackedEntity: String,
+    var initialUpload: Boolean = false,
     val isSynced: Boolean = false,
 ) {
     @PrimaryKey(autoGenerate = true)
