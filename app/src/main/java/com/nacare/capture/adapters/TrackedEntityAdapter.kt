@@ -93,7 +93,7 @@ class TrackedEntityAdapter(
             }
         }
 
-        holder.ln_next_page.apply {
+        holder.btnProceed.apply {
             setOnClickListener {
                 click(data)
             }

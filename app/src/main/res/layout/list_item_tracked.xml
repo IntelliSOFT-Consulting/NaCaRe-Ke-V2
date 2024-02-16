@@ -122,21 +122,17 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/_15dp">
 
-                <TextView
-                    android:id="@+id/tv_proceed"
-                    style="@style/TextAppearance.MaterialComponents.Headline1"
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_proceed"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/proceed"
-                    android:textColor="@color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="@dimen/_20dp"
-                    android:layout_height="@dimen/_20dp"
-                    android:layout_marginStart="@dimen/_3dp"
-                    android:src="@drawable/arrow_next" />
+                    android:textAllCaps="false"
+                    app:icon="@drawable/proceed"
+                    app:iconGravity="textEnd"
+                    app:iconSize="@dimen/_20dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
