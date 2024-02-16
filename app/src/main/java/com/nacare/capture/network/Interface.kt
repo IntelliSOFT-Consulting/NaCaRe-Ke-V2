@@ -87,8 +87,7 @@ interface Interface {
         @Query("trackedEntityInstance") reference: String
     ): Response<EnrollmentSingle>
 
-    @POST("/api/events")
-
+    @POST("/api/events?strategy=CREATE_AND_UPDATE")
     @Headers("Content-Type: application/json")
     suspend fun uploadEnrollmentData(@Body payload: EnrollmentEventUploadData): Response<FacilityUploadResponse>
 

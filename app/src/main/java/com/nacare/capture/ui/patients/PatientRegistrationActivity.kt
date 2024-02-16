@@ -310,10 +310,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     } else {
 
                         if (isDisabled) {
-                            editText.keyListener = null;
-                            editText.isCursorVisible = false;
-                            editText.isFocusable = false;
-                            editText.isEnabled = false;
+                            editText.keyListener = null
+                            editText.isCursorVisible = false
+                            editText.isFocusable = false
+                            editText.isEnabled = false
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)

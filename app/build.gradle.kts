@@ -14,7 +14,7 @@ android {
         applicationId = "com.nacare.capture"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
+        versionCode = 210
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -118,7 +118,7 @@ interface RoomDao {
     @Query("UPDATE trackedEntity SET isSynced=:isSynced, enrollment =:reference WHERE trackedEntity =:trackedEntity")
     fun updateEnrollmentEntity(trackedEntity: String, reference: String, isSynced: Boolean)
 
-    @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC LIMIT 3")
+    @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC LIMIT 10")
     fun getTrackedEvents(synced: Boolean): List<EnrollmentEventData>?
 
     @Query("SELECT * FROM enrollmentevent WHERE trackedEntity =:trackedEntity ORDER BY id DESC LIMIT 1")

@@ -49,7 +49,6 @@
         <activity
             android:name=".auth.LoginActivity"
             android:exported="true"
-            android:label=""
             android:theme="@style/Theme.Nacarelive.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -27,6 +27,7 @@ import com.nacare.capture.room.Converters
 import com.nacare.capture.room.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -94,8 +95,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
                     handleDataSync()
-                    handleFacilityUploads()
-                    uploadTrackedEvents()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(10000) // Delay for 3 seconds
+                        handleFacilityUploads()
+                        uploadTrackedEvents()
+
+
+                    }
+
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -136,33 +143,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleEventUploads() {
-        val data = viewModel.loadAllEvents(this, false)
-        if (data != null) {
-            if (data.isNotEmpty()) {
-                Log.e("TAG", "Facility Events Here **** $data")
-                CoroutineScope(Dispatchers.IO).launch {
-                    data.forEach {
-                        val attributes = Converters().fromJsonDataAttribute(it.dataValues)
-                        val payload = EventUploadData(
-                            eventDate = it.eventDate,
-                            orgUnit = it.orgUnit,
-                            program = it.program,
-                            status = it.status,
-                            dataValues = attributes
-                        )
-                        Log.e("TAG", "Facility Events Here **** $payload")
-                        retrofitCalls.uploadFacilityData(
-                            this@MainActivity,
-                            payload,
-                            it.id.toString()
-                        )
-
-                    }
-                }
-            }
-        }
-    }
 
     private fun uploadTrackedEvents() {
 
@@ -250,7 +230,7 @@ class MainActivity : AppCompatActivity() {
                         incidentDate = it.enrollDate,
                     )
                 )
-                if (it.isSynced){
+                if (it.isSynced) {
 
                 }
                 val server = it.trackedEntity//

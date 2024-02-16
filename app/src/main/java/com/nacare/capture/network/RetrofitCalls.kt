@@ -728,11 +728,9 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "Data Response **** $body")
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Data Response **** $body")
                                 val data = DataStoreData(
                                     uid = "category",
                                     dataValues = Gson().toJson(body)
@@ -773,18 +771,16 @@ class RetrofitCalls {
                     .create(Interface::class.java)
             try {
                 val apiInterface =
-                    if (initialUpload) apiService.uploadEnrollmentData(payload) else apiService.uploadEnrollmentDataUpdate(
+                    if (!initialUpload) apiService.uploadEnrollmentData(payload) else apiService.uploadEnrollmentDataUpdate(
                         payload,
                         eventUid
                     )
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    Log.e("TAG", "Data Response **** $body")
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Server Data Response **** $body")
                                 if (!initialUpload) {
                                     body.response.importSummaries.forEach {
                                         viewModel.updateNotificationEvent(uid, it.reference, true)
