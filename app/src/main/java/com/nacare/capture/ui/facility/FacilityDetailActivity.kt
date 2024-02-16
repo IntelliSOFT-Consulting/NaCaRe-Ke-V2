@@ -135,6 +135,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             formFieldsData.forEachIndexed { index, item ->
                 attributeValueList.add(
                     ParentAttributeValues(
+                        parentName = item.displayName,
                         parent = item.id,
                         attributeValues = item.attributeValues
                     )
@@ -429,7 +430,11 @@ class FacilityDetailActivity : AppCompatActivity() {
                                     }
                                     if (matchFound) {
                                         val validAnswer =
-                                            checkProvidedAnswer(child.tag.toString(), list, dataValue)
+                                            checkProvidedAnswer(
+                                                child.tag.toString(),
+                                                list,
+                                                dataValue
+                                            )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
                                         } else {
@@ -759,7 +764,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         list: List<RefinedAttributeValues>,
         dataValue: String
     ): Boolean {
-        var resultResponse=false
+        var resultResponse = false
         try {
             val single = list.singleOrNull { it.parent == parent }
             Log.e(
@@ -785,13 +790,13 @@ class FacilityDetailActivity : AppCompatActivity() {
                         "notnull" -> true
                         else -> false
                     }
-                    resultResponse= result
+                    resultResponse = result
                 } else {
-                    resultResponse= false
+                    resultResponse = false
                 }
             }
         } catch (e: Exception) {
-            resultResponse= false
+            resultResponse = false
         }
 
         return resultResponse

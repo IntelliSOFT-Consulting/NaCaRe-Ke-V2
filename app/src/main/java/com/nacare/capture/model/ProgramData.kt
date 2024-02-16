@@ -84,6 +84,7 @@ data class RefinedAttributeValues(
 )
 
 data class ParentAttributeValues(
+    val parentName: String,
     val parent: String,
     val attributeValues: List<AttributeValues>,
 )

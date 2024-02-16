@@ -35,6 +35,7 @@ import com.nacare.capture.data.Constants.AGE_MONTHS
 import com.nacare.capture.data.Constants.AGE_YEARS
 import com.nacare.capture.data.Constants.DATE_OF_BIRTH
 import com.nacare.capture.data.Constants.DIAGNOSIS
+import com.nacare.capture.data.Constants.OPEN_FOR_EDITING
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientResponderBinding
 import com.nacare.capture.model.Attribute
@@ -186,13 +187,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         it.programSections.forEach {
                             if (it.name == "SEARCH PATIENT") {
                                 val section = it.trackedEntityAttributes
-                                Log.e("TAG", "Program Data Retrieved $section")
                                 searchList.addAll(section)
 
                             } else {
-                                val section = it.trackedEntityAttributes
-                                Log.e("TAG", "Program Data Retrieved Other  $section")
-                                emptyList.addAll(section)
+                                val filteredSections = it.trackedEntityAttributes.filter { section ->
+                                    section.id != OPEN_FOR_EDITING
+                                }
+                                emptyList.addAll(filteredSections)
+
 
                             }
                         }
@@ -358,7 +360,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
                 smallTextView.text = "0/${dataElements.count()}"
                 for (element in dataElements) {
-                    attributeList.add(ParentAttributeValues(element.id, element.attributeValues))
+                    attributeList.add(
+                        ParentAttributeValues(
+                            element.displayName,
+                            element.id,
+                            element.attributeValues
+                        )
+                    )
                     createFormFields(
                         index, element, linearLayout, extractCurrentValues(element.id), true
                     )
@@ -491,13 +499,17 @@ class PatientResponderActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
+        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
-
         val basicHiddenFields = isPartOfBasicInformation(item.id, formatter.excludeHiddenFields())
+
+        val isReg = formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
+        if (isReg != null) {
+            isDisabled = true
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {

@@ -27,6 +27,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
+import com.nacare.capture.data.Constants
 import com.nacare.capture.data.Constants.AGE_MONTHS
 import com.nacare.capture.data.Constants.AGE_YEARS
 import com.nacare.capture.data.Constants.DATE_OF_BIRTH
@@ -34,6 +35,7 @@ import com.nacare.capture.data.Constants.DIAGNOSIS
 import com.nacare.capture.data.Constants.DIAGNOSIS_CATEGORY
 import com.nacare.capture.data.Constants.DIAGNOSIS_SITE
 import com.nacare.capture.data.Constants.ICD_CODE
+import com.nacare.capture.data.Constants.OPEN_FOR_EDITING
 import com.nacare.capture.data.Constants.UNDER_TREATMENT
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientRegistrationBinding
@@ -75,6 +77,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
     private var attributeList = ArrayList<ParentAttributeValues>()
+    private var requiredFieldsString = ArrayList<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +86,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
         attributeList.clear()
+        requiredFieldsString.clear()
         loadSearchParameters()
 
         binding.apply {
@@ -97,39 +101,48 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
             btnSave.apply {
                 setOnClickListener {
-                    formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
-                    formatter.saveSharedPref(
-                        "isRegistration",
-                        "true",
-                        this@PatientRegistrationActivity
-                    )
-                    try {
-                        val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
-                        if (isPatientUnderTreatment.isNotEmpty()) {
-                            if (isPatientUnderTreatment == "true") {
-                                formatter.saveSharedPref(
-                                    "underTreatment",
-                                    "true",
-                                    this@PatientRegistrationActivity
-                                )
-                            } else {
-                                formatter.deleteSharedPref(
-                                    "underTreatment",
-                                    this@PatientRegistrationActivity
-                                )
-                            }
-                            validateSearchData()
+                    generatePatientUniqueId()
+                    if (allRequiredFieldsComplete()) {
+                        formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
+                        formatter.saveSharedPref(
+                            "isRegistration",
+                            "true",
+                            this@PatientRegistrationActivity
+                        )
+                        try {
+                            val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                            if (isPatientUnderTreatment.isNotEmpty()) {
+                                if (isPatientUnderTreatment == "true") {
+                                    formatter.saveSharedPref(
+                                        "underTreatment",
+                                        "true",
+                                        this@PatientRegistrationActivity
+                                    )
+                                } else {
+                                    formatter.deleteSharedPref(
+                                        "underTreatment",
+                                        this@PatientRegistrationActivity
+                                    )
+                                }
+                                validateSearchData()
 
-                        } else {
-                            Toast.makeText(
-                                this@PatientRegistrationActivity,
-                                "Please enter all required fields", Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                            } else {
+                                Toast.makeText(
+                                    this@PatientRegistrationActivity,
+                                    "Please enter all required fields", Toast.LENGTH_SHORT
+                                ).show()
+                            }
 //
 
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    } else {
+                        Toast.makeText(
+                            this@PatientRegistrationActivity,
+                            "Please enter all required fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -138,6 +151,66 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     onBackPressed()
                 }
             }
+        }
+
+    }
+
+    private fun generatePatientUniqueId() {
+        var firstname: String = extractCurrentValues("R1vaUuILrDy")
+        var lastname: String = extractCurrentValues("hzVijy6tEUF")
+        val dob: String = extractCurrentValues("mPpjmOxwsEZ")
+        val month: String = extractDesiredValue(dob, "MM")
+        val year: String = extractDesiredValue(dob, "yyyy")
+        firstname = if (firstname.isNotEmpty() && firstname.length > 3) {
+            firstname.substring(0, 3).uppercase(Locale.getDefault())
+        } else {
+            firstname!!.uppercase(Locale.getDefault())
+        }
+        lastname = if (lastname.isNotEmpty() && lastname.length > 3) {
+            lastname.substring(0, 3).uppercase(Locale.getDefault())
+        } else {
+            lastname!!.uppercase(Locale.getDefault())
+        }
+        if (month != null && year != null) {
+            val patient_identification = "$firstname-$lastname-$month-$year"
+            saveValued(0, "AP13g7NcBOf", patient_identification)
+            val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
+            if (existingIndex != -1) {
+                // Update the existing entry if the code is found
+                searchParameters[existingIndex] =
+                    CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+            } else {
+                // Add a new entry if the code is not found
+                val data =
+                    CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                searchParameters.add(data)
+            }
+            formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
+            Log.e("TAG", "Growing List $searchParameters")
+        }
+    }
+
+    private fun allRequiredFieldsComplete(): Boolean {
+        try {
+            searchParameters = getSavedValues()
+            Log.e("TAG", "Required Fields **** $requiredFieldsString")
+            Log.e("TAG", "Required Fields **** Saved $searchParameters")
+
+            val searchParameterCodes = searchParameters.map { it.code }
+            // Check if all required field codes are present in searchParameterCodes
+            val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
+
+            return if (missingFields.isEmpty()) {
+                println("No fields are missing.")
+                true
+            } else {
+                println("Missing fields: $missingFields")
+                false
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
         }
 
     }
@@ -161,8 +234,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         searchList.addAll(section)
 
                     } else {
-                        val section = it.trackedEntityAttributes
-                        emptyList.addAll(section)
+                        val filteredSections = it.trackedEntityAttributes.filter { section ->
+                            section.id != OPEN_FOR_EDITING
+                        }
+                        emptyList.addAll(filteredSections)
 
                     }
                 }
@@ -172,7 +247,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
             completeList.forEachIndexed { index, item ->
-                attributeList.add(ParentAttributeValues(item.id, item.attributeValues))
+                attributeList.add(ParentAttributeValues(item.name, item.id, item.attributeValues))
                 populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
 
             }
@@ -212,6 +287,76 @@ class PatientRegistrationActivity : AppCompatActivity() {
         return data
     }
 
+    private fun hasValidatorAndPasses(
+        target: String,
+        itemValue: String,
+        attributeValues: List<AttributeValues>,
+    ): Boolean {
+        var status = false
+        if (attributeValues.isEmpty()) {
+            status = true
+        } else {
+            val attribute = attributeValues.singleOrNull { it.attribute.name == target }
+            if (attribute != null) {
+                val parts = attribute.value.split(':')
+                val part1 = parts[0]
+                val part2 = parts[1]
+                var parentValue = extractCurrentValues(part2.trim())
+                val parentLabel = attributeList.singleOrNull { it.parent == part2.trim() }
+                if (parentLabel != null) {
+                    formatter.saveSharedPref(
+                        "parent_name",
+                        parentLabel.parentName,
+                        this@PatientRegistrationActivity
+                    )
+                }
+                if (parentValue.isNotEmpty()) {
+                    val refinedParent = formatter.convertDateFormat(parentValue)
+
+                    if (refinedParent != null) {
+                        parentValue = refinedParent
+                        val result = when (part1) {
+                            "eq" -> itemValue == parentValue
+                            "ne" -> itemValue != parentValue
+                            "gt" -> itemValue > parentValue
+                            "ge" -> itemValue >= parentValue
+                            "lt" -> itemValue < parentValue
+                            "le" -> itemValue <= parentValue
+                            "like" -> itemValue == parentValue
+                            "null" -> false
+                            "notnull" -> true
+                            else -> false
+                        }
+                        status = result
+
+                    } else {
+                        status = false
+                    }
+
+                } else {
+                    status = false
+                }
+                Log.e(
+                    "TAG",
+                    "Growing List **** parts $part1 other $part2 Parent Answer **** is $parentValue Qualifies $status"
+                )
+            } else {
+                status = true
+            }
+        }
+
+        return status
+    }
+
+    private fun confirmAndExtractProvidedAnswer(parent: String): String? {
+        val single = searchParameters.singleOrNull { it.code == parent }
+
+        if (single != null) {
+            return single.value
+        }
+        return null
+    }
+
     private fun extractAttributeValue(
         target: String,
         attributeValues: List<AttributeValues>,
@@ -222,6 +367,22 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 val data: Attribute = hey.attribute
                 if (data.name == target) {
                     status = hey.value == "true"
+                }
+            }
+        }
+        return status
+    }
+
+    private fun extractValidatorAttributeValue(
+        target: String,
+        attributeValues: List<AttributeValues>,
+    ): Boolean {
+        var status = false
+        if (attributeValues.isEmpty()) status = false else {
+            for (hey in attributeValues) {
+                val data: Attribute = hey.attribute
+                if (data.name == target) {
+                    status = true//hey.value == "true"
                 }
             }
         }
@@ -317,9 +478,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
+        val hasValidator: Boolean =
+            extractValidatorAttributeValue("Validator", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
+
+        if (isRequired) {
+
+            requiredFieldsString.add(item.id)
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -362,11 +530,32 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-                        if (!hasFocus) {                            // Save the data when the EditText loses focus
-                            saveValued(index, item.id, editText.text.toString())
+
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
-                    }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(index, item.id, editText.text.toString())
+                            }
+                        }
+                    })
 
                 } else {
                     val itemView = inflater.inflate(
@@ -412,6 +601,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
                             if (showNow) {
                                 itemView.visibility = View.GONE
+
                             } else {
                                 itemView.visibility = View.VISIBLE
                             }
@@ -459,8 +649,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                             )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
+                                            requiredFieldsString.add(child.tag.toString())
                                         } else {
                                             child.visibility = View.GONE
+                                            requiredFieldsString.remove(child.tag.toString())
                                         }
                                     } else {
                                         // If no match is found, leave the visibility unchanged
@@ -552,8 +744,34 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             //check if it is date of birth, calculate relevant
-                            calculateRelevant(lnParent, index, item, value)
-                            saveValued(index, item.id, value)
+                            Log.e("TAG", "This Field has a validator **** $hasValidator")
+                            if (hasValidator) {
+
+                                val passes = hasValidatorAndPasses(
+                                    "Validator",
+                                    value,
+                                    item.attributeValues
+                                )
+                                Log.e(
+                                    "TAG",
+                                    "This Field has a validator  and Qualifies **** $passes"
+                                )
+                                val parentName = formatter.getSharedPref(
+                                    "parent_name",
+                                    this@PatientRegistrationActivity
+                                )
+                                if (passes) {
+                                    textInputLayout.error = null
+                                    calculateRelevant(lnParent, index, item, value)
+                                    saveValued(index, item.id, value)
+                                } else {
+                                    textInputLayout.error =
+                                        "${item.name} cannot come before $parentName"
+                                }
+                            } else {
+                                calculateRelevant(lnParent, index, item, value)
+                                saveValued(index, item.id, value)
+                            }
                         }
                     }
                 })
@@ -805,8 +1023,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                         checkProvidedAnswer(child.tag.toString(), list, dataValue)
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
+                                        requiredFieldsString.add(child.tag.toString())
                                     } else {
                                         child.visibility = View.GONE
+                                        requiredFieldsString.remove(child.tag.toString())
                                     }
                                 } else {
                                     // If no match is found, leave the visibility unchanged
@@ -867,6 +1087,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         "ge" -> lowercaseAnswer >= part3Lower
                         "lt" -> lowercaseAnswer < part3Lower
                         "le" -> lowercaseAnswer <= part3Lower
+                        "like" -> lowercaseAnswer == part3Lower
+                        "in" -> lowercaseAnswer == part3Lower
                         "null" -> false
                         "notnull" -> true
                         else -> false
@@ -1027,20 +1249,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     }
 
-    private fun reloadActivity() {
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(100)
-            val intent =
-                Intent(
-                    this@PatientRegistrationActivity,
-                    PatientRegistrationActivity::class.java
-                )
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP //or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
-            finish()
-            overridePendingTransition(0, 0) // Disable transition animation
-        }
-    }
 
     private fun extractDesiredValue(dateString: String, format: String): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -1057,40 +1265,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     private fun validateSearchData() {
         try {
-            var firstname: String = extractCurrentValues("R1vaUuILrDy")
-            var lastname: String = extractCurrentValues("hzVijy6tEUF")
-            val dob: String = extractCurrentValues("mPpjmOxwsEZ")
-            val month: String = extractDesiredValue(dob, "MM")
-            val year: String = extractDesiredValue(dob, "yyyy")
-            firstname = if (firstname != null && firstname.length > 3) {
-                firstname.substring(0, 3).uppercase(Locale.getDefault())
-            } else {
-                firstname!!.uppercase(Locale.getDefault())
-            }
-            lastname = if (lastname != null && lastname.length > 3) {
-                lastname.substring(0, 3).uppercase(Locale.getDefault())
-            } else {
-                lastname!!.uppercase(Locale.getDefault())
-            }
-            if (month != null && year != null) {
-                val patient_identification = "$firstname-$lastname-$month-$year"
-                saveValued(0, "AP13g7NcBOf", patient_identification)
-                val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
-                if (existingIndex != -1) {
-                    // Update the existing entry if the code is found
-                    searchParameters[existingIndex] =
-                        CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
-                } else {
-                    // Add a new entry if the code is not found
-                    val data =
-                        CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
-                    searchParameters.add(data)
-                }
-                formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
-                Log.e("TAG", "Growing List $searchParameters")
-                saveConfirmation()
 
-            }
+            saveConfirmation()
+
+
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
             Log.e("TAG", "Error Generating the Unique ID ****" + e.message)
