@@ -172,6 +172,7 @@ class PatientListFragment : Fragment() {
                 // add new event
                 val attributes = Converters().fromJsonAttribute(data.attributes)
                 val trackedEntityInstance = formatter.generateUUID(11)
+                formatter.saveSharedPref("new_case", "true", context).toString()
                 val orgCode = formatter.getSharedPref("orgCode", context).toString()
 
                 val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
@@ -201,6 +202,8 @@ class PatientListFragment : Fragment() {
             setOnClickListener {
                 alertDialog.dismiss()
                 // get latest event
+
+                formatter.deleteSharedPref("new_case", context).toString()
                 formatter.saveSharedPref("current_patient", data.uid, requireContext())
                 formatter.saveSharedPref("current_patient_id", data.id, requireContext())
                 val single = viewModel.getLatestEnrollment(requireContext(), data.id)

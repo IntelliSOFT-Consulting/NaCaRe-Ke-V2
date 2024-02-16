@@ -103,6 +103,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 setOnClickListener {
                     generatePatientUniqueId()
                     if (allRequiredFieldsComplete()) {
+                        formatter.deleteSharedPref("new_case", this@PatientRegistrationActivity)
                         formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
                         formatter.saveSharedPref(
                             "isRegistration",

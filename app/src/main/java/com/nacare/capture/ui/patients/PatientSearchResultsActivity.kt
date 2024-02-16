@@ -131,6 +131,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
+
+                formatter.saveSharedPref("new_case", "true", context).toString()
                 val refinedAttributes =
                     formatter.excludeBareMinimumInformation(data.attributeValues)
                 val entityData = TrackedEntityInstance(
@@ -159,6 +161,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
             setOnClickListener {
                 alertDialog.dismiss()
                 // get latest event
+
+                formatter.deleteSharedPref("new_case", context).toString()
                 var eventUid = formatter.generateUUID(11)
                 val enrollmentUid = formatter.generateUUID(11)//data.enrollmentUid
                 var programStage =

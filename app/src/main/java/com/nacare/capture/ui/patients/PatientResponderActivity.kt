@@ -190,9 +190,10 @@ class PatientResponderActivity : AppCompatActivity() {
                                 searchList.addAll(section)
 
                             } else {
-                                val filteredSections = it.trackedEntityAttributes.filter { section ->
-                                    section.id != OPEN_FOR_EDITING
-                                }
+                                val filteredSections =
+                                    it.trackedEntityAttributes.filter { section ->
+                                        section.id != OPEN_FOR_EDITING
+                                    }
                                 emptyList.addAll(filteredSections)
 
 
@@ -507,7 +508,11 @@ class PatientResponderActivity : AppCompatActivity() {
         val basicHiddenFields = isPartOfBasicInformation(item.id, formatter.excludeHiddenFields())
 
         val isReg = formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
+        val newCase = formatter.getSharedPref("new_case", this@PatientResponderActivity)
         if (isReg != null) {
+            isDisabled = true
+        }
+        if (newCase == null) {
             isDisabled = true
         }
         when (valueType) {
@@ -959,9 +964,9 @@ class PatientResponderActivity : AppCompatActivity() {
                 lnParent.addView(itemView)
                 var isProgrammaticChange = false
                 radioGroup.setOnCheckedChangeListener(null)
-//                radioGroup.isEnabled = isDisabled
-//                radioButtonYes.isEnabled = isDisabled
-//                radioButtonNo.isEnabled = isDisabled
+                radioGroup.isEnabled = isDisabled
+                radioButtonYes.isEnabled = isDisabled
+                radioButtonNo.isEnabled = isDisabled
                 when (currentValue) {
                     "true" -> {
                         radioGroup.check(R.id.radioButtonYes);
