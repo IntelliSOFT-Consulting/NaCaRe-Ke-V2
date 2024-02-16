@@ -25,8 +25,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="@dimen/_10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
@@ -57,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:orientation="vertical"
-                    android:paddingBottom="@dimen/_10dp" />
+                    android:padding="@dimen/_10dp" />
             </LinearLayout>
         </ScrollView>
     </RelativeLayout>

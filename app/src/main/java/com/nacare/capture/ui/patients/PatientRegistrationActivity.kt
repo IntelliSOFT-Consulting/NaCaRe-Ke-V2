@@ -651,7 +651,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number,
+                    R.layout.item_edittext_phone,
                     findViewById(R.id.lnParent),
                     false
                 ) as LinearLayout

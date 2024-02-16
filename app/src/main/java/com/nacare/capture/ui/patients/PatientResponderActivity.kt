@@ -28,6 +28,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.hbb20.CountryCodePicker
 import com.nacare.capture.R
 import com.nacare.capture.data.Constants
 import com.nacare.capture.data.Constants.AGE_MONTHS
@@ -290,9 +291,6 @@ class PatientResponderActivity : AppCompatActivity() {
             }
             if (data.isProgram) {
                 no_button.visibility = View.GONE
-            } else {
-//                yes_button.isEnabled = false
-//                no_button.isEnabled = false
             }
 
             itemView.setOnClickListener {
@@ -729,17 +727,30 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, findViewById(R.id.lnParent), false
+                    R.layout.item_edittext_phone, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                 val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val countryCodePicker =
+                    itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
+
                 val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
-                    editText.setText(currentValue)
+                    // check if length is 12, split into 2 parts, the first 3 then remainder
+                    if (currentValue.length == 12) { // Check if length is 12
+                        val firstPart =
+                            currentValue.substring(0, 3) // Extract the first 3 characters
+                        val secondPart =
+                            currentValue.substring(3) // Extract the remainder of the string
+                        countryCodePicker.setCountryForPhoneCode(firstPart.toInt())//setselectedCountryCode = firstPart
+                        editText.setText(secondPart) // Set the text of the editText to the formatted value
+                    } else {
+                        editText.setText(currentValue) // If length is not 12, set the text as it is
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -777,7 +788,9 @@ class PatientResponderActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(index, item.id, value, isProgram)
+                            val countryCode = countryCodePicker.selectedCountryCode
+                            val completeCode = "$countryCode$value"
+                            saveValued(index, item.id, completeCode, isProgram)
                         }
                     }
                 })
@@ -1423,18 +1436,33 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "PHONE_NUMBER" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, findViewById(R.id.lnParent), false
+                    R.layout.item_edittext_phone, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                 val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val countryCodePicker =
+                    itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
+
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
-                    editText.setText(currentValue)
+                    if (currentValue.isNotEmpty()) {
+                        // check if length is 12, split into 2 parts, the first 3 then remainder
+                        if (currentValue.length == 12) { // Check if length is 12
+                            val firstPart =
+                                currentValue.substring(0, 3) // Extract the first 3 characters
+                            val secondPart =
+                                currentValue.substring(3) // Extract the remainder of the string
+                            countryCodePicker.setCountryForPhoneCode(firstPart.toInt())
+                            editText.setText(secondPart) // Set the text of the editText to the formatted value
+                        } else {
+                            editText.setText(currentValue) // If length is not 12, set the text as it is
+                        }
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1472,7 +1500,9 @@ class PatientResponderActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(index, item.id, value, isProgram)
+                            val countryCode = countryCodePicker.selectedCountryCode
+                            val completeCode = "$countryCode$value"
+                            saveValued(index, item.id, completeCode, isProgram)
                         }
                     }
                 })

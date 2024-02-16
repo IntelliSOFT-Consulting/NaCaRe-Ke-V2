@@ -20,6 +20,18 @@
         android:visibility="gone" />
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/countyCodePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_countryAutoDetectionPref="LOCALE_NETWORK"
+            app:ccp_defaultLanguage="ENGLISH"
+            app:ccp_defaultPhoneCode="254" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
@@ -32,10 +44,12 @@
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
+                android:inputType="phone"
+                android:maxLength="9"
                 android:textSize="12sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
+    </LinearLayout>
 </LinearLayout>
+
