@@ -121,7 +121,7 @@
     <string name="action">Action</string>
     <string name="facility_details_capture_tool">Facility Details Capture Tool</string>
     <string name="save">Save</string>
-    <string name="register_new">Register New Case</string>
+    <string name="register_new">Notify Cancer Case</string>
     <string name="reported_cases">Reported Cases</string>
     <string name="firstname">First Name</string>
     <string name="lastname">Last Name</string>
