@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -571,6 +572,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
                     tvElement.text = item.id
                     val optionsStringList: MutableList<String> = ArrayList()
+                    val isAllowedToSearch = formatter.retrieveAllowedToTypeItem(item.id)
+                    if (isAllowedToSearch) {
+                        autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
+                    }
                     item.optionSet.options.forEach {
                         optionsStringList.add(it.displayName)
                     }

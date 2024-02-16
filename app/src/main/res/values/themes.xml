@@ -22,9 +22,34 @@
     <style name="Theme.Nacarelive.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Nacarelive.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
     <style name="checkBox" parent="Base.Theme.AppCompat">
         <item name="colorAccent">?colorPrimary</item>
         <item name="android:colorAccent">?colorPrimary</item>
         <item name="android:textColorSecondary">?colorPrimary</item> <!-- for check state -->
     </style>
+
+    <style name="txtFeatureName">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">@dimen/small_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:maxLines">4</item>
+
+    </style>
+
+    <style name="txtfeatureNameStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">@dimen/small_medium</item>
+        <item name="android:textStyle">normal</item>
+
+        <item name="android:layout_gravity">start</item>
+        <item name="android:maxLines">4</item>
+
+    </style>
+
+    <dimen name="small_medium">12sp</dimen>
+    <dimen name="height_width_10dp">10dp</dimen>
 </resources>

@@ -239,4 +239,10 @@ class FormatterClass {
             .setCancelable(false)
             .show()
     }
+
+    fun retrieveAllowedToTypeItem(id: String): Boolean {
+        val itemsList = listOf("BzhDnF5fG4x", "wzHl7HdsSlO", "PdDmTsAjysh","uR2Mnlh7sqn") // Add your items here
+        // Check if the passed parameter is found in the list
+        return itemsList.contains(id)
+    }
 }

@@ -248,6 +248,7 @@ class PatientListFragment : Fragment() {
             ContextCompat.getDrawable(requireContext(), R.drawable.resized_icon_down_tinny)
 
         binding.apply {
+            inc.view.visibility = View.GONE
             inc.dateTextView.apply {
                 val filterFirstName = formatter.getSharedPref("filterDateName", requireContext())
                 if (filterFirstName != null) {

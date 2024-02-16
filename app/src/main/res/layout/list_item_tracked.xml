@@ -2,15 +2,8 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp">
+    android:layout_height="wrap_content">
 
-    <FrameLayout
-        android:id="@+id/cardFrame"
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +13,9 @@
         <include
             layout="@layout/item_cases_data"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
 
         <LinearLayout
             android:id="@+id/hiddenLayout"
@@ -30,88 +25,92 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <LinearLayout
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_10dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tv_patient_id"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/patient_id"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                <TableRow
+                    android:layout_marginBottom="@dimen/_10dp"
+                    android:background="@color/white"
+                    android:gravity="start">
 
-                <TextView
-                    android:id="@+id/tv_id_doc_no"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/id_doc_no"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                    <TextView
+                        style="@style/txtFeatureName"
+                        android:text="@string/patient_id" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_10dp"
-                android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/tv_patient_id"
+                        style="@style/txtfeatureNameStyle"
+                        android:text="@string/patient_id"
+                        android:textAlignment="textStart" />
 
-                <TextView
-                    android:id="@+id/tv_hospital_no"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/hospital_no"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                    <TextView
+                        style="@style/txtFeatureName"
+                        android:text="@string/id_doc_no" />
 
-                <TextView
-                    android:id="@+id/tv_phone_no"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/phone_no"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tv_id_doc_no"
+                        style="@style/txtfeatureNameStyle"
+                        android:text="@string/patient_id"
+                        android:textAlignment="textStart" />
 
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_10dp"
-                android:orientation="horizontal">
+                </TableRow>
 
-                <TextView
-                    android:id="@+id/tv_patient_name"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/patient_name"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                <TableRow
+                    android:layout_marginBottom="@dimen/_10dp"
+                    android:background="@color/white"
+                    android:gravity="start">
 
-                <TextView
-                    android:id="@+id/tv_place_of_notification"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/place_of_notification"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                    <TextView
+                        style="@style/txtFeatureName"
+                        android:text="@string/hospital_no" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_hospital_no"
+                        style="@style/txtfeatureNameStyle"
+                        android:text="@string/patient_id" />
+
+                    <TextView
+                        style="@style/txtFeatureName"
+                        android:text="@string/phone_no" />
+
+                    <TextView
+                        android:id="@+id/tv_phone_no"
+                        style="@style/txtfeatureNameStyle"
+                        android:text="@string/phone_no" />
+
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_marginBottom="@dimen/_0dp"
+                    android:background="@color/white"
+                    android:gravity="start">
+
+                    <TextView
+                        style="@style/txtFeatureName"
+                        android:text="@string/place_of_notification" />
+
+                    <TextView
+                        android:id="@+id/tv_place_of_notification"
+                        style="@style/txtfeatureNameStyle"
+                        android:text="@string/place_of_notification" />
+
+                    <TextView
+                        android:id="@+id/tv_patient_name"
+                        style="@style/txtFeatureName"
+                        android:text="@string/place_of_notification"
+                        android:visibility="invisible" />
+
+                    <TextView
+                        android:id="@+id/tv_patient_name_alt"
+                        style="@style/txtFeatureName"
+                        android:text="@string/place_of_notification"
+                        android:visibility="invisible" />
+
+                </TableRow>
+            </TableLayout>
 
             <LinearLayout
                 android:id="@+id/ln_next_page"
@@ -134,6 +133,12 @@
                     app:iconGravity="textEnd"
                     app:iconSize="@dimen/_20dp" />
             </LinearLayout>
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/greyish"/>
         </LinearLayout>
     </LinearLayout>
 
