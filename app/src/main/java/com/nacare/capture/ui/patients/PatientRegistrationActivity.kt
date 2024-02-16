@@ -21,6 +21,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -517,6 +518,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             editText.isCursorVisible = false
                             editText.isFocusable = false
                             editText.isEnabled = false
+                            textInputLayout.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.greyColor
+                                )
+                            )
+                            textInputLayout.isEnabled = false
                             liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
                                 val valueObtained = it.find { it.code == item.id }
                                 if (valueObtained != null) {
@@ -570,6 +578,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                     val autoCompleteTextView =
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     tvElement.text = item.id
                     val optionsStringList: MutableList<String> = ArrayList()
                     val isAllowedToSearch = formatter.retrieveAllowedToTypeItem(item.id)
@@ -603,6 +613,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
+                            textInputLayout.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.greyColor
+                                )
+                            )
+                            textInputLayout.isEnabled = false
                             liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
                                 val valueObtained = it.find { it.code == item.id }
                                 if (valueObtained != null) {
@@ -817,6 +834,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         editText.isCursorVisible = false
                         editText.isFocusable = false
                         editText.isEnabled = false
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.greyColor
+                            )
+                        )
+                        textInputLayout.isEnabled = false
                         liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
                             val valueObtained = it.find { it.code == item.id }
                             if (valueObtained != null) {
@@ -883,10 +907,17 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.greyColor
+                            )
+                        )
+                        textInputLayout.isEnabled = false
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
