@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
 
         viewModel = MainViewModel(this.applicationContext as Application)
-        viewModel.resetEnrollments(this)
+
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.facilityListFragment
             ), drawerLayout
         )
-//        viewModel.updateEnrollment("nRrZ49MDxBy", "1")
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         // Assuming navView is your NavigationView
@@ -94,13 +94,19 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.navSyncData -> {
                     // Handle click for additionalMenuItem2
-                    handleDataSync()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        delay(10000) // Delay for 3 seconds
-                        handleFacilityUploads()
-                        uploadTrackedEvents()
-
-
+                    try {
+                        if (formatter.isNetworkAvailable(this@MainActivity)) {
+                            handleDataSync()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                delay(10000) // Delay for 3 seconds
+                                handleFacilityUploads()
+                                uploadTrackedEvents()
+                            }
+                        } else {
+                            formatter.showInternetConnectionRequiredDialog(this@MainActivity)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
 
                     drawerLayout.closeDrawer(GravityCompat.START)
@@ -248,25 +254,24 @@ class MainActivity : AppCompatActivity() {
                     retrofitCalls.uploadSingleTrackedEntity(this@MainActivity, inst, server)
                 }
             }
-//            val payload = MultipleTrackedEntityInstances(
-//                trackedEntityInstances = trackedEntityInstances
-//            )
 
-//            CoroutineScope(Dispatchers.IO).launch {
-//                retrofitCalls.uploadTrackedEntity(this@MainActivity, payload)
-//            }
         }
     }
 
     private fun loadPrograms() {
-
-        CoroutineScope(Dispatchers.IO).launch {
-            retrofitCalls.loadOrganization(this@MainActivity)
-            retrofitCalls.loadProgram(this@MainActivity, "notification")
-            retrofitCalls.loadProgram(this@MainActivity, "facility")
-            retrofitCalls.loadAllSites(this@MainActivity)
-            retrofitCalls.loadAllCategories(this@MainActivity)
-            retrofitCalls.loadAllEvents(this@MainActivity)
+        try {
+            if (formatter.isNetworkAvailable(this@MainActivity)) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    retrofitCalls.loadOrganization(this@MainActivity)
+                    retrofitCalls.loadProgram(this@MainActivity, "notification")
+                    retrofitCalls.loadProgram(this@MainActivity, "facility")
+                    retrofitCalls.loadAllSites(this@MainActivity)
+                    retrofitCalls.loadAllCategories(this@MainActivity)
+                    retrofitCalls.loadAllEvents(this@MainActivity)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
     }

@@ -58,7 +58,15 @@ class PatientSearchActivity : AppCompatActivity() {
             }
             btnProceed.apply {
                 setOnClickListener {
-                    validateSearchData()
+                    try {
+                        if (formatter.isNetworkAvailable(this@PatientSearchActivity)) {
+                            validateSearchData()
+                        } else {
+                            formatter.showInternetConnectionRequiredDialog(context)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }

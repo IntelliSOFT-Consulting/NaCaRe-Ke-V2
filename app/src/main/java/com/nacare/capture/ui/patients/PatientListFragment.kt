@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,17 +57,19 @@ class PatientListFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private val formatter = FormatterClass()
     private val dataList = ArrayList<EntityData>()
+    private lateinit var adapterProgram: TrackedEntityAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentPatientListBinding.inflate(layoutInflater)
-
         viewModel = MainViewModel(requireContext().applicationContext as Application)
+
         loadTrackedEntities()
         return binding.root
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -109,7 +112,7 @@ class PatientListFragment : Fragment() {
                 }
             }
 
-            val adapterProgram = TrackedEntityAdapter(dataList, requireContext(), this::handleClick)
+            adapterProgram = TrackedEntityAdapter(dataList, requireContext(), this::handleClick)
 
             binding.apply {
                 val manager = LinearLayoutManager(requireContext())
@@ -191,26 +194,6 @@ class PatientListFragment : Fragment() {
                     )
                 )
 
-//                val eventUid = formatter.generateUUID(11)
-//
-//                formatter.saveSharedPref("eventUid", eventUid, requireContext())
-//                formatter.deleteSharedPref("current_data", requireContext())
-//                formatter.saveSharedPref("current_patient", data.uid, requireContext())
-//                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
-//
-//                val enrollment = EnrollmentEventData(
-//                    dataValues = "",
-//                    uid = formatter.generateUUID(11),
-//                    eventUid = eventUid,
-//                    program = formatter.getSharedPref("programUid", context).toString(),
-//                    programStage = formatter.getSharedPref("programStage", context).toString(),
-//                    orgUnit = formatter.getSharedPref("orgCode", context).toString(),
-//                    eventDate = formatter.formatCurrentDate(Date()),
-//                    status = "ACTIVE",
-//                    trackedEntity = data.id
-//                )
-//                viewModel.addEnrollmentData(enrollment)
-//                startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 
             }
         }
@@ -240,6 +223,7 @@ class PatientListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        buildFilters()
         binding.apply {
             textViewWithArrow.apply {
                 setOnClickListener {
@@ -252,6 +236,180 @@ class PatientListFragment : Fragment() {
                     startActivity(intent)
                 }
             }
+        }
+    }
+
+    private fun buildFilters() {
+        val upDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.resized_icon_tinny)
+        val downDrawable =
+            ContextCompat.getDrawable(requireContext(), R.drawable.resized_icon_down_tinny)
+
+        binding.apply {
+            inc.dateTextView.apply {
+                val filterFirstName = formatter.getSharedPref("filterDateName", requireContext())
+                if (filterFirstName != null) {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        downDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                } else {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        upDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                }
+                setOnClickListener {
+                    val afterClick = formatter.getSharedPref("filterDateName", requireContext())
+                    if (afterClick != null) {
+                        formatter.deleteSharedPref("filterDateName", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            upDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("date", true)
+                    } else {
+                        formatter.saveSharedPref("filterDateName", "true", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            downDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("date", false)
+                    }
+
+                }
+            }
+            inc.firstnameTextView.apply {
+                val filterFirstName = formatter.getSharedPref("filterFirstName", requireContext())
+                if (filterFirstName != null) {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        downDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                } else {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        upDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                }
+                setOnClickListener {
+                    val afterClick = formatter.getSharedPref("filterFirstName", requireContext())
+                    if (afterClick != null) {
+                        formatter.deleteSharedPref("filterFirstName", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            upDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("firstname", true)
+                    } else {
+                        formatter.saveSharedPref("filterFirstName", "true", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            downDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("firstname", false)
+                    }
+
+                }
+            }
+            inc.lastnameTextView.apply {
+                val filterFirstName = formatter.getSharedPref("filterLastName", requireContext())
+                if (filterFirstName != null) {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        downDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                } else {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        upDrawable,
+                        null,
+                        null,
+                        null
+                    )
+                }
+                setOnClickListener {
+                    val afterClick = formatter.getSharedPref("filterLastName", requireContext())
+                    if (afterClick != null) {
+                        formatter.deleteSharedPref("filterLastName", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            upDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("lastname", true)
+                    } else {
+                        formatter.saveSharedPref("filterLastName", "true", requireContext())
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            downDrawable,
+                            null,
+                            null,
+                            null
+                        )
+                        filterResultsByStatus("lastname", false)
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun filterResultsByStatus(uid: String, isDescending: Boolean) {
+        if (dataList.isNotEmpty()) {
+
+            val sortedList = when (uid) {
+                "firstname" -> if (isDescending) {
+                    dataList.sortedByDescending { it.fName }
+                } else {
+                    dataList.sortedBy { it.fName }
+                }
+
+                "lastname" -> if (isDescending) {
+                    dataList.sortedByDescending { it.lName }
+                } else {
+                    dataList.sortedBy { it.lName }
+                }
+
+                "date" -> if (isDescending) {
+                    dataList.sortedByDescending { it.date }
+                } else {
+                    dataList.sortedBy { it.date }
+                }
+
+                else -> dataList.sortedBy { it.date }
+
+            }
+            adapterProgram = TrackedEntityAdapter(sortedList, requireContext(), this::handleClick)
+
+            binding.apply {
+                val manager = LinearLayoutManager(requireContext())
+                trackedEntityInstancesRecyclerView.apply {
+                    adapter = adapterProgram
+                    layoutManager = manager
+                    val divider = DividerItemDecoration(context, manager.orientation)
+                    divider.setDrawable(context.getDrawable(R.drawable.divider)!!)
+//                addItemDecoration(divider)
+                }
+
+            }
+
         }
     }
 

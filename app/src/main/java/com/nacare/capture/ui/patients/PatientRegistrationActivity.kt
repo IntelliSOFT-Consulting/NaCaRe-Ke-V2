@@ -2,6 +2,7 @@ package com.nacare.capture.ui.patients
 
 import android.app.Application
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -33,6 +34,7 @@ import com.nacare.capture.data.Constants.DIAGNOSIS
 import com.nacare.capture.data.Constants.DIAGNOSIS_CATEGORY
 import com.nacare.capture.data.Constants.DIAGNOSIS_SITE
 import com.nacare.capture.data.Constants.ICD_CODE
+import com.nacare.capture.data.Constants.UNDER_TREATMENT
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientRegistrationBinding
 import com.nacare.capture.model.Attribute
@@ -96,8 +98,39 @@ class PatientRegistrationActivity : AppCompatActivity() {
             btnSave.apply {
                 setOnClickListener {
                     formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
-                    formatter.saveSharedPref("isRegistration", "true", this@PatientRegistrationActivity)
-                    validateSearchData()
+                    formatter.saveSharedPref(
+                        "isRegistration",
+                        "true",
+                        this@PatientRegistrationActivity
+                    )
+                    try {
+                        val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                        if (isPatientUnderTreatment.isNotEmpty()) {
+                            if (isPatientUnderTreatment == "true") {
+                                formatter.saveSharedPref(
+                                    "underTreatment",
+                                    "true",
+                                    this@PatientRegistrationActivity
+                                )
+                            } else {
+                                formatter.deleteSharedPref(
+                                    "underTreatment",
+                                    this@PatientRegistrationActivity
+                                )
+                            }
+                            validateSearchData()
+
+                        } else {
+                            Toast.makeText(
+                                this@PatientRegistrationActivity,
+                                "Please enter all required fields", Toast.LENGTH_SHORT
+                            ).show()
+                        }
+//
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
             btnCancel.apply {
@@ -107,6 +140,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun confirmUserResponse(id: String): String {
+        val foundItem = searchParameters.find { it.code == id }
+        return foundItem?.value ?: ""
     }
 
 
@@ -954,7 +992,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
     private fun getDate(year: Int, month: Int, day: Int): String {

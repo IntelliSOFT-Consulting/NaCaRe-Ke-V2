@@ -280,9 +280,23 @@ class PatientResponderActivity : AppCompatActivity() {
             textViewName.text = data.groupName
             val isRegistration =
                 formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
+            val underTreatment =
+                formatter.getSharedPref("underTreatment", this@PatientResponderActivity)
             if (isRegistration != null) {
-                if (index == 1) {
-                    ln_with_buttons.visibility = View.VISIBLE
+                if (underTreatment != null) {
+                    if (underTreatment == "true") {
+                        if (index == 1) {
+                            ln_with_buttons.visibility = View.VISIBLE
+                        }
+                    } else {
+                        if (index == 2) {
+                            ln_with_buttons.visibility = View.VISIBLE
+                        }
+                    }
+                } else {
+                    if (index == 2) {
+                        ln_with_buttons.visibility = View.VISIBLE
+                    }
                 }
             } else {
                 if (index == 0) {

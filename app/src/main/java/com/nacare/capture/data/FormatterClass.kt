@@ -3,7 +3,11 @@ package com.nacare.capture.data
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.ParseException
+import android.os.Build
+import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
@@ -170,7 +174,7 @@ class FormatterClass {
         }
     }
 
-      fun excludeHiddenFields(): List<String> {
+    fun excludeHiddenFields(): List<String> {
         return listOf(
             "AP13g7NcBOf",
             "uR2Mnlh7sqn",
@@ -203,5 +207,36 @@ class FormatterClass {
         return refinedList
     }
 
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val activeNetwork =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            return when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                // for other device how are able to connect with Ethernet
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            // For devices running versions prior to Android M
+            val networkInfo = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
+        }
+    }
+
+    fun showInternetConnectionRequiredDialog(context: Context) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Internet Connection Required")
+            .setMessage("Please check your internet connection and try again.")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
 }
