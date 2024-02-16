@@ -6,6 +6,26 @@
     android:orientation="vertical"
     android:padding="@dimen/_10dp">
 
+    <LinearLayout
+        android:id="@+id/ln_view_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_10dp"
+            android:textSize="18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/greyish" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
@@ -14,10 +34,10 @@
 
     <TextView
         android:id="@+id/tv_element"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_10dp" />
+        android:layout_marginBottom="@dimen/_10dp"
+        android:visibility="gone" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"

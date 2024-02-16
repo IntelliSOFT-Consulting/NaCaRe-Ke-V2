@@ -19,6 +19,7 @@ import android.widget.DatePicker
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -31,6 +32,7 @@ import com.nacare.capture.model.Attribute
 import com.nacare.capture.model.AttributeValues
 import com.nacare.capture.model.DataElements
 import com.nacare.capture.model.DataValue
+import com.nacare.capture.model.FormSection
 import com.nacare.capture.model.Option
 import com.nacare.capture.model.ParentAttributeValues
 import com.nacare.capture.model.RefinedAttributeValues
@@ -47,12 +49,13 @@ import java.util.Date
 
 class FacilityDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFacilityDetailBinding
-    private val formFieldsData = ArrayList<DataElements>()
+    private val formFieldsData = ArrayList<FormSection>()
     private lateinit var viewModel: MainViewModel
     private val formatter = FormatterClass()
     private var searchParameters = ArrayList<DataValue>()
     private var dataValueList = ArrayList<DataValue>()
     private var attributeValueList = ArrayList<ParentAttributeValues>()
+    private var requiredFieldsString = ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFacilityDetailBinding.inflate(layoutInflater)
@@ -60,6 +63,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         viewModel = MainViewModel(this.applicationContext as Application)
         searchParameters.clear()
         attributeValueList.clear()
+        requiredFieldsString.clear()
         populateViews()
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
@@ -74,7 +78,15 @@ class FacilityDetailActivity : AppCompatActivity() {
             btnSave.apply {
                 setOnClickListener {
                     formatter.saveSharedPref("facility_reload", "true", this@FacilityDetailActivity)
-                    validateSearchData()
+                    if (allRequiredFieldsComplete()) {
+                        validateSearchData()
+                    } else {
+                        Toast.makeText(
+                            this@FacilityDetailActivity,
+                            "Please enter all required fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -85,6 +97,31 @@ class FacilityDetailActivity : AppCompatActivity() {
                 binding.textViewNote.text = Html.fromHtml(formattedText)
             }
 
+        }
+
+    }
+
+    private fun allRequiredFieldsComplete(): Boolean {
+        try {
+            searchParameters = getSavedValues()
+            Log.e("TAG", "Required Fields **** $requiredFieldsString")
+            Log.e("TAG", "Required Fields **** Saved $searchParameters")
+
+            val searchParameterCodes = searchParameters.map { it.dataElement }
+            // Check if all required field codes are present in searchParameterCodes
+            val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
+
+            return if (missingFields.isEmpty()) {
+                println("No fields are missing.")
+                true
+            } else {
+                println("Missing fields: $missingFields")
+                false
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
         }
 
     }
@@ -124,23 +161,46 @@ class FacilityDetailActivity : AppCompatActivity() {
             converters.programs.forEach { it ->
                 it.programStages.forEach { q ->
                     q.programStageSections.forEach {
-                        val section = it.dataElements
-                        formFieldsData.addAll(section)
+                        val section = FormSection(
+                            displayName = it.displayName,
+                            dataElements = it.dataElements
+                        )
+                        formFieldsData.add(section)
                     }
                 }
             }
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
 
-            formFieldsData.forEachIndexed { index, item ->
-                attributeValueList.add(
-                    ParentAttributeValues(
-                        parentName = item.displayName,
-                        parent = item.id,
-                        attributeValues = item.attributeValues
+            formFieldsData.forEach { parent ->
+                var isFirst = false
+                parent.dataElements.forEachIndexed { index, item ->
+                    if (index == 0) {
+                        isFirst = true
+                    } else {
+                        isFirst = false
+                    }
+
+                    Log.e(
+                        "TAG",
+                        "Data Element ***** ${parent.displayName} index $index -> status:: $isFirst"
                     )
-                )
-                populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
+                    attributeValueList.add(
+                        ParentAttributeValues(
+                            parentName = parent.displayName,
+                            parent = item.id,
+                            attributeValues = item.attributeValues
+                        )
+                    )
+                    populateSearchFields(
+                        parent.displayName,
+                        isFirst,
+                        index,
+                        item,
+                        binding.lnParent,
+                        extractCurrentValues(item.id)
+                    )
+                }
             }
         }
     }
@@ -258,6 +318,8 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun populateSearchFields(
+        parentName: String,
+        isFirstItem: Boolean,
         index: Int,
         item: DataElements,
         lnParent: LinearLayout,
@@ -273,6 +335,10 @@ class FacilityDetailActivity : AppCompatActivity() {
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
+
+        if (isRequired) {
+            requiredFieldsString.add(item.id)
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -282,6 +348,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                         findViewById(R.id.lnParent),
                         false
                     ) as LinearLayout
+
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                     val textInputLayout =
@@ -289,9 +356,18 @@ class FacilityDetailActivity : AppCompatActivity() {
                     val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                     val name =
                         if (isRequired) generateRequiredField(item.displayName) else item.displayName
+
+                    val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                    val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                    tvParent.text = parentName
+                    if (isFirstItem) {
+                        lnViewParent.visibility = View.VISIBLE
+                    }
+
                     tvName.text = Html.fromHtml(name)
                     tvElement.text = item.id
                     itemView.tag = item.id
+
                     lnParent.addView(itemView)
 
                     if (currentValue.isNotEmpty()) {
@@ -316,11 +392,6 @@ class FacilityDetailActivity : AppCompatActivity() {
                             }
                         }
                     }
-//                    editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-//                        if (!hasFocus) {                            // Save the data when the EditText loses focus
-//                            saveValued(index, item.id, editText.text.toString())
-//                        }
-//                    }
                     editText.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
                             s: CharSequence?,
@@ -358,6 +429,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                     val autoCompleteTextView =
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
                     tvElement.text = item.id
+                    val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                    val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                    tvParent.text = parentName
+                    if (isFirstItem) {
+                        lnViewParent.visibility = View.VISIBLE
+                    }
                     val optionsStringList: MutableList<String> = ArrayList()
                     item.optionSet.options.forEach {
                         optionsStringList.add(it.displayName)
@@ -437,6 +514,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                                             )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
+
                                         } else {
                                             child.visibility = View.GONE
                                         }
@@ -467,6 +545,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                tvParent.text = parentName
+                if (isFirstItem) {
+                    lnViewParent.visibility = View.VISIBLE
+                }
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 editText.setKeyListener(null)
@@ -550,6 +634,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                tvParent.text = parentName
+                if (isFirstItem) {
+                    lnViewParent.visibility = View.VISIBLE
+                }
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
@@ -615,6 +705,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                tvParent.text = parentName
+                if (isFirstItem) {
+                    lnViewParent.visibility = View.VISIBLE
+                }
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
@@ -678,6 +774,12 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
+                val tvParent = itemView.findViewById<TextView>(R.id.tv_parent)
+                tvParent.text = parentName
+                if (isFirstItem) {
+                    lnViewParent.visibility = View.VISIBLE
+                }
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 itemView.tag = item.id
@@ -721,8 +823,11 @@ class FacilityDetailActivity : AppCompatActivity() {
                                         checkProvidedAnswer(child.tag.toString(), list, dataValue)
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
+//                                        requiredFieldsString.add(child.tag.toString())
                                     } else {
                                         child.visibility = View.GONE
+
+//                                        requiredFieldsString.remove(child.tag.toString())
                                     }
                                 } else {
                                     // If no match is found, leave the visibility unchanged

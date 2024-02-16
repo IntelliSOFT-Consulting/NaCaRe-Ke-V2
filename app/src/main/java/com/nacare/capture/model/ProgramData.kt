@@ -65,6 +65,11 @@ data class ProgramStageSections(
     val displayName: String,
 )
 
+data class FormSection(
+    val dataElements: List<DataElements>,
+    val displayName: String
+)
+
 data class DataElements(
     val id: String,
     val displayName: String,
