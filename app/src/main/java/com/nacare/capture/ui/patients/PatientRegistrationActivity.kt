@@ -2,7 +2,6 @@ package com.nacare.capture.ui.patients
 
 import android.app.Application
 import android.app.DatePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -21,13 +20,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nacare.capture.R
-import com.nacare.capture.data.Constants
 import com.nacare.capture.data.Constants.AGE_MONTHS
 import com.nacare.capture.data.Constants.AGE_YEARS
 import com.nacare.capture.data.Constants.DATE_OF_BIRTH
@@ -49,17 +48,11 @@ import com.nacare.capture.model.TrackedEntityAttributes
 import com.nacare.capture.model.TrackedEntityInstance
 import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.network.RetrofitCalls
-import com.nacare.capture.response.DataStoreResponse
 import com.nacare.capture.room.Converters
-import com.nacare.capture.room.DataStoreData
 import com.nacare.capture.room.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.nacare.capture.ui.viewmodel.ResponseViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
@@ -69,6 +62,7 @@ import java.util.Locale
 class PatientRegistrationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientRegistrationBinding
     private lateinit var viewModel: MainViewModel
+    private lateinit var liveData: ResponseViewModel
     private val searchList = ArrayList<TrackedEntityAttributes>()
     private val emptyList = ArrayList<TrackedEntityAttributes>()
     private val completeList = ArrayList<TrackedEntityAttributes>()
@@ -85,6 +79,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         binding = ActivityPatientRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
+        liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         attributeList.clear()
         requiredFieldsString.clear()
         loadSearchParameters()
@@ -521,6 +516,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             editText.isCursorVisible = false
                             editText.isFocusable = false
                             editText.isEnabled = false
+                            liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
+                                val valueObtained = it.find { it.code == item.id }
+                                if (valueObtained != null) {
+                                    editText.setText(valueObtained.value)
+                                }
+                            }
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -597,6 +598,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
+                            liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
+                                val valueObtained = it.find { it.code == item.id }
+                                if (valueObtained != null) {
+                                    autoCompleteTextView.setText(valueObtained.value, false)
+                                }
+                            }
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -801,10 +808,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        liveData.mutableListLiveData.observe(this@PatientRegistrationActivity) {
+                            val valueObtained = it.find { it.code == item.id }
+                            if (valueObtained != null) {
+                                editText.setText(valueObtained.value)
+                            }
+                        }
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -1247,6 +1260,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         formatter.saveSharedPref("index", "$index", this)
         Log.e("TAG", "Growing List $searchParameters")
+        liveData.populateRelevantData(searchParameters)
 
     }
 

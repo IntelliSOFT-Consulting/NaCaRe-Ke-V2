@@ -17,11 +17,7 @@
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.nacare.capture.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+
     <fragment
         android:id="@+id/patientListFragment"
         android:name="com.nacare.capture.ui.patients.PatientListFragment"
