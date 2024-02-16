@@ -501,7 +501,13 @@ class RetrofitCalls {
         }
     }
 
-    fun uploadFacilityData(context: Context, data: EventUploadData, id: String) {
+    fun uploadFacilityData(
+        context: Context,
+        data: EventUploadData,
+        id: String,
+        serverSide: Boolean,
+        eventUid: String,
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
             val viewModel = MainViewModel(context.applicationContext as Application)
@@ -511,7 +517,12 @@ class RetrofitCalls {
                     .create(Interface::class.java)
             try {
                 val apiInterface =
-                    apiService.uploadFacilityData(data)
+                    if (serverSide) apiService.uploadKnownFacilityData(
+                        data,
+                        eventUid
+                    ) else apiService.uploadFacilityData(
+                        data
+                    )
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
@@ -519,8 +530,13 @@ class RetrofitCalls {
                         200 -> {
                             if (body != null) {
                                 Log.e("TAG", "Event Upload Response:::: Event $id ****  $body")
-                                body.response.importSummaries.forEach {
-                                    viewModel.updateFacilityEvent(id, it.reference)
+                                if (!serverSide) {
+                                    body.response.importSummaries.forEach {
+
+                                        viewModel.updateFacilityEvent(id, it.reference)
+                                    }
+                                } else {
+                                    viewModel.updateFacilityEventSynced(id, true)
                                 }
                             }
                         }

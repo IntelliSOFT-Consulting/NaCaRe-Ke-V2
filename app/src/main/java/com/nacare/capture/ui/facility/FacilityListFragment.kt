@@ -103,7 +103,7 @@ class FacilityListFragment : Fragment() {
 
                 val adapterProgram =
                     FacilityAdapter(facilityList, requireContext(), this::handleClick)
-                Log.e("TAG", " Facility Data Saved $facilityList")
+
                 binding.apply {
                     val manager = LinearLayoutManager(requireContext())
                     eventsRecyclerView.apply {
@@ -152,16 +152,7 @@ class FacilityListFragment : Fragment() {
 
                 val typeToken = object : TypeToken<List<DataValue>>() {}.type
                 var dataValuesList: List<DataValue> = Gson().fromJson(data.dataValues, typeToken)
-                dataValuesList = cleanDataValuesList(dataValuesList)
-                val payload = EventUploadData(
-                    eventDate = data.eventDate,
-                    orgUnit = data.orgUnit,
-                    program = data.program,
-                    status = data.status,
-                    dataValues = dataValuesList
-                )
-                Log.e("TAG", " Facility Data Saved ${data.dataValues}")
-//                uploadFacilityData(payload)
+
                 formatter.saveSharedPref("current_data", data.dataValues, requireContext())
                 formatter.deleteSharedPref("reload", requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))

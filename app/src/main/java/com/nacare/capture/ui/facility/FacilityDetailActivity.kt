@@ -104,8 +104,6 @@ class FacilityDetailActivity : AppCompatActivity() {
     private fun allRequiredFieldsComplete(): Boolean {
         try {
             searchParameters = getSavedValues()
-            Log.e("TAG", "Required Fields **** $requiredFieldsString")
-            Log.e("TAG", "Required Fields **** Saved $searchParameters")
 
             val searchParameterCodes = searchParameters.map { it.dataElement }
             // Check if all required field codes are present in searchParameterCodes
@@ -156,7 +154,6 @@ class FacilityDetailActivity : AppCompatActivity() {
     private fun populateViews() {
         val data = viewModel.loadSingleProgram(this, "facility")
         if (data != null) {
-            Log.e("TAG", "Program Data Retrieved $data")
             val converters = Converters().fromJson(data.jsonData)
             converters.programs.forEach { it ->
                 it.programStages.forEach { q ->
@@ -181,10 +178,6 @@ class FacilityDetailActivity : AppCompatActivity() {
                         isFirst = false
                     }
 
-                    Log.e(
-                        "TAG",
-                        "Data Element ***** ${parent.displayName} index $index -> status:: $isFirst"
-                    )
                     attributeValueList.add(
                         ParentAttributeValues(
                             parentName = parent.displayName,
@@ -266,7 +259,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             for (patr in attributeValueList) {
                 val data: Attribute = patr.attribute
                 if (data.name == "showIf") {
-                    Log.e("TAG", "Show me the Response to Compared ${patr.value}")
+
                     val currentValidator = patr.value
                     val parts = currentValidator.split(':')
 
@@ -280,14 +273,10 @@ class FacilityDetailActivity : AppCompatActivity() {
 
                         var previousAnswer = extractCurrentValues(part1)
                         if (previousAnswer.isNotEmpty()) {
-                            Log.e("TAG", "Show me the Response to Compared $previousAnswer")
+
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
-                            Log.e(
-                                "TAG",
-                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
-                            )
                             val result = when (part2) {
                                 "eq" -> previousAnswer == part3Lower
                                 "ne" -> previousAnswer != part3Lower

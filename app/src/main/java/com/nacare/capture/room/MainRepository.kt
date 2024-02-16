@@ -175,7 +175,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun saveEvent(data: EventData) {
         val exists = roomDao.checkEvent(data.program, data.orgUnit)
         if (exists) {
-            roomDao.updateEvent(data.dataValues, data.program, data.orgUnit)
+            roomDao.updateEvent(data.dataValues, data.program, data.orgUnit,false)
         } else {
             roomDao.saveEvent(data)
         }
@@ -267,6 +267,9 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun updateFacilityEvent(id: String, reference: String) {
         roomDao.updateFacilityEvent(id, reference, true)
+    }
+    fun updateFacilityEventSynced(id: String, isSynced: Boolean) {
+        roomDao.updateFacilityEventSynced(id, isSynced)
     }
 
     fun loadTrackedEntity(id: String): TrackedEntityInstanceData? {

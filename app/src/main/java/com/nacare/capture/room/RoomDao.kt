@@ -62,8 +62,8 @@ interface RoomDao {
     @Query("SELECT EXISTS (SELECT 1 FROM event WHERE program =:program AND orgUnit =:orgUnit)")
     fun checkEvent(program: String, orgUnit: String): Boolean
 
-    @Query("UPDATE event SET dataValues =:dataValues WHERE program =:program AND orgUnit =:orgUnit")
-    fun updateEvent(dataValues: String, program: String, orgUnit: String)
+    @Query("UPDATE event SET dataValues =:dataValues, isSynced =:isSynced WHERE program =:program AND orgUnit =:orgUnit")
+    fun updateEvent(dataValues: String, program: String, orgUnit: String,isSynced: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEvent(data: EventData)
@@ -132,8 +132,11 @@ interface RoomDao {
     @Query(" UPDATE trackedEntity SET enrollment =:enrollment WHERE  trackedEntity =:trackedEntity  AND orgUnit =:orgUnit")
     fun updateEnrollmentPerOrgAndProgram(trackedEntity: String, enrollment: String, orgUnit: String)
 
-    @Query("UPDATE event SET isSynced=:isSynced, uid =:reference WHERE id =:id")
+    @Query("UPDATE event SET isSynced=:isSynced, isServerSide =:isSynced, uid =:reference WHERE id =:id")
     fun updateFacilityEvent(id: String, reference: String, isSynced: Boolean)
+
+    @Query("UPDATE event SET isSynced=:isSynced WHERE id =:id")
+    fun updateFacilityEventSynced(id: String,isSynced: Boolean)
 
     @Query("SELECT * FROM trackedEntity WHERE id=:id")
     fun loadTrackedEntity(id: String): TrackedEntityInstanceData?

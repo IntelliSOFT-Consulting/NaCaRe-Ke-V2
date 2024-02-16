@@ -54,6 +54,12 @@ interface Interface {
     suspend fun uploadFacilityData(
         @Body payload: EventUploadData
     ): Response<FacilityUploadResponse>
+    @PUT("/api/events/{eventUid}")
+    @Headers("Content-Type: application/json")
+    suspend fun uploadKnownFacilityData(
+        @Body payload: EventUploadData,
+        @Path("eventUid") eventUid: String
+    ): Response<FacilityUploadResponse>
 
     @GET("api/tracker/events")
     suspend fun loadFacilityEvents(

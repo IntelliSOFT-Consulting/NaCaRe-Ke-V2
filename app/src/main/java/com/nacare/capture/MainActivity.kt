@@ -130,20 +130,23 @@ class MainActivity : AppCompatActivity() {
         if (data != null) {
             if (data.isNotEmpty()) {
                 data.forEach {
-                    if (!it.isServerSide) {
-                        val attributes = Converters().fromJsonDataAttribute(it.dataValues)
-                        if (attributes.isNotEmpty()) {
-                            val payload = EventUploadData(
-                                eventDate = it.eventDate,
-                                orgUnit = it.orgUnit,
-                                program = it.program,
-                                status = it.status,
-                                dataValues = attributes
-                            )
-                            retrofitCalls.uploadFacilityData(this@MainActivity, payload, "${it.id}")
-                        }
-
+                    val attributes = Converters().fromJsonDataAttribute(it.dataValues)
+                    if (attributes.isNotEmpty()) {
+                        val payload = EventUploadData(
+                            eventDate = it.eventDate,
+                            orgUnit = it.orgUnit,
+                            program = it.program,
+                            status = it.status,
+                            dataValues = attributes
+                        )
+                        retrofitCalls.uploadFacilityData(
+                            this@MainActivity,
+                            payload,
+                            "${it.id}", it.isServerSide,it.uid
+                        )
                     }
+
+
                 }
             }
         }
