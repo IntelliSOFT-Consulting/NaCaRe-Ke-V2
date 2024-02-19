@@ -277,8 +277,14 @@ class FacilityDetailActivity : AppCompatActivity() {
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
+                            Log.e(
+                                "TAG",
+                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
+                            )
+
                             val result = when (part2) {
                                 "eq" -> previousAnswer == part3Lower
+                                "notin" -> previousAnswer != part3Lower
                                 "ne" -> previousAnswer != part3Lower
                                 "gt" -> previousAnswer > part3Lower
                                 "ge" -> previousAnswer >= part3Lower
@@ -876,6 +882,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                     val result = when (part2) {
                         "eq" -> lowercaseAnswer == part3Lower
                         "ne" -> lowercaseAnswer != part3Lower
+                        "notin" -> lowercaseAnswer != part3Lower
                         "gt" -> lowercaseAnswer > part3Lower
                         "ge" -> lowercaseAnswer >= part3Lower
                         "lt" -> lowercaseAnswer < part3Lower

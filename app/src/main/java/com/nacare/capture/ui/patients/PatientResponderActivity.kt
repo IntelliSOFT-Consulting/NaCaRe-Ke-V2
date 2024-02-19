@@ -1090,6 +1090,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             val result = when (part2) {
                                 "eq" -> lowercaseAnswer == part3Lower
                                 "ne" -> lowercaseAnswer != part3Lower
+                                "notin" -> lowercaseAnswer != part3Lower
                                 "gt" -> lowercaseAnswer > part3Lower
                                 "ge" -> lowercaseAnswer >= part3Lower
                                 "lt" -> lowercaseAnswer < part3Lower
@@ -1822,6 +1823,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     val result = when (part2) {
                         "eq" -> lowercaseAnswer == part3Lower
                         "ne" -> lowercaseAnswer != part3Lower
+                        "notin" -> lowercaseAnswer != part3Lower
                         "gt" -> lowercaseAnswer > part3Lower
                         "ge" -> lowercaseAnswer >= part3Lower
                         "lt" -> lowercaseAnswer < part3Lower
