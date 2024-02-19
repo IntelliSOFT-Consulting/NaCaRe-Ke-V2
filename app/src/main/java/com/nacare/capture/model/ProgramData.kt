@@ -136,6 +136,7 @@ data class Events(
 
 data class SearchResult(
     val trackedEntityInstance: String,
+    val patientIdentification: String,
     val enrollmentUid: String,
     val orgUnit: String,
     val eventUid: String,
@@ -208,6 +209,7 @@ data class MultipleTrackedEntityInstances(
 data class EntityData(
     val id: String,
     val uid: String,
+    val patientIdentification: String,
     val date: String,
     val fName: String,
     val lName: String,

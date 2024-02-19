@@ -2,6 +2,7 @@ package com.nacare.capture.data
 
 object Constants {
     const val BASE_URL = "http://45.79.116.38:8080"
+    const val PATIENT_UNIQUE = "AP13g7NcBOf"
     const val DATE_OF_BIRTH = "mPpjmOxwsEZ"
     const val AGE_YEARS = "jf04xeJYfIU"
     const val AGE_MONTHS = "vgK2f8ampTy"

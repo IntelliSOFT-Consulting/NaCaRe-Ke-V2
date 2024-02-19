@@ -63,7 +63,7 @@ interface RoomDao {
     fun checkEvent(orgUnit: String): Boolean
 
     @Query("UPDATE event SET dataValues =:dataValues, isServerSide =:isServerSide, isSynced =:isSynced WHERE orgUnit =:orgUnit")
-    fun updateEvent(dataValues: String, orgUnit: String,isServerSide: Boolean,isSynced: Boolean)
+    fun updateEvent(dataValues: String, orgUnit: String, isServerSide: Boolean, isSynced: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEvent(data: EventData)
@@ -136,7 +136,7 @@ interface RoomDao {
     fun updateFacilityEvent(id: String, reference: String, isSynced: Boolean)
 
     @Query("UPDATE event SET isSynced=:isSynced WHERE id =:id")
-    fun updateFacilityEventSynced(id: String,isSynced: Boolean)
+    fun updateFacilityEventSynced(id: String, isSynced: Boolean)
 
     @Query("SELECT * FROM trackedEntity WHERE id=:id")
     fun loadTrackedEntity(id: String): TrackedEntityInstanceData?
@@ -166,9 +166,14 @@ interface RoomDao {
 
     @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit AND trackedEntity =:trackedEntity LIMIT 1")
     fun getSpecificTracked(orgUnit: String, trackedEntity: String): TrackedEntityInstanceData?
+
     @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  id =:patientUid")
     fun updateTrackedAttributes(attributes: String, patientUid: String)
+
     @Query("SELECT * FROM event WHERE id =:id  LIMIT 1")
     fun loadEventById(id: String): EventData?
+
+    @Query("SELECT * FROM trackedEntity WHERE trackedUnique =:trackedUnique ORDER BY id DESC")
+    fun loadPatientEventById(trackedUnique: String): List<TrackedEntityInstanceData>?
 
 }

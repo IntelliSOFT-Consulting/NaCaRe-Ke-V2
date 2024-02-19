@@ -20,6 +20,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.nacare.capture.R
 import com.nacare.capture.adapters.TrackedEntityAdapter
+import com.nacare.capture.data.Constants.PATIENT_UNIQUE
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.FragmentPatientListBinding
 import com.nacare.capture.model.EntityData
@@ -104,7 +105,11 @@ class PatientListFragment : Fragment() {
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
                         lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
                         diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes),
-                        attributes = it.attributes
+                        attributes = it.attributes,
+                        patientIdentification = extractValueFromAttributes(
+                            PATIENT_UNIQUE,
+                            it.attributes
+                        )
 
                     )
                     dataList.add(single)
@@ -186,7 +191,7 @@ class PatientListFragment : Fragment() {
                 viewModel.saveTrackedEntity(
                     context,
                     entityData,
-                    orgCode
+                    orgCode, data.patientIdentification
                 )
 
                 startActivity(

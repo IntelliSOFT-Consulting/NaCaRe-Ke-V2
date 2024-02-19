@@ -316,7 +316,6 @@ class PatientResponderActivity : AppCompatActivity() {
                     val childView = lnParent.getChildAt(i)
                     val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
 
-                    Log.e("TAG", "")
                     if (childView == itemView) { // For clicked item
                         // Toggle visibility and appearance of ln_with_buttons
                         ln_with_buttons.visibility =
@@ -409,6 +408,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         }
 
                         if (data.isProgram) {
+
+
                             val payload = EnrollmentEventData(
                                 dataValues = Gson().toJson(attributeValueList),
                                 uid = formatter.generateUUID(11),
@@ -429,15 +430,27 @@ class PatientResponderActivity : AppCompatActivity() {
                             Log.e("TAG", "Payload Data **** $payload")
                             viewModel.addProgramStage(this@PatientResponderActivity, payload)
                         } else {
+
                             val patientUid = formatter.getSharedPref(
                                 "current_patient_id",
                                 this@PatientResponderActivity
                             )
                             if (patientUid != null) {
-                                viewModel.updateTrackedAttributes(
-                                    Gson().toJson(newCaseResponses),
-                                    patientUid
-                                )
+
+                                val isSimilarCase =
+                                    confirmIfPatientHasAnotherCase(
+                                        newCaseResponses,
+                                        patientUid,
+                                        DIAGNOSIS
+                                    )
+                                if (!isSimilarCase) {
+                                    viewModel.updateTrackedAttributes(
+                                        Gson().toJson(newCaseResponses),
+                                        patientUid
+                                    )
+                                } else {
+                                    Log.e("TAG", "Patient has existing Similar Case")
+                                }
                             }
                         }
 
@@ -488,6 +501,52 @@ class PatientResponderActivity : AppCompatActivity() {
             lnParent.addView(itemView)
 
         }
+    }
+
+    private fun confirmIfPatientHasAnotherCase(
+        newCaseResponses: ArrayList<TrackedEntityInstanceAttributes>,
+        patientUid: String,
+        diagnosis: String
+    ): Boolean {
+        var hasSimilarCase = true
+        if (newCaseResponses.isEmpty()) {
+            hasSimilarCase = false
+        } else {
+            //get all cases for the patient in question
+            val existingCases =
+                viewModel.getPatientExistingCases(this@PatientResponderActivity, patientUid)
+            if (existingCases != null) {
+                if (existingCases.isEmpty()) {
+                    hasSimilarCase = false
+                } else {
+                    // get diagnosis for the existing data
+                    val caseData = newCaseResponses.find { q -> q.attribute == diagnosis }
+                    if (caseData != null) {
+                        existingCases.forEach {
+                            val attributes = Converters().fromJsonAttribute(it.attributes)
+                            val existingCaseData = attributes.find { r -> r.attribute == diagnosis }
+                            if (existingCaseData != null) {
+
+                                if (existingCaseData.value == caseData.value) {
+                                    hasSimilarCase = true
+                                } else {
+                                    hasSimilarCase = false
+                                }
+
+                            } else {
+                                hasSimilarCase = false
+                            }
+                        }
+                    } else {
+                        hasSimilarCase = false
+                    }
+                }
+            } else {
+                hasSimilarCase = false
+            }
+        }
+
+        return hasSimilarCase
     }
 
     private fun createFormFieldsAttribute(

@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.nacare.capture.R
 import com.nacare.capture.adapters.SearchResultsAdapter
+import com.nacare.capture.data.Constants.PATIENT_UNIQUE
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientSearchResultsBinding
 import com.nacare.capture.model.AttributeValues
@@ -80,7 +81,8 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     identification = extractValue("oob3a4JM7H6", it.attributes, false),
                     diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false),
                     attributeValues = attributesList,
-                    enrollmentEvents = it.enrollments
+                    enrollmentEvents = it.enrollments,
+                    patientIdentification = extractPatientId(it.attributes, PATIENT_UNIQUE)
                 )
                 searchResult.add(data)
 
@@ -100,6 +102,11 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun extractPatientId(attributes: List<Attributes>, patientUnique: String): String {
+        return attributes.find { it.attribute == patientUnique }?.value ?: ""
+
     }
 
     private fun handleClick(data: SearchResult) {
@@ -131,7 +138,6 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
-
                 formatter.saveSharedPref("new_case", "true", context).toString()
                 val refinedAttributes =
                     formatter.excludeBareMinimumInformation(data.attributeValues)
@@ -146,7 +152,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 viewModel.saveTrackedEntity(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    data.orgUnit
+                    data.orgUnit, data.patientIdentification
                 )
                 startActivity(
                     Intent(
@@ -221,7 +227,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 viewModel.saveTrackedEntityWithEnrollment(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    enrollment, data.orgUnit
+                    enrollment, data.orgUnit, data.uniqueId
                 )
 
                 startActivity(

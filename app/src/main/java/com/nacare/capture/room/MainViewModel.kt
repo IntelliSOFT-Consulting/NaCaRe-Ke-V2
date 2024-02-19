@@ -41,9 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadOrganization(context)
     }
 
-    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance,parentOrg:String) = runBlocking {
+    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance,parentOrg:String,patientIdentification:String) = runBlocking {
 
-        repository.saveTrackedEntity(context, data,parentOrg)
+        repository.saveTrackedEntity(context, data,parentOrg,patientIdentification)
     }
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
@@ -158,9 +158,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.addEnrollmentData(data)
     }
 
-    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData,parentOrg:String) =
+    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData,parentOrg:String,patientIdentification:String) =
         runBlocking{
-        repository.saveTrackedEntityWithEnrollment(context,data,enrollment,parentOrg)
+        repository.saveTrackedEntityWithEnrollment(context,data,enrollment,parentOrg,patientIdentification)
     }
 
     fun getAllFacilityData(context: Context, isSynced: Boolean)= runBlocking {
@@ -183,7 +183,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadEventById(id)
     }
 
-
+    fun getPatientExistingCases(context: Context, patientUid: String)=
+        runBlocking {
+            repository.loadPatientEventById(patientUid)
+    }
 
 
 }

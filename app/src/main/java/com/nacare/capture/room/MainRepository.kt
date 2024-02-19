@@ -49,7 +49,12 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadOrganization()
     }
 
-    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance, parentOrg: String) {
+    fun saveTrackedEntity(
+        context: Context,
+        data: TrackedEntityInstance,
+        parentOrg: String,
+        patientIdentification: String
+    ) {
         val formatter = FormatterClass()
         val exists = false// roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
         if (exists) {
@@ -66,8 +71,8 @@ class MainRepository(private val roomDao: RoomDao) {
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 isLocal = true,
-                attributes = Gson().toJson(data.attributes)
-
+                attributes = Gson().toJson(data.attributes),
+                trackedUnique = patientIdentification
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
             val eventUid = formatter.generateUUID(11)
@@ -93,7 +98,9 @@ class MainRepository(private val roomDao: RoomDao) {
     fun saveTrackedEntityWithEnrollment(
         context: Context,
         data: TrackedEntityInstance,
-        enrollment: EnrollmentEventData, parentOrg: String
+        enrollment: EnrollmentEventData,
+        parentOrg: String,
+        patientIdentification: String
     ) {
 
         val exists = false//roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
@@ -114,8 +121,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 parentOrgUnit = parentOrg,
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
-                attributes = Gson().toJson(data.attributes)
-
+                attributes = Gson().toJson(data.attributes), trackedUnique = patientIdentification
             )
             val savedItemId = roomDao.saveTrackedEntity(save)
             completeRegistration(context, "$savedItemId", enrollment)
@@ -311,6 +317,10 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun loadEventById(id: String): EventData? {
         return roomDao.loadEventById(id)
+    }
+
+    fun loadPatientEventById(trackedUnique: String): List<TrackedEntityInstanceData>? {
+        return roomDao.loadPatientEventById(trackedUnique)
     }
 
 }

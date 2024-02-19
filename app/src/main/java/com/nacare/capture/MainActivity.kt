@@ -270,6 +270,7 @@ class MainActivity : AppCompatActivity() {
                     retrofitCalls.loadAllSites(this@MainActivity)
                     retrofitCalls.loadAllCategories(this@MainActivity)
                     retrofitCalls.loadAllEvents(this@MainActivity)
+//                    retrofitCalls.loadAllTrackedEntities(this@MainActivity)
                 }
             }
         } catch (e: Exception) {

@@ -26,6 +26,7 @@ data class OrganizationData(
 @Entity(tableName = "trackedEntity")
 data class TrackedEntityInstanceData(
     @ColumnInfo(name = "attributes") val attributes: String,
+    var trackedUnique: String,
     var trackedEntity: String,
     var orgUnit: String,
     var parentOrgUnit: String,

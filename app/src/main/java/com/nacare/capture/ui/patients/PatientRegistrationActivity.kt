@@ -37,6 +37,7 @@ import com.nacare.capture.data.Constants.DIAGNOSIS_CATEGORY
 import com.nacare.capture.data.Constants.DIAGNOSIS_SITE
 import com.nacare.capture.data.Constants.ICD_CODE
 import com.nacare.capture.data.Constants.OPEN_FOR_EDITING
+import com.nacare.capture.data.Constants.PATIENT_UNIQUE
 import com.nacare.capture.data.Constants.UNDER_TREATMENT
 import com.nacare.capture.data.FormatterClass
 import com.nacare.capture.databinding.ActivityPatientRegistrationBinding
@@ -100,8 +101,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 setOnClickListener {
                     generatePatientUniqueId()
                     if (allRequiredFieldsComplete()) {
+
                         formatter.deleteSharedPref("new_case", this@PatientRegistrationActivity)
-                        formatter.saveSharedPref("reload", "true", this@PatientRegistrationActivity)
+                        formatter.saveSharedPref(
+                            "reload",
+                            "true",
+                            this@PatientRegistrationActivity
+                        )
                         formatter.saveSharedPref(
                             "isRegistration",
                             "true",
@@ -122,6 +128,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                         this@PatientRegistrationActivity
                                     )
                                 }
+
                                 validateSearchData()
 
                             } else {
@@ -135,6 +142,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
+
                     } else {
                         Toast.makeText(
                             this@PatientRegistrationActivity,
@@ -151,6 +159,12 @@ class PatientRegistrationActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun confirmIfPatientHasAnotherCase(diagnosis: String): Boolean {
+        var hasSimilar = false
+
+        return hasSimilar
     }
 
     private fun generatePatientUniqueId() {
@@ -172,15 +186,20 @@ class PatientRegistrationActivity : AppCompatActivity() {
         if (month != null && year != null) {
             val patient_identification = "$firstname-$lastname-$month-$year"
             saveValued(0, "AP13g7NcBOf", patient_identification)
-            val existingIndex = searchParameters.indexOfFirst { it.code == "AP13g7NcBOf" }
+            formatter.saveSharedPref(
+                "patient_identification",
+                patient_identification,
+                this@PatientRegistrationActivity
+            )
+            val existingIndex = searchParameters.indexOfFirst { it.code == PATIENT_UNIQUE }
             if (existingIndex != -1) {
                 // Update the existing entry if the code is found
                 searchParameters[existingIndex] =
-                    CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                    CodeValuePair(code = PATIENT_UNIQUE, value = patient_identification)
             } else {
                 // Add a new entry if the code is not found
                 val data =
-                    CodeValuePair(code = "AP13g7NcBOf", value = patient_identification)
+                    CodeValuePair(code = PATIENT_UNIQUE, value = patient_identification)
                 searchParameters.add(data)
             }
             formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
@@ -1317,9 +1336,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     private fun validateSearchData() {
         try {
-
             saveConfirmation()
-
 
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
@@ -1353,22 +1370,34 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     )
                     attributeValueList.add(attr)
                 }
-                val data = TrackedEntityInstance(
-                    trackedEntity = formatter.generateUUID(11),
-                    enrollment = formatter.generateUUID(11),
-                    enrollDate = formatter.formatCurrentDate(Date()),
-                    orgUnit = orgCode,
-                    attributes = attributeValueList,
+                val patientIdentification = formatter.getSharedPref(
+                    "patient_identification",
+                    this@PatientRegistrationActivity
                 )
-                viewModel.saveTrackedEntity(this, data, data.orgUnit)
-                formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
-                startActivity(
-                    Intent(
-                        this@PatientRegistrationActivity,
-                        PatientResponderActivity::class.java
+                if (patientIdentification != null) {
+                    val data = TrackedEntityInstance(
+                        trackedEntity = formatter.generateUUID(11),
+                        enrollment = formatter.generateUUID(11),
+                        enrollDate = formatter.formatCurrentDate(Date()),
+                        orgUnit = orgCode,
+                        attributes = attributeValueList,
                     )
-                )
-                this@PatientRegistrationActivity.finish()
+                    viewModel.saveTrackedEntity(this, data, data.orgUnit, patientIdentification)
+                    formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
+                    startActivity(
+                        Intent(
+                            this@PatientRegistrationActivity,
+                            PatientResponderActivity::class.java
+                        )
+                    )
+                    this@PatientRegistrationActivity.finish()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Loading data, please try again to proceed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } else {
                 Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
             }
