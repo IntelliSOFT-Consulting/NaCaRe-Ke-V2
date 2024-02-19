@@ -59,11 +59,11 @@ interface RoomDao {
     @Query("DELETE FROM trackedEntity")
     fun wipeData()
 
-    @Query("SELECT EXISTS (SELECT 1 FROM event WHERE program =:program AND orgUnit =:orgUnit)")
-    fun checkEvent(program: String, orgUnit: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM event WHERE  orgUnit =:orgUnit)")
+    fun checkEvent(orgUnit: String): Boolean
 
-    @Query("UPDATE event SET dataValues =:dataValues, isSynced =:isSynced WHERE program =:program AND orgUnit =:orgUnit")
-    fun updateEvent(dataValues: String, program: String, orgUnit: String,isSynced: Boolean)
+    @Query("UPDATE event SET dataValues =:dataValues, isSynced =:isSynced WHERE orgUnit =:orgUnit")
+    fun updateEvent(dataValues: String, orgUnit: String,isSynced: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEvent(data: EventData)

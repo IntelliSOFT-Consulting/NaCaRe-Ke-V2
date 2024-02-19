@@ -173,9 +173,9 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun saveEvent(data: EventData) {
-        val exists = roomDao.checkEvent(data.program, data.orgUnit)
+        val exists = roomDao.checkEvent(data.orgUnit)
         if (exists) {
-            roomDao.updateEvent(data.dataValues, data.program, data.orgUnit,false)
+            roomDao.updateEvent(data.dataValues, data.orgUnit,false)
         } else {
             roomDao.saveEvent(data)
         }
