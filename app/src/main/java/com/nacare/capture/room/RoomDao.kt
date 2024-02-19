@@ -62,8 +62,8 @@ interface RoomDao {
     @Query("SELECT EXISTS (SELECT 1 FROM event WHERE  orgUnit =:orgUnit)")
     fun checkEvent(orgUnit: String): Boolean
 
-    @Query("UPDATE event SET dataValues =:dataValues, isSynced =:isSynced WHERE orgUnit =:orgUnit")
-    fun updateEvent(dataValues: String, orgUnit: String,isSynced: Boolean)
+    @Query("UPDATE event SET dataValues =:dataValues, isServerSide =:isServerSide, isSynced =:isSynced WHERE orgUnit =:orgUnit")
+    fun updateEvent(dataValues: String, orgUnit: String,isServerSide: Boolean,isSynced: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEvent(data: EventData)
@@ -168,5 +168,7 @@ interface RoomDao {
     fun getSpecificTracked(orgUnit: String, trackedEntity: String): TrackedEntityInstanceData?
     @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  id =:patientUid")
     fun updateTrackedAttributes(attributes: String, patientUid: String)
+    @Query("SELECT * FROM event WHERE id =:id  LIMIT 1")
+    fun loadEventById(id: String): EventData?
 
 }

@@ -216,6 +216,7 @@ data class EntityData(
 )
 
 data class FacilitySummary(
+    val id:String,
     val uid: String,
     val date: String,
     val status: String

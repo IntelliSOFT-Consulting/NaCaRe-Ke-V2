@@ -662,6 +662,7 @@ class RetrofitCalls {
                                         orgUnit = q.orgUnit,
                                         eventDate = q.createdAt,
                                         status = q.status,
+                                        isServerSide = true,
                                         isSynced = true,
                                     )
                                     viewModel.addUpdateFacilityEvent(eventData)

@@ -64,6 +64,10 @@ class FacilityDetailActivity : AppCompatActivity() {
         searchParameters.clear()
         attributeValueList.clear()
         requiredFieldsString.clear()
+        val eventUid = formatter.getSharedPref("current_event_id", this)
+        if (eventUid != null) {
+            populateAvailableData(eventUid)
+        }
         populateViews()
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
@@ -101,6 +105,18 @@ class FacilityDetailActivity : AppCompatActivity() {
 
     }
 
+    private fun populateAvailableData(eventUid: String) {
+
+        val data = viewModel.loadEventById(eventUid, this@FacilityDetailActivity)
+        if (data != null) {
+            val attributes = Converters().fromJsonDataAttribute(data.dataValues)
+            attributes.forEachIndexed { index, attribute ->
+                saveValued(index, attribute.dataElement, attribute.value)
+            }
+        }
+
+    }
+
     private fun allRequiredFieldsComplete(): Boolean {
         try {
             searchParameters = getSavedValues()
@@ -128,26 +144,33 @@ class FacilityDetailActivity : AppCompatActivity() {
         val orgCode = formatter.getSharedPref("orgCode", this)
         val programUid = formatter.getSharedPref("programUid", this)
         var eventUid = formatter.getSharedPref("current_event", this)
+        var currentEventId = formatter.getSharedPref("current_event_id", this)
         var eventDate = formatter.getSharedPref("current_event_date", this)
-        if (orgCode != null) {
-            dataValueList.clear()
-            if (eventUid == null) {
-                eventUid = formatter.generateUUID(11)
+        if (currentEventId != null) {
+            if (orgCode != null) {
+                val currentEvent =
+                    viewModel.loadEventById(currentEventId, this@FacilityDetailActivity)
+                if (currentEvent != null) {
+                    dataValueList.clear()
+                    if (eventUid == null) {
+                        eventUid = formatter.generateUUID(11)
+                    }
+                    if (eventDate == null) {
+                        eventDate = formatter.formatCurrentDate(Date())
+                    }
+                    val data = EventData(
+                        uid = eventUid,
+                        program = programUid.toString(),
+                        orgUnit = orgCode,
+                        eventDate = eventDate,
+                        status = "ACTIVE",
+                        isServerSide = currentEvent.isServerSide,
+                        dataValues = Gson().toJson(searchParameters)
+                    )
+                    viewModel.saveEventUpdated(this, data, currentEventId.toString())
+                    this@FacilityDetailActivity.finish()
+                }
             }
-            if (eventDate == null) {
-                eventDate = formatter.formatCurrentDate(Date())
-            }
-
-            val data = EventData(
-                uid = eventUid,
-                program = programUid.toString(),
-                orgUnit = orgCode,
-                eventDate = eventDate,
-                status = "ACTIVE",
-                dataValues = Gson().toJson(searchParameters)
-            )
-            viewModel.saveEvent(this, data)
-            this@FacilityDetailActivity.finish()
         }
     }
 
@@ -323,7 +346,6 @@ class FacilityDetailActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val label: String = item.displayName
         val inflater = LayoutInflater.from(this)
-        Log.e("TAG", "Data Populated $valueType")
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)

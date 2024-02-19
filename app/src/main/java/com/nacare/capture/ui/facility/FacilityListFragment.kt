@@ -97,7 +97,12 @@ class FacilityListFragment : Fragment() {
                 facilityList.clear()
                 dataList.clear()
                 data.forEach {
-                    val fc = FacilitySummary(uid = it.uid, date = it.eventDate, status = it.status)
+                    val fc = FacilitySummary(
+                        id = it.id.toString(),
+                        uid = it.uid,
+                        date = it.eventDate,
+                        status = it.status
+                    )
                     facilityList.add(fc)
                 }
 
@@ -137,8 +142,7 @@ class FacilityListFragment : Fragment() {
 
     private fun handleClick(facilitySummary: FacilitySummary) {
         val orgUnit = formatter.getSharedPref("orgCode", requireContext())
-        val data = viewModel.loadEvent(facilitySummary.uid, requireContext())
-
+        val data = viewModel.loadEventById(facilitySummary.id, requireContext())
         if (orgUnit != null) {
             if (data != null) {
 
@@ -154,36 +158,13 @@ class FacilityListFragment : Fragment() {
                 var dataValuesList: List<DataValue> = Gson().fromJson(data.dataValues, typeToken)
 
                 formatter.saveSharedPref("current_data", data.dataValues, requireContext())
+                formatter.saveSharedPref("current_event_id", facilitySummary.id, requireContext())
                 formatter.deleteSharedPref("reload", requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))
             }
         }
     }
 
-    private fun cleanDataValuesList(dataValuesList: List<DataValue>): List<DataValue> {
-        val newList = mutableListOf<DataValue>()
-        val data = viewModel.loadSingleProgram(requireContext(), "facility")
-        if (data != null) {
-            val converters = Converters().fromJson(data.jsonData)
-            converters.programs.forEach { program ->
-                program.programStages.forEach { stage ->
-                    stage.programStageSections.forEach { section ->
-                        val sectionDataElements = section.dataElements
-
-                        // Check if the id from dataValuesList matches id in sectionDataElements
-                        val filteredData = dataValuesList
-                            .filter { dataValue -> sectionDataElements.any { field -> field.id == dataValue.dataElement } }
-
-                        // Add the filtered data to the new list
-                        newList.addAll(filteredData)
-                    }
-                }
-            }
-        }
-
-        return newList
-
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

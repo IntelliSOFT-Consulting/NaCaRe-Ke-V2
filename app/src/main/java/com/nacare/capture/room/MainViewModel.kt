@@ -66,6 +66,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEvent(context: Context, data: EventData) = runBlocking {
         repository.saveEvent(data)
     }
+    fun saveEventUpdated(context: Context, data: EventData,id:String) = runBlocking {
+        repository.saveEventUpdated(data,id)
+    }
 
     fun loadEvents(orgUnit: String, context: Context) = runBlocking {
         repository.loadEvents(orgUnit)
@@ -175,6 +178,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateTrackedAttributes(attributes: String, patientUid: String)= runBlocking {
         repository.updateTrackedAttributes(attributes,patientUid)
     }
+
+    fun loadEventById(id: String, context: Context)= runBlocking {
+        repository.loadEventById(id)
+    }
+
+
 
 
 }

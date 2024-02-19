@@ -175,7 +175,17 @@ class MainRepository(private val roomDao: RoomDao) {
     fun saveEvent(data: EventData) {
         val exists = roomDao.checkEvent(data.orgUnit)
         if (exists) {
-            roomDao.updateEvent(data.dataValues, data.orgUnit,false)
+            roomDao.updateEvent(data.dataValues, data.orgUnit, data.isServerSide, false)
+        } else {
+            roomDao.saveEvent(data)
+        }
+    }
+
+    fun saveEventUpdated(data: EventData, id: String) {
+        val exists = roomDao.checkEvent(data.orgUnit)
+        if (exists) {
+
+            roomDao.updateEvent(data.dataValues, data.orgUnit, data.isServerSide, false)
         } else {
             roomDao.saveEvent(data)
         }
@@ -268,6 +278,7 @@ class MainRepository(private val roomDao: RoomDao) {
     fun updateFacilityEvent(id: String, reference: String) {
         roomDao.updateFacilityEvent(id, reference, true)
     }
+
     fun updateFacilityEventSynced(id: String, isSynced: Boolean) {
         roomDao.updateFacilityEventSynced(id, isSynced)
     }
@@ -294,8 +305,12 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun updateTrackedAttributes(attributes: String, patientUid: String) {
-        roomDao.updateTrackedAttributes(attributes,patientUid)
+        roomDao.updateTrackedAttributes(attributes, patientUid)
 
+    }
+
+    fun loadEventById(id: String): EventData? {
+        return roomDao.loadEventById(id)
     }
 
 }
