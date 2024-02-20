@@ -118,6 +118,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.getLatestEnrollment(context, trackedEntity)
         }
 
+    fun getLatestEnrollmentByTrackedEntity(
+        context: Context,
+        trackedEntity: String
+    ) =
+        runBlocking {
+            repository.getLatestEnrollmentByTrackedEntity(context, trackedEntity)
+        }
+
     fun loadLatestEvent(eventUid: String) = runBlocking {
         repository.loadLatestEvent(eventUid)
 
@@ -186,6 +194,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getPatientExistingCases(context: Context, patientUid: String)=
         runBlocking {
             repository.loadPatientEventById(patientUid)
+    }
+
+    fun loadPatientById(context: Context, patientUid: String)= runBlocking {
+        repository.loadPatientById(patientUid)
+    }
+
+    fun deleteCurrentSimilarCase(context: Context, patientUid: String)= runBlocking {
+        repository.deleteCurrentSimilarCase(patientUid)
     }
 
 

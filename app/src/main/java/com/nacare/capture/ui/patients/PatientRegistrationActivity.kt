@@ -128,17 +128,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                         this@PatientRegistrationActivity
                                     )
                                 }
-
-                                validateSearchData()
-
-                            } else {
-                                Toast.makeText(
-                                    this@PatientRegistrationActivity,
-                                    "Please enter all required fields", Toast.LENGTH_SHORT
-                                ).show()
                             }
-//
-
+                            validateSearchData()
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -158,6 +149,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
             }
         }
+
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
 
     }
 

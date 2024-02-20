@@ -165,4 +165,8 @@
     <string name="submit_btn">Submit</string>
     <string name="save_and_continue">Are you sure you want to save and continue?</string>
     <string name="_7xxxxxxxx">7xxxxxxxx</string>
+    <string name="existing_case">Existing Cancer Diagnosis</string>
+    <string name="existing_case_description">This patient has previously been diagnosed with the documented cancer. Would you like to review the existing diagnosis details?</string>
+    <string name="view_existing_case">View existing diagnosis details</string>
+    <string name="change_diagnosis">Change Diagnosis</string>
 </resources>

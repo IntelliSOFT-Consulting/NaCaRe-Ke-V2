@@ -146,6 +146,8 @@ class PatientListFragment : Fragment() {
     }
 
     private fun handleClick(data: EntityData) {
+//        viewModel.deleteCurrentSimilarCase(requireContext(),data.id)
+        Log.e("TAG","Entity Data Here **** ${data.id}")
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
         val builder = AlertDialog.Builder(requireContext())
@@ -213,8 +215,13 @@ class PatientListFragment : Fragment() {
                 formatter.saveSharedPref("current_patient_id", data.id, requireContext())
                 val single = viewModel.getLatestEnrollment(requireContext(), data.id)
                 if (single != null) {
+                    Log.e(
+                        "TAG",
+                        "Retrieved Event *** ${single.eventUid}"
+                    )
                     formatter.saveSharedPref("eventUid", single.eventUid, requireContext())
                     startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+
                 } else {
                     Toast.makeText(
                         requireContext(),

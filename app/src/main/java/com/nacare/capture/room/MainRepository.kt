@@ -265,6 +265,13 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.getLatestEnrollment(trackedEntity)
     }
 
+    fun getLatestEnrollmentByTrackedEntity(
+        context: Context,
+        trackedEntity: String,
+    ): EnrollmentEventData? {
+        return roomDao.getLatestEnrollment(trackedEntity)
+    }
+
     fun loadLatestEvent(eventUid: String): EnrollmentEventData? {
         return roomDao.loadLatestEvent(eventUid)
     }
@@ -321,6 +328,16 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun loadPatientEventById(trackedUnique: String): List<TrackedEntityInstanceData>? {
         return roomDao.loadPatientEventById(trackedUnique)
+    }
+
+    fun loadPatientById(trackedUnique: String): TrackedEntityInstanceData? {
+        return roomDao.loadPatientById(trackedUnique)
+    }
+
+    fun deleteCurrentSimilarCase(patientUid: String) {
+        roomDao.deleteTracked(patientUid)
+        roomDao.deleteEnrollment(patientUid)
+
     }
 
 }

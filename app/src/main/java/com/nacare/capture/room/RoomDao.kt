@@ -147,6 +147,9 @@ interface RoomDao {
     @Query("SELECT * FROM enrollmentevent WHERE eventUid=:eventUid  ORDER BY id DESC LIMIT 1")
     fun loadEnrollment(eventUid: String): EnrollmentEventData?
 
+    @Query("SELECT * FROM enrollmentevent WHERE id=:eventUid  ORDER BY id DESC LIMIT 1")
+    fun loadEnrollmentByID(eventUid: String): EnrollmentEventData?
+
     @Query("UPDATE trackedEntity SET enrollment =:enrollment WHERE id =:uid")
     fun updateEnrollment(enrollment: String, uid: String)
 
@@ -175,5 +178,15 @@ interface RoomDao {
 
     @Query("SELECT * FROM trackedEntity WHERE trackedUnique =:trackedUnique ORDER BY id DESC")
     fun loadPatientEventById(trackedUnique: String): List<TrackedEntityInstanceData>?
+
+
+    @Query("SELECT * FROM trackedEntity WHERE id =:id ORDER BY id DESC LIMIT 1")
+    fun loadPatientById(id: String): TrackedEntityInstanceData?
+
+    @Query("DELETE FROM trackedEntity WHERE id=:patientUid")
+    fun deleteTracked(patientUid: String)
+
+    @Query("DELETE FROM enrollmentevent WHERE trackedEntity =:patientUid")
+    fun deleteEnrollment(patientUid: String)
 
 }
