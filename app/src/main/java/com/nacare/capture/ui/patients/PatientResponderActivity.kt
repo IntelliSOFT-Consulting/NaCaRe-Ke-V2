@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
@@ -23,6 +24,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -54,6 +56,7 @@ import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.room.Converters
 import com.nacare.capture.room.EnrollmentEventData
 import com.nacare.capture.room.MainViewModel
+import com.nacare.capture.ui.viewmodel.ResponseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,6 +71,7 @@ class PatientResponderActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientResponderBinding
     private var searchParameters = ArrayList<CodeValuePairPatient>()
     private lateinit var viewModel: MainViewModel
+    private lateinit var liveData: ResponseViewModel
     private val formatter = FormatterClass()
     private val emptyList = ArrayList<TrackedEntityAttributes>()
     private val elementList = ArrayList<ProgramStageSections>()
@@ -83,6 +87,7 @@ class PatientResponderActivity : AppCompatActivity() {
         binding = ActivityPatientResponderBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
+        liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         attributeList.clear()
         val current_patient = formatter.getSharedPref("current_patient_id", this)
         if (current_patient != null) {
@@ -632,6 +637,13 @@ class PatientResponderActivity : AppCompatActivity() {
                             }
                         }
                     })
+
+//                    liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+//                        val valueObtained = it.find { it.code == item.id }
+//                        if (valueObtained != null) {
+//                            editText.setText(valueObtained.value)
+//                        }
+//                    }
                     if (basicHiddenFields) {
                         itemView.visibility = View.GONE
                     }
@@ -698,8 +710,10 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-//                                calculateRelevant(item, value)
+//
+                                calculateRelevant(lnParent, index, item, value, isProgram)
                                 saveValued(index, item.id, dataValue, isProgram)
+                                liveData.populateRelevantPatientData(searchParameters)
 
                                 val list = checkIfParentHasChildren(item.id)
                                 for (i in 0 until lnParent.childCount) {
@@ -728,6 +742,12 @@ class PatientResponderActivity : AppCompatActivity() {
                             }
                         }
                     })
+                    liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                        val valueObtained = it.find { it.code == item.id }
+                        if (valueObtained != null) {
+                            autoCompleteTextView.setText(valueObtained.value, false)
+                        }
+                    }
                     if (basicHiddenFields) {
                         itemView.visibility = View.GONE
                     }
@@ -943,6 +963,12 @@ class PatientResponderActivity : AppCompatActivity() {
                         }
                     }
                 })
+                liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                    val valueObtained = it.find { it.code == item.id }
+                    if (valueObtained != null) {
+                        editText.setText(valueObtained.value)
+                    }
+                }
                 if (basicHiddenFields) {
                     itemView.visibility = View.GONE
                 }
@@ -1002,6 +1028,12 @@ class PatientResponderActivity : AppCompatActivity() {
                         }
                     }
                 })
+                liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                    val valueObtained = it.find { it.code == item.id }
+                    if (valueObtained != null) {
+                        editText.setText(valueObtained.value)
+                    }
+                }
                 if (basicHiddenFields) {
                     itemView.visibility = View.GONE
                 }
@@ -1100,6 +1132,41 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
 
+        }
+    }
+
+    private fun calculateRelevant(
+        lnParent: LinearLayout,
+        index: Int,
+        item: TrackedEntityAttributes,
+        value: String, isProgram: Boolean
+    ) {
+
+        when (item.id) {
+
+            DIAGNOSIS -> {
+                val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
+                // load sites
+                val site = viewModel.loadDataStore(this, "site")
+                //load categories
+                val category = viewModel.loadDataStore(this, "category")
+
+                if (site != null && dataValue != null) {
+                    val siteValue = formatter.generateRespectiveValue(site, dataValue)
+                    Log.e("TAG", "Match found: $siteValue")
+                    if (siteValue.isNotEmpty()) {
+                        saveValued(index, Constants.DIAGNOSIS_SITE, siteValue, isProgram)
+                    }
+                }
+                if (category != null && dataValue != null) {
+                    val categoryValue = formatter.generateRespectiveValue(category, dataValue)
+                    Log.e("TAG", "Match found: $categoryValue")
+                    if (categoryValue.isNotEmpty()) {
+                        saveValued(index, Constants.DIAGNOSIS_CATEGORY, categoryValue, isProgram)
+                    }
+                }
+                saveValued(index, Constants.ICD_CODE, "$dataValue", isProgram)
+            }
         }
     }
 
@@ -1252,7 +1319,6 @@ class PatientResponderActivity : AppCompatActivity() {
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         Log.e("TAG", "Growing List $searchParameters")
-
 
     }
 
