@@ -200,6 +200,10 @@ class PatientResponderActivity : AppCompatActivity() {
                         val elementAttributes =
                             Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
                         elementAttributes.forEachIndexed { index, attribute ->
+                            Log.e(
+                                "TAG",
+                                "Current Selected Event *** Saving ${attribute.dataElement} ${attribute.value}"
+                            )
                             saveValued(index, attribute.dataElement, attribute.value, true)
                         }
                     }
@@ -686,14 +690,19 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 singleRecord.eventUid,
                                                 this@PatientResponderActivity
                                             )
-
-                                            finish()
-                                            startActivity(
-                                                Intent(
-                                                    this@PatientResponderActivity,
-                                                    PatientResponderActivity::class.java
-                                                )
+                                            formatter.saveSharedPref(
+                                                "reopen_form", "true",
+                                                this@PatientResponderActivity
                                             )
+
+//
+//                                            startActivity(
+//                                                Intent(
+//                                                    this@PatientResponderActivity,
+//                                                    PatientResponderActivity::class.java
+//                                                )
+//                                            )
+                                            finish()
                                         }
                                         //means delete current patient and related data
                                     }
@@ -806,6 +815,8 @@ class PatientResponderActivity : AppCompatActivity() {
 
         val isReg = formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
         val newCase = formatter.getSharedPref("new_case", this@PatientResponderActivity)
+
+        Log.e("TAG", "Data Populated $currentValue")
 //        if (isReg != null) {
 //            isDisabled = true
 //        }
@@ -1527,6 +1538,8 @@ class PatientResponderActivity : AppCompatActivity() {
 
     private fun extractCurrentValues(id: String): String {
         val response = formatter.getSharedPref("current_data", this)
+
+        Log.e("TAG", "Retrieving Current Data **** $response")
         if (response != null) {
             searchParameters = getSavedValues()
             val foundItem = searchParameters.find { it.code == id }
@@ -1604,7 +1617,7 @@ class PatientResponderActivity : AppCompatActivity() {
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
-        Log.e("TAG", "Data Populated $valueType")
+        Log.e("TAG", "Data Populated $currentValue")
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)

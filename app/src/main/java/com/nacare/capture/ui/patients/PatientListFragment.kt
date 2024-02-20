@@ -1,8 +1,10 @@
 package com.nacare.capture.ui.patients
 
 import android.app.Application
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -29,6 +31,10 @@ import com.nacare.capture.model.TrackedEntityInstanceAttributes
 import com.nacare.capture.room.Converters
 import com.nacare.capture.room.EnrollmentEventData
 import com.nacare.capture.room.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Date
 
 // TODO: Rename parameter arguments, choose names that match
@@ -76,6 +82,25 @@ class PatientListFragment : Fragment() {
         super.onResume()
         try {
             loadTrackedEntities()
+            val reopenForm = formatter.getSharedPref(
+                "reopen_form",
+                requireContext()
+            )
+            if (reopenForm != null) {
+                val progressDialog = ProgressDialog(requireContext())
+                progressDialog.setMessage("Please wait...")
+                progressDialog.setCancelable(false)
+                progressDialog.show()
+                CoroutineScope(Dispatchers.Main).launch {
+
+                    formatter.deleteSharedPref("reopen_form", requireContext())
+                    delay(1000) // Delay for 3 seconds
+                    progressDialog.dismiss()
+                    startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
+                }
+
+            }
+            Log.e("TAG", "Reopening form *** $reopenForm")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -147,7 +172,7 @@ class PatientListFragment : Fragment() {
 
     private fun handleClick(data: EntityData) {
 //        viewModel.deleteCurrentSimilarCase(requireContext(),data.id)
-        Log.e("TAG","Entity Data Here **** ${data.id}")
+        Log.e("TAG", "Entity Data Here **** ${data.id}")
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
         val builder = AlertDialog.Builder(requireContext())
