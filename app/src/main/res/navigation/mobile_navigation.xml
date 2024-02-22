@@ -7,30 +7,30 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.nacare.capture.ui.home.HomeFragment"
+        android:name="com.capture.app.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.nacare.capture.ui.organization.OrganizationFragment"
+        android:name="com.capture.app.ui.organization.OrganizationFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
 
     <fragment
         android:id="@+id/patientListFragment"
-        android:name="com.nacare.capture.ui.patients.PatientListFragment"
+        android:name="com.capture.app.ui.patients.PatientListFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_patient_list" />
     <fragment
         android:id="@+id/programsFragment"
-        android:name="com.nacare.capture.ui.programs.ProgramsFragment"
+        android:name="com.capture.app.ui.programs.ProgramsFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_programs" />
     <fragment
         android:id="@+id/facilityListFragment"
-        android:name="com.nacare.capture.ui.facility.FacilityListFragment"
+        android:name="com.capture.app.ui.facility.FacilityListFragment"
         android:label="@string/facility_details_capture_tool"
         tools:layout="@layout/fragment_facility_list" />
 </navigation>

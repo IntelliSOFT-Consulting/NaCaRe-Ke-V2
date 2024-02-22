@@ -7,14 +7,14 @@ plugins {
 }
 
 android {
-    namespace = "com.nacare.capture"
+    namespace = "com.capture.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nacare.capture"
+        applicationId = "com.capture.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 210
+        versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
