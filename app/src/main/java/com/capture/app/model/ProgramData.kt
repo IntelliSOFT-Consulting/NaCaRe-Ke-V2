@@ -121,7 +121,10 @@ data class Enrollments(
     val program: String,
     val orgUnit: String,
     val enrollment: String,
-    val events: List<Events>
+    val enrollmentDate: String,
+    val incidentDate: String,
+    val events: List<Events>,
+    val attributes: List<TrackedEntityInstanceAttributes>
 
 )
 
@@ -132,6 +135,7 @@ data class Events(
     val event: String,
     val programStage: String,
     val status: String,
+    val dataValues: List<DataValue>,
 )
 
 data class SearchResult(
@@ -173,6 +177,20 @@ data class TrackedEntityInstance(
     val enrollDate: String,
     val orgUnit: String,
     val attributes: List<TrackedEntityInstanceAttributes>
+)
+
+data class TrackedEntityInstanceServer(
+    val trackedEntity: String,
+    val enrollment: String,
+    val enrollDate: String,
+    val orgUnit: String,
+    val attributes: List<TrackedEntityInstanceAttributes>,
+    val program: String,
+    val programStage: String,
+    val dataValues: List<DataValue>,
+    val enrollmentUid: String,
+    val eventUid: String,
+    val status: String,
 )
 
 data class TrackedEntityInstancePostData(
@@ -218,7 +236,7 @@ data class EntityData(
 )
 
 data class FacilitySummary(
-    val id:String,
+    val id: String,
     val uid: String,
     val date: String,
     val status: String

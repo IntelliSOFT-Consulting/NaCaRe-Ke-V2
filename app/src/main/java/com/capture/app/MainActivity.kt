@@ -95,12 +95,13 @@ class MainActivity : AppCompatActivity() {
                     // Handle click for additionalMenuItem2
                     try {
                         if (formatter.isNetworkAvailable(this@MainActivity)) {
-                            handleDataSync()
-                            CoroutineScope(Dispatchers.IO).launch {
-                                delay(10000) // Delay for 3 seconds
-                                handleFacilityUploads()
-                                uploadTrackedEvents()
-                            }
+//                            handleDataSync()
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                delay(10000) // Delay for 3 seconds
+//                                handleFacilityUploads()
+//                                uploadTrackedEvents()
+//                            }
+                            retrofitCalls.loadTrackedEntities(this@MainActivity)
                         } else {
                             formatter.showInternetConnectionRequiredDialog(this@MainActivity)
                         }
@@ -272,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     retrofitCalls.loadAllEvents(this@MainActivity)
                     retrofitCalls.loadAllEvents(this@MainActivity)
                     retrofitCalls.loadAllFacilities(this@MainActivity)
-//                    retrofitCalls.loadAllTrackedEntities(this@MainActivity)
+                    retrofitCalls.loadTrackedEntities(this@MainActivity)
                 }
             }
         } catch (e: Exception) {

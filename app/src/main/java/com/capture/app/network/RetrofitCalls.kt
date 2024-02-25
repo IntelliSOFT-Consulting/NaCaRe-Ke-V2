@@ -17,12 +17,18 @@ import com.google.gson.JsonObject
 import com.capture.app.R
 import com.capture.app.auth.SyncActivity
 import com.capture.app.data.Constants
+import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.DataValue
 import com.capture.app.model.EnrollmentEventUploadData
+import com.capture.app.model.Enrollments
 import com.capture.app.model.EventUploadData
 import com.capture.app.model.MultipleTrackedEntityInstances
+import com.capture.app.model.TrackedEntityInstance
+import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
+import com.capture.app.model.TrackedEntityInstanceServer
+import com.capture.app.model.TrackedEntityInstances
 import com.capture.app.room.Converters
 import com.capture.app.room.DataStoreData
 import com.capture.app.room.EventData
@@ -34,6 +40,7 @@ import com.capture.app.ui.patients.PatientSearchResultsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class RetrofitCalls {
 
@@ -143,7 +150,6 @@ class RetrofitCalls {
                     val body = apiInterface.body()
                     when (statusCode) {
                         200 -> {
-
                             if (body != null) {
                                 try {
                                     if (body.trackedEntityInstances.isEmpty()) {
@@ -185,6 +191,154 @@ class RetrofitCalls {
 
             }
         }
+    }
+
+    fun loadTrackedEntities(
+        context: Context
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface =
+                    apiService.loadTrackedEntities()
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                try {
+                                    if (body.trackedEntityInstances.isEmpty()) {
+
+                                    } else {
+                                        val converters = Converters().toJsonPatientSearch(body)
+                                        Log.e("TAG", "Search Results ***** $converters")
+                                        body.trackedEntityInstances.forEach {
+                                            saveUpdatePatient(context, it)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("TAG", "json err:::: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Success Error:::: ${e.message}")
+
+            }
+        }
+    }
+
+
+    private fun saveUpdatePatient(context: Context, data: TrackedEntityInstances) {
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        val program = extractInitialEnrollment(data.enrollments, "program")
+        val orgUnit = extractInitialEnrollment(data.enrollments, "orgUnit")
+        val patientUnique = extractInitialEnrollmentSpecific(data.enrollments, PATIENT_UNIQUE)
+        var enrollDate = extractInitialEnrollment(data.enrollments, "enrollDate")
+        if (enrollDate.isNotEmpty()) {
+            enrollDate = FormatterClass().convertDateFormat(enrollDate).toString()
+        }
+        val entityData = TrackedEntityInstanceServer(
+            trackedEntity = data.trackedEntityInstance,
+            enrollment = extractInitialEnrollment(data.enrollments, "enrollmentUid"),
+            enrollDate = enrollDate,
+            orgUnit = orgUnit,
+            attributes = extractInitialEnrollmentAttribute(data.enrollments),
+            program = program,
+            programStage = extractInitialEnrollmentEvent(data.enrollments, "programStage"),
+            dataValues = extractInitialEnrollmentEventValues(data.enrollments),
+            enrollmentUid = extractInitialEnrollmentEvent(data.enrollments, "enrollmentUid"),
+            eventUid = extractInitialEnrollmentEvent(data.enrollments, "eventUid"),
+            status = extractInitialEnrollmentEvent(data.enrollments, "status")
+        )
+        viewModel.saveTrackedEntityServer(
+            context,
+            entityData, orgUnit, patientUnique
+        )
+        Log.e("TAG", "Patient Unique ***** $patientUnique\nData *** $entityData")
+    }
+
+    private fun extractInitialEnrollmentEvent(
+        enrollments: List<Enrollments>,
+        type: String
+    ): String {
+        var data = ""
+        enrollments.forEach { q ->
+            q.events.forEach {
+                data = when (type) {
+                    "status" -> it.status
+                    "enrollmentUid" -> it.enrollment
+                    "eventUid" -> it.event
+                    "programStage" -> it.programStage
+                    else -> ""
+                }
+            }
+        }
+
+        return data
+    }
+
+    private fun extractInitialEnrollmentSpecific(
+        enrollments: List<Enrollments>,
+        uid: String
+    ): String {
+        var data = ""
+        enrollments.forEach {
+            val unique = it.attributes.find { it.attribute == uid }
+            if (unique != null) {
+                data = unique.value
+            }
+        }
+        return data
+    }
+
+    private fun extractInitialEnrollmentAttribute(enrollments: List<Enrollments>): List<TrackedEntityInstanceAttributes> {
+        val dataList = ArrayList<TrackedEntityInstanceAttributes>()
+        enrollments.forEach {
+            dataList.addAll(it.attributes)
+        }
+        return dataList
+    }
+
+    private fun extractInitialEnrollmentEventValues(enrollments: List<Enrollments>): List<DataValue> {
+        val dataList = ArrayList<DataValue>()
+        enrollments.forEach { q ->
+            q.events.forEach {
+                dataList.addAll(it.dataValues)
+            }
+        }
+        return dataList
+    }
+
+    private fun extractInitialEnrollment(enrollments: List<Enrollments>, type: String): String {
+        var data = ""
+        enrollments.forEach {
+            data = when (type) {
+                "enrollmentUid" -> it.enrollment
+                "enrollDate" -> it.enrollmentDate
+                "orgUnit" -> it.orgUnit
+                "program" -> it.program
+                else -> ""
+            }
+        }
+
+        return data
     }
 
     private fun noPatientRecordFound(context: Context, layoutInflater: LayoutInflater) {
@@ -688,6 +842,7 @@ class RetrofitCalls {
             }
         }
     }
+
     fun loadAllFacilities(context: Context) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
@@ -879,6 +1034,44 @@ class RetrofitCalls {
                 Log.e("TAG", "Server Data Response ****:::: ${e.message}")
 
 
+            }
+        }
+    }
+
+    fun loadCancerByGender(context: Context, gender: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface = apiService.loadCancerByGender(gender)
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                val data = DataStoreData(
+                                    uid = gender,
+                                    dataValues = body.toString()
+                                )
+                                viewModel.addDataStore(data)
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+                Log.e("TAG", "Server Data Response ****:::: ${e.message}")
             }
         }
     }

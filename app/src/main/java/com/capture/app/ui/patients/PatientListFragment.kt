@@ -161,7 +161,6 @@ class PatientListFragment : Fragment() {
         if (single != null) {
             data = single.value
         }
-
         return data
 
     }

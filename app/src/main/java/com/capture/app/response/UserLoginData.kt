@@ -67,3 +67,7 @@ data class FacilityUploadResponse(
     val message: String,
     val response: FacilityUpload
 )
+
+data class GenderCaseResponse(
+    val cases: List<String>
+)

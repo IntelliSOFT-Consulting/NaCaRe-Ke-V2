@@ -1,5 +1,6 @@
 package com.capture.app.adapters
 
+import android.app.Application
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import com.capture.app.data.FormatterClass
 import com.capture.app.holders.TrackedEntityHolder
 import com.capture.app.model.EntityData
 import com.capture.app.room.Converters
+import com.capture.app.room.MainViewModel
 
 
 class TrackedEntityAdapter(
@@ -44,9 +46,9 @@ class TrackedEntityAdapter(
 
         holder.tv_place_of_notification.text = org
         holder.tv_patient_name.text = name
-        holder.tv_phone_no.text = extractValueFromAttributes(
+        holder.tv_phone_no.text = extractValueFromDataValues(
+            data.id,
             "fZB1WuCDlHt",
-            data.attributes
         )
         holder.tv_hospital_no.text = extractValueFromAttributes(
             "MiXrdHDZ6Hw",
@@ -99,6 +101,21 @@ class TrackedEntityAdapter(
             }
         }
 
+    }
+
+    private fun extractValueFromDataValues(patient: String, uid: String): String {
+        var data = ""
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        val single = viewModel.getLatestEnrollment(context, patient)
+        if (single != null) {
+            val dtValues = Converters().fromJsonDataAttribute(single.dataValues)
+            val found = dtValues.find { it.dataElement == uid }
+            if (found != null) {
+                data = found.value
+            }
+
+        }
+        return data
     }
 
 

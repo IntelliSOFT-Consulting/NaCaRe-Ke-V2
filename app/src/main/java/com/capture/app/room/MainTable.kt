@@ -32,6 +32,8 @@ data class TrackedEntityInstanceData(
     var parentOrgUnit: String,
     var enrollment: String,
     var enrollDate: String,
+    val isSubmitted: Boolean = false,
+    val isDead: Boolean = false,
     val isLocal: Boolean = false,
     val isSynced: Boolean = false,
 ) {

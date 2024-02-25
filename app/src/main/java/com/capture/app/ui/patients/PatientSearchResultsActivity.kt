@@ -56,11 +56,10 @@ class PatientSearchResultsActivity : AppCompatActivity() {
 
     private fun displayResults() {
         val results = formatter.getSharedPref("search_results", this)
-        Log.e("TAG", "Results $results")
+
         if (results != null) {
             val converters = Converters().fromJsonPatientSearch(results)
             searchResult.clear()
-            Log.e("TAG", "Results $converters")
             converters.trackedEntityInstances.forEach {
                 attributesList.clear()
 

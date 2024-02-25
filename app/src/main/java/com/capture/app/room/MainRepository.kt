@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.TrackedEntityInstance
+import com.capture.app.model.TrackedEntityInstanceServer
 import java.util.Date
 
 class MainRepository(private val roomDao: RoomDao) {
@@ -90,6 +91,49 @@ class MainRepository(private val roomDao: RoomDao) {
             formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
             formatter.saveSharedPref("eventUid", eventUid, context)
             formatter.saveSharedPref("enrollmentUid", data.enrollment, context)
+            roomDao.saveEnrollment(enrollment)
+        }
+    }
+
+    fun saveTrackedEntityServer(
+        context: Context,
+        data: TrackedEntityInstanceServer,
+        parentOrg: String,
+        patientIdentification: String
+    ) {
+        val formatter = FormatterClass()
+        val exists = roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
+        if (exists) {
+            roomDao.updateTrackedEntity(
+                data.orgUnit,
+                data.trackedEntity,
+                Gson().toJson(data.attributes)
+            )
+        } else {
+            val save = TrackedEntityInstanceData(
+                trackedEntity = data.trackedEntity,
+                orgUnit = data.orgUnit,
+                parentOrgUnit = parentOrg,
+                enrollment = data.enrollment,
+                enrollDate = data.enrollDate,
+                isLocal = false,
+                attributes = Gson().toJson(data.attributes),
+                trackedUnique = patientIdentification
+            )
+            val savedItemId = roomDao.saveTrackedEntity(save)
+
+            val enrollment = EnrollmentEventData(
+                dataValues = Gson().toJson(data.dataValues),
+                uid = data.enrollmentUid,
+                eventUid = data.eventUid,
+                program = data.program,
+                programStage = data.programStage,
+                orgUnit = data.orgUnit,
+                eventDate = data.enrollDate,
+                status = data.status,
+                initialUpload = true,
+                trackedEntity = savedItemId.toString()
+            )
             roomDao.saveEnrollment(enrollment)
         }
     }

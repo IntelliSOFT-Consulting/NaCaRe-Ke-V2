@@ -174,6 +174,28 @@ class FormatterClass {
         }
     }
 
+    fun maleCancers(): List<String> {
+        return listOf(
+            "C60",
+            "C61",
+            "C62",
+            "C63"
+        )
+    }
+
+    fun femaleCancers(): List<String> {
+        return listOf(
+            "C51",
+            "C52",
+            "C53",
+            "C54",
+            "C55",
+            "C56",
+            "C57",
+            "C58"
+        )
+    }
+
     fun excludeHiddenFields(): List<String> {
         return listOf(
             "AP13g7NcBOf",
@@ -241,7 +263,12 @@ class FormatterClass {
     }
 
     fun retrieveAllowedToTypeItem(id: String): Boolean {
-        val itemsList = listOf("BzhDnF5fG4x", "wzHl7HdsSlO", "PdDmTsAjysh","uR2Mnlh7sqn") // Add your items here
+        val itemsList = listOf(
+            "BzhDnF5fG4x",
+            "wzHl7HdsSlO",
+            "PdDmTsAjysh",
+            "uR2Mnlh7sqn"
+        ) // Add your items here
         // Check if the passed parameter is found in the list
         return itemsList.contains(id)
     }

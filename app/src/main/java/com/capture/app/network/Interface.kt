@@ -8,6 +8,7 @@ import com.capture.app.response.DataStoreResponse
 import com.capture.app.response.EnrollmentSingle
 import com.capture.app.response.FacilityEventResponse
 import com.capture.app.response.FacilityUploadResponse
+import com.capture.app.response.GenderCaseResponse
 import com.capture.app.response.OrganizationUnitResponse
 import com.capture.app.response.PatientRegistrationResponse
 import com.capture.app.response.ProgramResponse
@@ -35,6 +36,13 @@ interface Interface {
         @Query("filter") filter: String
     ): Response<SearchPatientResponse>
 
+    @GET("/api/trackedEntityInstances.json")
+    suspend fun loadTrackedEntities(
+        @Query("program") program: String = "pZSnyiO9EF7",
+        @Query("ouMode") ouMode: String = "ALL",
+        @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]"
+    ): Response<SearchPatientResponse>
+
     @GET("/api/organisationUnits/{code}?fields=name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children[name,id,level,children]]]]")
     suspend fun loadChildUnits(@Path("code") code: String): Response<OrganizationUnitResponse>
 
@@ -54,6 +62,7 @@ interface Interface {
     suspend fun uploadFacilityData(
         @Body payload: EventUploadData
     ): Response<FacilityUploadResponse>
+
     @PUT("/api/events/{eventUid}")
     @Headers("Content-Type: application/json")
     suspend fun uploadKnownFacilityData(
@@ -103,5 +112,8 @@ interface Interface {
         @Body payload: EnrollmentEventUploadData,
         @Path("eventUid") eventUid: String
     ): Response<FacilityUploadResponse>
+
+    @GET("/api/40/dataStore/validations/{gender}")
+    suspend fun loadCancerByGender(@Path("gender") gender: String): Response<GenderCaseResponse>
 
 }

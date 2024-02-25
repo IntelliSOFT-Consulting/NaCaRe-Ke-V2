@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.capture.app.model.TrackedEntityInstance
+import com.capture.app.model.TrackedEntityInstanceServer
 import kotlinx.coroutines.runBlocking
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -44,6 +45,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveTrackedEntity(context: Context, data: TrackedEntityInstance,parentOrg:String,patientIdentification:String) = runBlocking {
 
         repository.saveTrackedEntity(context, data,parentOrg,patientIdentification)
+    }
+    fun saveTrackedEntityServer(context: Context, data: TrackedEntityInstanceServer, parentOrg:String, patientIdentification:String) = runBlocking {
+
+        repository.saveTrackedEntityServer(context, data,parentOrg,patientIdentification)
     }
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
