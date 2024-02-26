@@ -40,6 +40,7 @@ interface Interface {
     suspend fun loadTrackedEntities(
         @Query("program") program: String = "pZSnyiO9EF7",
         @Query("ouMode") ouMode: String = "ALL",
+        @Query("skipPaging") skipPaging: Boolean = true,
         @Query("fields") fields: String = "trackedEntityInstance,trackedEntityType,attributes[attribute,displayName,value],enrollments[*]"
     ): Response<SearchPatientResponse>
 
@@ -81,6 +82,7 @@ interface Interface {
     @GET("api/tracker/events")
     suspend fun loadAllFacilityEvents(
         @Query("paging") paging: Boolean = false,
+        @Query("skipPaging") skipPaging: Boolean = true,
         @Query("fields") fields: String = "event,program,programStage,orgUnit,status,occurredAt,completedDate,createdAt,dataValues[createdAt,updatedAt,dataElement, value]",
     ): Response<FacilityEventResponse>
 
