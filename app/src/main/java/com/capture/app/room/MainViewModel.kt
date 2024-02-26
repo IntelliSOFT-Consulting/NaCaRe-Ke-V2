@@ -213,5 +213,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.deleteEvent(id)
     }
 
+    fun getTrackedEntity(id: String) = runBlocking{
+        repository.getTrackedEntity(id)
+    }
+
 
 }

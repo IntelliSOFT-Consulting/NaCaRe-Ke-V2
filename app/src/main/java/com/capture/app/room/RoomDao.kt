@@ -188,7 +188,11 @@ interface RoomDao {
 
     @Query("DELETE FROM enrollmentevent WHERE trackedEntity =:patientUid")
     fun deleteEnrollment(patientUid: String)
+
     @Query("DELETE FROM event WHERE id =:id")
     fun deleteEvent(id: Int)
+
+    @Query("UPDATE trackedEntity SET isDead =:isDead, isSynced =:isSynced WHERE  trackedUnique =:trackedUnique")
+    fun updateDeadPatients(trackedUnique: String, isDead: Boolean, isSynced: Boolean)
 
 }

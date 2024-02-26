@@ -265,7 +265,8 @@ class RetrofitCalls {
             dataValues = extractInitialEnrollmentEventValues(data.enrollments),
             enrollmentUid = extractInitialEnrollmentEvent(data.enrollments, "enrollmentUid"),
             eventUid = extractInitialEnrollmentEvent(data.enrollments, "eventUid"),
-            status = extractInitialEnrollmentEvent(data.enrollments, "status")
+            status = extractInitialEnrollmentEvent(data.enrollments, "status"),
+
         )
         viewModel.saveTrackedEntityServer(
             context,

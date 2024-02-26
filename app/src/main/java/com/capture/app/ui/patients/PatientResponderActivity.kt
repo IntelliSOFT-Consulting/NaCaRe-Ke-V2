@@ -357,36 +357,36 @@ class PatientResponderActivity : AppCompatActivity() {
                 no_button.visibility = View.GONE
             }
 
-            itemView.setOnClickListener {
-
-                for (i in 0 until lnParent.childCount) {
-                    val childView = lnParent.getChildAt(i)
-                    val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-
-                    if (childView == itemView) { // For clicked item
-                        // Toggle visibility and appearance of ln_with_buttons
-                        ln_with_buttons.visibility =
-                            if (ln_with_buttons.isVisible) View.GONE else View.VISIBLE
-                        val bgColor =
-                            if (ln_with_buttons.isVisible) R.color.selected else R.color.unselected
-                        lnLinearLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this@PatientResponderActivity, bgColor
-                            )
-                        )
-                        rotationImageView.rotation = if (ln_with_buttons.isVisible) 0f else 180f
-                    } else { // For other items
-                        // Hide ln_with_buttons
-                        lnWithButtons.visibility = View.GONE
-                        lnLinearLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this@PatientResponderActivity, R.color.unselected
-                            )
-                        )
-                        rotationImageView.rotation = 180f
-                    }
-                }
-            }
+//            itemView.setOnClickListener {
+//
+//                for (i in 0 until lnParent.childCount) {
+//                    val childView = lnParent.getChildAt(i)
+//                    val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+//
+//                    if (childView == itemView) { // For clicked item
+//                        // Toggle visibility and appearance of ln_with_buttons
+//                        ln_with_buttons.visibility =
+//                            if (ln_with_buttons.isVisible) View.GONE else View.VISIBLE
+//                        val bgColor =
+//                            if (ln_with_buttons.isVisible) R.color.selected else R.color.unselected
+//                        lnLinearLayout.setBackgroundColor(
+//                            ContextCompat.getColor(
+//                                this@PatientResponderActivity, bgColor
+//                            )
+//                        )
+//                        rotationImageView.rotation = if (ln_with_buttons.isVisible) 0f else 180f
+//                    } else { // For other items
+//                        // Hide ln_with_buttons
+//                        lnWithButtons.visibility = View.GONE
+//                        lnLinearLayout.setBackgroundColor(
+//                            ContextCompat.getColor(
+//                                this@PatientResponderActivity, R.color.unselected
+//                            )
+//                        )
+//                        rotationImageView.rotation = 180f
+//                    }
+//                }
+//            }
 
             if (!data.isProgram) {
 
@@ -516,32 +516,10 @@ class PatientResponderActivity : AppCompatActivity() {
                                         }
                                     }
 
-                                    if (data.isProgram) {
-                                        val payload = EnrollmentEventData(
-                                            dataValues = Gson().toJson(attributeValueList),
-                                            uid = formatter.generateUUID(11),
-                                            eventUid = formatter.getSharedPref(
-                                                "eventUid", this@PatientResponderActivity
-                                            ).toString(),
-                                            program = data.programUid,
-                                            programStage = data.programStageUid,
-                                            orgUnit = formatter.getSharedPref(
-                                                "orgCode", this@PatientResponderActivity
-                                            ).toString(),
-                                            eventDate = formatter.formatCurrentDate(Date()),
-                                            status = "ACTIVE",
-                                            trackedEntity = formatter.getSharedPref(
-                                                "current_patient_id", this@PatientResponderActivity
-                                            ).toString()
-                                        )
-                                        viewModel.addProgramStage(
-                                            this@PatientResponderActivity, payload
-                                        )
-                                    } else {
-                                        viewModel.updateTrackedAttributes(
-                                            Gson().toJson(newCaseResponses), patientUid
-                                        )
-                                    }
+                                    viewModel.updateTrackedAttributes(
+                                        Gson().toJson(newCaseResponses), patientUid
+                                    )
+
                                     try {
                                         val nextPage = index + 1
                                         if (nextPage == size) {
@@ -745,6 +723,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                     }
                                 }
 
+
                                 Log.e(
                                     "TAG",
                                     "Save attributes here **** search $searchParameters then final $attributeValueList"
@@ -772,6 +751,23 @@ class PatientResponderActivity : AppCompatActivity() {
                                 )
 
                                 try {
+
+                                    // check if there is mention of Dead
+                                    val deadMentioned =
+                                        attributeValueList.find { it.dataElement == STATUS || it.dataElement == TWO_YEARS || it.dataElement == FIVE_YEARS }
+                                    if (deadMentioned != null) {
+                                        val valueFound = deadMentioned.value
+                                        Log.e("TAG", "Data Found ****** $valueFound")
+
+                                        if (valueFound == "Dead") {
+                                            updateRelatedPatientData(
+                                                formatter.getSharedPref(
+                                                    "current_patient_id",
+                                                    this@PatientResponderActivity
+                                                ).toString()
+                                            )
+                                        }
+                                    }
                                     val nextPage = index + 1
                                     if (nextPage == size) {
                                         this@PatientResponderActivity.finish()
@@ -817,6 +813,12 @@ class PatientResponderActivity : AppCompatActivity() {
             lnParent.addView(itemView)
 
         }
+    }
+
+    private fun updateRelatedPatientData(trackedEntity: String) {
+        viewModel.getTrackedEntity(trackedEntity)
+        this@PatientResponderActivity.finish()
+
     }
 
     private fun allRequiredFieldsComplete(): Boolean {
@@ -1241,7 +1243,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                         )
                                                     if (isInnerRequired) {
                                                         requiredFieldsString.add(child.tag.toString())
-                                                    }else{
+                                                    } else {
 
                                                         requiredFieldsString.remove(child.tag.toString())
                                                     }

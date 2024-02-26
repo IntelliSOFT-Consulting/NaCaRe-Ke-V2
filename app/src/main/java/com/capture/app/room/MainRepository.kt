@@ -388,4 +388,12 @@ class MainRepository(private val roomDao: RoomDao) {
 
     }
 
+    fun getTrackedEntity(id: String) {
+        val data = roomDao.loadPatientById(id)
+        if (data != null) {
+            roomDao.updateDeadPatients(data.trackedUnique, true, false)
+        }
+
+    }
+
 }
