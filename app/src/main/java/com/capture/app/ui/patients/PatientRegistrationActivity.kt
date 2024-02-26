@@ -38,6 +38,7 @@ import com.capture.app.data.Constants.DIAGNOSIS_SITE
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.PATIENT_UNIQUE
+import com.capture.app.data.Constants.SEX
 import com.capture.app.data.Constants.UNDER_TREATMENT
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientRegistrationBinding
@@ -85,6 +86,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
         liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         attributeList.clear()
         requiredFieldsString.clear()
+        formatter.deleteSharedPref(
+            "gender",
+            this@PatientRegistrationActivity
+        )
         loadSearchParameters()
 
         binding.apply {
@@ -674,6 +679,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
+
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
                                 calculateRelevant(lnParent, index, item, value)
                                 saveValued(index, item.id, dataValue)
@@ -694,7 +700,9 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                             )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
-                                            requiredFieldsString.add(child.tag.toString())
+                                            if (isRequired) {
+                                                requiredFieldsString.add(child.tag.toString())
+                                            }
                                         } else {
                                             child.visibility = View.GONE
                                             requiredFieldsString.remove(child.tag.toString())
@@ -1088,7 +1096,9 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                         checkProvidedAnswer(child.tag.toString(), list, dataValue)
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
-                                        requiredFieldsString.add(child.tag.toString())
+                                        if (isRequired) {
+                                            requiredFieldsString.add(child.tag.toString())
+                                        }
                                     } else {
                                         child.visibility = View.GONE
                                         requiredFieldsString.remove(child.tag.toString())
@@ -1133,10 +1143,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         var resultResponse = false
         try {
             val single = list.singleOrNull { it.parent == parent }
-            Log.e(
-                "TAG",
-                "We are looking the answer here **** $parent value need is $dataValue $single"
-            )
+
             val lowercaseAnswer = dataValue.lowercase()
             if (single != null) {
                 val parts = single.value.split(':')

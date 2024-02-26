@@ -232,7 +232,8 @@ data class EntityData(
     val fName: String,
     val lName: String,
     val diagnosis: String,
-    val attributes: String
+    val attributes: String,
+    val gender: String
 )
 
 data class FacilitySummary(

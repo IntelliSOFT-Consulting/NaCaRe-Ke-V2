@@ -361,7 +361,7 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun updateTrackedAttributes(attributes: String, patientUid: String) {
-        roomDao.updateTrackedAttributes(attributes, patientUid)
+        roomDao.updateTrackedAttributes(attributes, patientUid,true)
 
     }
 

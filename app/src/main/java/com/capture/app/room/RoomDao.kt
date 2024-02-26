@@ -170,8 +170,8 @@ interface RoomDao {
     @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit AND trackedEntity =:trackedEntity LIMIT 1")
     fun getSpecificTracked(orgUnit: String, trackedEntity: String): TrackedEntityInstanceData?
 
-    @Query("UPDATE trackedEntity SET attributes =:attributes WHERE  id =:patientUid")
-    fun updateTrackedAttributes(attributes: String, patientUid: String)
+    @Query("UPDATE trackedEntity SET attributes =:attributes, isSubmitted =:isSubmitted WHERE  id =:patientUid")
+    fun updateTrackedAttributes(attributes: String, patientUid: String, isSubmitted: Boolean)
 
     @Query("SELECT * FROM event WHERE id =:id  LIMIT 1")
     fun loadEventById(id: String): EventData?

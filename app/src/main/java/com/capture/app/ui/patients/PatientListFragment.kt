@@ -130,8 +130,8 @@ class PatientListFragment : Fragment() {
                         patientIdentification = extractValueFromAttributes(
                             PATIENT_UNIQUE,
                             it.attributes
-                        )
-
+                        ),
+                        gender = extractValueFromAttributes("xED9XkpCeUe", it.attributes),
                     )
                     dataList.add(single)
 
@@ -167,9 +167,10 @@ class PatientListFragment : Fragment() {
 
     private fun handleClick(data: EntityData) {
 //        viewModel.deleteCurrentSimilarCase(requireContext(),data.id)
-        Log.e("TAG", "Entity Data Here **** ${data.id}")
+        Log.e("TAG", "Entity Data Here **** ${data.gender}")
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
+        formatter.saveSharedPref("gender", data.gender, requireContext())
         val builder = AlertDialog.Builder(requireContext())
         val inflater = LayoutInflater.from(requireContext())
         val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
@@ -221,7 +222,6 @@ class PatientListFragment : Fragment() {
                         context, PatientResponderActivity::class.java
                     )
                 )
-
 
             }
         }

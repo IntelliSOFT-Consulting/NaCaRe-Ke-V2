@@ -86,6 +86,7 @@ class PatientResponderActivity : AppCompatActivity() {
     private val newCaseResponses = ArrayList<TrackedEntityInstanceAttributes>()
     private var linearLayouts: Array<LinearLayout?>? = null
     private var attributeList = ArrayList<ParentAttributeValues>()
+    private var requiredFieldsString = ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientResponderBinding.inflate(layoutInflater)
@@ -93,6 +94,7 @@ class PatientResponderActivity : AppCompatActivity() {
         viewModel = MainViewModel(this.applicationContext as Application)
         liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         attributeList.clear()
+        requiredFieldsString.clear()
         val current_patient = formatter.getSharedPref("current_patient_id", this)
         if (current_patient != null) {
             populateAvailableData(current_patient)
@@ -130,79 +132,80 @@ class PatientResponderActivity : AppCompatActivity() {
     }
 
     private fun populateAvailableData(currentPatient: String) {
-        val data = viewModel.loadTrackedEntity(currentPatient)
-        if (data != null) {
-            val attributes = Converters().fromJsonAttribute(data.attributes)
-            attributes.forEachIndexed { index, attribute ->
-                if (attribute.attribute == DATE_OF_BIRTH) {
-                    try {
-                        if (attribute.value.isNotEmpty()) {
-                            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                            val date = formatter.convertDateFormat(attribute.value)
-                            val birthDate = LocalDate.parse(date, dateFormatter)
-                            // Get the current date
-                            val currentDate = LocalDate.now()
-                            val (years, months) = formatter.calculateAge(birthDate, currentDate)
-                            saveValued(index, AGE_YEARS, "$years", false)
-                            saveValued(index, AGE_MONTHS, "$months", false)
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                if (attribute.attribute == DIAGNOSIS) {
-                    try {
-                        // load sites
-                        val site = viewModel.loadDataStore(this, "site")
-                        //load categories
-                        val category = viewModel.loadDataStore(this, "category")
-
-                        if (site != null && attribute.value.isNotEmpty()) {
-                            val siteValue = formatter.generateRespectiveValue(site, attribute.value)
-                            if (siteValue.isNotEmpty()) {
-                                saveValued(index, Constants.DIAGNOSIS_SITE, siteValue, false)
+        CoroutineScope(Dispatchers.IO).launch {
+            val data = viewModel.loadTrackedEntity(currentPatient)
+            if (data != null) {
+                liveData.updatePatientDetails(data.isSubmitted)
+                formatter.saveSharedPref(
+                    "isSubmitted",
+                    "${data.isSubmitted}",
+                    this@PatientResponderActivity
+                )
+                val attributes = Converters().fromJsonAttribute(data.attributes)
+                attributes.forEachIndexed { index, attribute ->
+                    if (attribute.attribute == DATE_OF_BIRTH) {
+                        try {
+                            if (attribute.value.isNotEmpty()) {
+                                val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                val date = formatter.convertDateFormat(attribute.value)
+                                val birthDate = LocalDate.parse(date, dateFormatter)
+                                // Get the current date
+                                val currentDate = LocalDate.now()
+                                val (years, months) = formatter.calculateAge(birthDate, currentDate)
+                                saveValued(index, AGE_YEARS, "$years", false)
+                                saveValued(index, AGE_MONTHS, "$months", false)
                             }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                        if (category != null && attribute.value.isNotEmpty()) {
-                            val categoryValue =
-                                formatter.generateRespectiveValue(category, attribute.value)
-                            if (categoryValue.isNotEmpty()) {
-                                saveValued(
-                                    index, Constants.DIAGNOSIS_CATEGORY, categoryValue, false
-                                )
-                            }
-                        }
-                        saveValued(index, Constants.ICD_CODE, attribute.value, false)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
+                    if (attribute.attribute == DIAGNOSIS) {
+                        try {
+                            // load sites
+                            val site =
+                                viewModel.loadDataStore(this@PatientResponderActivity, "site")
+                            //load categories
+                            val category =
+                                viewModel.loadDataStore(this@PatientResponderActivity, "category")
 
+                            if (site != null && attribute.value.isNotEmpty()) {
+                                val siteValue =
+                                    formatter.generateRespectiveValue(site, attribute.value)
+                                if (siteValue.isNotEmpty()) {
+                                    saveValued(index, DIAGNOSIS_SITE, siteValue, false)
+                                }
+                            }
+                            if (category != null && attribute.value.isNotEmpty()) {
+                                val categoryValue =
+                                    formatter.generateRespectiveValue(category, attribute.value)
+                                if (categoryValue.isNotEmpty()) {
+                                    saveValued(
+                                        index, DIAGNOSIS_CATEGORY, categoryValue, false
+                                    )
+                                }
+                            }
+                            saveValued(index, ICD_CODE, attribute.value, false)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
+                    }
+                    saveValued(index, attribute.attribute, attribute.value, false)
                 }
-                saveValued(index, attribute.attribute, attribute.value, false)
-            }
 
+                val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
+                if (eventUid != null) {
+                    val dataEnrollment =
+                        viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)
+                    if (dataEnrollment != null) {
 
-            val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
+                        if (dataEnrollment.dataValues.isNotEmpty()) {
+                            val elementAttributes =
+                                Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
+                            elementAttributes.forEachIndexed { index, attribute ->
 
-            Log.e("TAG", "Current Selected Event $eventUid")
-            if (eventUid != null) {
-                val dataEnrollment =
-                    viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)
-                Log.e("TAG", "Current Selected Event *** Enrollment $dataEnrollment")
-                if (dataEnrollment != null) {
-                    Log.e(
-                        "TAG",
-                        "Current Selected Event *** Enrollment ${dataEnrollment.dataValues}"
-                    )
-                    if (dataEnrollment.dataValues.isNotEmpty()) {
-                        val elementAttributes =
-                            Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
-                        elementAttributes.forEachIndexed { index, attribute ->
-                            Log.e(
-                                "TAG",
-                                "Current Selected Event *** Saving ${attribute.dataElement} ${attribute.value}"
-                            )
-                            saveValued(index, attribute.dataElement, attribute.value, true)
+                                saveValued(index, attribute.dataElement, attribute.value, true)
+                            }
                         }
                     }
                 }
@@ -351,6 +354,28 @@ class PatientResponderActivity : AppCompatActivity() {
 
             itemView.setOnClickListener {
                 // Iterate through each child of lnParent
+                if (data.isProgram) {
+                    val gson = Gson()
+                    if (data.groupName == textViewName.text.toString()) {
+                        val listType: Type = object : TypeToken<List<DataElements>>() {}.type
+                        val dataElements: List<DataElements> =
+                            gson.fromJson(data.dataElements, listType)
+
+                        smallTextView.text = "0/${dataElements.count()}"
+                        attributeList.clear()
+                        linearLayout.removeAllViews()
+                        for (element in dataElements) {
+                            attributeList.add(
+                                ParentAttributeValues(
+                                    element.displayName, element.id, element.attributeValues
+                                )
+                            )
+                            createFormFields(
+                                index, element, linearLayout, extractCurrentValues(element.id), true
+                            )
+                        }
+                    }
+                }
                 for (i in 0 until lnParent.childCount) {
                     val childView = lnParent.getChildAt(i)
                     val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
@@ -381,13 +406,31 @@ class PatientResponderActivity : AppCompatActivity() {
             }
 
             if (!data.isProgram) {
+
+                val isSubmitted = formatter.getSharedPref(
+                    "isSubmitted",
+                    this@PatientResponderActivity
+                )
+                if (isSubmitted != null) {
+                    if (isSubmitted == "true") {
+                        liveData.updatePatientDetails(true)
+                    } else {
+                        liveData.updatePatientDetails(false)
+                    }
+                }
                 val gson = Gson()
                 val listType: Type = object : TypeToken<List<TrackedEntityAttributes>>() {}.type
                 val dataElements: List<TrackedEntityAttributes> =
                     gson.fromJson(data.dataElements, listType)
                 smallTextView.text = "0/${dataElements.count()}"
+                linearLayout.removeAllViews()
                 for (element in dataElements) {
-                    Log.e("TAG", "Program DataValues **** ${element.name}")
+
+                    attributeList.add(
+                        ParentAttributeValues(
+                            element.name, element.id, element.attributeValues
+                        )
+                    )
                     createFormFieldsAttribute(
                         index, element, linearLayout, extractCurrentValues(element.id), false
                     )
@@ -398,51 +441,45 @@ class PatientResponderActivity : AppCompatActivity() {
                 val listType: Type = object : TypeToken<List<DataElements>>() {}.type
                 val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
                 smallTextView.text = "0/${dataElements.count()}"
-                for (element in dataElements) {
-                    attributeList.add(
-                        ParentAttributeValues(
-                            element.displayName,
-                            element.id,
-                            element.attributeValues
-                        )
-                    )
-                    createFormFields(
-                        index, element, linearLayout, extractCurrentValues(element.id), true
-                    )
-                }
+
             }
             yes_button.apply {
                 setOnClickListener {
                     val patientUid = formatter.getSharedPref(
-                        "current_patient_id",
-                        this@PatientResponderActivity
+                        "current_patient_id", this@PatientResponderActivity
                     )
                     searchParameters = getSavedValues()
+                    //check if program, ensure all fields are entered
+                    if (!data.isProgram) {
+                        if (!allRequiredFieldsComplete()) {
+                            Toast.makeText(
+                                this@PatientResponderActivity,
+                                "Please enter all required fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
+                        }
+                    }
                     if (patientUid != null) {
                         newCaseResponses.clear()
                         searchParameters.forEach {
                             if (!it.isProgram) {
                                 newCaseResponses.add(
                                     TrackedEntityInstanceAttributes(
-                                        attribute = it.code,
-                                        value = it.value
+                                        attribute = it.code, value = it.value
                                     )
                                 )
                             }
                         }
-                        val isSimilarCase =
-                            confirmIfPatientHasAnotherCase(
-                                newCaseResponses,
-                                patientUid,
-                                DIAGNOSIS
-                            )
+                        val isSimilarCase = confirmIfPatientHasAnotherCase(
+                            newCaseResponses, patientUid, DIAGNOSIS
+                        )
 
                         if (!isSimilarCase) {
 
                             Log.e("TAG", "Current item ***** $index out of $size")
                             val dialog: AlertDialog
-                            val dialogBuilder =
-                                AlertDialog.Builder(this@PatientResponderActivity)
+                            val dialogBuilder = AlertDialog.Builder(this@PatientResponderActivity)
                             val dialogView =
                                 layoutInflater.inflate(R.layout.item_submit_cancel, null)
                             dialogBuilder.setView(dialogView)
@@ -467,8 +504,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                     } else {
                                         newCaseResponses.add(
                                             TrackedEntityInstanceAttributes(
-                                                attribute = it.code,
-                                                value = it.value
+                                                attribute = it.code, value = it.value
                                             )
                                         )
                                     }
@@ -495,13 +531,11 @@ class PatientResponderActivity : AppCompatActivity() {
                                         ).toString()
                                     )
                                     viewModel.addProgramStage(
-                                        this@PatientResponderActivity,
-                                        payload
+                                        this@PatientResponderActivity, payload
                                     )
                                 } else {
                                     viewModel.updateTrackedAttributes(
-                                        Gson().toJson(newCaseResponses),
-                                        patientUid
+                                        Gson().toJson(newCaseResponses), patientUid
                                     )
                                 }
                                 try {
@@ -538,12 +572,10 @@ class PatientResponderActivity : AppCompatActivity() {
                         } else {
 
                             val similarId = formatter.getSharedPref(
-                                "found_exiting_case",
-                                this@PatientResponderActivity
+                                "found_exiting_case", this@PatientResponderActivity
                             )
 
                             if (similarId == patientUid) {
-                                Log.e("TAG", "Current item ***** $index out of $size")
                                 val dialog: AlertDialog
                                 val dialogBuilder =
                                     AlertDialog.Builder(this@PatientResponderActivity)
@@ -571,8 +603,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                         } else {
                                             newCaseResponses.add(
                                                 TrackedEntityInstanceAttributes(
-                                                    attribute = it.code,
-                                                    value = it.value
+                                                    attribute = it.code, value = it.value
                                                 )
                                             )
                                         }
@@ -599,20 +630,21 @@ class PatientResponderActivity : AppCompatActivity() {
                                             ).toString()
                                         )
                                         viewModel.addProgramStage(
-                                            this@PatientResponderActivity,
-                                            payload
+                                            this@PatientResponderActivity, payload
                                         )
                                     } else {
+                                        liveData.updatePatientDetails(true)
                                         viewModel.updateTrackedAttributes(
-                                            Gson().toJson(newCaseResponses),
-                                            patientUid
+                                            Gson().toJson(newCaseResponses), patientUid
                                         )
                                     }
+
                                     try {
                                         val nextPage = index + 1
                                         if (nextPage == size) {
                                             this@PatientResponderActivity.finish()
                                         } else {
+
 
                                             val currentChildView = lnParent.getChildAt(index)
                                             val childView = lnParent.getChildAt(nextPage)
@@ -669,15 +701,12 @@ class PatientResponderActivity : AppCompatActivity() {
                                             this@PatientResponderActivity
                                         )
                                         viewModel.deleteCurrentSimilarCase(
-                                            this@PatientResponderActivity,
-                                            patientUid
+                                            this@PatientResponderActivity, patientUid
                                         )
                                         Log.e("TAG", "Entity Data Here **** $similarId")
-                                        val singleRecord =
-                                            viewModel.getLatestEnrollment(
-                                                this@PatientResponderActivity,
-                                                similarId
-                                            )
+                                        val singleRecord = viewModel.getLatestEnrollment(
+                                            this@PatientResponderActivity, similarId
+                                        )
                                         if (singleRecord != null) {
                                             Log.e(
                                                 "TAG",
@@ -689,8 +718,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 this@PatientResponderActivity
                                             )
                                             formatter.saveSharedPref(
-                                                "reopen_form", "true",
-                                                this@PatientResponderActivity
+                                                "reopen_form", "true", this@PatientResponderActivity
                                             )
 
 //
@@ -722,6 +750,29 @@ class PatientResponderActivity : AppCompatActivity() {
         }
     }
 
+    private fun allRequiredFieldsComplete(): Boolean {
+        try {
+            searchParameters = getSavedValues()
+
+            val searchParameterCodes = searchParameters.map { it.code }
+            // Check if all required field codes are present in searchParameterCodes
+            val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
+
+            return if (missingFields.isEmpty()) {
+                println("No fields are missing.")
+                true
+            } else {
+                println("Missing fields: $missingFields")
+                false
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
+        }
+
+    }
+
     private fun confirmIfPatientHasAnotherCase(
         newCaseResponses: ArrayList<TrackedEntityInstanceAttributes>,
         patientUid: String,
@@ -734,14 +785,11 @@ class PatientResponderActivity : AppCompatActivity() {
             hasSimilarCase = false
         } else {
             //get all cases for the patient in question
-            val existing =
-                viewModel.loadPatientById(this@PatientResponderActivity, patientUid)
+            val existing = viewModel.loadPatientById(this@PatientResponderActivity, patientUid)
             if (existing != null) {
-                val existingCases =
-                    viewModel.getPatientExistingCases(
-                        this@PatientResponderActivity,
-                        existing.trackedUnique
-                    )
+                val existingCases = viewModel.getPatientExistingCases(
+                    this@PatientResponderActivity, existing.trackedUnique
+                )
                 if (existingCases != null) {
                     if (existingCases.isEmpty()) {
                         hasSimilarCase = false
@@ -754,11 +802,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                 val existingCaseData =
                                     attributes.find { r -> r.attribute == diagnosis }
                                 if (existingCaseData != null) {
-
-                                    Log.e(
-                                        "TAG",
-                                        "Old entry ${existingCaseData.value} Current ${caseData.value} $"
-                                    )
 
                                     if (existingCaseData.value == caseData.value) {
                                         hasSimilarCase = true
@@ -794,6 +837,78 @@ class PatientResponderActivity : AppCompatActivity() {
         return hasSimilarCase
     }
 
+    private fun hasValidatorAndPasses(
+        target: String,
+        itemValue: String,
+        attributeValues: List<AttributeValues>,
+    ): Boolean {
+        var status = false
+        if (attributeValues.isEmpty()) {
+            status = true
+        } else {
+            val attribute = attributeValues.singleOrNull { it.attribute.name == target }
+            if (attribute != null) {
+                val parts = attribute.value.split(':')
+                val part1 = parts[0]
+                val part2 = parts[1]
+                var parentValue = extractCurrentValues(part2.trim())
+                val parentLabel = attributeList.singleOrNull { it.parent == part2.trim() }
+                if (parentLabel != null) {
+                    formatter.saveSharedPref(
+                        "parent_name", parentLabel.parentName, this@PatientResponderActivity
+                    )
+                }
+                if (parentValue.isNotEmpty()) {
+                    val refinedParent = formatter.convertDateFormat(parentValue)
+
+                    if (refinedParent != null) {
+                        parentValue = refinedParent
+                        val result = when (part1) {
+                            "eq" -> itemValue == parentValue
+                            "ne" -> itemValue != parentValue
+                            "gt" -> itemValue > parentValue
+                            "ge" -> itemValue >= parentValue
+                            "lt" -> itemValue < parentValue
+                            "le" -> itemValue <= parentValue
+                            "like" -> itemValue == parentValue
+                            "null" -> false
+                            "notnull" -> true
+                            else -> false
+                        }
+                        status = result
+
+                    } else {
+                        status = false
+                    }
+
+                } else {
+                    status = false
+                }
+
+            } else {
+                status = true
+            }
+        }
+
+        return status
+    }
+
+    private fun extractValidatorAttributeValue(
+        target: String,
+        attributeValues: List<AttributeValues>,
+    ): Boolean {
+        var status = false
+        if (attributeValues.isEmpty()) status = false else {
+            for (hey in attributeValues) {
+                val data: Attribute = hey.attribute
+                if (data.name == target) {
+                    status = true//hey.value == "true"
+                }
+            }
+        }
+        return status
+    }
+
     private fun createFormFieldsAttribute(
         index: Int,
         item: TrackedEntityAttributes,
@@ -804,23 +919,24 @@ class PatientResponderActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
+        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
         val basicHiddenFields = isPartOfBasicInformation(item.id, formatter.excludeHiddenFields())
+        val hasValidator: Boolean =
+            extractValidatorAttributeValue("Validator", item.attributeValues)
 
-        val isReg = formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
-        val newCase = formatter.getSharedPref("new_case", this@PatientResponderActivity)
-
-        Log.e("TAG", "Data Populated $currentValue")
-//        if (isReg != null) {
-//            isDisabled = true
-//        }
-//        if (newCase == null) {
-//            isDisabled = true
-//        }
+        if (isRequired) {
+            requiredFieldsString.add(item.id)
+        }
+        liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+            Log.e("TAG", "Updated Live Data **** Later $it")
+            if (it) {
+                isDisabled = it
+            }
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -844,7 +960,6 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (isHidden) {
                         itemView.visibility = View.GONE
                     } else {
-
                         if (isDisabled) {
                             editText.keyListener = null
                             editText.isCursorVisible = false
@@ -898,6 +1013,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     val autoCompleteTextView =
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
                     tvElement.text = item.id
@@ -935,11 +1052,9 @@ class PatientResponderActivity : AppCompatActivity() {
                             liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                                 val valueObtained = it.find { it.code == item.id }
                                 if (valueObtained != null) {
-                                    val answer =
-                                        getDisplayNameFromCode(
-                                            item.optionSet.options,
-                                            valueObtained.value
-                                        )
+                                    val answer = getDisplayNameFromCode(
+                                        item.optionSet.options, valueObtained.value
+                                    )
                                     autoCompleteTextView.setText(answer, false)
                                 }
                             }
@@ -970,32 +1085,85 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-//
-                                calculateRelevant(lnParent, index, item, value, isProgram)
-                                saveValued(index, item.id, dataValue, isProgram)
-//                                liveData.populateRelevantPatientData(searchParameters)
+                                if (dataValue.isNotEmpty()) {
 
-                                val list = checkIfParentHasChildren(item.id)
-                                for (i in 0 until lnParent.childCount) {
-                                    val child: View = lnParent.getChildAt(i)
-                                    // Check if any inner data of the list matches the child's tag
-                                    val matchFound = list.any { innerData ->
-                                        // Replace the condition below with the appropriate comparison between innerData and child's tag
-                                        innerData.parent == child.tag
-                                    }
-                                    if (matchFound) {
-                                        val validAnswer = checkProvidedAnswer(
-                                            child.tag.toString(), list, dataValue
+                                    if (item.id == DIAGNOSIS) {
+                                        val gender = formatter.getSharedPref(
+                                            "gender",
+                                            this@PatientResponderActivity
                                         )
-                                        if (validAnswer) {
-                                            child.visibility = View.VISIBLE
-                                        } else {
-                                            child.visibility = View.GONE
+
+                                        var rejectedCancerList: List<String> = emptyList()
+
+                                        if (gender != null) {
+                                            rejectedCancerList = if (gender == "Male") {
+                                                formatter.femaleCancers()
+                                            } else {
+                                                formatter.maleCancers()
+                                            }
+                                        }
+
+                                        try {
+                                            val parts = dataValue.split(".")
+                                            val firstPart = parts[0]  // "C"
+                                            val secondPart = parts[1] // "61"
+
+                                            if (rejectedCancerList.contains(firstPart)) {
+                                                val opposite = if (gender == "Male") {
+                                                    "Female"
+                                                } else {
+                                                    "Male"
+                                                }
+                                                textInputLayout.error =
+                                                    "$opposite Diagnosis is not application for $gender patient"
+                                            } else {
+                                                textInputLayout.error = null
+                                                calculateRelevant(
+                                                    lnParent,
+                                                    index,
+                                                    item,
+                                                    value,
+                                                    isProgram
+                                                )
+                                                saveValued(index, item.id, dataValue, isProgram)
+
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
                                         }
                                     } else {
-                                        // If no match is found, leave the visibility unchanged
-                                        if (child.visibility != View.VISIBLE) {
-                                            child.visibility = View.GONE
+
+                                        calculateRelevant(lnParent, index, item, value, isProgram)
+                                        saveValued(index, item.id, dataValue, isProgram)
+
+                                    }
+
+                                    val list = checkIfParentHasChildren(item.id)
+                                    for (i in 0 until lnParent.childCount) {
+                                        val child: View = lnParent.getChildAt(i)
+                                        // Check if any inner data of the list matches the child's tag
+                                        val matchFound = list.any { innerData ->
+                                            // Replace the condition below with the appropriate comparison between innerData and child's tag
+                                            innerData.parent == child.tag
+                                        }
+                                        if (matchFound) {
+                                            val validAnswer = checkProvidedAnswer(
+                                                child.tag.toString(), list, dataValue
+                                            )
+                                            if (validAnswer) {
+//                                            if (isRequired) {
+//                                                requiredFieldsString.add(child.tag.toString())
+//                                            }
+                                                child.visibility = View.VISIBLE
+                                            } else {
+                                                child.visibility = View.GONE
+                                                requiredFieldsString.remove(child.tag.toString())
+                                            }
+                                        } else {
+                                            // If no match is found, leave the visibility unchanged
+                                            if (child.visibility != View.VISIBLE) {
+                                                child.visibility = View.GONE
+                                            }
                                         }
                                     }
                                 }
@@ -1011,7 +1179,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
             "DATE" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_edittext_date, lnParent, false
+                    R.layout.item_edittext_date, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
@@ -1024,10 +1192,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 editText.isCursorVisible = false
                 editText.isFocusable = false
                 if (currentValue.isNotEmpty()) {
-                    val value = formatter.convertDateFormat(currentValue)
-                    if (value != null) {
-                        editText.setText(value)
-                    } else {
+                    val refinedDate = formatter.convertDateFormat(currentValue)
+                    if (refinedDate != null) {
                         editText.setText(currentValue)
                     }
                 }
@@ -1054,7 +1220,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     val datePickerDialog = DatePickerDialog(
                         this,
                         { datePicker: DatePicker?, year: Int, month: Int, day: Int ->
-                            val valueCurrent: String = formatter.getDate(year, month, day)
+                            val valueCurrent: String = getDate(year, month, day)
                             editText.setText(valueCurrent)
                         },
                         calendar.get(Calendar.YEAR),
@@ -1081,7 +1247,27 @@ class PatientResponderActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
-                            saveValued(index, item.id, value, isProgram)
+                            //check if it is date of birth, calculate relevant
+                            if (hasValidator) {
+                                val passes = hasValidatorAndPasses(
+                                    "Validator", value, item.attributeValues
+                                )
+
+                                val parentName = formatter.getSharedPref(
+                                    "parent_name", this@PatientResponderActivity
+                                )
+                                if (passes) {
+                                    textInputLayout.error = null
+                                    calculateRelevant(lnParent, index, item, value, isProgram)
+                                    saveValued(index, item.id, value, isProgram)
+                                } else {
+                                    textInputLayout.error =
+                                        "${item.name} cannot come before $parentName"
+                                }
+                            } else {
+                                calculateRelevant(lnParent, index, item, value, isProgram)
+                                saveValued(index, item.id, value, isProgram)
+                            }
                         }
                     }
                 })
@@ -1296,15 +1482,15 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
 
+            // patient Data
+
             "BOOLEAN" -> {
                 val itemView = inflater.inflate(
-                    R.layout.item_boolean_field, lnParent, false
+                    R.layout.item_boolean_field, findViewById(R.id.lnParent), false
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                 val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
-                val radioButtonYes = itemView.findViewById<RadioButton>(R.id.radioButtonYes)
-                val radioButtonNo = itemView.findViewById<RadioButton>(R.id.radioButtonNo)
                 val name = if (isRequired) generateRequiredField(item.name) else item.name
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
@@ -1312,9 +1498,6 @@ class PatientResponderActivity : AppCompatActivity() {
                 lnParent.addView(itemView)
                 var isProgrammaticChange = false
                 radioGroup.setOnCheckedChangeListener(null)
-//                radioGroup.isEnabled = isDisabled
-//                radioButtonYes.isEnabled = isDisabled
-//                radioButtonNo.isEnabled = isDisabled
                 when (currentValue) {
                     "true" -> {
                         radioGroup.check(R.id.radioButtonYes);
@@ -1339,8 +1522,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         if (dataValue != null) {
                             isProgrammaticChange = true
                             saveValued(index, item.id, dataValue, isProgram)
-                            isProgrammaticChange = false
                             val list = checkIfParentHasChildren(item.id)
+                            Log.e("TAG", "Selected Radio Button $dataValue List of Children $list")
                             for (i in 0 until lnParent.childCount) {
                                 val child: View = lnParent.getChildAt(i)
                                 // Check if any inner data of the list matches the child's tag
@@ -1349,12 +1532,17 @@ class PatientResponderActivity : AppCompatActivity() {
                                     innerData.parent == child.tag
                                 }
                                 if (matchFound) {
-                                    val validAnswer =
-                                        checkProvidedAnswer(child.tag.toString(), list, dataValue)
+                                    val validAnswer = checkProvidedAnswer(
+                                        child.tag.toString(), list, dataValue
+                                    )
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
+                                        if (isRequired) {
+                                            requiredFieldsString.add(child.tag.toString())
+                                        }
                                     } else {
                                         child.visibility = View.GONE
+                                        requiredFieldsString.remove(child.tag.toString())
                                     }
                                 } else {
                                     // If no match is found, leave the visibility unchanged
@@ -1363,9 +1551,11 @@ class PatientResponderActivity : AppCompatActivity() {
                                     }
                                 }
                             }
+                            isProgrammaticChange = false
                         }
                     }
                 }
+
 
                 if (isHidden) {
                     itemView.visibility = View.GONE
@@ -1383,20 +1573,24 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
 
                 }
-
-                if (basicHiddenFields) {
-                    itemView.visibility = View.GONE
-                }
             }
 
         }
+    }
+
+    private fun getDate(year: Int, month: Int, day: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar[year, month] = day
+        val date: Date = calendar.time
+        return FormatterClass().formatCurrentDate(date)
     }
 
     private fun calculateRelevant(
         lnParent: LinearLayout,
         index: Int,
         item: TrackedEntityAttributes,
-        value: String, isProgram: Boolean
+        value: String,
+        isProgram: Boolean
     ) {
 
         when (item.id) {
@@ -1649,10 +1843,10 @@ class PatientResponderActivity : AppCompatActivity() {
                     } else {
 
                         if (isDisabled) {
-                            editText.keyListener = null;
-                            editText.isCursorVisible = false;
-                            editText.isFocusable = false;
-                            editText.isEnabled = false;
+                            editText.keyListener = null
+                            editText.isCursorVisible = false
+                            editText.isFocusable = false
+                            editText.isEnabled = false
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2209,6 +2403,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     val part3Lower = parts[2].lowercase()
                     val result = when (part2) {
                         "eq" -> lowercaseAnswer == part3Lower
+                        "in" -> lowercaseAnswer == part3Lower
                         "ne" -> lowercaseAnswer != part3Lower
                         "notin" -> lowercaseAnswer != part3Lower
                         "gt" -> lowercaseAnswer > part3Lower

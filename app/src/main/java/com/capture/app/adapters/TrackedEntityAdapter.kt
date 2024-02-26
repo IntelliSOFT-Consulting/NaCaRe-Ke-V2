@@ -39,9 +39,6 @@ class TrackedEntityAdapter(
         holder.lastnameTextView.text = data.lName
         holder.actionTextView.text = data.diagnosis
 
-//        holder.dateTextView.setBackgroundResource(R.drawable.top_left_border_layoured)
-
-
         val name = "${data.fName} ${data.lName}"
 
         holder.tv_place_of_notification.text = org
@@ -105,7 +102,7 @@ class TrackedEntityAdapter(
 
     private fun extractValueFromDataValues(patient: String, uid: String): String {
         var data = ""
-        val viewModel = MainViewModel(context.applicationContext as Application)
+       try{ val viewModel = MainViewModel(context.applicationContext as Application)
         val single = viewModel.getLatestEnrollment(context, patient)
         if (single != null) {
             val dtValues = Converters().fromJsonDataAttribute(single.dataValues)
@@ -114,6 +111,8 @@ class TrackedEntityAdapter(
                 data = found.value
             }
 
+        }}catch (e:Exception){
+            e.printStackTrace()
         }
         return data
     }
