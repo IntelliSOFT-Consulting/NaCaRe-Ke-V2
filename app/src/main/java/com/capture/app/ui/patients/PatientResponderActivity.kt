@@ -1083,6 +1083,10 @@ class PatientResponderActivity : AppCompatActivity() {
                     tvName.text = Html.fromHtml(name)
                     tvElement.text = item.id
                     itemView.tag = item.id
+                    val onlyLetters = formatter.onlyAcceptLetters(item.id)
+                    if (onlyLetters) {
+                        formatter.setLettersOnly(editText)
+                    }
                     lnParent.addView(itemView)
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)

@@ -162,12 +162,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     }
 
-    private fun confirmIfPatientHasAnotherCase(diagnosis: String): Boolean {
-        var hasSimilar = false
-
-        return hasSimilar
-    }
-
     private fun generatePatientUniqueId() {
         var firstname: String = extractCurrentValues("R1vaUuILrDy")
         var lastname: String = extractCurrentValues("hzVijy6tEUF")
@@ -525,6 +519,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     tvElement.text = item.id
                     itemView.tag = item.id
                     lnParent.addView(itemView)
+                    val onlyLetters = formatter.onlyAcceptLetters(item.id)
+                    if (onlyLetters) {
+                        formatter.setLettersOnly(editText)
+                    }
 
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)

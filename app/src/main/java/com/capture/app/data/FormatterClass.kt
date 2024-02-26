@@ -7,6 +7,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.ParseException
 import android.os.Build
+import android.text.InputFilter
+import android.text.Spanned
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -262,6 +265,17 @@ class FormatterClass {
             .show()
     }
 
+    fun onlyAcceptLetters(id: String): Boolean {
+        val itemsList = listOf(
+            "R1vaUuILrDy",
+            "hn8hJsBAKrh",
+            "hzVijy6tEUF",
+
+            ) // Add your items here
+        // Check if the passed parameter is found in the list
+        return itemsList.contains(id)
+    }
+
     fun retrieveAllowedToTypeItem(id: String): Boolean {
         val itemsList = listOf(
             "BzhDnF5fG4x",
@@ -272,5 +286,32 @@ class FormatterClass {
         ) // Add your items here
         // Check if the passed parameter is found in the list
         return itemsList.contains(id)
+    }
+
+
+    fun setLettersOnly(editText: EditText) {
+        val filter = object : InputFilter {
+            override fun filter(
+                source: CharSequence?,
+                start: Int,
+                end: Int,
+                dest: Spanned?,
+                dstart: Int,
+                dend: Int
+            ): CharSequence? {
+                // Iterate over the characters being added
+                for (i in start until end) {
+                    // Check if the character is not a letter
+                    if (!Character.isLetter(source?.get(i) ?: ' ')) {
+                        // Return an empty string to reject the character
+                        return ""
+                    }
+                }
+                // Accept the character(s)
+                return null
+            }
+        }
+        // Set the filter to the EditText
+        editText.filters = arrayOf(filter)
     }
 }
