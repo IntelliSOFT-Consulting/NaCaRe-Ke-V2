@@ -132,6 +132,7 @@ class PatientListFragment : Fragment() {
                             it.attributes
                         ),
                         gender = extractValueFromAttributes("xED9XkpCeUe", it.attributes),
+                        isDead = it.isDead
                     )
                     dataList.add(single)
 
@@ -171,6 +172,7 @@ class PatientListFragment : Fragment() {
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
         formatter.saveSharedPref("gender", data.gender, requireContext())
+        formatter.saveSharedPref("isDead", "${data.isDead}", requireContext())
         val builder = AlertDialog.Builder(requireContext())
         val inflater = LayoutInflater.from(requireContext())
         val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
@@ -197,32 +199,39 @@ class PatientListFragment : Fragment() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
-                // add new event
-                val attributes = Converters().fromJsonAttribute(data.attributes)
-                val trackedEntityInstance = formatter.generateUUID(11)
-                formatter.saveSharedPref("new_case", "true", context).toString()
-                val orgCode = formatter.getSharedPref("orgCode", context).toString()
+                if (data.isDead) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Can't add a cancer case to dead patient",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // add new event
+                    val attributes = Converters().fromJsonAttribute(data.attributes)
+                    val trackedEntityInstance = formatter.generateUUID(11)
+                    formatter.saveSharedPref("new_case", "true", context).toString()
+                    val orgCode = formatter.getSharedPref("orgCode", context).toString()
 
-                val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
-                val entityData = TrackedEntityInstance(
-                    trackedEntity = trackedEntityInstance,
-                    enrollment = trackedEntityInstance,
-                    enrollDate = formatter.formatCurrentDate(Date()),
-                    orgUnit = orgCode,
-                    attributes = refinedAttributes
-                )
-                viewModel.saveTrackedEntity(
-                    context,
-                    entityData,
-                    orgCode, data.patientIdentification
-                )
-
-                startActivity(
-                    Intent(
-                        context, PatientResponderActivity::class.java
+                    val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
+                    val entityData = TrackedEntityInstance(
+                        trackedEntity = trackedEntityInstance,
+                        enrollment = trackedEntityInstance,
+                        enrollDate = formatter.formatCurrentDate(Date()),
+                        orgUnit = orgCode,
+                        attributes = refinedAttributes
                     )
-                )
+                    viewModel.saveTrackedEntity(
+                        context,
+                        entityData,
+                        orgCode, data.patientIdentification
+                    )
 
+                    startActivity(
+                        Intent(
+                            context, PatientResponderActivity::class.java
+                        )
+                    )
+                }
             }
         }
         yesButton.apply {

@@ -146,6 +146,11 @@ class PatientResponderActivity : AppCompatActivity() {
                     "${data.isSubmitted}",
                     this@PatientResponderActivity
                 )
+                formatter.saveSharedPref(
+                    "isDead",
+                    "${data.isDead}",
+                    this@PatientResponderActivity
+                )
                 val attributes = Converters().fromJsonAttribute(data.attributes)
                 attributes.forEachIndexed { index, attribute ->
                     if (attribute.attribute == DATE_OF_BIRTH) {
@@ -419,7 +424,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         linearLayout,
                         extractCurrentValues(element.id),
                         false,
-                        isSubmitted.toString()
+                        isSubmitted.toString(),
+                        formatter.getSharedPref("isDead", this@PatientResponderActivity).toString()
                     )
                 }
             }
@@ -432,6 +438,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     launch(Dispatchers.Main) {
                         smallTextView.text = "0/${dataElements.count()}"
                         linearLayout.removeAllViews()
+                        val formatter = FormatterClass()
                         for (element in dataElements) {
 
                             attributeList.add(
@@ -444,7 +451,9 @@ class PatientResponderActivity : AppCompatActivity() {
                                 element,
                                 linearLayout,
                                 extractCurrentValues(element.id),
-                                true
+                                true,
+                                formatter.getSharedPref("isDead", this@PatientResponderActivity)
+                                    .toString()
                             )
                         }
                     }
@@ -455,34 +464,294 @@ class PatientResponderActivity : AppCompatActivity() {
                     val patientUid = formatter.getSharedPref(
                         "current_patient_id", this@PatientResponderActivity
                     )
-                    searchParameters = getSavedValues()
-                    //check if program, ensure all fields are entered
-                    if (!data.isProgram) {
-                        if (!allRequiredFieldsComplete()) {
-                            Toast.makeText(
-                                this@PatientResponderActivity,
-                                "Please enter all required fields",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
-                        }
+                    val isDead =
+                        formatter.getSharedPref("isDead", this@PatientResponderActivity).toString()
+                    if (isDead == "true") {
+                        try {
+                            val nextPage = index + 1
+                            if (nextPage == size) {
+                                this@PatientResponderActivity.finish()
+                            } else {
 
-                        if (patientUid != null) {
-                            newCaseResponses.clear()
-                            searchParameters.forEach {
-                                if (!it.isProgram) {
-                                    newCaseResponses.add(
-                                        TrackedEntityInstanceAttributes(
-                                            attribute = it.code, value = it.value
+                                val currentChildView = lnParent.getChildAt(index)
+                                val childView = lnParent.getChildAt(nextPage)
+                                val currentLnWithButtons =
+                                    currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                val currentRotationImageView: ImageView =
+                                    currentChildView.findViewById(R.id.rotationImageView)
+                                val lnWithButtons =
+                                    childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                val nextRotationImageView: ImageView =
+                                    childView.findViewById(R.id.rotationImageView)
+                                currentLnWithButtons.visibility = View.GONE
+                                lnWithButtons.visibility = View.VISIBLE
+
+                                currentRotationImageView.rotation = 180f
+
+                                nextRotationImageView.rotation = 0f
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Log.e("TAG", "Navigation Error ${e.message}")
+                        }
+                    } else {
+                        searchParameters = getSavedValues()
+                        //check if program, ensure all fields are entered
+                        if (!data.isProgram) {
+                            if (!allRequiredFieldsComplete()) {
+                                Toast.makeText(
+                                    this@PatientResponderActivity,
+                                    "Please enter all required fields",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@setOnClickListener
+                            }
+
+                            if (patientUid != null) {
+                                newCaseResponses.clear()
+                                searchParameters.forEach {
+                                    if (!it.isProgram) {
+                                        newCaseResponses.add(
+                                            TrackedEntityInstanceAttributes(
+                                                attribute = it.code, value = it.value
+                                            )
                                         )
+                                    }
+                                }
+                                val isSimilarCase = confirmIfPatientHasAnotherCase(
+                                    newCaseResponses, patientUid, DIAGNOSIS
+                                )
+
+                                if (!isSimilarCase) {
+                                    val dialog: AlertDialog
+                                    val dialogBuilder =
+                                        AlertDialog.Builder(this@PatientResponderActivity)
+                                    val dialogView =
+                                        layoutInflater.inflate(R.layout.item_submit_cancel, null)
+                                    dialogBuilder.setView(dialogView)
+
+                                    val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
+                                    val tvMessage: TextView =
+                                        dialogView.findViewById(R.id.tv_message)
+                                    val nextButton: MaterialButton =
+                                        dialogView.findViewById(R.id.yes_button)
+                                    dialog = dialogBuilder.create()
+                                    tvTitle.text = context.getString(R.string.search_results)
+                                    tvMessage.text = context.getString(R.string.save_and_continue)
+                                    nextButton.setOnClickListener {
+                                        dialog.dismiss()
+                                        attributeValueList.clear()
+                                        newCaseResponses.clear()
+                                        searchParameters.forEach {
+                                            if (it.isProgram) {
+                                                val attr = DataValue(
+                                                    dataElement = it.code, value = it.value
+                                                )
+                                                attributeValueList.add(attr)
+                                            } else {
+                                                newCaseResponses.add(
+                                                    TrackedEntityInstanceAttributes(
+                                                        attribute = it.code, value = it.value
+                                                    )
+                                                )
+                                            }
+                                        }
+
+                                        viewModel.updateTrackedAttributes(
+                                            Gson().toJson(newCaseResponses), patientUid
+                                        )
+
+                                        try {
+                                            val nextPage = index + 1
+                                            if (nextPage == size) {
+                                                this@PatientResponderActivity.finish()
+                                            } else {
+
+                                                // get the items at this index
+
+                                                val currentChildView = lnParent.getChildAt(index)
+                                                val childView = lnParent.getChildAt(nextPage)
+                                                val currentLnWithButtons =
+                                                    currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                                val currentRotationImageView: ImageView =
+                                                    currentChildView.findViewById(R.id.rotationImageView)
+                                                val lnWithButtons =
+                                                    childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                                val nextRotationImageView: ImageView =
+                                                    childView.findViewById(R.id.rotationImageView)
+                                                currentLnWithButtons.visibility = View.GONE
+                                                lnWithButtons.visibility = View.VISIBLE
+
+                                                currentRotationImageView.rotation = 180f
+
+                                                nextRotationImageView.rotation = 0f
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                            Log.e("TAG", "Navigation Error ${e.message}")
+                                        }
+
+                                    }
+                                    dialog.show()
+
+                                } else {
+
+                                    val similarId = formatter.getSharedPref(
+                                        "found_exiting_case", this@PatientResponderActivity
                                     )
+
+                                    if (similarId == patientUid) {
+                                        val dialog: AlertDialog
+                                        val dialogBuilder =
+                                            AlertDialog.Builder(this@PatientResponderActivity)
+                                        val dialogView =
+                                            layoutInflater.inflate(
+                                                R.layout.item_submit_cancel,
+                                                null
+                                            )
+                                        dialogBuilder.setView(dialogView)
+
+                                        val tvTitle: TextView =
+                                            dialogView.findViewById(R.id.tv_title)
+                                        val tvMessage: TextView =
+                                            dialogView.findViewById(R.id.tv_message)
+                                        val nextButton: MaterialButton =
+                                            dialogView.findViewById(R.id.yes_button)
+                                        dialog = dialogBuilder.create()
+                                        tvTitle.text = context.getString(R.string.search_results)
+                                        tvMessage.text =
+                                            context.getString(R.string.save_and_continue)
+                                        nextButton.setOnClickListener {
+                                            dialog.dismiss()
+                                            attributeValueList.clear()
+                                            newCaseResponses.clear()
+                                            searchParameters.forEach {
+                                                if (!it.isProgram) {
+                                                    newCaseResponses.add(
+                                                        TrackedEntityInstanceAttributes(
+                                                            attribute = it.code, value = it.value
+                                                        )
+                                                    )
+                                                }
+
+                                            }
+
+                                            liveData.updatePatientDetails(true)
+                                            viewModel.updateTrackedAttributes(
+                                                Gson().toJson(newCaseResponses), patientUid
+                                            )
+
+
+                                            try {
+                                                val nextPage = index + 1
+                                                if (nextPage == size) {
+                                                    this@PatientResponderActivity.finish()
+                                                } else {
+
+                                                    val currentChildView =
+                                                        lnParent.getChildAt(index)
+                                                    val childView = lnParent.getChildAt(nextPage)
+
+                                                    val currentLnWithButtons =
+                                                        currentChildView.findViewById<LinearLayout>(
+                                                            R.id.ln_with_buttons
+                                                        )
+                                                    val currentRotationImageView: ImageView =
+                                                        currentChildView.findViewById(R.id.rotationImageView)
+                                                    val lnWithButtons =
+                                                        childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                                    val nextRotationImageView: ImageView =
+                                                        childView.findViewById(R.id.rotationImageView)
+                                                    currentLnWithButtons.visibility = View.GONE
+                                                    lnWithButtons.visibility = View.VISIBLE
+
+                                                    currentRotationImageView.rotation = 180f
+
+                                                    nextRotationImageView.rotation = 0f
+
+                                                }
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                                Log.e("TAG", "Navigation Error ${e.message}")
+                                            }
+
+                                        }
+                                        dialog.show()
+                                    } else {
+                                        val dialog: AlertDialog
+                                        val dialogBuilder =
+                                            AlertDialog.Builder(this@PatientResponderActivity)
+                                        val dialogView =
+                                            layoutInflater.inflate(
+                                                R.layout.item_submit_cancel,
+                                                null
+                                            )
+                                        dialogBuilder.setView(dialogView)
+
+                                        val tvTitle: TextView =
+                                            dialogView.findViewById(R.id.tv_title)
+                                        val tvMessage: TextView =
+                                            dialogView.findViewById(R.id.tv_message)
+                                        val cancelButton: MaterialButton =
+                                            dialogView.findViewById(R.id.no_button)
+                                        val nextButton: MaterialButton =
+                                            dialogView.findViewById(R.id.yes_button)
+                                        dialog = dialogBuilder.create()
+                                        tvTitle.text = context.getString(R.string.existing_case)
+                                        tvMessage.text =
+                                            context.getString(R.string.existing_case_description)
+                                        tvMessage.text =
+                                            context.getString(R.string.existing_case_description)
+                                        nextButton.text =
+                                            context.getString(R.string.view_existing_case)
+                                        nextButton.setOnClickListener {
+                                            dialog.dismiss()
+
+                                            if (similarId != null) {
+                                                formatter.saveSharedPref(
+                                                    "current_patient_id",
+                                                    similarId,
+                                                    this@PatientResponderActivity
+                                                )
+                                                viewModel.deleteCurrentSimilarCase(
+                                                    this@PatientResponderActivity, patientUid
+                                                )
+                                                Log.e("TAG", "Entity Data Here **** $similarId")
+                                                val singleRecord = viewModel.getLatestEnrollment(
+                                                    this@PatientResponderActivity, similarId
+                                                )
+                                                if (singleRecord != null) {
+                                                    Log.e(
+                                                        "TAG",
+                                                        "Retrieved Event *** ${singleRecord.eventUid} Patient ${singleRecord.id}"
+                                                    )
+                                                    formatter.saveSharedPref(
+                                                        "eventUid",
+                                                        singleRecord.eventUid,
+                                                        this@PatientResponderActivity
+                                                    )
+                                                    formatter.saveSharedPref(
+                                                        "reopen_form",
+                                                        "true",
+                                                        this@PatientResponderActivity
+                                                    )
+                                                    finish()
+                                                }
+                                            }
+
+                                        }
+                                        cancelButton.text =
+                                            context.getString(R.string.change_diagnosis)
+                                        cancelButton.setOnClickListener {
+                                            dialog.dismiss()
+                                        }
+                                        dialog.show()
+                                    }
                                 }
                             }
-                            val isSimilarCase = confirmIfPatientHasAnotherCase(
-                                newCaseResponses, patientUid, DIAGNOSIS
-                            )
 
-                            if (!isSimilarCase) {
+                        } else {
+                            if (patientUid != null) {
                                 val dialog: AlertDialog
                                 val dialogBuilder =
                                     AlertDialog.Builder(this@PatientResponderActivity)
@@ -500,27 +769,60 @@ class PatientResponderActivity : AppCompatActivity() {
                                 nextButton.setOnClickListener {
                                     dialog.dismiss()
                                     attributeValueList.clear()
-                                    newCaseResponses.clear()
                                     searchParameters.forEach {
                                         if (it.isProgram) {
                                             val attr = DataValue(
                                                 dataElement = it.code, value = it.value
                                             )
                                             attributeValueList.add(attr)
-                                        } else {
-                                            newCaseResponses.add(
-                                                TrackedEntityInstanceAttributes(
-                                                    attribute = it.code, value = it.value
-                                                )
-                                            )
                                         }
                                     }
 
-                                    viewModel.updateTrackedAttributes(
-                                        Gson().toJson(newCaseResponses), patientUid
+
+                                    Log.e(
+                                        "TAG",
+                                        "Save attributes here **** search $searchParameters then final $attributeValueList"
+                                    )
+
+                                    val payload = EnrollmentEventData(
+                                        dataValues = Gson().toJson(attributeValueList),
+                                        uid = formatter.generateUUID(11),
+                                        eventUid = formatter.getSharedPref(
+                                            "eventUid", this@PatientResponderActivity
+                                        ).toString(),
+                                        program = data.programUid,
+                                        programStage = data.programStageUid,
+                                        orgUnit = formatter.getSharedPref(
+                                            "orgCode", this@PatientResponderActivity
+                                        ).toString(),
+                                        eventDate = formatter.formatCurrentDate(Date()),
+                                        status = "ACTIVE",
+                                        trackedEntity = formatter.getSharedPref(
+                                            "current_patient_id", this@PatientResponderActivity
+                                        ).toString()
+                                    )
+                                    viewModel.addProgramStage(
+                                        this@PatientResponderActivity, payload
                                     )
 
                                     try {
+
+                                        // check if there is mention of Dead
+                                        val deadMentioned =
+                                            attributeValueList.find { it.dataElement == STATUS || it.dataElement == TWO_YEARS || it.dataElement == FIVE_YEARS }
+                                        if (deadMentioned != null) {
+                                            val valueFound = deadMentioned.value
+                                            Log.e("TAG", "Data Found ****** $valueFound")
+
+                                            if (valueFound == "Dead") {
+                                                updateRelatedPatientData(
+                                                    formatter.getSharedPref(
+                                                        "current_patient_id",
+                                                        this@PatientResponderActivity
+                                                    ).toString()
+                                                )
+                                            }
+                                        }
                                         val nextPage = index + 1
                                         if (nextPage == size) {
                                             this@PatientResponderActivity.finish()
@@ -552,259 +854,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
                                 }
                                 dialog.show()
-
                             } else {
-
-                                val similarId = formatter.getSharedPref(
-                                    "found_exiting_case", this@PatientResponderActivity
-                                )
-
-                                if (similarId == patientUid) {
-                                    val dialog: AlertDialog
-                                    val dialogBuilder =
-                                        AlertDialog.Builder(this@PatientResponderActivity)
-                                    val dialogView =
-                                        layoutInflater.inflate(R.layout.item_submit_cancel, null)
-                                    dialogBuilder.setView(dialogView)
-
-                                    val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
-                                    val tvMessage: TextView =
-                                        dialogView.findViewById(R.id.tv_message)
-                                    val nextButton: MaterialButton =
-                                        dialogView.findViewById(R.id.yes_button)
-                                    dialog = dialogBuilder.create()
-                                    tvTitle.text = context.getString(R.string.search_results)
-                                    tvMessage.text = context.getString(R.string.save_and_continue)
-                                    nextButton.setOnClickListener {
-                                        dialog.dismiss()
-                                        attributeValueList.clear()
-                                        newCaseResponses.clear()
-                                        searchParameters.forEach {
-                                            if (!it.isProgram) {
-                                                newCaseResponses.add(
-                                                    TrackedEntityInstanceAttributes(
-                                                        attribute = it.code, value = it.value
-                                                    )
-                                                )
-                                            }
-
-                                        }
-
-                                        liveData.updatePatientDetails(true)
-                                        viewModel.updateTrackedAttributes(
-                                            Gson().toJson(newCaseResponses), patientUid
-                                        )
-
-
-                                        try {
-                                            val nextPage = index + 1
-                                            if (nextPage == size) {
-                                                this@PatientResponderActivity.finish()
-                                            } else {
-
-                                                val currentChildView = lnParent.getChildAt(index)
-                                                val childView = lnParent.getChildAt(nextPage)
-
-                                                val currentLnWithButtons =
-                                                    currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                                val currentRotationImageView: ImageView =
-                                                    currentChildView.findViewById(R.id.rotationImageView)
-                                                val lnWithButtons =
-                                                    childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                                val nextRotationImageView: ImageView =
-                                                    childView.findViewById(R.id.rotationImageView)
-                                                currentLnWithButtons.visibility = View.GONE
-                                                lnWithButtons.visibility = View.VISIBLE
-
-                                                currentRotationImageView.rotation = 180f
-
-                                                nextRotationImageView.rotation = 0f
-
-                                            }
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
-                                            Log.e("TAG", "Navigation Error ${e.message}")
-                                        }
-
-                                    }
-                                    dialog.show()
-                                } else {
-                                    val dialog: AlertDialog
-                                    val dialogBuilder =
-                                        AlertDialog.Builder(this@PatientResponderActivity)
-                                    val dialogView =
-                                        layoutInflater.inflate(R.layout.item_submit_cancel, null)
-                                    dialogBuilder.setView(dialogView)
-
-                                    val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
-                                    val tvMessage: TextView =
-                                        dialogView.findViewById(R.id.tv_message)
-                                    val cancelButton: MaterialButton =
-                                        dialogView.findViewById(R.id.no_button)
-                                    val nextButton: MaterialButton =
-                                        dialogView.findViewById(R.id.yes_button)
-                                    dialog = dialogBuilder.create()
-                                    tvTitle.text = context.getString(R.string.existing_case)
-                                    tvMessage.text =
-                                        context.getString(R.string.existing_case_description)
-                                    tvMessage.text =
-                                        context.getString(R.string.existing_case_description)
-                                    nextButton.text = context.getString(R.string.view_existing_case)
-                                    nextButton.setOnClickListener {
-                                        dialog.dismiss()
-
-                                        if (similarId != null) {
-                                            formatter.saveSharedPref(
-                                                "current_patient_id",
-                                                similarId,
-                                                this@PatientResponderActivity
-                                            )
-                                            viewModel.deleteCurrentSimilarCase(
-                                                this@PatientResponderActivity, patientUid
-                                            )
-                                            Log.e("TAG", "Entity Data Here **** $similarId")
-                                            val singleRecord = viewModel.getLatestEnrollment(
-                                                this@PatientResponderActivity, similarId
-                                            )
-                                            if (singleRecord != null) {
-                                                Log.e(
-                                                    "TAG",
-                                                    "Retrieved Event *** ${singleRecord.eventUid} Patient ${singleRecord.id}"
-                                                )
-                                                formatter.saveSharedPref(
-                                                    "eventUid",
-                                                    singleRecord.eventUid,
-                                                    this@PatientResponderActivity
-                                                )
-                                                formatter.saveSharedPref(
-                                                    "reopen_form",
-                                                    "true",
-                                                    this@PatientResponderActivity
-                                                )
-                                                finish()
-                                            }
-                                        }
-
-                                    }
-                                    cancelButton.text = context.getString(R.string.change_diagnosis)
-                                    cancelButton.setOnClickListener {
-                                        dialog.dismiss()
-                                    }
-                                    dialog.show()
-                                }
+                                Toast.makeText(
+                                    this@PatientResponderActivity,
+                                    "Loading data....",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                        }
-
-                    } else {
-                        if (patientUid != null) {
-                            val dialog: AlertDialog
-                            val dialogBuilder =
-                                AlertDialog.Builder(this@PatientResponderActivity)
-                            val dialogView =
-                                layoutInflater.inflate(R.layout.item_submit_cancel, null)
-                            dialogBuilder.setView(dialogView)
-
-                            val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
-                            val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
-                            val nextButton: MaterialButton =
-                                dialogView.findViewById(R.id.yes_button)
-                            dialog = dialogBuilder.create()
-                            tvTitle.text = context.getString(R.string.search_results)
-                            tvMessage.text = context.getString(R.string.save_and_continue)
-                            nextButton.setOnClickListener {
-                                dialog.dismiss()
-                                attributeValueList.clear()
-                                searchParameters.forEach {
-                                    if (it.isProgram) {
-                                        val attr = DataValue(
-                                            dataElement = it.code, value = it.value
-                                        )
-                                        attributeValueList.add(attr)
-                                    }
-                                }
-
-
-                                Log.e(
-                                    "TAG",
-                                    "Save attributes here **** search $searchParameters then final $attributeValueList"
-                                )
-
-                                val payload = EnrollmentEventData(
-                                    dataValues = Gson().toJson(attributeValueList),
-                                    uid = formatter.generateUUID(11),
-                                    eventUid = formatter.getSharedPref(
-                                        "eventUid", this@PatientResponderActivity
-                                    ).toString(),
-                                    program = data.programUid,
-                                    programStage = data.programStageUid,
-                                    orgUnit = formatter.getSharedPref(
-                                        "orgCode", this@PatientResponderActivity
-                                    ).toString(),
-                                    eventDate = formatter.formatCurrentDate(Date()),
-                                    status = "ACTIVE",
-                                    trackedEntity = formatter.getSharedPref(
-                                        "current_patient_id", this@PatientResponderActivity
-                                    ).toString()
-                                )
-                                viewModel.addProgramStage(
-                                    this@PatientResponderActivity, payload
-                                )
-
-                                try {
-
-                                    // check if there is mention of Dead
-                                    val deadMentioned =
-                                        attributeValueList.find { it.dataElement == STATUS || it.dataElement == TWO_YEARS || it.dataElement == FIVE_YEARS }
-                                    if (deadMentioned != null) {
-                                        val valueFound = deadMentioned.value
-                                        Log.e("TAG", "Data Found ****** $valueFound")
-
-                                        if (valueFound == "Dead") {
-                                            updateRelatedPatientData(
-                                                formatter.getSharedPref(
-                                                    "current_patient_id",
-                                                    this@PatientResponderActivity
-                                                ).toString()
-                                            )
-                                        }
-                                    }
-                                    val nextPage = index + 1
-                                    if (nextPage == size) {
-                                        this@PatientResponderActivity.finish()
-                                    } else {
-
-                                        // get the items at this index
-
-                                        val currentChildView = lnParent.getChildAt(index)
-                                        val childView = lnParent.getChildAt(nextPage)
-                                        val currentLnWithButtons =
-                                            currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                        val currentRotationImageView: ImageView =
-                                            currentChildView.findViewById(R.id.rotationImageView)
-                                        val lnWithButtons =
-                                            childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                        val nextRotationImageView: ImageView =
-                                            childView.findViewById(R.id.rotationImageView)
-                                        currentLnWithButtons.visibility = View.GONE
-                                        lnWithButtons.visibility = View.VISIBLE
-
-                                        currentRotationImageView.rotation = 180f
-
-                                        nextRotationImageView.rotation = 0f
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Log.e("TAG", "Navigation Error ${e.message}")
-                                }
-
-                            }
-                            dialog.show()
-                        } else {
-                            Toast.makeText(
-                                this@PatientResponderActivity,
-                                "Loading data....",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     }
                 }
@@ -985,7 +1041,7 @@ class PatientResponderActivity : AppCompatActivity() {
         item: TrackedEntityAttributes,
         lnParent: LinearLayout,
         currentValue: String,
-        isProgram: Boolean, isSubmitted: String
+        isProgram: Boolean, isSubmitted: String, isDead: String
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
@@ -1006,6 +1062,9 @@ class PatientResponderActivity : AppCompatActivity() {
             if (isSubmitted == "true") {
                 isDisabled = true
             }
+        }
+        if (isDead == "true") {
+            isDisabled = true
         }
 
         when (valueType) {
@@ -1926,7 +1985,8 @@ class PatientResponderActivity : AppCompatActivity() {
         item: DataElements,
         lnParent: LinearLayout,
         currentValue: String,
-        isProgram: Boolean
+        isProgram: Boolean,
+        isDead: String
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
@@ -1937,10 +1997,8 @@ class PatientResponderActivity : AppCompatActivity() {
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
 
-        liveData.entireFormDisabled.observe(this) { newValue ->
-            if (newValue) {
-                isDisabled = newValue
-            }
+        if (isDead == "true") {
+            isDisabled = true
         }
         when (valueType) {
             "TEXT" -> {
@@ -2439,6 +2497,9 @@ class PatientResponderActivity : AppCompatActivity() {
                 } else {
                     if (isDisabled) {
                         radioGroup.isEnabled = false
+                        for (i in 0 until radioGroup.childCount) {
+                            radioGroup.getChildAt(i).isEnabled = false
+                        }
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
