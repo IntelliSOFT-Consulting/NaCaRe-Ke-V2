@@ -21,7 +21,6 @@ class ResponseViewModel : ViewModel() {
             value = mutableListOf() // Initial value is an empty mutable list
         }
 
-
     // Expose the LiveData as an immutable LiveData to observers
     val mutableListLiveData: LiveData<MutableList<CodeValuePair>> = _mutableListLiveData
     val mutableListLiveDataPatient: LiveData<MutableList<CodeValuePairPatient>> =
@@ -31,6 +30,11 @@ class ResponseViewModel : ViewModel() {
         value = false // Initial value is a false
     }
     val additionalInformationSaved: LiveData<Boolean> = _additionalInformationSaved
+
+    private val _entireFormDisabled = MutableLiveData<Boolean>().apply {
+        value = false // Initial value is a false
+    }
+    val entireFormDisabled: LiveData<Boolean> = _entireFormDisabled
 
 
     fun updatePatientDetails(boolean: Boolean) {
@@ -53,6 +57,14 @@ class ResponseViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _mutableListLiveDataPatient.postValue(searchParameters)
+            }
+        }
+    }
+
+    fun disableEntireForm(boolean: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _entireFormDisabled.postValue(boolean)
             }
         }
     }

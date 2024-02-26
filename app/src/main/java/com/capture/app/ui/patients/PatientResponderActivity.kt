@@ -25,6 +25,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -40,8 +41,11 @@ import com.capture.app.data.Constants.DATE_OF_BIRTH
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
+import com.capture.app.data.Constants.FIVE_YEARS
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
+import com.capture.app.data.Constants.STATUS
+import com.capture.app.data.Constants.TWO_YEARS
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientResponderBinding
 import com.capture.app.model.Attribute
@@ -411,7 +415,12 @@ class PatientResponderActivity : AppCompatActivity() {
                         )
                     )
                     createFormFieldsAttribute(
-                        index, element, linearLayout, extractCurrentValues(element.id), false
+                        index,
+                        element,
+                        linearLayout,
+                        extractCurrentValues(element.id),
+                        false,
+                        isSubmitted.toString()
                     )
                 }
             }
@@ -737,7 +746,10 @@ class PatientResponderActivity : AppCompatActivity() {
                                     }
                                 }
 
-                                Log.e("TAG","Save attributes here **** search $searchParameters then final $attributeValueList")
+                                Log.e(
+                                    "TAG",
+                                    "Save attributes here **** search $searchParameters then final $attributeValueList"
+                                )
 
                                 val payload = EnrollmentEventData(
                                     dataValues = Gson().toJson(attributeValueList),
@@ -972,7 +984,7 @@ class PatientResponderActivity : AppCompatActivity() {
         item: TrackedEntityAttributes,
         lnParent: LinearLayout,
         currentValue: String,
-        isProgram: Boolean
+        isProgram: Boolean, isSubmitted: String
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
@@ -989,12 +1001,12 @@ class PatientResponderActivity : AppCompatActivity() {
         if (isRequired) {
             requiredFieldsString.add(item.id)
         }
-        liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-            Log.e("TAG", "Updated Live Data **** Later $it")
-            if (it) {
-                isDisabled = it
+        if (isSubmitted.isNotEmpty()) {
+            if (isSubmitted == "true") {
+                isDisabled = true
             }
         }
+
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -1014,6 +1026,11 @@ class PatientResponderActivity : AppCompatActivity() {
                     lnParent.addView(itemView)
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)
+                    }
+                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                        if (it) {
+                            isDisabled = it
+                        }
                     }
                     if (isHidden) {
                         itemView.visibility = View.GONE
@@ -1097,6 +1114,11 @@ class PatientResponderActivity : AppCompatActivity() {
                     adp.notifyDataSetChanged()
                     itemView.tag = item.id
                     lnParent.addView(itemView)
+                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                        if (it) {
+                            isDisabled = it
+                        }
+                    }
                     if (isHidden) {
                         itemView.visibility = View.GONE
                     } else {
@@ -1252,11 +1274,16 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     val refinedDate = formatter.convertDateFormat(currentValue)
                     if (refinedDate != null) {
-                        editText.setText(currentValue)
+                        editText.setText(refinedDate)
                     }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
                 if (isHidden) {
                     itemView.visibility = View.GONE
                 } else {
@@ -1363,6 +1390,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
                 if (isHidden) {
                     itemView.visibility = View.GONE
                 } else {
@@ -1424,6 +1456,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
                 if (isHidden) {
                     itemView.visibility = View.GONE
                 } else {
@@ -1490,6 +1527,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
                 if (isHidden) {
                     itemView.visibility = View.GONE
                 } else {
@@ -1540,8 +1582,6 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
 
-            // patient Data
-
             "BOOLEAN" -> {
                 val itemView = inflater.inflate(
                     R.layout.item_boolean_field, findViewById(R.id.lnParent), false
@@ -1554,6 +1594,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 itemView.tag = item.id
                 lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
                 var isProgrammaticChange = false
                 radioGroup.setOnCheckedChangeListener(null)
                 when (currentValue) {
@@ -1613,13 +1658,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
                 if (isHidden) {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
                         radioGroup.isEnabled = false
+                        for (i in 0 until radioGroup.childCount) {
+                            radioGroup.getChildAt(i).isEnabled = false
+                        }
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -1718,10 +1764,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (lowercaseAnswer.contains("other", ignoreCase = true)) {
                                 lowercaseAnswer = "other"
                             }
-                            Log.e(
-                                "TAG",
-                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
-                            )
+
                             val result = when (part2) {
                                 "eq" -> lowercaseAnswer == part3Lower
                                 "ne" -> lowercaseAnswer != part3Lower
@@ -1789,7 +1832,6 @@ class PatientResponderActivity : AppCompatActivity() {
     private fun extractCurrentValues(id: String): String {
         val response = formatter.getSharedPref("current_data", this)
 
-        Log.e("TAG", "Retrieving Current Data **** $response")
         if (response != null) {
             searchParameters = getSavedValues()
             val foundItem = searchParameters.find { it.code == id }
@@ -1834,6 +1876,13 @@ class PatientResponderActivity : AppCompatActivity() {
             liveData.populateRelevantPatientData(searchParameters)
         }
 
+        if (isProgram) {
+            if (id == STATUS || id == TWO_YEARS || id == FIVE_YEARS) {
+                if (value == "Dead") {
+                    liveData.disableEntireForm(true)
+                }
+            }
+        }
     }
 
     private fun removeSavedItems(index: Int, id: String, isProgram: Boolean) {
@@ -1868,11 +1917,17 @@ class PatientResponderActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
+        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
         val showIf = showIfAttribute("showIf", item.attributeValues)
+
+        liveData.entireFormDisabled.observe(this) { newValue ->
+            if (newValue) {
+                isDisabled = newValue
+            }
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -1951,7 +2006,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         this, android.R.layout.simple_list_item_1, optionsStringList
                     )
                     if (currentValue.isNotEmpty()) {
-                        val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
+                        val answer =
+                            getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
                     }
                     val name =
@@ -2034,7 +2090,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2110,7 +2167,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val countryCodePicker =
                     itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
@@ -2184,7 +2242,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2241,7 +2300,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2447,10 +2507,7 @@ class PatientResponderActivity : AppCompatActivity() {
             if (lowercaseAnswer.contains("other", ignoreCase = true)) {
                 lowercaseAnswer = "other"
             }
-            Log.e(
-                "TAG",
-                "We are looking the answer here **** $parent value need is $dataValue \nfinal value $lowercaseAnswer and Comparator $single"
-            )
+
             if (single != null) {
                 val parts = single.value.split(':')
                 if (parts.size == 3) {

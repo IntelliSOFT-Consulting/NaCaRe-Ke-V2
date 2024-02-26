@@ -61,10 +61,8 @@ class ProgramsFragment : Fragment() {
         if (!programs.isEmpty()) {
             programList.clear()
             programs.forEach {
-                Log.e("TAG", "Program Data Found $it")
                 if (it.userId.contains("notification") || it.userId.contains("facility")) {
                     val converters = Converters().fromJson(it.jsonData)
-                    Log.e("TAG", "Program Data Found $converters")
                     if (!converters.programs.isEmpty()) {
                         converters.programs.forEach {
                             val id = it.id

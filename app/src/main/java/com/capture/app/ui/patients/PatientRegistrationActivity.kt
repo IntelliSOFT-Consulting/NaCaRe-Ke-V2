@@ -700,9 +700,9 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                             )
                                         if (validAnswer) {
                                             child.visibility = View.VISIBLE
-                                            if (isRequired) {
-                                                requiredFieldsString.add(child.tag.toString())
-                                            }
+//                                            if (isRequired) {
+//                                                requiredFieldsString.add(child.tag.toString())
+//                                            }
                                         } else {
                                             child.visibility = View.GONE
                                             requiredFieldsString.remove(child.tag.toString())
@@ -1184,7 +1184,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         attributeList.forEach { q ->
             q.attributeValues.forEach {
                 if (it.attribute.name == "showIf") {
-                    Log.e("TAG", "Available Attribute **** ${it.attribute} ${it.value}")
                     try {
                         val currentValidator = it.value
                         val parts = currentValidator.split(':')
