@@ -408,7 +408,6 @@ class PatientResponderActivity : AppCompatActivity() {
                 smallTextView.text = "0/${dataElements.count()}"
                 linearLayout.removeAllViews()
                 for (element in dataElements) {
-
                     attributeList.add(
                         ParentAttributeValues(
                             element.name, element.id, element.attributeValues
@@ -1231,9 +1230,22 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 child.tag.toString(), list, dataValue
                                             )
                                             if (validAnswer) {
-//                                            if (isRequired) {
-//                                                requiredFieldsString.add(child.tag.toString())
-//                                            }
+
+                                                val attributeValues =
+                                                    attributeList.find { it.parent == child.tag.toString() }
+                                                if (attributeValues != null) {
+                                                    val isInnerRequired: Boolean =
+                                                        extractAttributeValue(
+                                                            "Required",
+                                                            attributeValues.attributeValues
+                                                        )
+                                                    if (isInnerRequired) {
+                                                        requiredFieldsString.add(child.tag.toString())
+                                                    }else{
+
+                                                        requiredFieldsString.remove(child.tag.toString())
+                                                    }
+                                                }
                                                 child.visibility = View.VISIBLE
                                             } else {
                                                 child.visibility = View.GONE

@@ -72,7 +72,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveEvent(data)
     }
     fun saveEventUpdated(context: Context, data: EventData,id:String) = runBlocking {
-        repository.saveEventUpdated(data,id)
+        repository.saveEventUpdated(context,data,id)
     }
 
     fun loadEvents(orgUnit: String, context: Context) = runBlocking {
@@ -207,6 +207,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteCurrentSimilarCase(context: Context, patientUid: String)= runBlocking {
         repository.deleteCurrentSimilarCase(patientUid)
+    }
+
+    fun deleteEvent(id: Int) = runBlocking{
+        repository.deleteEvent(id)
     }
 
 

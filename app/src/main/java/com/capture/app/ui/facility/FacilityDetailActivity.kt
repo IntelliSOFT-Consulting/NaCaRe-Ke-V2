@@ -66,6 +66,8 @@ class FacilityDetailActivity : AppCompatActivity() {
         requiredFieldsString.clear()
         val eventUid = formatter.getSharedPref("current_event_id", this)
         if (eventUid != null) {
+
+            Log.e("TAG", "Data current $eventUid")
             populateAvailableData(eventUid)
         }
         populateViews()
@@ -81,7 +83,6 @@ class FacilityDetailActivity : AppCompatActivity() {
             }
             btnSave.apply {
                 setOnClickListener {
-                    formatter.saveSharedPref("facility_reload", "true", this@FacilityDetailActivity)
                     if (allRequiredFieldsComplete()) {
                         validateSearchData()
                     } else {
@@ -106,12 +107,15 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun populateAvailableData(eventUid: String) {
-
         val data = viewModel.loadEventById(eventUid, this@FacilityDetailActivity)
         if (data != null) {
+
             val attributes = Converters().fromJsonDataAttribute(data.dataValues)
-            attributes.forEachIndexed { index, attribute ->
-                saveValued(index, attribute.dataElement, attribute.value)
+            if (attributes.isNotEmpty()) {
+                searchParameters.clear()
+                attributes.forEachIndexed { index, attribute ->
+                    saveValued(index, attribute.dataElement, attribute.value)
+                }
             }
         }
 
@@ -144,7 +148,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         val orgCode = formatter.getSharedPref("orgCode", this)
         val programUid = formatter.getSharedPref("programUid", this)
         var eventUid = formatter.getSharedPref("current_event", this)
-        var currentEventId = formatter.getSharedPref("current_event_id", this)
+        val currentEventId = formatter.getSharedPref("current_event_id", this)
         var eventDate = formatter.getSharedPref("current_event_date", this)
         if (currentEventId != null) {
             if (orgCode != null) {
@@ -169,8 +173,14 @@ class FacilityDetailActivity : AppCompatActivity() {
                     )
                     viewModel.saveEventUpdated(this, data, currentEventId.toString())
                     this@FacilityDetailActivity.finish()
+                } else {
+                    Toast.makeText(this, "Invalid Event Search...", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(this, "Invalid Org Unit", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            Toast.makeText(this, "Invalid Event", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -972,11 +982,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             this
         )
         Log.e("TAG", "Growing List $searchParameters")
-        val reloadPage =
-            formatter.getSharedPref("facility_reload", this@FacilityDetailActivity)
-//        if (reloadPage == null) {
-//            reloadActivity()
-//        }
+
     }
 
     private fun reloadActivity() {

@@ -66,7 +66,7 @@ interface RoomDao {
     fun updateEvent(dataValues: String, orgUnit: String, isServerSide: Boolean, isSynced: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveEvent(data: EventData)
+    fun saveEvent(data: EventData): Long
 
     @Query("SELECT * FROM event WHERE orgUnit =:orgUnit ORDER BY id DESC")
     fun loadEvents(orgUnit: String): List<EventData>?
@@ -188,5 +188,7 @@ interface RoomDao {
 
     @Query("DELETE FROM enrollmentevent WHERE trackedEntity =:patientUid")
     fun deleteEnrollment(patientUid: String)
+    @Query("DELETE FROM event WHERE id =:id")
+    fun deleteEvent(id: Int)
 
 }

@@ -23,6 +23,7 @@ import com.capture.app.model.FacilitySummary
 import com.capture.app.network.RetrofitCalls
 import com.capture.app.room.EventData
 import com.capture.app.room.MainViewModel
+import java.util.Date
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -75,10 +76,11 @@ class FacilityListFragment : Fragment() {
     }
 
     private fun loadEvents() {
+//        viewModel.deleteEvent(13)
         val orgUnit = formatter.getSharedPref("orgCode", requireContext())
         if (orgUnit != null) {
             val data = viewModel.loadEvents(orgUnit, requireContext())
-            Log.e("TAG", " Facility Data Saved $data")
+
             if (data != null) {
                 if (data.isEmpty()) {
                     loadLiveEvents(orgUnit)
@@ -136,6 +138,8 @@ class FacilityListFragment : Fragment() {
             binding.progressBar
         )
 
+//        loadEvents()
+
     }
 
     private fun handleClick(facilitySummary: FacilitySummary) {
@@ -158,6 +162,7 @@ class FacilityListFragment : Fragment() {
                 formatter.saveSharedPref("current_data", data.dataValues, requireContext())
                 formatter.saveSharedPref("current_event_id", facilitySummary.id, requireContext())
                 formatter.deleteSharedPref("reload", requireContext())
+                formatter.deleteSharedPref("current_facility_data", requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))
             }
         }
@@ -175,9 +180,26 @@ class FacilityListFragment : Fragment() {
             }
             eventButton.apply {
                 setOnClickListener {
-                    formatter.deleteSharedPref("current_facility_data", requireContext())
-                    formatter.deleteSharedPref("facility_reload", requireContext())
+                    val orgCode = formatter.getSharedPref("orgCode", requireContext())
+                    val programUid = formatter.getSharedPref("programUid", requireContext())
+                    formatter.deleteSharedPref("current_event", requireContext())
                     formatter.deleteSharedPref("current_event_id", requireContext())
+                    formatter.deleteSharedPref(
+                        "current_event_date",
+                        requireContext()
+                    )
+                    val data = EventData(
+                        uid = formatter.generateUUID(11),
+                        program = programUid.toString(),
+                        orgUnit = orgCode.toString(),
+                        eventDate = formatter.formatCurrentDate(Date()),
+                        status = "ACTIVE",
+                        isServerSide = false,
+                        dataValues = "[]"
+                    )
+
+                    formatter.deleteSharedPref("current_facility_data", requireContext())
+                    viewModel.saveEventUpdated(requireContext(), data, formatter.generateUUID(11))
                     val intent = Intent(requireContext(), FacilityDetailActivity::class.java)
                     startActivity(intent)
                 }

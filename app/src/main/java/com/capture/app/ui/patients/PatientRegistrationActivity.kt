@@ -699,10 +699,24 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                                 dataValue
                                             )
                                         if (validAnswer) {
+
+                                            val attributeValues =
+                                                attributeList.find { it.parent == child.tag.toString() }
+                                            if (attributeValues != null) {
+                                                val isInnerRequired: Boolean =
+                                                    extractAttributeValue(
+                                                        "Required",
+                                                        attributeValues.attributeValues
+                                                    )
+                                                if (isInnerRequired) {
+                                                    requiredFieldsString.add(child.tag.toString())
+                                                } else {
+
+                                                    requiredFieldsString.remove(child.tag.toString())
+                                                }
+                                            }
                                             child.visibility = View.VISIBLE
-//                                            if (isRequired) {
-//                                                requiredFieldsString.add(child.tag.toString())
-//                                            }
+
                                         } else {
                                             child.visibility = View.GONE
                                             requiredFieldsString.remove(child.tag.toString())

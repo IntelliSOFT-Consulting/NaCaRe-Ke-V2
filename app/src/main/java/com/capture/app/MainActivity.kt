@@ -95,13 +95,12 @@ class MainActivity : AppCompatActivity() {
                     // Handle click for additionalMenuItem2
                     try {
                         if (formatter.isNetworkAvailable(this@MainActivity)) {
-//                            handleDataSync()
-//                            CoroutineScope(Dispatchers.IO).launch {
-//                                delay(10000) // Delay for 3 seconds
-//                                handleFacilityUploads()
-//                                uploadTrackedEvents()
-//                            }
-                            retrofitCalls.loadTrackedEntities(this@MainActivity)
+                            handleDataSync()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                delay(10000) // Delay for 3 seconds
+                                handleFacilityUploads()
+                                uploadTrackedEvents()
+                            }
                         } else {
                             formatter.showInternetConnectionRequiredDialog(this@MainActivity)
                         }

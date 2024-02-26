@@ -193,7 +193,6 @@ class MainRepository(private val roomDao: RoomDao) {
             trackedEntity = savedItemId.toString()
         )
         val eventExists = roomDao.checkEnrollmentEvent(eventUid)
-        Log.e("TAG", "There is an existing Event $eventExists")
         if (eventExists) {
             roomDao.updateEnrollmentEvent(true, eventUid)
 
@@ -230,13 +229,14 @@ class MainRepository(private val roomDao: RoomDao) {
         }
     }
 
-    fun saveEventUpdated(data: EventData, id: String) {
+    fun saveEventUpdated(context: Context, data: EventData, id: String) {
         val exists = roomDao.checkEvent(data.orgUnit)
         if (exists) {
-
             roomDao.updateEvent(data.dataValues, data.orgUnit, data.isServerSide, false)
         } else {
-            roomDao.saveEvent(data)
+            val uid = roomDao.saveEvent(data)
+            formatterClass.saveSharedPref("current_event", data.uid, context)
+            formatterClass.saveSharedPref("current_event_id", "$uid", context)
         }
     }
 
@@ -361,7 +361,7 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun updateTrackedAttributes(attributes: String, patientUid: String) {
-        roomDao.updateTrackedAttributes(attributes, patientUid,true)
+        roomDao.updateTrackedAttributes(attributes, patientUid, true)
 
     }
 
@@ -380,6 +380,11 @@ class MainRepository(private val roomDao: RoomDao) {
     fun deleteCurrentSimilarCase(patientUid: String) {
         roomDao.deleteTracked(patientUid)
         roomDao.deleteEnrollment(patientUid)
+
+    }
+
+    fun deleteEvent(id: Int) {
+        roomDao.deleteEvent(id)
 
     }
 
