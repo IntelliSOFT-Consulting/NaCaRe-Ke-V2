@@ -63,6 +63,7 @@ import com.capture.app.room.MainViewModel
 import com.capture.app.ui.viewmodel.ResponseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 import java.time.LocalDate
@@ -353,29 +354,7 @@ class PatientResponderActivity : AppCompatActivity() {
             }
 
             itemView.setOnClickListener {
-                // Iterate through each child of lnParent
-                if (data.isProgram) {
-                    val gson = Gson()
-                    if (data.groupName == textViewName.text.toString()) {
-                        val listType: Type = object : TypeToken<List<DataElements>>() {}.type
-                        val dataElements: List<DataElements> =
-                            gson.fromJson(data.dataElements, listType)
 
-                        smallTextView.text = "0/${dataElements.count()}"
-                        attributeList.clear()
-                        linearLayout.removeAllViews()
-                        for (element in dataElements) {
-                            attributeList.add(
-                                ParentAttributeValues(
-                                    element.displayName, element.id, element.attributeValues
-                                )
-                            )
-                            createFormFields(
-                                index, element, linearLayout, extractCurrentValues(element.id), true
-                            )
-                        }
-                    }
-                }
                 for (i in 0 until lnParent.childCount) {
                     val childView = lnParent.getChildAt(i)
                     val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
@@ -437,11 +416,31 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
             if (data.isProgram) {
-                val gson = Gson()
-                val listType: Type = object : TypeToken<List<DataElements>>() {}.type
-                val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
-                smallTextView.text = "0/${dataElements.count()}"
+                GlobalScope.launch(Dispatchers.IO) {
+                    val gson = Gson()
+                    val listType: Type = object : TypeToken<List<DataElements>>() {}.type
+                    val dataElements: List<DataElements> =
+                        gson.fromJson(data.dataElements, listType)
+                    launch(Dispatchers.Main) {
+                        smallTextView.text = "0/${dataElements.count()}"
+                        linearLayout.removeAllViews()
+                        for (element in dataElements) {
 
+                            attributeList.add(
+                                ParentAttributeValues(
+                                    element.displayName, element.id, element.attributeValues
+                                )
+                            )
+                            createFormFields(
+                                index,
+                                element,
+                                linearLayout,
+                                extractCurrentValues(element.id),
+                                false
+                            )
+                        }
+                    }
+                }
             }
             yes_button.apply {
                 setOnClickListener {
@@ -477,7 +476,6 @@ class PatientResponderActivity : AppCompatActivity() {
 
                         if (!isSimilarCase) {
 
-                            Log.e("TAG", "Current item ***** $index out of $size")
                             val dialog: AlertDialog
                             val dialogBuilder = AlertDialog.Builder(this@PatientResponderActivity)
                             val dialogView =
@@ -543,6 +541,8 @@ class PatientResponderActivity : AppCompatActivity() {
                                     if (nextPage == size) {
                                         this@PatientResponderActivity.finish()
                                     } else {
+
+                                        // get the items at this index
 
                                         val currentChildView = lnParent.getChildAt(index)
                                         val childView = lnParent.getChildAt(nextPage)
@@ -645,9 +645,9 @@ class PatientResponderActivity : AppCompatActivity() {
                                             this@PatientResponderActivity.finish()
                                         } else {
 
-
                                             val currentChildView = lnParent.getChildAt(index)
                                             val childView = lnParent.getChildAt(nextPage)
+
                                             val currentLnWithButtons =
                                                 currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
                                             val currentRotationImageView: ImageView =
@@ -662,6 +662,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                             currentRotationImageView.rotation = 180f
 
                                             nextRotationImageView.rotation = 0f
+
                                         }
                                     } catch (e: Exception) {
                                         e.printStackTrace()
