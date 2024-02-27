@@ -1058,7 +1058,9 @@ class PatientResponderActivity : AppCompatActivity() {
             extractValidatorAttributeValue("Validator", item.attributeValues)
 
         if (isRequired) {
-            requiredFieldsString.add(item.id)
+            if (!showIf) {
+                requiredFieldsString.add(item.id)
+            }
         }
         if (isSubmitted.isNotEmpty()) {
             if (isSubmitted == "true") {
@@ -1308,6 +1310,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                     if (isInnerRequired) {
                                                         requiredFieldsString.add(child.tag.toString())
                                                     } else {
+
                                                         requiredFieldsString.remove(child.tag.toString())
                                                     }
                                                 }
