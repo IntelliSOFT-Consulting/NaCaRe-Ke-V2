@@ -1,6 +1,7 @@
 package com.capture.app.ui.patients
 
 import android.app.Application
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -36,6 +37,7 @@ class PatientSearchActivity : AppCompatActivity() {
     private val searchParameters = ArrayList<CodeValuePair>()
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
+    private lateinit var progressDialog: ProgressDialog
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +45,11 @@ class PatientSearchActivity : AppCompatActivity() {
         binding = ActivityPatientSearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
+
+        progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Please wait...") // Set your message
+        progressDialog.setCancelable(true)
+
         loadSearchParameters()
 
         binding.apply {
@@ -97,21 +104,20 @@ class PatientSearchActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         formatter.deleteSharedPref("initial_data", this)
         formatter.deleteSharedPref("reload", this@PatientSearchActivity)
+
         retrofitCalls.performPatientSearch(
             this,
             programUid,
             trackedEntity,
             searchParametersString,
-            inflater
+            inflater,progressDialog
         )
     }
 
     private fun loadSearchParameters() {
         val data = viewModel.loadSingleProgram(this, "notification")
         if (data != null) {
-            Log.e("TAG", "Program Data Retrieved $data")
             val converters = Converters().fromJson(data.jsonData)
-            Log.e("TAG", "Program Data Retrieved $converters")
             searchList.clear()
             converters.programs.forEach { it ->
                 it.programSections.forEach {
@@ -140,7 +146,6 @@ class PatientSearchActivity : AppCompatActivity() {
         val valueType: String = item.valueType
         val label: String = item.name
         val inflater = LayoutInflater.from(this)
-        Log.e("TAG", "Data Populated $valueType")
 
         if ("TEXT" == valueType) {
             if (item.optionSet == null) {

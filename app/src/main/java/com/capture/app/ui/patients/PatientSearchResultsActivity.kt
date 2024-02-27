@@ -75,7 +75,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     uniqueId = extractValue("AP13g7NcBOf", it.attributes, false),
                     hospitalNo = extractValue("MiXrdHDZ6Hw", it.attributes, false),
                     patientName = extractValue("R1vaUuILrDy", it.attributes, true),
-                    identification = extractValue("oob3a4JM7H6", it.attributes, false),
+                    identification = extractValue("eFbT7iTnljR", it.attributes, false),
                     diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false),
                     attributeValues = attributesList,
                     enrollmentEvents = it.enrollments,

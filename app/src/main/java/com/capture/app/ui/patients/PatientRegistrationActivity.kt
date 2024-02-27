@@ -603,7 +603,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     val isAllowedToSearch = formatter.retrieveAllowedToTypeItem(item.id)
                     if (isAllowedToSearch) {
                         autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
-                        autoCompleteTextView.setHint("Start typing")
+                        autoCompleteTextView.setHint("Type here to Search")
                     }
                     item.optionSet.options.forEach {
                         optionsStringList.add(it.displayName)

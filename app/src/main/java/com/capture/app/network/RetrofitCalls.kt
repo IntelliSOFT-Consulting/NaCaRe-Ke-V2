@@ -23,8 +23,6 @@ import com.capture.app.model.DataValue
 import com.capture.app.model.EnrollmentEventUploadData
 import com.capture.app.model.Enrollments
 import com.capture.app.model.EventUploadData
-import com.capture.app.model.MultipleTrackedEntityInstances
-import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
 import com.capture.app.model.TrackedEntityInstanceServer
@@ -40,7 +38,6 @@ import com.capture.app.ui.patients.PatientSearchResultsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class RetrofitCalls {
 
@@ -143,7 +140,8 @@ class RetrofitCalls {
         programUid: String,
         trackedEntity: String,
         searchParametersString: String,
-        layoutInflater: LayoutInflater
+        layoutInflater: LayoutInflater,
+        progressDialog: ProgressDialog
     ) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
@@ -152,11 +150,15 @@ class RetrofitCalls {
                 RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
                     .create(Interface::class.java)
             try {
+                progressDialog.show()
                 val apiInterface =
                     apiService.searchPatient(filter = searchParametersString, program = programUid)
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
+                    if (progressDialog.isShowing){
+                        progressDialog.dismiss()
+                    }
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
@@ -187,6 +189,9 @@ class RetrofitCalls {
                         }
                     }
                 } else {
+                    if (progressDialog.isShowing){
+                        progressDialog.dismiss()
+                    }
                     val statusCode = apiInterface.code()
                     val errorBody = apiInterface.errorBody()?.string()
                     when (statusCode) {
@@ -197,6 +202,9 @@ class RetrofitCalls {
             } catch (e: Exception) {
                 print(e)
                 Log.e("TAG", "Success Error:::: ${e.message}")
+                if (progressDialog.isShowing){
+                    progressDialog.dismiss()
+                }
 
             }
         }
