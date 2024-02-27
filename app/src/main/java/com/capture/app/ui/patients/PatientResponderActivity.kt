@@ -881,7 +881,9 @@ class PatientResponderActivity : AppCompatActivity() {
         try {
             searchParameters = getSavedValues()
 
-            val searchParameterCodes = searchParameters.map { it.code }
+            // make this unique
+
+            val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes
             val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
 
@@ -1277,10 +1279,8 @@ class PatientResponderActivity : AppCompatActivity() {
                                             e.printStackTrace()
                                         }
                                     } else {
-
                                         calculateRelevant(lnParent, index, item, value, isProgram)
                                         saveValued(index, item.id, dataValue, isProgram)
-
                                     }
 
                                     val list = checkIfParentHasChildren(item.id)
@@ -1308,7 +1308,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                                     if (isInnerRequired) {
                                                         requiredFieldsString.add(child.tag.toString())
                                                     } else {
-
                                                         requiredFieldsString.remove(child.tag.toString())
                                                     }
                                                 }
@@ -1718,8 +1717,20 @@ class PatientResponderActivity : AppCompatActivity() {
                                     )
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
-                                        if (isRequired) {
-                                            requiredFieldsString.add(child.tag.toString())
+                                        val attributeValues =
+                                            attributeList.find { it.parent == child.tag.toString() }
+                                        if (attributeValues != null) {
+                                            val isInnerRequired: Boolean =
+                                                extractAttributeValue(
+                                                    "Required",
+                                                    attributeValues.attributeValues
+                                                )
+                                            if (isInnerRequired) {
+                                                requiredFieldsString.add(child.tag.toString())
+                                            } else {
+
+                                                requiredFieldsString.remove(child.tag.toString())
+                                            }
                                         }
                                     } else {
                                         child.visibility = View.GONE

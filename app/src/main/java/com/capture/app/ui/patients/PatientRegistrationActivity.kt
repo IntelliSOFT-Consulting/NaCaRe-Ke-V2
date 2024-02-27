@@ -208,7 +208,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
             Log.e("TAG", "Required Fields **** $requiredFieldsString")
             Log.e("TAG", "Required Fields **** Saved $searchParameters")
 
-            val searchParameterCodes = searchParameters.map { it.code }
+            val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes
             val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
 
@@ -678,10 +678,54 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
-
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                calculateRelevant(lnParent, index, item, value)
-                                saveValued(index, item.id, dataValue)
+                                if (item.id == DIAGNOSIS) {
+                                    var gender = ""
+                                    val genders = searchParameters.find { it.code == SEX }
+                                    if (genders != null) {
+                                        gender = genders.value
+                                    }
+
+                                    var rejectedCancerList: List<String> = emptyList()
+                                    if (gender.isNotEmpty()) {
+                                        rejectedCancerList = if (gender == "Male") {
+                                            formatter.femaleCancers()
+                                        } else {
+                                            formatter.maleCancers()
+                                        }
+                                    }
+
+                                    try {
+                                        val parts = dataValue.split(".")
+                                        val firstPart = parts[0]  // "C"
+                                        val secondPart = parts[1] // "61"
+
+                                        if (rejectedCancerList.contains(firstPart)) {
+                                            val opposite = if (gender == "Male") {
+                                                "Female"
+                                            } else {
+                                                "Male"
+                                            }
+                                            textInputLayout.error =
+                                                "$opposite Diagnosis is not application for $gender patient"
+                                        } else {
+                                            textInputLayout.error = null
+                                            calculateRelevant(
+                                                lnParent,
+                                                index,
+                                                item,
+                                                value
+                                            )
+                                            saveValued(index, item.id, dataValue)
+
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                } else {
+                                    calculateRelevant(lnParent, index, item, value)
+                                    saveValued(index, item.id, dataValue)
+                                }
                                 val list = checkIfParentHasChildren(item.id)
                                 for (i in 0 until lnParent.childCount) {
                                     val child: View = lnParent.getChildAt(i)
@@ -1109,8 +1153,20 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                         checkProvidedAnswer(child.tag.toString(), list, dataValue)
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
-                                        if (isRequired) {
-                                            requiredFieldsString.add(child.tag.toString())
+                                        val attributeValues =
+                                            attributeList.find { it.parent == child.tag.toString() }
+                                        if (attributeValues != null) {
+                                            val isInnerRequired: Boolean =
+                                                extractAttributeValue(
+                                                    "Required",
+                                                    attributeValues.attributeValues
+                                                )
+                                            if (isInnerRequired) {
+                                                requiredFieldsString.add(child.tag.toString())
+                                            } else {
+
+                                                requiredFieldsString.remove(child.tag.toString())
+                                            }
                                         }
                                     } else {
                                         child.visibility = View.GONE

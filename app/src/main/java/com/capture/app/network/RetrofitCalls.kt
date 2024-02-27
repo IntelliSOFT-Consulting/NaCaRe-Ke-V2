@@ -117,6 +117,15 @@ class RetrofitCalls {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+                } else {
+                    if (progressDialog.isShowing) {
+                        progressDialog.dismiss()
+                    }
+                    Toast.makeText(
+                        context,
+                        "Invalid username or password",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
 
             } catch (e: Exception) {
@@ -267,7 +276,7 @@ class RetrofitCalls {
             eventUid = extractInitialEnrollmentEvent(data.enrollments, "eventUid"),
             status = extractInitialEnrollmentEvent(data.enrollments, "status"),
 
-        )
+            )
         viewModel.saveTrackedEntityServer(
             context,
             entityData, orgUnit, patientUnique
@@ -437,63 +446,6 @@ class RetrofitCalls {
         }
     }
 
-    fun uploadTrackedEntity(context: Context, payload: MultipleTrackedEntityInstances) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val formatter = FormatterClass()
-            val viewModel = MainViewModel(context.applicationContext as Application)
-
-            val apiService =
-                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
-                    .create(Interface::class.java)
-            try {
-                val apiInterface =
-                    apiService.uploadMultipleTrackedEntity(payload)
-                if (apiInterface.isSuccessful) {
-                    val statusCode = apiInterface.code()
-                    val body = apiInterface.body()
-                    when (statusCode) {
-                        200 -> {
-                            if (body != null) {
-
-//                                try {
-//                                    val conf = Converters().toJsonOrgUnit(body)
-//                                    try {
-//                                        val json = Gson().fromJson(
-//                                            conf,
-//                                            JsonObject::class.java
-//                                        )
-//                                        viewModel.createUpdateOrg(
-//                                            context,
-//                                            orgUid,
-//                                            json.toString()
-//                                        )
-//                                    } catch (e: Exception) {
-//                                        e.printStackTrace()
-//                                        Log.e("TAG", "child units error:::: ${e.message}")
-//                                    }
-//                                } catch (e: Exception) {
-//                                    e.printStackTrace()
-//                                    Log.e("TAG", "json:::: ${e.message}")
-//                                }
-                            }
-                        }
-                    }
-                } else {
-                    val statusCode = apiInterface.code()
-                    val errorBody = apiInterface.errorBody()?.string()
-                    when (statusCode) {
-                        409 -> {}
-                        500 -> {}
-                    }
-                }
-            } catch (e: Exception) {
-                print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
-
-
-            }
-        }
-    }
 
     fun uploadSingleTrackedEntity(
         context: Context,
@@ -516,21 +468,16 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Upload Data Here **** Server Response $body")
                                 val data = body.response.importSummaries.forEach {
                                     val serverReference = it.reference
                                     viewModel.updateEntity(trackedEntity, it.reference)
                                     it.enrollments.importSummaries.forEach {
-                                        Log.e(
-                                            "TAG",
-                                            "Upload Data Here **** Enrollment Id ${it.reference} Tracked $serverReference"
-                                        )
+
                                         viewModel.updateEnrollmentEntity(
                                             serverReference,
                                             it.reference
                                         )
                                     }
-//                                    retrieveServerEnrollments(context, it.reference)
                                 }
                             }
                         }
