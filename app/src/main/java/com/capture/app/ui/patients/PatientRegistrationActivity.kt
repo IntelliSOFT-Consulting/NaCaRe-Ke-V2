@@ -198,15 +198,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 searchParameters.add(data)
             }
             formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
-            Log.e("TAG", "Growing List $searchParameters")
+
         }
     }
 
     private fun allRequiredFieldsComplete(): Boolean {
         try {
             searchParameters = getSavedValues()
-            Log.e("TAG", "Required Fields **** $requiredFieldsString")
-            Log.e("TAG", "Required Fields **** Saved $searchParameters")
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes

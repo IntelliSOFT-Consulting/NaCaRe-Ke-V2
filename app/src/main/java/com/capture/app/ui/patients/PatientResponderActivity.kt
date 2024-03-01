@@ -44,6 +44,8 @@ import com.capture.app.data.Constants.DIAGNOSIS_SITE
 import com.capture.app.data.Constants.FIVE_YEARS
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
+import com.capture.app.data.Constants.SCREEN_FOR_CANCER
+import com.capture.app.data.Constants.SEX
 import com.capture.app.data.Constants.STATUS
 import com.capture.app.data.Constants.TREATMENT_DATE
 import com.capture.app.data.Constants.TWO_YEARS
@@ -888,7 +890,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         if (matchedItems.isNotEmpty()) {
                             val treatDate = FormatterClass().convertDateFormat(treatmentDate.value)
                             val atLeastOneFound = matchedItems.filter { it.value == treatDate }
-                            Log.e("TAG","Selected Dates **** $atLeastOneFound")
+
                             return atLeastOneFound.isEmpty()
 
                         }
@@ -2124,6 +2126,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     ) as LinearLayout
                     val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                     val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     val autoCompleteTextView =
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
                     tvElement.text = item.id
@@ -2181,8 +2185,46 @@ class PatientResponderActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
+
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                saveValued(index, item.id, dataValue, isProgram)
+                                Log.e("TAG", "Text Changed ${item.id} Value -> $dataValue")
+                                if (item.id == SCREEN_FOR_CANCER) {
+                                    var gender = ""
+                                    val genders = searchParameters.find { it.code == SEX }
+                                    if (genders != null) {
+                                        gender = genders.value
+                                    }
+
+                                    var rejectedCancerList: List<String> = emptyList()
+                                    if (gender.isNotEmpty()) {
+                                        rejectedCancerList = if (gender == "Male") {
+                                            formatter.femaleCancers()
+                                        } else {
+                                            formatter.maleCancers()
+                                        }
+                                    }
+
+                                    try {
+
+                                        if (rejectedCancerList.contains(dataValue)) {
+                                            val opposite = if (gender == "Male") {
+                                                "Female"
+                                            } else {
+                                                "Male"
+                                            }
+                                            textInputLayout.error =
+                                                "$opposite Diagnosis is not application for $gender patient"
+                                        } else {
+                                            textInputLayout.error = null
+                                            saveValued(index, item.id, dataValue, isProgram)
+
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                } else {
+                                    saveValued(index, item.id, dataValue, isProgram)
+                                }
                                 val list = checkIfParentHasChildren(item.id)
                                 for (i in 0 until lnParent.childCount) {
                                     val child: View = lnParent.getChildAt(i)
