@@ -45,7 +45,9 @@ import com.capture.app.data.Constants.FIVE_YEARS
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.STATUS
+import com.capture.app.data.Constants.TREATMENT_DATE
 import com.capture.app.data.Constants.TWO_YEARS
+import com.capture.app.data.Constants.UNDER_TREATMENT
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientResponderBinding
 import com.capture.app.model.Attribute
@@ -362,36 +364,6 @@ class PatientResponderActivity : AppCompatActivity() {
                 no_button.visibility = View.GONE
             }
 
-//            itemView.setOnClickListener {
-//
-//                for (i in 0 until lnParent.childCount) {
-//                    val childView = lnParent.getChildAt(i)
-//                    val lnWithButtons = childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-//
-//                    if (childView == itemView) { // For clicked item
-//                        // Toggle visibility and appearance of ln_with_buttons
-//                        ln_with_buttons.visibility =
-//                            if (ln_with_buttons.isVisible) View.GONE else View.VISIBLE
-//                        val bgColor =
-//                            if (ln_with_buttons.isVisible) R.color.selected else R.color.unselected
-//                        lnLinearLayout.setBackgroundColor(
-//                            ContextCompat.getColor(
-//                                this@PatientResponderActivity, bgColor
-//                            )
-//                        )
-//                        rotationImageView.rotation = if (ln_with_buttons.isVisible) 0f else 180f
-//                    } else { // For other items
-//                        // Hide ln_with_buttons
-//                        lnWithButtons.visibility = View.GONE
-//                        lnLinearLayout.setBackgroundColor(
-//                            ContextCompat.getColor(
-//                                this@PatientResponderActivity, R.color.unselected
-//                            )
-//                        )
-//                        rotationImageView.rotation = 180f
-//                    }
-//                }
-//            }
 
             if (!data.isProgram) {
 
@@ -752,6 +724,18 @@ class PatientResponderActivity : AppCompatActivity() {
 
                         } else {
                             if (patientUid != null) {
+                                if (index == 1) {
+                                    val noMatch = notMatchingDateFound(searchParameters)
+                                    if (noMatch) {
+                                        Toast.makeText(
+                                            this@PatientResponderActivity,
+                                            "Please specify the treatment date",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@setOnClickListener
+                                    }
+
+                                }
                                 val dialog: AlertDialog
                                 val dialogBuilder =
                                     AlertDialog.Builder(this@PatientResponderActivity)
@@ -869,6 +853,60 @@ class PatientResponderActivity : AppCompatActivity() {
             lnParent.addView(itemView)
 
         }
+    }
+
+    private fun notMatchingDateFound(searchParameters: ArrayList<CodeValuePairPatient>): Boolean {
+
+        //check if patient under treatment
+        val isUnder = searchParameters.find { it.code == UNDER_TREATMENT }
+        if (isUnder == null) {
+            return false
+        } else {
+            // if response is yes
+            val res = isUnder.value
+            if (res == "true") {
+                val treatmentDate = searchParameters.find { it.code == TREATMENT_DATE }
+                val datesToValidate = FormatterClass().treatmentMinimum()
+                val selectedYesEntries = FormatterClass().selectedYesEntries()
+                val matchedItems: ArrayList<CodeValuePairPatient> = arrayListOf()
+                val parentBooleans: ArrayList<CodeValuePairPatient> = arrayListOf()
+                for (item in searchParameters) {
+                    if (item.code in selectedYesEntries) {
+                        if (item.value == "true") {
+                            parentBooleans.add(item)
+                        }
+                    }
+                }
+                if (parentBooleans.isNotEmpty()) {
+                    // then at least we need to have a date given since we have a yes response
+                    for (item in searchParameters) {
+                        if (item.code in datesToValidate) {
+                            matchedItems.add(item)
+                        }
+                    }
+                    if (treatmentDate != null) {
+                        if (matchedItems.isNotEmpty()) {
+                            val treatDate = FormatterClass().convertDateFormat(treatmentDate.value)
+                            val atLeastOneFound = matchedItems.filter { it.value == treatDate }
+                            Log.e("TAG","Selected Dates **** $atLeastOneFound")
+                            return atLeastOneFound.isEmpty()
+
+                        }
+
+                    } else {
+                        return false
+                    }
+
+
+                } else {
+                    return false
+                }
+            } else {
+                return false
+            }
+        }
+        return false
+
     }
 
     private fun updateRelatedPatientData(trackedEntity: String) {

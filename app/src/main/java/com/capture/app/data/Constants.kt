@@ -12,6 +12,7 @@ object Constants {
     const val DIAGNOSIS_SITE = "AyuVgasCLyM"
     const val DIAGNOSIS_CATEGORY = "vPICBz6JEmK"
     const val UNDER_TREATMENT = "xxEsZFtua8N"
+    const val TREATMENT_DATE = "URvkIclUWjq"
     const val OPEN_FOR_EDITING = "r3HXPfneylT"
     const val STATUS = "BITcpbzhbNm"
     const val TWO_YEARS = "Akvj6sjSWt1"

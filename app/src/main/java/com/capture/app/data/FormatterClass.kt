@@ -314,4 +314,33 @@ class FormatterClass {
         // Set the filter to the EditText
         editText.filters = arrayOf(filter)
     }
+
+    fun treatmentMinimum(): List<String> {
+        return listOf(
+            "JkSdwVJ0Cvd",
+            "Bv1QzBVyXo3",
+            "oNPuF57JWui",
+            "fljqvOpheUV",
+            "SW7Nxz6M64z",
+            "qA5u5KweqU0",
+            "LTALxLrNHNB",
+            "yUFcwIifeA9", "ZOdPQ6iLMV4", "FqimnFgeqq1"
+        )
+    }
+
+    fun selectedYesEntries(): List<String> {
+        return listOf(
+            "xMDNydpyKcj",
+            "Cj3inBBEqoN",
+            "GWzmO1k8WIX",
+            "uG0nhxpDCEp",
+            "RYMNbfQI6Xj",
+            "vtU3HWpm3VQ",
+            "pe5Qlr09BBd",
+            "uQmp4kURCCQ",
+            "jYoWCxPFInU",
+            "ZoWjQn9uDfS",""
+        )
+    }
+
 }
