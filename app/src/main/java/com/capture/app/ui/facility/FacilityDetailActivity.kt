@@ -53,7 +53,7 @@ class FacilityDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private val formatter = FormatterClass()
     private var searchParameters = ArrayList<DataValue>()
-    private var dataValueList = ArrayList<DataValue>()
+    private var dataValueList = ArrayList<String>()
     private var attributeValueList = ArrayList<ParentAttributeValues>()
     private var requiredFieldsString = ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,11 +63,10 @@ class FacilityDetailActivity : AppCompatActivity() {
         viewModel = MainViewModel(this.applicationContext as Application)
         searchParameters.clear()
         attributeValueList.clear()
+        dataValueList.clear()
         requiredFieldsString.clear()
         val eventUid = formatter.getSharedPref("current_event_id", this)
         if (eventUid != null) {
-
-            Log.e("TAG", "Data current $eventUid")
             populateAvailableData(eventUid)
         }
         populateViews()
@@ -107,9 +106,9 @@ class FacilityDetailActivity : AppCompatActivity() {
     }
 
     private fun populateAvailableData(eventUid: String) {
+        searchParameters.clear()
         val data = viewModel.loadEventById(eventUid, this@FacilityDetailActivity)
         if (data != null) {
-
             val attributes = Converters().fromJsonDataAttribute(data.dataValues)
             if (attributes.isNotEmpty()) {
                 searchParameters.clear()
@@ -155,13 +154,15 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val currentEvent =
                     viewModel.loadEventById(currentEventId, this@FacilityDetailActivity)
                 if (currentEvent != null) {
-                    dataValueList.clear()
+
                     if (eventUid == null) {
                         eventUid = formatter.generateUUID(11)
                     }
                     if (eventDate == null) {
                         eventDate = formatter.formatCurrentDate(Date())
                     }
+
+                    Log.e("TAG","Active Data Elements **** $dataValueList")
                     val data = EventData(
                         uid = eventUid,
                         program = programUid.toString(),
@@ -169,7 +170,8 @@ class FacilityDetailActivity : AppCompatActivity() {
                         eventDate = eventDate,
                         status = "ACTIVE",
                         isServerSide = currentEvent.isServerSide,
-                        dataValues = Gson().toJson(searchParameters)
+                        dataValues = Gson().toJson(searchParameters),
+                        isSynced = false
                     )
                     viewModel.saveEventUpdated(this, data, currentEventId.toString())
                     this@FacilityDetailActivity.finish()
@@ -218,6 +220,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                             attributeValues = item.attributeValues
                         )
                     )
+                    dataValueList.add(item.id)
                     populateSearchFields(
                         parent.displayName,
                         isFirst,
@@ -899,10 +902,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         var resultResponse = false
         try {
             val single = list.singleOrNull { it.parent == parent }
-            Log.e(
-                "TAG",
-                "We are looking the answer here **** $parent value need is $dataValue $single"
-            )
+
             val lowercaseAnswer = dataValue.lowercase()
             if (single != null) {
                 val parts = single.value.split(':')
@@ -941,7 +941,6 @@ class FacilityDetailActivity : AppCompatActivity() {
         attributeValueList.forEach { q ->
             q.attributeValues.forEach {
                 if (it.attribute.name == "showIf") {
-                    Log.e("TAG", "Available Attribute **** ${it.attribute} ${it.value}")
                     try {
                         val currentValidator = it.value
                         val parts = currentValidator.split(':')

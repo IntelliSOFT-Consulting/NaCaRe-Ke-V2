@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         loadPrograms()
     }
 
-    private fun handleFacilityUploads() {
+    fun handleFacilityUploads() {
         val data = viewModel.getAllFacilityData(this, false)
         if (data != null) {
             if (data.isNotEmpty()) {
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun uploadTrackedEvents() {
+    fun uploadTrackedEvents() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -216,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         return data
     }
 
-    private fun handleDataSync() {
+    fun handleDataSync() {
         val tei = viewModel.loadTrackedEntities(this, false)
         if (tei != null) {
             trackedEntityInstances.clear()
@@ -269,8 +269,7 @@ class MainActivity : AppCompatActivity() {
                     retrofitCalls.loadProgram(this@MainActivity, "facility")
                     retrofitCalls.loadAllSites(this@MainActivity)
                     retrofitCalls.loadAllCategories(this@MainActivity)
-                    retrofitCalls.loadAllEvents(this@MainActivity)
-                    retrofitCalls.loadAllEvents(this@MainActivity)
+//                    retrofitCalls.loadAllEvents(this@MainActivity)
                     retrofitCalls.loadAllFacilities(this@MainActivity)
                     retrofitCalls.loadTrackedEntities(this@MainActivity)
                 }

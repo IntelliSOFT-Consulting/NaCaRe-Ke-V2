@@ -223,7 +223,19 @@ class MainRepository(private val roomDao: RoomDao) {
     fun saveEvent(data: EventData) {
         val exists = roomDao.checkEvent(data.orgUnit)
         if (exists) {
-            roomDao.updateEvent(data.dataValues, data.orgUnit, data.isServerSide, false)
+            val local = roomDao.loadEvent(data.uid)
+            if (local != null) {
+                if (local.isSynced) {
+                    roomDao.updateEvent(
+                        data.dataValues,
+                        data.orgUnit,
+                        data.isServerSide,
+                        data.isSynced
+                    )
+                }
+            } else {
+                roomDao.updateEvent(data.dataValues, data.orgUnit, data.isServerSide, data.isSynced)
+            }
         } else {
             roomDao.saveEvent(data)
         }

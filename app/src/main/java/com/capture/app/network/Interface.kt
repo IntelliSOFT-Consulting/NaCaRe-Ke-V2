@@ -83,6 +83,7 @@ interface Interface {
     suspend fun loadAllFacilityEvents(
         @Query("paging") paging: Boolean = false,
         @Query("skipPaging") skipPaging: Boolean = true,
+        @Query("program") program: String = "azS0XWMonUV",
         @Query("fields") fields: String = "event,program,programStage,orgUnit,status,occurredAt,completedDate,createdAt,dataValues[createdAt,updatedAt,dataElement, value]",
     ): Response<FacilityEventResponse>
 

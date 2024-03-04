@@ -147,8 +147,7 @@ class FacilityListFragment : Fragment() {
         val data = viewModel.loadEventById(facilitySummary.id, requireContext())
         if (orgUnit != null) {
             if (data != null) {
-
-                formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
+                 formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
                 formatter.saveSharedPref(
                     "current_event_date",
                     facilitySummary.date,
@@ -156,11 +155,8 @@ class FacilityListFragment : Fragment() {
                 )
                 formatter.saveSharedPref("existing_event", "true", requireContext())
 
-                val typeToken = object : TypeToken<List<DataValue>>() {}.type
-                var dataValuesList: List<DataValue> = Gson().fromJson(data.dataValues, typeToken)
-
                 formatter.saveSharedPref("current_data", data.dataValues, requireContext())
-                formatter.saveSharedPref("current_event_id", facilitySummary.id, requireContext())
+                formatter.saveSharedPref("current_event_id", "${data.id}", requireContext())
                 formatter.deleteSharedPref("reload", requireContext())
                 formatter.deleteSharedPref("current_facility_data", requireContext())
                 startActivity(Intent(requireContext(), FacilityDetailActivity::class.java))
