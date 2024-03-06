@@ -5,7 +5,6 @@ import android.app.ProgressDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -14,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.capture.app.R
@@ -25,6 +25,7 @@ import com.capture.app.model.TrackedEntityAttributes
 import com.capture.app.network.RetrofitCalls
 import com.capture.app.room.Converters
 import com.capture.app.room.MainViewModel
+import com.capture.app.ui.viewmodel.ResponseViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,14 +39,14 @@ class PatientSearchActivity : AppCompatActivity() {
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
     private lateinit var progressDialog: ProgressDialog
-
+    private lateinit var liveData: ResponseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientSearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
-
+        liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         progressDialog = ProgressDialog(this)
         progressDialog.setMessage("Please wait...") // Set your message
         progressDialog.setCancelable(true)
@@ -110,7 +111,7 @@ class PatientSearchActivity : AppCompatActivity() {
             programUid,
             trackedEntity,
             searchParametersString,
-            inflater,progressDialog
+            inflater, progressDialog
         )
     }
 
@@ -123,7 +124,6 @@ class PatientSearchActivity : AppCompatActivity() {
                 it.programSections.forEach {
                     if (it.name == "SEARCH PATIENT") {
                         val section = it.trackedEntityAttributes
-                        Log.e("TAG", "Program Data Retrieved $section")
                         searchList.addAll(section)
 
                     }
@@ -170,13 +170,83 @@ class PatientSearchActivity : AppCompatActivity() {
                         itemView.findViewById<TextInputLayout>(R.id.textInputLayoutThree)
                     val textInputLayoutFour =
                         itemView.findViewById<TextInputLayout>(R.id.textInputLayoutFour)
-                    setupEditText(textInputLayoutOne, editTextOne, editTextTwo, 3, false, 0)
-                    setupEditText(textInputLayoutTwo, editTextTwo, editTextThree, 3, false, 0)
-                    setupEditText(textInputLayoutThree, editTextThree, editTextFour, 2, true, 12)
-                    handleFinalTextView(editTextFour, textInputLayoutFour, 4)
+                    setupEditText(
+                        textInputLayoutOne,
+                        editTextOne,
+                        editTextTwo,
+                        3,
+                        false,
+                        0,
+                        editTextOne,
+                        editTextTwo,
+                        editTextThree,
+                        editTextFour
+                    )
+                    setupEditText(
+                        textInputLayoutTwo,
+                        editTextTwo,
+                        editTextThree,
+                        3,
+                        false,
+                        0,
+                        editTextOne,
+                        editTextTwo,
+                        editTextThree,
+                        editTextFour
+                    )
+                    setupEditText(
+                        textInputLayoutThree,
+                        editTextThree,
+                        editTextFour,
+                        2,
+                        true,
+                        12,
+                        editTextOne,
+                        editTextTwo,
+                        editTextThree,
+                        editTextFour
+                    )
+                    handleFinalTextView(
+                        editTextFour,
+                        textInputLayoutFour,
+                        4,
+                        editTextOne,
+                        editTextTwo,
+                        editTextThree,
+                        editTextFour
+                    )
+
                     tvName.text = modifiedLabelName(item.name, item.id)
                     tvElement.text = item.id
                     lnParent.addView(itemView)
+                    liveData.mutablePatientUniqueLiveData.observe(this@PatientSearchActivity) {
+                        editText.setText(it)
+                    }
+
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(item.id, value)
+                            }
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                        }
+                    })
                 } else {
                     val itemView = inflater.inflate(
                         R.layout.item_edittext,
@@ -305,8 +375,16 @@ class PatientSearchActivity : AppCompatActivity() {
     }
 
     private fun setupEditText(
-        textInputLayout: TextInputLayout, currentEditText: EditText,
-        nextEditText: EditText, maxLength: Int, isNumber: Boolean, maxValue: Int
+        textInputLayout: TextInputLayout,
+        currentEditText: EditText,
+        nextEditText: EditText,
+        maxLength: Int,
+        isNumber: Boolean,
+        maxValue: Int,
+        one: TextInputEditText,
+        two: TextInputEditText,
+        three: TextInputEditText,
+        four: TextInputEditText
     ) {
         currentEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
@@ -345,17 +423,26 @@ class PatientSearchActivity : AppCompatActivity() {
                             nextEditText.setSelection(0)
                         }
                     }
+
+                    val uid = "${one.text}-${two.text}-${three.text}-${four.text}"
+                    liveData.updateUniqueID(uid)
                 }
             }
 
-            override fun afterTextChanged(editable: Editable) {}
+            override fun afterTextChanged(editable: Editable) {
+
+            }
         })
     }
 
     private fun handleFinalTextView(
         currentEditText: TextInputEditText,
         textInputLayout: TextInputLayout,
-        maxLength: Int
+        maxLength: Int,
+        one: TextInputEditText,
+        two: TextInputEditText,
+        three: TextInputEditText,
+        four: TextInputEditText
     ) {
         val currentDate = Date()
         val yearFormat = SimpleDateFormat("yyyy", Locale.ENGLISH)
@@ -386,6 +473,8 @@ class PatientSearchActivity : AppCompatActivity() {
                     } else {
                         textInputLayout.error = null
                     }
+                    val uid = "${one.text}-${two.text}-${three.text}-${four.text}"
+                    liveData.updateUniqueID(uid)
                 }
             }
 

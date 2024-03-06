@@ -36,6 +36,8 @@ import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
 import com.capture.app.data.Constants.ICD_CODE
+import com.capture.app.data.Constants.IDENTIFICATION_DOCUMENT
+import com.capture.app.data.Constants.IDENTIFICATION_NUMBER
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.Constants.SEX
@@ -107,38 +109,45 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     generatePatientUniqueId()
                     if (allRequiredFieldsComplete()) {
 
-                        formatter.deleteSharedPref("new_case", this@PatientRegistrationActivity)
-                        formatter.saveSharedPref(
-                            "reload",
-                            "true",
-                            this@PatientRegistrationActivity
-                        )
-                        formatter.saveSharedPref(
-                            "isRegistration",
-                            "true",
-                            this@PatientRegistrationActivity
-                        )
-                        try {
-                            val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
-                            if (isPatientUnderTreatment.isNotEmpty()) {
-                                if (isPatientUnderTreatment == "true") {
-                                    formatter.saveSharedPref(
-                                        "underTreatment",
-                                        "true",
-                                        this@PatientRegistrationActivity
-                                    )
-                                } else {
-                                    formatter.deleteSharedPref(
-                                        "underTreatment",
-                                        this@PatientRegistrationActivity
-                                    )
+                        if (noMatchingIdentification()) {
+                            formatter.deleteSharedPref("new_case", this@PatientRegistrationActivity)
+                            formatter.saveSharedPref(
+                                "reload",
+                                "true",
+                                this@PatientRegistrationActivity
+                            )
+                            formatter.saveSharedPref(
+                                "isRegistration",
+                                "true",
+                                this@PatientRegistrationActivity
+                            )
+                            try {
+                                val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                                if (isPatientUnderTreatment.isNotEmpty()) {
+                                    if (isPatientUnderTreatment == "true") {
+                                        formatter.saveSharedPref(
+                                            "underTreatment",
+                                            "true",
+                                            this@PatientRegistrationActivity
+                                        )
+                                    } else {
+                                        formatter.deleteSharedPref(
+                                            "underTreatment",
+                                            this@PatientRegistrationActivity
+                                        )
+                                    }
                                 }
+                                validateSearchData()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
-                            validateSearchData()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                        } else {
+                            Toast.makeText(
+                                this@PatientRegistrationActivity,
+                                "Please enter unique document number",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-
                     } else {
                         Toast.makeText(
                             this@PatientRegistrationActivity,
@@ -200,6 +209,72 @@ class PatientRegistrationActivity : AppCompatActivity() {
             formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
 
         }
+    }
+
+    private fun noMatchingIdentification(): Boolean {
+        var nomatch = false
+        try {
+            searchParameters = getSavedValues()
+            val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
+            val allTracked = viewModel.loadAllSystemTrackedEntities()
+            if (allTracked != null) {
+                allTracked.forEach {
+                    if (it.attributes.isNotEmpty()) {
+                        val attributes = Converters().fromJsonAttribute(it.attributes)
+                        val existingDocumentType =
+                            attributes.find { r -> r.attribute == IDENTIFICATION_DOCUMENT }
+                        val existingDocumentNumber =
+                            attributes.find { r -> r.attribute == IDENTIFICATION_NUMBER }
+                        val docExists =
+                            searchParameterCodes.find { s -> s.first == IDENTIFICATION_DOCUMENT }
+                        val numExists =
+                            searchParameterCodes.find { s -> s.first == IDENTIFICATION_NUMBER }
+
+                        if (existingDocumentType != null) {
+                            val type = existingDocumentType.value
+                            if (docExists != null) {
+                                val innerType = docExists.second
+                                if (type == innerType) {
+                                    if (existingDocumentNumber != null) {
+                                        val oldNum = existingDocumentNumber.value
+                                        if (numExists != null) {
+                                            val newNum = numExists.second
+                                            if (oldNum == newNum) {
+                                                nomatch = false
+                                                return false
+                                            } else {
+                                                nomatch = true
+                                            }
+                                        } else {
+                                            nomatch = true
+                                        }
+                                    } else {
+                                        nomatch = true
+                                    }
+
+                                } else {
+                                    nomatch = true
+                                }
+                            } else {
+                                nomatch = true
+                            }
+                        } else {
+                            nomatch = true
+                        }
+                    } else {
+                        nomatch = true
+                    }
+                }
+            } else {
+                nomatch = true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            nomatch = true
+        }
+
+        return nomatch
+
     }
 
     private fun allRequiredFieldsComplete(): Boolean {
@@ -346,10 +421,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 } else {
                     status = false
                 }
-                Log.e(
-                    "TAG",
-                    "Growing List **** parts $part1 other $part2 Parent Answer **** is $parentValue Qualifies $status"
-                )
+
             } else {
                 status = true
             }
@@ -424,7 +496,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
             for (patr in attributeValueList) {
                 val data: Attribute = patr.attribute
                 if (data.name == "showIf") {
-                    Log.e("TAG", "Show me the Response to Compared ${patr.value}")
                     val currentValidator = patr.value
                     val parts = currentValidator.split(':')
 
@@ -442,10 +513,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
-                            Log.e(
-                                "TAG",
-                                "Show me the Response to Compared Answer Above $previousAnswer Needed $part3Lower"
-                            )
+
                             val result = when (part2) {
                                 "eq" -> previousAnswer == part3Lower
                                 "ne" -> previousAnswer != part3Lower
@@ -705,7 +773,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                                 "Male"
                                             }
                                             textInputLayout.error =
-                                                "$opposite Diagnosis is not application for $gender patient"
+                                                "$opposite Diagnosis is not applicable for $gender patient"
                                         } else {
                                             textInputLayout.error = null
                                             calculateRelevant(

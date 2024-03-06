@@ -18,4 +18,6 @@ object Constants {
     const val STATUS = "BITcpbzhbNm"
     const val TWO_YEARS = "Akvj6sjSWt1"
     const val FIVE_YEARS = "W17Cq7ZpgnY"
+    const val IDENTIFICATION_DOCUMENT = "oob3a4JM7H6"
+    const val IDENTIFICATION_NUMBER = "eFbT7iTnljR"
 }

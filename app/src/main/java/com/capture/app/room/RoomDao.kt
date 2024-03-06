@@ -50,6 +50,9 @@ interface RoomDao {
     @Query("SELECT * FROM trackedEntity WHERE isSynced =:isSynced AND isLocal=:isLocal ORDER BY id DESC")
     fun loadTrackedEntities(isSynced: Boolean, isLocal: Boolean): List<TrackedEntityInstanceData>?
 
+    @Query("SELECT * FROM trackedEntity ORDER BY id DESC")
+    fun loadAllSystemTrackedEntities(): List<TrackedEntityInstanceData>?
+
     @Query("SELECT * FROM trackedEntity WHERE trackedEntity =:uid  ORDER BY id DESC")
     fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData?
 

@@ -329,3 +329,7 @@ data class FacilityImportSummaries(
     val reference: String,
 )
 
+data class ProgramResponse(
+    val parent: String,
+    val value: String
+)

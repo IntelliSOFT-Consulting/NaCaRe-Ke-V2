@@ -220,6 +220,10 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadAllTrackedEntities(orgUnit)
     }
 
+    fun loadAllSystemTrackedEntities(): List<TrackedEntityInstanceData>? {
+        return roomDao.loadAllSystemTrackedEntities()
+    }
+
     fun saveEvent(data: EventData) {
         val exists = roomDao.checkEvent(data.orgUnit)
         if (exists) {

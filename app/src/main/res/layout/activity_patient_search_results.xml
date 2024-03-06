@@ -66,4 +66,21 @@
                 tools:listitem="@layout/item_search_data" />
         </LinearLayout>
     </RelativeLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/eventButton"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="@dimen/_15dp"
+        android:layout_marginTop="@dimen/_15dp"
+        android:layout_marginEnd="@dimen/_15dp"
+        android:layout_marginBottom="@dimen/_15dp"
+        android:gravity="center"
+        android:text="@string/register_new_patient"
+        android:textAllCaps="false" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

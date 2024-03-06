@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.capture.app.model.CodeValuePair
 import com.capture.app.model.CodeValuePairPatient
+import com.capture.app.model.ProgramData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,8 +22,19 @@ class ResponseViewModel : ViewModel() {
             value = mutableListOf() // Initial value is an empty mutable list
         }
 
+    private val _mutablePatientUniqueLiveData =
+        MutableLiveData<String>().apply {
+            value = "" // Initial value is an empty mutable list
+        }
+   private val _alreadyAnsweredElements =
+        MutableLiveData<String>().apply {
+            value = "0" // Initial value is an empty mutable list
+        }
+
     // Expose the LiveData as an immutable LiveData to observers
     val mutableListLiveData: LiveData<MutableList<CodeValuePair>> = _mutableListLiveData
+    val mutablePatientUniqueLiveData: LiveData<String> = _mutablePatientUniqueLiveData
+    val mutableAlreadyAnsweredElements: LiveData<String> = _alreadyAnsweredElements
     val mutableListLiveDataPatient: LiveData<MutableList<CodeValuePairPatient>> =
         _mutableListLiveDataPatient
 
@@ -68,4 +80,20 @@ class ResponseViewModel : ViewModel() {
             }
         }
     }
+    fun updateUniqueID(uid: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _mutablePatientUniqueLiveData.postValue(uid)
+            }
+        }
+    }
+    fun updateAlreadySaved(uid: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _alreadyAnsweredElements.postValue(uid)
+            }
+        }
+    }
+
+
 }

@@ -49,6 +49,17 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 // Handle back arrow click here
                 onBackPressed() // Or implement your own logic
             }
+            eventButton.apply {
+                setOnClickListener {
+                    startActivity(
+                        Intent(
+                            this@PatientSearchResultsActivity,
+                            PatientRegistrationActivity::class.java
+                        )
+                    )
+                    finish()
+                }
+            }
         }
 
         displayResults()

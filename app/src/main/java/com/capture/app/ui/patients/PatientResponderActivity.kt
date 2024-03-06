@@ -384,7 +384,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 val listType: Type = object : TypeToken<List<TrackedEntityAttributes>>() {}.type
                 val dataElements: List<TrackedEntityAttributes> =
                     gson.fromJson(data.dataElements, listType)
-                smallTextView.text = "0/${dataElements.count()}"
+                extractAlreadySaved(dataElements)
+                liveData.mutableAlreadyAnsweredElements.observe(this@PatientResponderActivity) {
+                    smallTextView.setText("$it/${dataElements.count()}")
+                }
+
                 linearLayout.removeAllViews()
                 for (element in dataElements) {
                     attributeList.add(
@@ -410,7 +414,20 @@ class PatientResponderActivity : AppCompatActivity() {
                     val dataElements: List<DataElements> =
                         gson.fromJson(data.dataElements, listType)
                     launch(Dispatchers.Main) {
-                        smallTextView.text = "0/${dataElements.count()}"
+                        extractAlreadySavedAlt(dataElements, data.groupName)
+                        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                            var count = 0
+                            if (it.isNotEmpty()) {
+                                dataElements.forEach { r->
+                                    val foundItem = it.find { q -> q.code == r.id }
+                                    val ans = foundItem?.value ?: ""
+                                    if (ans.isNotEmpty()) {
+                                        count++
+                                    }
+                                }
+                            }
+                            smallTextView.setText("$count/${dataElements.count()}")
+                        }
                         linearLayout.removeAllViews()
                         val formatter = FormatterClass()
                         for (element in dataElements) {
@@ -856,6 +873,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
         }
     }
+
 
     private fun notMatchingDateFound(searchParameters: ArrayList<CodeValuePairPatient>): Boolean {
 
@@ -1304,7 +1322,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                     "Male"
                                                 }
                                                 textInputLayout.error =
-                                                    "$opposite Diagnosis is not application for $gender patient"
+                                                    "$opposite Diagnosis is not applicable for $gender patient"
                                             } else {
                                                 textInputLayout.error = null
                                                 calculateRelevant(
@@ -1972,6 +1990,46 @@ class PatientResponderActivity : AppCompatActivity() {
         return ""
     }
 
+    private fun extractAlreadySavedAlt(dataElements: List<DataElements>, title: String): String {
+        var answered = ""
+        val response = formatter.getSharedPref("current_data", this)
+        var count = 0
+        if (response != null) {
+            searchParameters = getSavedValues()
+            liveData.populateRelevantPatientData(searchParameters)
+
+        }
+
+        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+            answered = "${it.count()}"
+        }
+        return answered
+    }
+
+    private fun extractAlreadySaved(dataElements: List<TrackedEntityAttributes>): String {
+        var answered = ""
+        val response = formatter.getSharedPref("current_data", this)
+        var count = 0
+        if (response != null) {
+            searchParameters = getSavedValues()
+            dataElements.forEach {
+                val foundItem = searchParameters.find { q -> q.code == it.id }
+                val ans = foundItem?.value ?: ""
+                if (ans.isNotEmpty()) {
+                    count++
+                }
+            }
+
+            liveData.updateAlreadySaved(count.toString())
+
+        }
+
+        liveData.mutableAlreadyAnsweredElements.observe(this@PatientResponderActivity) {
+            answered = it
+        }
+        return answered
+    }
+
     private fun getDisplayNameFromCode(options: List<Option>, value: String): String {
         for (option in options) {
             if (option.code == value) {
@@ -2006,6 +2064,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
         if (!isProgram) {
             liveData.populateRelevantPatientData(searchParameters)
+
         }
 
         if (isProgram) {
@@ -2213,7 +2272,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 "Male"
                                             }
                                             textInputLayout.error =
-                                                "$opposite Diagnosis is not application for $gender patient"
+                                                "$opposite Diagnosis is not applicable for $gender patient"
                                         } else {
                                             textInputLayout.error = null
                                             saveValued(index, item.id, dataValue, isProgram)

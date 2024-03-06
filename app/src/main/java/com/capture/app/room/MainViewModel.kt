@@ -67,6 +67,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadAllTrackedEntities(orgUnit: String, context: Context) = runBlocking {
         repository.loadAllTrackedEntities(orgUnit)
     }
+    fun loadAllSystemTrackedEntities() = runBlocking {
+        repository.loadAllSystemTrackedEntities()
+    }
 
     fun saveEvent(context: Context, data: EventData) = runBlocking {
         repository.saveEvent(data)
