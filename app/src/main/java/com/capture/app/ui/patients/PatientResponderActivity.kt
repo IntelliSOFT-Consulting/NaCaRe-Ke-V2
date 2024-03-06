@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 
@@ -388,6 +389,19 @@ class PatientResponderActivity : AppCompatActivity() {
                 liveData.mutableAlreadyAnsweredElements.observe(this@PatientResponderActivity) {
                     smallTextView.setText("$it/${dataElements.count()}")
                 }
+                liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                    var count = 0
+                    if (it.isNotEmpty()) {
+                        dataElements.forEach { r ->
+                            val foundItem = it.find { q -> q.code == r.id }
+                            val ans = foundItem?.value ?: ""
+                            if (ans.isNotEmpty()) {
+                                count++
+                            }
+                        }
+                    }
+                    smallTextView.setText("$count/${dataElements.count()}")
+                }
 
                 linearLayout.removeAllViews()
                 for (element in dataElements) {
@@ -418,7 +432,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                             var count = 0
                             if (it.isNotEmpty()) {
-                                dataElements.forEach { r->
+                                dataElements.forEach { r ->
                                     val foundItem = it.find { q -> q.code == r.id }
                                     val ans = foundItem?.value ?: ""
                                     if (ans.isNotEmpty()) {
@@ -2118,6 +2132,12 @@ class PatientResponderActivity : AppCompatActivity() {
         if (isDead == "true") {
             isDisabled = true
         }
+        if (index == 9) {
+            val stillUnderTwo = patientStatusUnderTwoYears()
+            if (stillUnderTwo) {
+                isDisabled = true
+            }
+        }
         when (valueType) {
             "TEXT" -> {
                 if (item.optionSet == null) {
@@ -2726,6 +2746,35 @@ class PatientResponderActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun patientStatusUnderTwoYears(): Boolean {
+        val response = formatter.getSharedPref("current_data", this)
+        if (response != null) {
+            searchParameters = getSavedValues()
+            // get the date of treatment start
+            val treatment = searchParameters.find { it.code == TREATMENT_DATE }
+            if (treatment != null) {
+                val date = treatment.value
+                if (date.isNotEmpty()) {
+                    val dateString=formatter.convertDateFormat(date)
+                    Log.e("TAG", "Treatment date ****** $date")
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    // Parse the input date string to LocalDate
+                    val inputDate = LocalDate.parse(dateString, formatter)
+                    // Get the current date
+                    val currentDate = LocalDate.now()
+                    // Calculate the difference in years between current date and input date
+                    val differenceInYears = ChronoUnit.YEARS.between(inputDate, currentDate)
+
+                    // Return true if the difference is less than 2 years, else false
+                    return differenceInYears < 2
+                }
+
+            }
+        }
+        return false
+
     }
 
     private fun checkProvidedAnswer(
