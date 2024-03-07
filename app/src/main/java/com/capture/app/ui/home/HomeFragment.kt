@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.capture.app.R
 import com.capture.app.adapters.DashAdapter
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.FragmentHomeBinding
@@ -34,6 +36,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadDashBoard()
+
+        binding.apply {
+            btnProceed.apply {
+                setOnClickListener {
+                    NavHostFragment.findNavController(this@HomeFragment).navigate(R.id.nav_gallery)
+                }
+            }
+        }
     }
 
     private fun loadDashBoard() {

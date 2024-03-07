@@ -497,7 +497,6 @@ class PatientResponderActivity : AppCompatActivity() {
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            Log.e("TAG", "Navigation Error ${e.message}")
                         }
                     } else {
                         searchParameters = getSavedValues()
@@ -593,7 +592,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                             }
                                         } catch (e: Exception) {
                                             e.printStackTrace()
-                                            Log.e("TAG", "Navigation Error ${e.message}")
                                         }
 
                                     }
@@ -677,7 +675,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 }
                                             } catch (e: Exception) {
                                                 e.printStackTrace()
-                                                Log.e("TAG", "Navigation Error ${e.message}")
                                             }
 
                                         }
@@ -721,7 +718,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                                 viewModel.deleteCurrentSimilarCase(
                                                     this@PatientResponderActivity, patientUid
                                                 )
-                                                Log.e("TAG", "Entity Data Here **** $similarId")
                                                 val singleRecord = viewModel.getLatestEnrollment(
                                                     this@PatientResponderActivity, similarId
                                                 )
@@ -760,11 +756,16 @@ class PatientResponderActivity : AppCompatActivity() {
                                 if (index == 1) {
                                     val noMatch = notMatchingDateFound(searchParameters)
                                     if (noMatch) {
-                                        Toast.makeText(
-                                            this@PatientResponderActivity,
-                                            "Please specify the treatment date",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        val alertDialogBuilder =
+                                            AlertDialog.Builder(this@PatientResponderActivity)
+                                        alertDialogBuilder.setTitle("Treatment start date not included!")
+                                        alertDialogBuilder.setMessage("Please include the treatment start date added during notification!")
+                                        alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
+                                            // Dismiss the dialog
+                                            dialog.dismiss()
+                                        }
+                                        val alertDialog = alertDialogBuilder.create()
+                                        alertDialog.show()
                                         return@setOnClickListener
                                     }
 
@@ -2757,8 +2758,7 @@ class PatientResponderActivity : AppCompatActivity() {
             if (treatment != null) {
                 val date = treatment.value
                 if (date.isNotEmpty()) {
-                    val dateString=formatter.convertDateFormat(date)
-                    Log.e("TAG", "Treatment date ****** $date")
+                    val dateString = formatter.convertDateFormat(date)
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     // Parse the input date string to LocalDate
                     val inputDate = LocalDate.parse(dateString, formatter)
