@@ -57,6 +57,7 @@ import com.capture.app.model.AttributeValues
 import com.capture.app.model.CodeValuePairPatient
 import com.capture.app.model.DataElements
 import com.capture.app.model.DataValue
+import com.capture.app.model.DocumentNumber
 
 import com.capture.app.model.ExpandableItem
 import com.capture.app.model.Option
@@ -122,7 +123,6 @@ class PatientResponderActivity : AppCompatActivity() {
         }
         loadProgramDetails()
     }
-
 
     override fun onBackPressed() {
         val builder = AlertDialog.Builder(this)
@@ -510,6 +510,15 @@ class PatientResponderActivity : AppCompatActivity() {
                                 ).show()
                                 return@setOnClickListener
                             }
+//                            if (noMatchingIdentification()) {
+//                                Toast.makeText(
+//                                    this@PatientResponderActivity,
+//                                    "Please enter unique document number",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                                return@setOnClickListener
+//                            }
+
 
                             if (patientUid != null) {
                                 newCaseResponses.clear()
@@ -768,7 +777,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                         alertDialog.show()
                                         return@setOnClickListener
                                     }
-
                                 }
                                 val dialog: AlertDialog
                                 val dialogBuilder =
@@ -947,6 +955,57 @@ class PatientResponderActivity : AppCompatActivity() {
     private fun updateRelatedPatientData(trackedEntity: String) {
         viewModel.getTrackedEntity(trackedEntity)
         this@PatientResponderActivity.finish()
+
+    }
+    private fun noMatchingIdentification(): Boolean {
+
+        val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
+        val similarIdentificationNumbers = arrayListOf<String>()
+        try {
+            searchParameters = getSavedValues()
+            val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
+            val allTracked = viewModel.loadAllSystemTrackedEntities()
+            if (allTracked != null) {
+                similarIdentificationDocuments.clear()
+                allTracked.forEach {
+                    if (it.attributes.isNotEmpty()) {
+                        val attributes = Converters().fromJsonAttribute(it.attributes)
+                        val existingDocumentType =
+                            attributes.find { r -> r.attribute == Constants.IDENTIFICATION_DOCUMENT }
+                        val existingDocumentNumber =
+                            attributes.find { r -> r.attribute == Constants.IDENTIFICATION_NUMBER }
+                        if (existingDocumentType != null && existingDocumentNumber != null) {
+                            similarIdentificationDocuments.add(
+                                DocumentNumber(
+                                    type = existingDocumentType.value,
+                                    number = existingDocumentNumber.value
+                                )
+                            )
+                        }
+                    }
+                }
+                if (similarIdentificationDocuments.isEmpty()) {
+                    return true
+                } else {
+                    //current type
+                    val currentType =
+                        searchParameterCodes.first { it.first == Constants.IDENTIFICATION_DOCUMENT }.second
+                    val currentNumber =
+                        searchParameterCodes.first { it.first == Constants.IDENTIFICATION_NUMBER }.second
+
+                    similarIdentificationNumbers.clear()
+                    similarIdentificationDocuments.forEach {
+                        if (it.type == currentType) {
+                            similarIdentificationNumbers.add(it.number)
+                        }
+                    }
+                    return !similarIdentificationNumbers.contains(currentNumber)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
 
     }
 

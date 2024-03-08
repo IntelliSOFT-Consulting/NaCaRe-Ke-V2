@@ -47,6 +47,7 @@ import com.capture.app.databinding.ActivityPatientRegistrationBinding
 import com.capture.app.model.Attribute
 import com.capture.app.model.AttributeValues
 import com.capture.app.model.CodeValuePair
+import com.capture.app.model.DocumentNumber
 import com.capture.app.model.Option
 import com.capture.app.model.ParentAttributeValues
 import com.capture.app.model.RefinedAttributeValues
@@ -57,6 +58,7 @@ import com.capture.app.network.RetrofitCalls
 import com.capture.app.room.Converters
 import com.capture.app.room.MainViewModel
 import com.capture.app.ui.viewmodel.ResponseViewModel
+import org.w3c.dom.Document
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -212,12 +214,15 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
     private fun noMatchingIdentification(): Boolean {
-        var nomatch = false
+
+        val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
+        val similarIdentificationNumbers = arrayListOf<String>()
         try {
             searchParameters = getSavedValues()
             val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
             val allTracked = viewModel.loadAllSystemTrackedEntities()
             if (allTracked != null) {
+                similarIdentificationDocuments.clear()
                 allTracked.forEach {
                     if (it.attributes.isNotEmpty()) {
                         val attributes = Converters().fromJsonAttribute(it.attributes)
@@ -225,55 +230,38 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             attributes.find { r -> r.attribute == IDENTIFICATION_DOCUMENT }
                         val existingDocumentNumber =
                             attributes.find { r -> r.attribute == IDENTIFICATION_NUMBER }
-                        val docExists =
-                            searchParameterCodes.find { s -> s.first == IDENTIFICATION_DOCUMENT }
-                        val numExists =
-                            searchParameterCodes.find { s -> s.first == IDENTIFICATION_NUMBER }
-
-                        if (existingDocumentType != null) {
-                            val type = existingDocumentType.value
-                            if (docExists != null) {
-                                val innerType = docExists.second
-                                if (type == innerType) {
-                                    if (existingDocumentNumber != null) {
-                                        val oldNum = existingDocumentNumber.value
-                                        if (numExists != null) {
-                                            val newNum = numExists.second
-                                            if (oldNum == newNum) {
-                                                nomatch = false
-                                                return false
-                                            } else {
-                                                nomatch = true
-                                            }
-                                        } else {
-                                            nomatch = true
-                                        }
-                                    } else {
-                                        nomatch = true
-                                    }
-
-                                } else {
-                                    nomatch = true
-                                }
-                            } else {
-                                nomatch = true
-                            }
-                        } else {
-                            nomatch = true
+                        if (existingDocumentType != null && existingDocumentNumber != null) {
+                            similarIdentificationDocuments.add(
+                                DocumentNumber(
+                                    type = existingDocumentType.value,
+                                    number = existingDocumentNumber.value
+                                )
+                            )
                         }
-                    } else {
-                        nomatch = true
                     }
                 }
-            } else {
-                nomatch = true
+                if (similarIdentificationDocuments.isEmpty()) {
+                    return true
+                } else {
+                    //current type
+                    val currentType =
+                        searchParameterCodes.first { it.first == IDENTIFICATION_DOCUMENT }.second
+                    val currentNumber =
+                        searchParameterCodes.first { it.first == IDENTIFICATION_NUMBER }.second
+
+                    similarIdentificationNumbers.clear()
+                    similarIdentificationDocuments.forEach {
+                        if (it.type == currentType) {
+                            similarIdentificationNumbers.add(it.number)
+                        }
+                    }
+                    return !similarIdentificationNumbers.contains(currentNumber)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            nomatch = true
         }
-
-        return nomatch
+        return false
 
     }
 
@@ -283,7 +271,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes
-            val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
+            val missingFields =
+                requiredFieldsString.filter { !searchParameterCodes.contains(it) }
 
             return if (missingFields.isEmpty()) {
                 println("No fields are missing.")
@@ -332,8 +321,19 @@ class PatientRegistrationActivity : AppCompatActivity() {
             binding.lnParent.removeAllViews()
             binding.lnParent.removeAllViewsInLayout()
             completeList.forEachIndexed { index, item ->
-                attributeList.add(ParentAttributeValues(item.name, item.id, item.attributeValues))
-                populateSearchFields(index, item, binding.lnParent, extractCurrentValues(item.id))
+                attributeList.add(
+                    ParentAttributeValues(
+                        item.name,
+                        item.id,
+                        item.attributeValues
+                    )
+                )
+                populateSearchFields(
+                    index,
+                    item,
+                    binding.lnParent,
+                    extractCurrentValues(item.id)
+                )
 
             }
 
@@ -354,7 +354,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val savedData = formatter.getSharedPref("current_data", this)
         if (savedData != null) {
             return if (savedData.isNotEmpty()) {
-                Gson().fromJson(savedData, object : TypeToken<ArrayList<CodeValuePair>>() {}.type)
+                Gson().fromJson(
+                    savedData,
+                    object : TypeToken<ArrayList<CodeValuePair>>() {}.type
+                )
             } else {
                 ArrayList()
             }
@@ -680,7 +683,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         optionsStringList
                     )
                     if (currentValue.isNotEmpty()) {
-                        val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
+                        val answer =
+                            getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
                     }
                     val name = if (isRequired) generateRequiredField(item.name) else item.name
@@ -1216,7 +1220,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 }
                                 if (matchFound) {
                                     val validAnswer =
-                                        checkProvidedAnswer(child.tag.toString(), list, dataValue)
+                                        checkProvidedAnswer(
+                                            child.tag.toString(),
+                                            list,
+                                            dataValue
+                                        )
                                     if (validAnswer) {
                                         child.visibility = View.VISIBLE
                                         val attributeValues =
@@ -1391,7 +1399,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     }
                 }
 
-                Log.e("TAG", "Age: $years years and $months months")
                 saveValued(index, AGE_YEARS, "$years")
                 saveValued(index, AGE_MONTHS, "$months")
             }
@@ -1405,14 +1412,14 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
                 if (site != null && dataValue != null) {
                     val siteValue = formatter.generateRespectiveValue(site, dataValue)
-                    Log.e("TAG", "Match found: $siteValue")
+
                     if (siteValue.isNotEmpty()) {
                         saveValued(index, DIAGNOSIS_SITE, siteValue)
                     }
                 }
                 if (category != null && dataValue != null) {
                     val categoryValue = formatter.generateRespectiveValue(category, dataValue)
-                    Log.e("TAG", "Match found: $categoryValue")
+
                     if (categoryValue.isNotEmpty()) {
                         saveValued(index, DIAGNOSIS_CATEGORY, categoryValue)
                     }
@@ -1452,7 +1459,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), this)
         formatter.saveSharedPref("index", "$index", this)
-        Log.e("TAG", "Growing List $searchParameters")
         liveData.populateRelevantData(searchParameters)
 
     }

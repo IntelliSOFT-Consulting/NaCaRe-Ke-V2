@@ -333,3 +333,8 @@ data class ProgramResponse(
     val parent: String,
     val value: String
 )
+
+data class DocumentNumber(
+    val type: String,
+    val number: String
+)
