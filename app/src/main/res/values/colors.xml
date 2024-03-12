@@ -5,6 +5,7 @@
     <color name="colorPrimary">@color/purple_200</color>
     <color name="colorPrimaryDark">@color/purple_200</color>
     <color name="colorAccent">@color/colorPrimary</color>
+    <color name="lightPurple">#EBDEF6</color>
     <color name="colorAccentLight">#d8f7f7</color>
     <color name="colorAccentDark">#393d4d</color>
     <color name="colorAccentAlt">#f78f05</color>

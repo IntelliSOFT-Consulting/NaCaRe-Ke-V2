@@ -3,6 +3,7 @@ package com.capture.app.ui.patients
 import android.app.Application
 import android.app.DatePickerDialog
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
@@ -366,7 +367,47 @@ class PatientResponderActivity : AppCompatActivity() {
             if (data.isProgram) {
                 no_button.visibility = View.GONE
             }
+            lnLinearLayout.apply {
+                setOnClickListener {
+                    val isSubmitted = formatter.getSharedPref(
+                        "isSubmitted",
+                        this@PatientResponderActivity
+                    )
+                    if (isSubmitted != null) {
+                        if (isSubmitted == "true") {
+                            try {
+                                for (i in 0 until size) {
+                                    val currentChildView = lnParent.getChildAt(i)
+                                    val childView = lnParent.getChildAt(i)
+                                    val currentLnWithButtons =
+                                        currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                    val currentRotationImageView: ImageView =
+                                        currentChildView.findViewById(R.id.rotationImageView)
+                                    val lnWithButtons =
+                                        childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                                    val nextRotationImageView: ImageView =
+                                        childView.findViewById(R.id.rotationImageView)
 
+                                    if (i == index) {
+                                        currentLnWithButtons.visibility = View.VISIBLE
+                                        lnWithButtons.visibility = View.VISIBLE
+                                        currentRotationImageView.rotation = 180f
+                                        nextRotationImageView.rotation = 0f
+                                    } else {
+                                        currentLnWithButtons.visibility = View.GONE
+                                        lnWithButtons.visibility = View.GONE
+                                        currentRotationImageView.rotation = 180f
+                                        nextRotationImageView.rotation = 0f
+                                    }
+                                }
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+            }
 
             if (!data.isProgram) {
 
@@ -510,15 +551,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                 ).show()
                                 return@setOnClickListener
                             }
-//                            if (noMatchingIdentification()) {
-//                                Toast.makeText(
-//                                    this@PatientResponderActivity,
-//                                    "Please enter unique document number",
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
-//                                return@setOnClickListener
-//                            }
-
 
                             if (patientUid != null) {
                                 newCaseResponses.clear()
@@ -957,6 +989,7 @@ class PatientResponderActivity : AppCompatActivity() {
         this@PatientResponderActivity.finish()
 
     }
+
     private fun noMatchingIdentification(): Boolean {
 
         val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
@@ -1226,6 +1259,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     lnParent.addView(itemView)
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)
+                    } else {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
+                        )
                     }
                     liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
                         if (it) {
@@ -1273,6 +1313,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 saveValued(index, item.id, value, isProgram)
+                                textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                             }
                         }
                     })
@@ -1308,7 +1349,16 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (currentValue.isNotEmpty()) {
                         val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
+                    } else {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
+                        )
                     }
+
+
                     val name = if (isRequired) generateRequiredField(item.name) else item.name
                     tvName.text = Html.fromHtml(name)
                     autoCompleteTextView.setAdapter(adp)
@@ -1367,7 +1417,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (value.isNotEmpty()) {
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
                                 if (dataValue.isNotEmpty()) {
-
+                                    textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                                     if (item.id == DIAGNOSIS) {
                                         val gender = formatter.getSharedPref(
                                             "gender",
@@ -1488,6 +1538,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (refinedDate != null) {
                         editText.setText(refinedDate)
                     }
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1544,6 +1601,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     override fun afterTextChanged(s: Editable?) {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                             //check if it is date of birth, calculate relevant
                             if (hasValidator) {
                                 val passes = hasValidatorAndPasses(
@@ -1599,6 +1657,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     } else {
                         editText.setText(currentValue) // If length is not 12, set the text as it is
                     }
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1644,6 +1709,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             val countryCode = countryCodePicker.selectedCountryCode
                             val completeCode = "$countryCode$value"
                             saveValued(index, item.id, completeCode, isProgram)
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -1665,6 +1731,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1714,6 +1787,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -1736,6 +1810,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1785,6 +1866,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2219,6 +2301,13 @@ class PatientResponderActivity : AppCompatActivity() {
 
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)
+                    } else {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
+                        )
                     }
                     if (isHidden) {
                         itemView.visibility = View.GONE
@@ -2255,6 +2344,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 saveValued(index, item.id, value, isProgram)
+
+                                textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                             }
                         }
                     })
@@ -2281,6 +2372,13 @@ class PatientResponderActivity : AppCompatActivity() {
                         val answer =
                             getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
+                    } else {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
+                        )
                     }
                     val name =
                         if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2326,7 +2424,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (value.isNotEmpty()) {
 
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
-                                Log.e("TAG", "Text Changed ${item.id} Value -> $dataValue")
+
                                 if (item.id == SCREEN_FOR_CANCER) {
                                     var gender = ""
                                     val genders = searchParameters.find { it.code == SEX }
@@ -2357,12 +2455,15 @@ class PatientResponderActivity : AppCompatActivity() {
                                             textInputLayout.error = null
                                             saveValued(index, item.id, dataValue, isProgram)
 
+                                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+
                                         }
                                     } catch (e: Exception) {
                                         e.printStackTrace()
                                     }
                                 } else {
                                     saveValued(index, item.id, dataValue, isProgram)
+                                    textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                                 }
                                 val list = checkIfParentHasChildren(item.id)
                                 for (i in 0 until lnParent.childCount) {
@@ -2412,6 +2513,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 editText.isFocusable = false
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2466,6 +2574,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             //check if it is date of birth, calculate relevant
 //                            calculateRelevant(item, value)
                             saveValued(index, item.id, value, isProgram)
+
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2488,19 +2598,25 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvName.text = Html.fromHtml(name)
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
-                    if (currentValue.isNotEmpty()) {
-                        // check if length is 12, split into 2 parts, the first 3 then remainder
-                        if (currentValue.length == 12) { // Check if length is 12
-                            val firstPart =
-                                currentValue.substring(0, 3) // Extract the first 3 characters
-                            val secondPart =
-                                currentValue.substring(3) // Extract the remainder of the string
-                            countryCodePicker.setCountryForPhoneCode(firstPart.toInt())
-                            editText.setText(secondPart) // Set the text of the editText to the formatted value
-                        } else {
-                            editText.setText(currentValue) // If length is not 12, set the text as it is
-                        }
+                    // check if length is 12, split into 2 parts, the first 3 then remainder
+                    if (currentValue.length == 12) { // Check if length is 12
+                        val firstPart =
+                            currentValue.substring(0, 3) // Extract the first 3 characters
+                        val secondPart =
+                            currentValue.substring(3) // Extract the remainder of the string
+                        countryCodePicker.setCountryForPhoneCode(firstPart.toInt())
+                        editText.setText(secondPart) // Set the text of the editText to the formatted value
+                    } else {
+                        editText.setText(currentValue) // If length is not 12, set the text as it is
                     }
+
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2541,6 +2657,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             val countryCode = countryCodePicker.selectedCountryCode
                             val completeCode = "$countryCode$value"
                             saveValued(index, item.id, completeCode, isProgram)
+
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2561,6 +2679,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2599,6 +2724,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
+
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2619,6 +2746,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 tvElement.text = item.id
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
+                } else {
+                    textInputLayout.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.lightPurple
+                        )
+                    )
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2657,6 +2791,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
+
+                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })

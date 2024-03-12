@@ -146,8 +146,8 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(
                                 this@PatientRegistrationActivity,
-                                "Please enter unique document number",
-                                Toast.LENGTH_SHORT
+                                "Patient Identification Document Number already exists",
+                                Toast.LENGTH_LONG
                             ).show()
                         }
                     } else {
