@@ -321,6 +321,11 @@ class PatientResponderActivity : AppCompatActivity() {
         }
     }
 
+    private fun confirmUserResponse(id: String): String {
+        val foundItem = searchParameters.find { it.code == id }
+        return foundItem?.value ?: ""
+    }
+
     private fun createFormField(index: Int, data: ExpandableItem, size: Int, isFirstTime: String?) {
         binding.apply {
             val inflater = LayoutInflater.from(this@PatientResponderActivity)
@@ -341,8 +346,19 @@ class PatientResponderActivity : AppCompatActivity() {
             textViewName.text = data.groupName
 
             if (index == 1) {
-                tvTreatmentDate.visibility = View.VISIBLE
-                tvTreatmentDate.text = "Treatment Start Date: "
+                val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                if (isPatientUnderTreatment.isNotEmpty()) {
+                    if (isPatientUnderTreatment == "true") {
+                        val date = confirmUserResponse(TREATMENT_DATE)
+                        tvTreatmentDate.visibility = View.VISIBLE
+                        try {
+                            tvTreatmentDate.text =
+                                "Treatment Start Date: ${formatter.convertDateFormat(date, "dd-MM-yyyy")}"
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
             }
             val isRegistration =
                 formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
@@ -2548,7 +2564,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    if (isFirstTime==null) {
+                    if (isFirstTime == null) {
                         textInputLayout.setBackgroundColor(
                             ContextCompat.getColor(
                                 this,
@@ -2647,7 +2663,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
 
                 } else {
-                    if (isFirstTime==null) {
+                    if (isFirstTime == null) {
                         textInputLayout.setBackgroundColor(
                             ContextCompat.getColor(
                                 this,
@@ -2718,14 +2734,15 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    if (isFirstTime==null) {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
-                }}
+                    }
+                }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
                 if (isHidden) {
@@ -2786,13 +2803,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    if (isFirstTime==null) {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )}
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
