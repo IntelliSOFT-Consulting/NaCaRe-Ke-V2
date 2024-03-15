@@ -581,7 +581,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                     val nextButton: MaterialButton =
                                         dialogView.findViewById(R.id.yes_button)
                                     dialog = dialogBuilder.create()
-                                    tvTitle.text = context.getString(R.string.search_results)
+//                                    tvTitle.text = context.getString(R.string.search_results)
                                     tvMessage.text = context.getString(R.string.save_and_continue)
                                     nextButton.setOnClickListener {
                                         dialog.dismiss()
@@ -1429,8 +1429,10 @@ class PatientResponderActivity : AppCompatActivity() {
                                         if (gender != null) {
                                             rejectedCancerList = if (gender == "Male") {
                                                 formatter.femaleCancers()
-                                            } else {
+                                            } else if (gender == "Female") {
                                                 formatter.maleCancers()
+                                            } else {
+                                                emptyList()
                                             }
                                         }
 
@@ -1992,7 +1994,7 @@ class PatientResponderActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
-        return FormatterClass().formatCurrentDate(date)
+        return FormatterClass().formatSimpleDate(date)
     }
 
     private fun calculateRelevant(

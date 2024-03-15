@@ -760,8 +760,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                     if (gender.isNotEmpty()) {
                                         rejectedCancerList = if (gender == "Male") {
                                             formatter.femaleCancers()
-                                        } else {
+                                        } else if (gender == "Female") {
                                             formatter.maleCancers()
+                                        } else {
+                                            emptyList()
                                         }
                                     }
 
@@ -924,7 +926,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         val value = s.toString()
                         if (value.isNotEmpty()) {
                             //check if it is date of birth, calculate relevant
-                            Log.e("TAG", "This Field has a validator **** $hasValidator")
                             if (hasValidator) {
 
                                 val passes = hasValidatorAndPasses(
@@ -932,10 +933,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                     value,
                                     item.attributeValues
                                 )
-                                Log.e(
-                                    "TAG",
-                                    "This Field has a validator  and Qualifies **** $passes"
-                                )
+
                                 val parentName = formatter.getSharedPref(
                                     "parent_name",
                                     this@PatientRegistrationActivity
@@ -950,7 +948,9 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 }
                             } else {
                                 calculateRelevant(lnParent, index, item, value)
-                                saveValued(index, item.id, value)
+                                val dhis2Value =
+                                    FormatterClass().convertDateFormat(value, "yyyy-MM-dd")
+                                saveValued(index, item.id, dhis2Value)
                             }
                         }
                     }
@@ -1434,7 +1434,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
-        return FormatterClass().formatCurrentDate(date)
+        return FormatterClass().formatSimpleDate(date)
     }
 
     private fun getCodeFromText(value: String, options: List<Option>): String {
