@@ -96,7 +96,6 @@ class PatientListFragment : Fragment() {
                 }
 
             }
-            Log.e("TAG", "Reopening form *** $reopenForm")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -171,6 +170,7 @@ class PatientListFragment : Fragment() {
         Log.e("TAG", "Entity Data Here **** ${data.gender}")
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
+        formatter.deleteSharedPref("is_first_time", requireContext())
         formatter.saveSharedPref("gender", data.gender, requireContext())
         formatter.saveSharedPref("isDead", "${data.isDead}", requireContext())
         val builder = AlertDialog.Builder(requireContext())
@@ -244,10 +244,7 @@ class PatientListFragment : Fragment() {
                 formatter.saveSharedPref("current_patient_id", data.id, requireContext())
                 val single = viewModel.getLatestEnrollment(requireContext(), data.id)
                 if (single != null) {
-                    Log.e(
-                        "TAG",
-                        "Retrieved Event *** ${single.eventUid}"
-                    )
+
                     formatter.saveSharedPref("eventUid", single.eventUid, requireContext())
                     startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
 

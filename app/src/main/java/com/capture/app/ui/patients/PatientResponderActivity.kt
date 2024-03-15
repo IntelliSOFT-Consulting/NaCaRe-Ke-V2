@@ -18,15 +18,12 @@ import android.widget.CheckBox
 import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -231,6 +228,8 @@ class PatientResponderActivity : AppCompatActivity() {
 
     private fun loadProgramDetails() {
         CoroutineScope(Dispatchers.Main).launch {
+            val isFirstTime =
+                formatter.getSharedPref("is_first_time", this@PatientResponderActivity)
             val patientUid =
                 formatter.getSharedPref("current_patient_id", this@PatientResponderActivity)
             if (patientUid != null) {
@@ -309,7 +308,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     binding.syncProgressBar.visibility = View.GONE
                     expandableList.forEachIndexed { index, item ->
-                        createFormField(index, item, expandableList.size)
+                        createFormField(index, item, expandableList.size, isFirstTime)
                     }
                 }
             } else {
@@ -322,13 +321,14 @@ class PatientResponderActivity : AppCompatActivity() {
         }
     }
 
-    private fun createFormField(index: Int, data: ExpandableItem, size: Int) {
+    private fun createFormField(index: Int, data: ExpandableItem, size: Int, isFirstTime: String?) {
         binding.apply {
             val inflater = LayoutInflater.from(this@PatientResponderActivity)
             val itemView = inflater.inflate(R.layout.list_layout_tracked, null) as LinearLayout
 
             // Find the TextView inside the custom layout
 
+            val tvTreatmentDate: TextView = itemView.findViewById(R.id.tv_treatment_date)
             val smallTextView: TextView = itemView.findViewById(R.id.smallTextView)
             val textViewName: TextView = itemView.findViewById(R.id.textViewName)
             val linearLayout: LinearLayout = itemView.findViewById(R.id.linearLayout)
@@ -339,6 +339,11 @@ class PatientResponderActivity : AppCompatActivity() {
             val no_button: MaterialButton = itemView.findViewById(R.id.no_button)
             // Set text and other properties if needed
             textViewName.text = data.groupName
+
+            if (index == 1) {
+                tvTreatmentDate.visibility = View.VISIBLE
+                tvTreatmentDate.text = "Treatment Start Date: "
+            }
             val isRegistration =
                 formatter.getSharedPref("isRegistration", this@PatientResponderActivity)
             val underTreatment =
@@ -367,8 +372,20 @@ class PatientResponderActivity : AppCompatActivity() {
             if (data.isProgram) {
                 no_button.visibility = View.GONE
             }
+
+
             lnLinearLayout.apply {
                 setOnClickListener {
+
+                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                        if (it) {
+                            formatter.saveSharedPref(
+                                "isSubmitted",
+                                "true",
+                                this@PatientResponderActivity
+                            )
+                        }
+                    }
                     val isSubmitted = formatter.getSharedPref(
                         "isSubmitted",
                         this@PatientResponderActivity
@@ -458,7 +475,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         extractCurrentValues(element.id),
                         false,
                         isSubmitted.toString(),
-                        formatter.getSharedPref("isDead", this@PatientResponderActivity).toString()
+                        formatter.getSharedPref("isDead", this@PatientResponderActivity).toString(),
+                        isFirstTime
                     )
                 }
             }
@@ -499,7 +517,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                 extractCurrentValues(element.id),
                                 true,
                                 formatter.getSharedPref("isDead", this@PatientResponderActivity)
-                                    .toString()
+                                    .toString(), isFirstTime
                             )
                         }
                     }
@@ -662,7 +680,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                         val nextButton: MaterialButton =
                                             dialogView.findViewById(R.id.yes_button)
                                         dialog = dialogBuilder.create()
-                                        tvTitle.text = context.getString(R.string.search_results)
+//                                        tvTitle.text = context.getString(R.string.search_results)
                                         tvMessage.text =
                                             context.getString(R.string.save_and_continue)
                                         nextButton.setOnClickListener {
@@ -907,7 +925,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                         }
                                     } catch (e: Exception) {
                                         e.printStackTrace()
-                                        Log.e("TAG", "Navigation Error ${e.message}")
                                     }
 
                                 }
@@ -1073,7 +1090,6 @@ class PatientResponderActivity : AppCompatActivity() {
         diagnosis: String
     ): Boolean {
 
-        Log.e("TAG", "Patient has existing Similar Case Responses $patientUid")
         var hasSimilarCase = true
         if (newCaseResponses.isEmpty()) {
             hasSimilarCase = false
@@ -1208,7 +1224,7 @@ class PatientResponderActivity : AppCompatActivity() {
         item: TrackedEntityAttributes,
         lnParent: LinearLayout,
         currentValue: String,
-        isProgram: Boolean, isSubmitted: String, isDead: String
+        isProgram: Boolean, isSubmitted: String, isDead: String, isFirstTime: String?
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
@@ -1260,12 +1276,14 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)
                     } else {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
+                        if (isFirstTime == null) {
+                            textInputLayout.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.lightPurple
+                                )
                             )
-                        )
+                        }
                     }
                     liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
                         if (it) {
@@ -1350,12 +1368,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
                     } else {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
+                        if (isFirstTime == null) {
+                            textInputLayout.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.lightPurple
+                                )
                             )
-                        )
+                        }
                     }
 
 
@@ -1541,12 +1561,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.setText(refinedDate)
                     }
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1660,12 +1682,14 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.setText(currentValue) // If length is not 12, set the text as it is
                     }
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1734,12 +1758,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -1813,12 +1839,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime == null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2262,7 +2290,8 @@ class PatientResponderActivity : AppCompatActivity() {
         lnParent: LinearLayout,
         currentValue: String,
         isProgram: Boolean,
-        isDead: String
+        isDead: String,
+        isFirstTime: String?
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)
@@ -2304,12 +2333,14 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (currentValue.isNotEmpty()) {
                         editText.setText(currentValue)
                     } else {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
+                        if (isFirstTime == null) {
+                            editText.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.lightPurple
+                                )
                             )
-                        )
+                        }
                     }
                     if (isHidden) {
                         itemView.visibility = View.GONE
@@ -2346,8 +2377,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 saveValued(index, item.id, value, isProgram)
-
-                                textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                                editText.setBackgroundColor(Color.TRANSPARENT)
                             }
                         }
                     })
@@ -2375,12 +2405,14 @@ class PatientResponderActivity : AppCompatActivity() {
                             getDisplayNameFromCode(item.optionSet.options, currentValue)
                         autoCompleteTextView.setText(answer, false)
                     } else {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
+                        if (isFirstTime == null) {
+                            textInputLayout.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    this,
+                                    R.color.lightPurple
+                                )
                             )
-                        )
+                        }
                     }
                     val name =
                         if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2516,12 +2548,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime==null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2613,12 +2647,14 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
 
                 } else {
-                    textInputLayout.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.lightPurple
+                    if (isFirstTime==null) {
+                        textInputLayout.setBackgroundColor(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.lightPurple
+                            )
                         )
-                    )
+                    }
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)
@@ -2682,13 +2718,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
+                    if (isFirstTime==null) {
                     textInputLayout.setBackgroundColor(
                         ContextCompat.getColor(
                             this,
                             R.color.lightPurple
                         )
                     )
-                }
+                }}
                 itemView.tag = item.id
                 lnParent.addView(itemView)
                 if (isHidden) {
@@ -2749,12 +2786,13 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (currentValue.isNotEmpty()) {
                     editText.setText(currentValue)
                 } else {
+                    if (isFirstTime==null) {
                     textInputLayout.setBackgroundColor(
                         ContextCompat.getColor(
                             this,
                             R.color.lightPurple
                         )
-                    )
+                    )}
                 }
                 itemView.tag = item.id
                 lnParent.addView(itemView)

@@ -1497,7 +1497,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val yesButton: MaterialButton = dialogView.findViewById(R.id.yes_button)
         val noButton: MaterialButton = dialogView.findViewById(R.id.no_button)
         val dialog = dialogBuilder.create()
-        tvTitle.text = getString(R.string.search_results)
+//        tvTitle.text = getString(R.string.search_results)
         tvMessage.text =
             getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
 
@@ -1527,6 +1527,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     )
                     viewModel.saveTrackedEntity(this, data, data.orgUnit, patientIdentification)
                     formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
+                    formatter.saveSharedPref(
+                        "is_first_time",
+                        "true",
+                        this@PatientRegistrationActivity
+                    )
                     startActivity(
                         Intent(
                             this@PatientRegistrationActivity,

@@ -96,6 +96,16 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
+                    <TextView
+                        android:id="@+id/tv_treatment_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="8dp"
+                        android:visibility="gone"
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
+
                     <LinearLayout
                         android:id="@+id/linearLayout"
                         android:layout_width="match_parent"
