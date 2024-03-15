@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.capture.app.R
 import com.capture.app.adapters.DashAdapter
@@ -50,11 +51,10 @@ class HomeFragment : Fragment() {
 
         val data: List<HomeData> = formatter.generateHomeData(viewModel)
         binding.apply {
-            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
             val adapter = DashAdapter(requireContext(), data, this@HomeFragment::handleClick)
             recyclerView.adapter = adapter
-            recyclerView.layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+//            recyclerView.layoutManager =                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         }
     }
 

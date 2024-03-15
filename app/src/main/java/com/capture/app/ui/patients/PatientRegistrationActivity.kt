@@ -1434,7 +1434,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
-        return FormatterClass().formatSimpleDate(date)
+        return FormatterClass().formatCurrentDate(date)
     }
 
     private fun getCodeFromText(value: String, options: List<Option>): String {
