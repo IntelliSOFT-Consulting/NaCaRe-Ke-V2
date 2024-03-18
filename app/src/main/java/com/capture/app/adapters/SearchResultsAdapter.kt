@@ -17,7 +17,7 @@ class SearchResultsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultHolder {
         return SearchResultHolder(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.item_search_data,
+                R.layout.item_search_data_child,
                 parent,
                 false
             )

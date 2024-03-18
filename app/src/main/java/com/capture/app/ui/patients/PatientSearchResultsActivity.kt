@@ -106,9 +106,9 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 trackedEntityInstanceRecyclerView.apply {
                     adapter = adapterProgram
                     layoutManager = manager
-                    val divider = DividerItemDecoration(context, manager.orientation)
-                    divider.setDrawable(context.getDrawable(R.drawable.divider)!!)
-                    addItemDecoration(divider)
+//                    val divider = DividerItemDecoration(context, manager.orientation)
+//                    divider.setDrawable(context.getDrawable(R.drawable.divider)!!)
+//                    addItemDecoration(divider)
                 }
             }
         }

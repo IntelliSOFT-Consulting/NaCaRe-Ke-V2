@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/uniqueTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:background="@drawable/cell_bg_1"
+            android:ellipsize="marquee"
+            android:paddingStart="@dimen/size_4"
+            android:paddingLeft="@dimen/size_4"
+            android:paddingTop="@dimen/size_8"
+            android:paddingEnd="@dimen/size_4"
+            android:paddingRight="@dimen/size_4"
+            android:paddingBottom="@dimen/size_4"
+            android:singleLine="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_12"
+            tools:text="09/04/2018" />
+
+
+        <TextView
+            android:id="@+id/hospitalNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:background="@drawable/cell_bg"
+            android:ellipsize="marquee"
+            android:paddingStart="@dimen/size_4"
+            android:paddingLeft="@dimen/size_4"
+            android:paddingTop="@dimen/size_8"
+            android:paddingEnd="@dimen/size_4"
+            android:paddingRight="@dimen/size_4"
+            android:paddingBottom="@dimen/size_4"
+            android:singleLine="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_12"
+            tools:text="A00234" />
+
+        <TextView
+            android:id="@+id/patientName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:background="@drawable/cell_bg"
+            android:ellipsize="marquee"
+            android:paddingStart="@dimen/size_4"
+            android:paddingLeft="@dimen/size_4"
+            android:paddingTop="@dimen/size_8"
+            android:paddingEnd="@dimen/size_4"
+            android:paddingRight="@dimen/size_4"
+            android:paddingBottom="@dimen/size_4"
+            android:singleLine="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_12"
+            tools:text="A00234" />
+
+        <TextView
+            android:id="@+id/identificationDoc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:background="@drawable/cell_bg"
+            android:ellipsize="marquee"
+            android:paddingStart="@dimen/size_4"
+            android:paddingLeft="@dimen/size_4"
+            android:paddingTop="@dimen/size_8"
+            android:paddingEnd="@dimen/size_4"
+            android:paddingRight="@dimen/size_4"
+            android:paddingBottom="@dimen/size_4"
+            android:singleLine="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_12"
+            tools:text="A00234" />
+
+        <TextView
+            android:id="@+id/diagnosis"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:background="@drawable/cell_bg"
+            android:ellipsize="marquee"
+            android:paddingStart="@dimen/size_4"
+            android:paddingLeft="@dimen/size_4"
+            android:paddingTop="@dimen/size_8"
+            android:paddingEnd="@dimen/size_4"
+            android:paddingRight="@dimen/size_4"
+            android:paddingBottom="@dimen/size_4"
+            android:singleLine="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_12"
+            tools:text="A00234" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_1dp"
+        android:background="@color/purple_200" />
+</LinearLayout>
