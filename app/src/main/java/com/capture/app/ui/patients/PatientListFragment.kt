@@ -14,12 +14,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.capture.app.R
 import com.capture.app.adapters.TrackedEntityAdapter
+import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.FragmentPatientListBinding
@@ -27,11 +29,9 @@ import com.capture.app.model.EntityData
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.room.Converters
 import com.capture.app.room.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Date
+import kotlinx.coroutines.*
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -118,13 +118,14 @@ class PatientListFragment : Fragment() {
                 }
                 dataList.clear()
                 data.forEach {
+                    val diagnosisCode = extractValueFromAttributes(DIAGNOSIS, it.attributes)
                     val single = EntityData(
                         id = it.id.toString(),
                         uid = it.trackedEntity,
                         date = it.enrollDate,
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
                         lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
-                        diagnosis = extractValueFromAttributes("BzhDnF5fG4x", it.attributes),
+                        diagnosis = extractDiagnosisNameFromCode(DIAGNOSIS, diagnosisCode),
                         attributes = it.attributes,
                         patientIdentification = extractValueFromAttributes(
                             PATIENT_UNIQUE,
@@ -154,6 +155,19 @@ class PatientListFragment : Fragment() {
         }
     }
 
+
+    private fun extractDiagnosisNameFromCode(
+        diagnosis: String,
+        diagnosisCode: String
+    ) = runBlocking {
+        FormatterClass().extractDiagnosisNameFromCodeChild(
+            requireContext(),
+            diagnosis,
+            diagnosisCode
+        )
+    }
+
+
     private fun extractValueFromAttributes(s: String, attributes: String): String {
         var data = ""
         val converters = Converters().fromJsonAttribute(attributes)
@@ -166,8 +180,6 @@ class PatientListFragment : Fragment() {
     }
 
     private fun handleClick(data: EntityData) {
-//        viewModel.deleteCurrentSimilarCase(requireContext(),data.id)
-        Log.e("TAG", "Entity Data Here **** ${data.gender}")
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
         formatter.deleteSharedPref("is_first_time", requireContext())

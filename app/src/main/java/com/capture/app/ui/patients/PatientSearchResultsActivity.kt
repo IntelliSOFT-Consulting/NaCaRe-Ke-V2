@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.capture.app.R
 import com.capture.app.adapters.SearchResultsAdapter
+import com.capture.app.data.Constants
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientSearchResultsBinding
@@ -25,6 +26,7 @@ import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.room.Converters
 import com.capture.app.room.EnrollmentEventData
 import com.capture.app.room.MainViewModel
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 
@@ -78,6 +80,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     attributesList.add(TrackedEntityInstanceAttributes(it.attribute, it.value))
                 }
                 it.attributes
+                val diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false)
                 val data = SearchResult(
                     trackedEntityInstance = it.trackedEntityInstance,
                     orgUnit = it.enrollments.getOrNull(0)?.orgUnit.orEmpty(),
@@ -87,7 +90,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                     hospitalNo = extractValue("MiXrdHDZ6Hw", it.attributes, false),
                     patientName = extractValue("R1vaUuILrDy", it.attributes, true),
                     identification = extractValue("eFbT7iTnljR", it.attributes, false),
-                    diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false),
+                    diagnosis = extractDiagnosisNameFromCode(Constants.DIAGNOSIS, diagnosis),
                     attributeValues = attributesList,
                     enrollmentEvents = it.enrollments,
                     patientIdentification = extractPatientId(it.attributes, PATIENT_UNIQUE)
@@ -96,7 +99,6 @@ class PatientSearchResultsActivity : AppCompatActivity() {
 
             }
 
-            Log.e("TAG", "Results Final **** $searchResult")
             val adapterProgram =
                 SearchResultsAdapter(searchResult, this, this::handleClick)
             binding.apply {
@@ -110,6 +112,17 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun extractDiagnosisNameFromCode(
+        diagnosis: String,
+        diagnosisCode: String
+    ) = runBlocking {
+        FormatterClass().extractDiagnosisNameFromCodeChild(
+            this@PatientSearchResultsActivity,
+            diagnosis,
+            diagnosisCode
+        )
     }
 
     private fun extractPatientId(attributes: List<Attributes>, patientUnique: String): String {

@@ -1,5 +1,6 @@
 package com.capture.app.data
 
+import android.app.Application
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
@@ -17,6 +18,7 @@ import com.capture.app.R
 import com.capture.app.model.HomeData
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.response.DataStoreResponse
+import com.capture.app.room.Converters
 import com.capture.app.room.DataStoreData
 import com.capture.app.room.MainViewModel
 import java.text.MessageFormat
@@ -57,6 +59,35 @@ class FormatterClass {
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
     private val dateInverseFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
+      fun extractDiagnosisNameFromCodeChild(context: Context,diagnosis: String, diagnosisCode: String): String {
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        val data = viewModel.loadSingleProgram(context, "notification")
+        var diagnosisName = diagnosisCode
+
+        data?.let {
+            try {
+                val converters = Converters().fromJson(data.jsonData)
+                outer@ for (program in converters.programs) {
+                    for (section in program.programSections) {
+                        val found = section.trackedEntityAttributes.filter { it.id == diagnosis }
+                        if (found.isNotEmpty()) {
+                            for (q in found) {
+                                val code = q.optionSet?.options?.find { it.code == diagnosisCode }
+                                if (code != null) {
+                                    diagnosisName = code.displayName
+                                    break@outer // Break out of the outer loop once the code is found
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle exception if needed
+            }
+        }
+
+        return diagnosisName
+    }
     fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
