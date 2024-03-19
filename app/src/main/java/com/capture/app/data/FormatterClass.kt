@@ -42,7 +42,7 @@ class FormatterClass {
                 MessageFormat.format(
                     "{0}",
                     viewModel.countEntities()
-                ), "Number of notifications made by facility"
+                ), "All"
             )
         )
         homeDataList.add(
@@ -50,16 +50,61 @@ class FormatterClass {
                 MessageFormat.format(
                     "{0}",
                     viewModel.countEntities()
-                ), "Number of active notifications made by facility (not closed within 60 days)"
+                ), "Completed"
             )
         )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Open"
+            )
+        )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Deceased"
+            )
+        )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Late Notifications"
+            )
+        )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Survivorship not updated in 2 years"
+            )
+        )
+        homeDataList.add(
+            HomeData(
+                MessageFormat.format(
+                    "{0}",
+                    viewModel.countEntities()
+                ), "Survivorship not updated in 5 years"
+            )
+        )
+
         return homeDataList
     }
 
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
     private val dateInverseFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
-      fun extractDiagnosisNameFromCodeChild(context: Context,diagnosis: String, diagnosisCode: String): String {
+    fun extractDiagnosisNameFromCodeChild(
+        context: Context,
+        diagnosis: String,
+        diagnosisCode: String
+    ): String {
         val viewModel = MainViewModel(context.applicationContext as Application)
         val data = viewModel.loadSingleProgram(context, "notification")
         var diagnosisName = diagnosisCode
@@ -88,6 +133,7 @@ class FormatterClass {
 
         return diagnosisName
     }
+
     fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
@@ -185,7 +231,8 @@ class FormatterClass {
         // If none of the formats match, return an error message or handle it as needed
         return null
     }
-    fun convertDateFormat(inputDate: String,desiredFormat:String): String {
+
+    fun convertDateFormat(inputDate: String, desiredFormat: String): String {
         // Define the input date formats to check
         val inputDateFormats = arrayOf(
             "yyyy-MM-dd",
@@ -409,7 +456,7 @@ class FormatterClass {
             "pe5Qlr09BBd",
             "uQmp4kURCCQ",
             "jYoWCxPFInU",
-            "ZoWjQn9uDfS",""
+            "ZoWjQn9uDfS", ""
         )
     }
 

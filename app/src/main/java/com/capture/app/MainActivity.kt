@@ -2,6 +2,7 @@ package com.capture.app
 
 import android.app.Application
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -16,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.capture.app.auth.LoginActivity
+import com.capture.app.data.Constants.HELP_DESK
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityMainBinding
 import com.capture.app.model.EnrollmentEventUploadData
@@ -111,6 +113,13 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+
+                R.id.menu_help -> {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(HELP_DESK))
+                    startActivity(intent)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 // Add more cases for other menu items not in the setOf
                 else -> false
             }
@@ -141,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                         retrofitCalls.uploadFacilityData(
                             this@MainActivity,
                             payload,
-                            "${it.id}", it.isServerSide,it.uid
+                            "${it.id}", it.isServerSide, it.uid
                         )
                     }
 
