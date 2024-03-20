@@ -1239,804 +1239,7 @@ class PatientResponderActivity : AppCompatActivity() {
         return status
     }
 
-    private fun createFormFieldsAttribute(
-        index: Int,
-        item: TrackedEntityAttributes,
-        lnParent: LinearLayout,
-        currentValue: String,
-        isProgram: Boolean, isSubmitted: String, isDead: String, isFirstTime: String?
-    ) {
-        val valueType: String = item.valueType
-        val inflater = LayoutInflater.from(this)
-        val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
-        val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
-        val disableFutureDate: Boolean =
-            extractAttributeValue("disableFutureDate", item.attributeValues)
-        val showIf = showIfAttribute("showIf", item.attributeValues)
-        val basicHiddenFields = isPartOfBasicInformation(item.id, formatter.excludeHiddenFields())
-        val hasValidator: Boolean =
-            extractValidatorAttributeValue("Validator", item.attributeValues)
 
-        if (isRequired) {
-            if (!showIf) {
-                requiredFieldsString.add(item.id)
-            }
-        }
-        if (isSubmitted.isNotEmpty()) {
-            if (isSubmitted == "true") {
-                isDisabled = true
-            }
-        }
-        if (isDead == "true") {
-            isDisabled = true
-        }
-
-        when (valueType) {
-            "TEXT" -> {
-                if (item.optionSet == null) {
-
-                    val itemView = inflater.inflate(
-                        R.layout.item_edittext, lnParent, false
-                    ) as LinearLayout
-                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                    val textInputLayout =
-                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                    val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                    val name = if (isRequired) generateRequiredField(item.name) else item.name
-                    tvName.text = Html.fromHtml(name)
-                    tvElement.text = item.id
-                    itemView.tag = item.id
-                    val onlyLetters = formatter.onlyAcceptLetters(item.id)
-                    if (onlyLetters) {
-                        formatter.setLettersOnly(editText)
-                    }
-                    lnParent.addView(itemView)
-                    if (currentValue.isNotEmpty()) {
-                        editText.setText(currentValue)
-                    } else {
-                        if (isFirstTime == null) {
-                            textInputLayout.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this,
-                                    R.color.lightPurple
-                                )
-                            )
-                        }
-                    }
-                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                        if (it) {
-                            isDisabled = it
-                        }
-                    }
-                    if (isHidden) {
-                        itemView.visibility = View.GONE
-                    } else {
-                        if (isDisabled) {
-                            editText.keyListener = null
-                            editText.isCursorVisible = false
-                            editText.isFocusable = false
-                            editText.isEnabled = false
-
-                            liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
-                                val valueObtained = it.find { it.code == item.id }
-                                if (valueObtained != null) {
-                                    editText.setText(valueObtained.value)
-                                }
-                            }
-                        }
-                        if (showIf) {
-                            val showNow = showIfRespondedAttribute(item.attributeValues)
-                            if (showNow) {
-                                itemView.visibility = View.GONE
-                            } else {
-                                itemView.visibility = View.VISIBLE
-                            }
-                        }
-                    }
-                    editText.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?, start: Int, count: Int, after: Int
-                        ) {
-                        }
-
-                        override fun onTextChanged(
-                            s: CharSequence?, start: Int, before: Int, count: Int
-                        ) {
-
-                        }
-
-                        override fun afterTextChanged(s: Editable?) {
-                            val value = s.toString()
-                            if (value.isNotEmpty()) {
-                                saveValued(index, item.id, value, isProgram)
-                                textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                            }
-                        }
-                    })
-
-
-                    if (basicHiddenFields) {
-                        itemView.visibility = View.GONE
-                    }
-
-                } else {
-                    val itemView = inflater.inflate(
-                        R.layout.item_autocomplete, lnParent, false
-                    ) as LinearLayout
-                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                    val textInputLayout =
-                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                    val autoCompleteTextView =
-                        itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
-                    tvElement.text = item.id
-                    val optionsStringList: MutableList<String> = ArrayList()
-                    val isAllowedToSearch = formatter.retrieveAllowedToTypeItem(item.id)
-                    if (isAllowedToSearch) {
-                        autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
-                        autoCompleteTextView.setHint("Type here to Search")
-                    }
-                    item.optionSet.options.forEach {
-                        optionsStringList.add(it.displayName)
-                    }
-                    val adp = ArrayAdapter(
-                        this, android.R.layout.simple_list_item_1, optionsStringList
-                    )
-                    if (currentValue.isNotEmpty()) {
-                        val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
-                        autoCompleteTextView.setText(answer, false)
-                    } else {
-                        if (isFirstTime == null) {
-                            textInputLayout.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this,
-                                    R.color.lightPurple
-                                )
-                            )
-                        }
-                    }
-
-
-                    val name = if (isRequired) generateRequiredField(item.name) else item.name
-                    tvName.text = Html.fromHtml(name)
-                    autoCompleteTextView.setAdapter(adp)
-                    adp.notifyDataSetChanged()
-                    itemView.tag = item.id
-                    lnParent.addView(itemView)
-                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                        if (it) {
-                            isDisabled = it
-                        }
-                    }
-                    if (isHidden) {
-                        itemView.visibility = View.GONE
-                    } else {
-                        if (isDisabled) {
-                            autoCompleteTextView.keyListener = null
-                            autoCompleteTextView.isCursorVisible = false
-                            autoCompleteTextView.isFocusable = false
-                            autoCompleteTextView.isEnabled = false
-                            autoCompleteTextView.setAdapter(null)
-
-                            liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
-                                val valueObtained = it.find { it.code == item.id }
-                                if (valueObtained != null) {
-                                    val answer = getDisplayNameFromCode(
-                                        item.optionSet.options, valueObtained.value
-                                    )
-                                    autoCompleteTextView.setText(answer, false)
-                                }
-                            }
-                        }
-                        if (showIf) {
-                            val showNow = showIfRespondedAttribute(item.attributeValues)
-                            if (showNow) {
-                                itemView.visibility = View.GONE
-                            } else {
-                                itemView.visibility = View.VISIBLE
-                            }
-                        }
-
-                    }
-                    autoCompleteTextView.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?, start: Int, count: Int, after: Int
-                        ) {
-                        }
-
-                        override fun onTextChanged(
-                            s: CharSequence?, start: Int, before: Int, count: Int
-                        ) {
-
-                        }
-
-                        override fun afterTextChanged(s: Editable?) {
-                            val value = s.toString()
-                            if (value.isNotEmpty()) {
-                                val dataValue = getCodeFromText(value, item.optionSet.options)
-                                if (dataValue.isNotEmpty()) {
-                                    textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                                    if (item.id == DIAGNOSIS) {
-                                        val gender = formatter.getSharedPref(
-                                            "gender",
-                                            this@PatientResponderActivity
-                                        )
-
-                                        var rejectedCancerList: List<String> = emptyList()
-
-                                        if (gender != null) {
-                                            rejectedCancerList = if (gender == "Male") {
-                                                formatter.femaleCancers()
-                                            } else if (gender == "Female") {
-                                                formatter.maleCancers()
-                                            } else {
-                                                emptyList()
-                                            }
-                                        }
-
-                                        try {
-                                            val parts = dataValue.split(".")
-                                            val firstPart = parts[0]  // "C"
-                                            val secondPart = parts[1] // "61"
-
-                                            if (rejectedCancerList.contains(firstPart)) {
-                                                val opposite = if (gender == "Male") {
-                                                    "Female"
-                                                } else {
-                                                    "Male"
-                                                }
-                                                textInputLayout.error =
-                                                    "$opposite Diagnosis is not applicable for $gender patient"
-                                            } else {
-                                                textInputLayout.error = null
-                                                calculateRelevant(
-                                                    lnParent,
-                                                    index,
-                                                    item,
-                                                    value,
-                                                    isProgram
-                                                )
-                                                saveValued(index, item.id, dataValue, isProgram)
-
-                                            }
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
-                                        }
-                                    } else {
-                                        calculateRelevant(lnParent, index, item, value, isProgram)
-                                        saveValued(index, item.id, dataValue, isProgram)
-                                    }
-
-                                    val list = checkIfParentHasChildren(item.id)
-                                    for (i in 0 until lnParent.childCount) {
-                                        val child: View = lnParent.getChildAt(i)
-                                        // Check if any inner data of the list matches the child's tag
-                                        val matchFound = list.any { innerData ->
-                                            // Replace the condition below with the appropriate comparison between innerData and child's tag
-                                            innerData.parent == child.tag
-                                        }
-                                        if (matchFound) {
-                                            val validAnswer = checkProvidedAnswer(
-                                                child.tag.toString(), list, dataValue
-                                            )
-                                            if (validAnswer) {
-
-                                                val attributeValues =
-                                                    attributeList.find { it.parent == child.tag.toString() }
-                                                if (attributeValues != null) {
-                                                    val isInnerRequired: Boolean =
-                                                        extractAttributeValue(
-                                                            "Required",
-                                                            attributeValues.attributeValues
-                                                        )
-                                                    if (isInnerRequired) {
-                                                        requiredFieldsString.add(child.tag.toString())
-                                                    } else {
-
-                                                        requiredFieldsString.remove(child.tag.toString())
-                                                    }
-                                                }
-                                                child.visibility = View.VISIBLE
-                                            } else {
-                                                child.visibility = View.GONE
-                                                requiredFieldsString.remove(child.tag.toString())
-                                            }
-                                        } else {
-                                            // If no match is found, leave the visibility unchanged
-                                            if (child.visibility != View.VISIBLE) {
-                                                child.visibility = View.GONE
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    })
-
-                    if (basicHiddenFields) {
-                        itemView.visibility = View.GONE
-                    }
-                }
-            }
-
-            "DATE" -> {
-                val itemView = inflater.inflate(
-                    R.layout.item_edittext_date, findViewById(R.id.lnParent), false
-                ) as LinearLayout
-                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name = if (isRequired) generateRequiredField(item.name) else item.name
-                tvName.text = Html.fromHtml(name)
-                tvElement.text = item.id
-                editText.setKeyListener(null)
-                editText.isCursorVisible = false
-                editText.isFocusable = false
-                if (currentValue.isNotEmpty()) {
-                    val refinedDate = formatter.convertDateFormat(currentValue)
-                    if (refinedDate != null) {
-                        editText.setText(refinedDate)
-                    }
-                } else {
-                    if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
-                        )
-                    }
-                }
-                itemView.tag = item.id
-                lnParent.addView(itemView)
-                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                    if (it) {
-                        isDisabled = it
-                    }
-                }
-                if (isHidden) {
-                    itemView.visibility = View.GONE
-                } else {
-                    if (isDisabled) {
-                        editText.isEnabled = false
-                    }
-                    if (showIf) {
-                        val showNow = showIfRespondedAttribute(item.attributeValues)
-                        if (showNow) {
-                            itemView.visibility = View.GONE
-                        } else {
-                            itemView.visibility = View.VISIBLE
-                        }
-                    }
-
-                }
-                editText.setOnClickListener { v ->
-                    val calendar: Calendar = Calendar.getInstance()
-                    val datePickerDialog = DatePickerDialog(
-                        this,
-                        { datePicker: DatePicker?, year: Int, month: Int, day: Int ->
-                            val valueCurrent: String = getDate(year, month, day)
-                            editText.setText(valueCurrent)
-                        },
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    )
-                    if (disableFutureDate) {
-                        datePickerDialog.datePicker.maxDate = calendar.getTimeInMillis()
-                    }
-                    datePickerDialog.show()
-                }
-                editText.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?, start: Int, count: Int, after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?, start: Int, before: Int, count: Int
-                    ) {
-
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-                        val value = s.toString()
-                        if (value.isNotEmpty()) {
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                            //check if it is date of birth, calculate relevant
-                            if (hasValidator) {
-                                val passes = hasValidatorAndPasses(
-                                    "Validator", value, item.attributeValues
-                                )
-
-                                val parentName = formatter.getSharedPref(
-                                    "parent_name", this@PatientResponderActivity
-                                )
-                                if (passes) {
-                                    textInputLayout.error = null
-                                    calculateRelevant(lnParent, index, item, value, isProgram)
-                                    saveValued(index, item.id, value, isProgram)
-                                } else {
-                                    textInputLayout.error =
-                                        "${item.name} cannot come before $parentName"
-                                }
-                            } else {
-                                calculateRelevant(lnParent, index, item, value, isProgram)
-                                saveValued(index, item.id, value, isProgram)
-                            }
-                        }
-                    }
-                })
-                if (basicHiddenFields) {
-                    itemView.visibility = View.GONE
-                }
-            }
-
-            "PHONE_NUMBER" -> {
-                val itemView = inflater.inflate(
-                    R.layout.item_edittext_phone, findViewById(R.id.lnParent), false
-                ) as LinearLayout
-                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val countryCodePicker =
-                    itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
-
-                val name = if (isRequired) generateRequiredField(item.name) else item.name
-                tvName.text = Html.fromHtml(name)
-                tvElement.text = item.id
-                if (currentValue.isNotEmpty()) {
-                    // check if length is 12, split into 2 parts, the first 3 then remainder
-                    if (currentValue.length == 12) { // Check if length is 12
-                        val firstPart =
-                            currentValue.substring(0, 3) // Extract the first 3 characters
-                        val secondPart =
-                            currentValue.substring(3) // Extract the remainder of the string
-                        countryCodePicker.setCountryForPhoneCode(firstPart.toInt())//setselectedCountryCode = firstPart
-                        editText.setText(secondPart) // Set the text of the editText to the formatted value
-                    } else {
-                        editText.setText(currentValue) // If length is not 12, set the text as it is
-                    }
-                } else {
-                    if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
-                        )
-                    }
-                }
-                itemView.tag = item.id
-                lnParent.addView(itemView)
-                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                    if (it) {
-                        isDisabled = it
-                    }
-                }
-                if (isHidden) {
-                    itemView.visibility = View.GONE
-                } else {
-                    if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
-                    }
-                    if (showIf) {
-                        val showNow = showIfRespondedAttribute(item.attributeValues)
-                        if (showNow) {
-                            itemView.visibility = View.GONE
-                        } else {
-                            itemView.visibility = View.VISIBLE
-                        }
-                    }
-
-                }
-                editText.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?, start: Int, count: Int, after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?, start: Int, before: Int, count: Int
-                    ) {
-
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-                        val value = s.toString()
-                        if (value.isNotEmpty()) {
-                            val countryCode = countryCodePicker.selectedCountryCode
-                            val completeCode = "$countryCode$value"
-                            saveValued(index, item.id, completeCode, isProgram)
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                        }
-                    }
-                })
-                if (basicHiddenFields) {
-                    itemView.visibility = View.GONE
-                }
-            }
-
-            "INTEGER" -> {
-                val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent, false
-                ) as LinearLayout
-                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name = if (isRequired) generateRequiredField(item.name) else item.name
-                tvName.text = Html.fromHtml(name)
-                tvElement.text = item.id
-                if (currentValue.isNotEmpty()) {
-                    editText.setText(currentValue)
-                } else {
-                    if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
-                        )
-                    }
-                }
-                itemView.tag = item.id
-                lnParent.addView(itemView)
-                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                    if (it) {
-                        isDisabled = it
-                    }
-                }
-                if (isHidden) {
-                    itemView.visibility = View.GONE
-                } else {
-                    if (isDisabled) {
-                        editText.keyListener = null
-                        editText.isCursorVisible = false
-                        editText.isFocusable = false
-                        editText.isEnabled = false
-                        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
-                            val valueObtained = it.find { it.code == item.id }
-                            if (valueObtained != null) {
-                                editText.setText(valueObtained.value)
-                            }
-                        }
-                    }
-                    if (showIf) {
-                        val showNow = showIfRespondedAttribute(item.attributeValues)
-                        if (showNow) {
-                            itemView.visibility = View.GONE
-                        } else {
-                            itemView.visibility = View.VISIBLE
-                        }
-                    }
-
-                }
-                editText.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?, start: Int, count: Int, after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?, start: Int, before: Int, count: Int
-                    ) {
-
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-                        val value = s.toString()
-                        if (value.isNotEmpty()) {
-                            saveValued(index, item.id, value, isProgram)
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                        }
-                    }
-                })
-
-                if (basicHiddenFields) {
-                    itemView.visibility = View.GONE
-                }
-            }
-
-            "NUMBER" -> {
-                val itemView = inflater.inflate(
-                    R.layout.item_edittext_number, lnParent, false
-                ) as LinearLayout
-                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
-                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
-                val name = if (isRequired) generateRequiredField(item.name) else item.name
-                tvName.text = Html.fromHtml(name)
-                tvElement.text = item.id
-                if (currentValue.isNotEmpty()) {
-                    editText.setText(currentValue)
-                } else {
-                    if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
-                        )
-                    }
-                }
-                itemView.tag = item.id
-                lnParent.addView(itemView)
-                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                    if (it) {
-                        isDisabled = it
-                    }
-                }
-                if (isHidden) {
-                    itemView.visibility = View.GONE
-                } else {
-                    if (isDisabled) {
-                        editText.keyListener = null
-                        editText.isCursorVisible = false
-                        editText.isFocusable = false
-                        editText.isEnabled = false
-                        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
-                            val valueObtained = it.find { it.code == item.id }
-                            if (valueObtained != null) {
-                                editText.setText(valueObtained.value)
-                            }
-                        }
-                    }
-                    if (showIf) {
-                        val showNow = showIfRespondedAttribute(item.attributeValues)
-                        if (showNow) {
-                            itemView.visibility = View.GONE
-                        } else {
-                            itemView.visibility = View.VISIBLE
-                        }
-                    }
-
-                }
-                editText.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?, start: Int, count: Int, after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?, start: Int, before: Int, count: Int
-                    ) {
-
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-                        val value = s.toString()
-                        if (value.isNotEmpty()) {
-                            saveValued(index, item.id, value, isProgram)
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
-                        }
-                    }
-                })
-
-                if (basicHiddenFields) {
-                    itemView.visibility = View.GONE
-                }
-            }
-
-            "BOOLEAN" -> {
-                val itemView = inflater.inflate(
-                    R.layout.item_boolean_field, findViewById(R.id.lnParent), false
-                ) as LinearLayout
-                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
-                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
-                val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
-                val name = if (isRequired) generateRequiredField(item.name) else item.name
-                tvName.text = Html.fromHtml(name)
-                tvElement.text = item.id
-                itemView.tag = item.id
-                lnParent.addView(itemView)
-                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
-                    if (it) {
-                        isDisabled = it
-                    }
-                }
-                var isProgrammaticChange = false
-                radioGroup.setOnCheckedChangeListener(null)
-                when (currentValue) {
-                    "true" -> {
-                        radioGroup.check(R.id.radioButtonYes);
-                    }
-
-                    "false" -> {
-                        radioGroup.check(R.id.radioButtonNo);
-                    }
-
-                    else -> {
-                        radioGroup.clearCheck();
-                    }
-                }
-                radioGroup.setOnCheckedChangeListener { group, checkedId ->
-                    if (!isProgrammaticChange && checkedId != -1) {
-                        var dataValue: String? = null
-                        dataValue = when (checkedId) {
-                            R.id.radioButtonYes -> "true"
-                            R.id.radioButtonNo -> "false"
-                            else -> null
-                        }
-                        if (dataValue != null) {
-                            isProgrammaticChange = true
-                            saveValued(index, item.id, dataValue, isProgram)
-                            val list = checkIfParentHasChildren(item.id)
-                            Log.e("TAG", "Selected Radio Button $dataValue List of Children $list")
-                            for (i in 0 until lnParent.childCount) {
-                                val child: View = lnParent.getChildAt(i)
-                                // Check if any inner data of the list matches the child's tag
-                                val matchFound = list.any { innerData ->
-                                    // Replace the condition below with the appropriate comparison between innerData and child's tag
-                                    innerData.parent == child.tag
-                                }
-                                if (matchFound) {
-                                    val validAnswer = checkProvidedAnswer(
-                                        child.tag.toString(), list, dataValue
-                                    )
-                                    if (validAnswer) {
-                                        child.visibility = View.VISIBLE
-                                        val attributeValues =
-                                            attributeList.find { it.parent == child.tag.toString() }
-                                        if (attributeValues != null) {
-                                            val isInnerRequired: Boolean =
-                                                extractAttributeValue(
-                                                    "Required",
-                                                    attributeValues.attributeValues
-                                                )
-                                            if (isInnerRequired) {
-                                                requiredFieldsString.add(child.tag.toString())
-                                            } else {
-
-                                                requiredFieldsString.remove(child.tag.toString())
-                                            }
-                                        }
-                                    } else {
-                                        child.visibility = View.GONE
-                                        requiredFieldsString.remove(child.tag.toString())
-                                    }
-                                } else {
-                                    // If no match is found, leave the visibility unchanged
-                                    if (child.visibility != View.VISIBLE) {
-                                        child.visibility = View.GONE
-                                    }
-                                }
-                            }
-                            isProgrammaticChange = false
-                        }
-                    }
-                }
-                if (isHidden) {
-                    itemView.visibility = View.GONE
-                } else {
-                    if (isDisabled) {
-                        radioGroup.isEnabled = false
-                        for (i in 0 until radioGroup.childCount) {
-                            radioGroup.getChildAt(i).isEnabled = false
-                        }
-                    }
-                    if (showIf) {
-                        val showNow = showIfRespondedAttribute(item.attributeValues)
-                        if (showNow) {
-                            itemView.visibility = View.GONE
-                        } else {
-                            itemView.visibility = View.VISIBLE
-                        }
-                    }
-
-                }
-            }
-
-        }
-    }
 
     private fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
@@ -2985,6 +2188,798 @@ class PatientResponderActivity : AppCompatActivity() {
                 } else {
                     if (isDisabled) {
                         checkBox.isEnabled = false
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
+    private fun createFormFieldsAttribute(
+        index: Int,
+        item: TrackedEntityAttributes,
+        lnParent: LinearLayout,
+        currentValue: String,
+        isProgram: Boolean, isSubmitted: String, isDead: String, isFirstTime: String?
+    ) {
+        val valueType: String = item.valueType
+        val inflater = LayoutInflater.from(this)
+        val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
+        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
+        val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
+        val disableFutureDate: Boolean =
+            extractAttributeValue("disableFutureDate", item.attributeValues)
+        val showIf = showIfAttribute("showIf", item.attributeValues)
+        val basicHiddenFields = isPartOfBasicInformation(item.id, formatter.excludeHiddenFields())
+        val hasValidator: Boolean =
+            extractValidatorAttributeValue("Validator", item.attributeValues)
+
+        if (isRequired) {
+            if (!showIf) {
+                requiredFieldsString.add(item.id)
+            }
+        }
+        if (isSubmitted.isNotEmpty()) {
+            if (isSubmitted == "true") {
+                isDisabled = true
+            }
+        }
+        if (isDead == "true") {
+            isDisabled = true
+        }
+
+        when (valueType) {
+            "TEXT" -> {
+                if (item.optionSet == null) {
+
+                    val itemView = inflater.inflate(
+                        R.layout.item_edittext, lnParent, false
+                    ) as LinearLayout
+                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                    val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                    val halfColoredBackground =
+                        itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                    val name = if (isRequired) generateRequiredField(item.name) else item.name
+                    tvName.text = Html.fromHtml(name)
+                    tvElement.text = item.id
+                    itemView.tag = item.id
+                    val onlyLetters = formatter.onlyAcceptLetters(item.id)
+                    if (onlyLetters) {
+                        formatter.setLettersOnly(editText)
+                    }
+                    lnParent.addView(itemView)
+                    if (currentValue.isNotEmpty()) {
+                        editText.setText(currentValue)
+                    } else {
+                        if (isFirstTime == null) {
+                            halfColoredBackground.setBackgroundResource(
+                                R.drawable.half_colored_background
+                            )
+                        }
+                    }
+                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                        if (it) {
+                            isDisabled = it
+                        }
+                    }
+                    if (isHidden) {
+                        itemView.visibility = View.GONE
+                    } else {
+                        if (isDisabled) {
+                            editText.keyListener = null
+                            editText.isCursorVisible = false
+                            editText.isFocusable = false
+                            editText.isEnabled = false
+
+                            liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                                val valueObtained = it.find { it.code == item.id }
+                                if (valueObtained != null) {
+                                    editText.setText(valueObtained.value)
+                                }
+                            }
+                        }
+                        if (showIf) {
+                            val showNow = showIfRespondedAttribute(item.attributeValues)
+                            if (showNow) {
+                                itemView.visibility = View.GONE
+                            } else {
+                                itemView.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+                    editText.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?, start: Int, count: Int, after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?, start: Int, before: Int, count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                saveValued(index, item.id, value, isProgram)
+                                halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                            }
+                        }
+                    })
+
+
+                    if (basicHiddenFields) {
+                        itemView.visibility = View.GONE
+                    }
+
+                } else {
+                    val itemView = inflater.inflate(
+                        R.layout.item_autocomplete, lnParent, false
+                    ) as LinearLayout
+                    val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                    val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                    val textInputLayout =
+                        itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                    val autoCompleteTextView =
+                        itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+                    val halfColoredBackground =
+                        itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                    tvElement.text = item.id
+                    val optionsStringList: MutableList<String> = ArrayList()
+                    val isAllowedToSearch = formatter.retrieveAllowedToTypeItem(item.id)
+                    if (isAllowedToSearch) {
+                        autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
+                        autoCompleteTextView.setHint("Type here to Search")
+                    }
+                    item.optionSet.options.forEach {
+                        optionsStringList.add(it.displayName)
+                    }
+                    val adp = ArrayAdapter(
+                        this, android.R.layout.simple_list_item_1, optionsStringList
+                    )
+                    if (currentValue.isNotEmpty()) {
+                        val answer = getDisplayNameFromCode(item.optionSet.options, currentValue)
+                        autoCompleteTextView.setText(answer, false)
+                    } else {
+                        if (isFirstTime == null) {
+                            halfColoredBackground.setBackgroundResource(
+                                R.drawable.half_colored_background
+                            )
+                        }
+                    }
+
+
+                    val name = if (isRequired) generateRequiredField(item.name) else item.name
+                    tvName.text = Html.fromHtml(name)
+                    autoCompleteTextView.setAdapter(adp)
+                    adp.notifyDataSetChanged()
+                    itemView.tag = item.id
+                    lnParent.addView(itemView)
+                    liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                        if (it) {
+                            isDisabled = it
+                        }
+                    }
+                    if (isHidden) {
+                        itemView.visibility = View.GONE
+                    } else {
+                        if (isDisabled) {
+                            autoCompleteTextView.keyListener = null
+                            autoCompleteTextView.isCursorVisible = false
+                            autoCompleteTextView.isFocusable = false
+                            autoCompleteTextView.isEnabled = false
+                            autoCompleteTextView.setAdapter(null)
+
+                            liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                                val valueObtained = it.find { it.code == item.id }
+                                if (valueObtained != null) {
+                                    val answer = getDisplayNameFromCode(
+                                        item.optionSet.options, valueObtained.value
+                                    )
+                                    autoCompleteTextView.setText(answer, false)
+                                }
+                            }
+                        }
+                        if (showIf) {
+                            val showNow = showIfRespondedAttribute(item.attributeValues)
+                            if (showNow) {
+                                itemView.visibility = View.GONE
+                            } else {
+                                itemView.visibility = View.VISIBLE
+                            }
+                        }
+
+                    }
+                    autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?, start: Int, count: Int, after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?, start: Int, before: Int, count: Int
+                        ) {
+
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val value = s.toString()
+                            if (value.isNotEmpty()) {
+                                val dataValue = getCodeFromText(value, item.optionSet.options)
+                                if (dataValue.isNotEmpty()) {
+                                    halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                                    if (item.id == DIAGNOSIS) {
+                                        val gender = formatter.getSharedPref(
+                                            "gender",
+                                            this@PatientResponderActivity
+                                        )
+
+                                        var rejectedCancerList: List<String> = emptyList()
+
+                                        if (gender != null) {
+                                            rejectedCancerList = if (gender == "Male") {
+                                                formatter.femaleCancers()
+                                            } else if (gender == "Female") {
+                                                formatter.maleCancers()
+                                            } else {
+                                                emptyList()
+                                            }
+                                        }
+
+                                        try {
+                                            val parts = dataValue.split(".")
+                                            val firstPart = parts[0]  // "C"
+                                            val secondPart = parts[1] // "61"
+
+                                            if (rejectedCancerList.contains(firstPart)) {
+                                                val opposite = if (gender == "Male") {
+                                                    "Female"
+                                                } else {
+                                                    "Male"
+                                                }
+                                                textInputLayout.error =
+                                                    "$opposite Diagnosis is not applicable for $gender patient"
+                                            } else {
+                                                textInputLayout.error = null
+                                                calculateRelevant(
+                                                    lnParent,
+                                                    index,
+                                                    item,
+                                                    value,
+                                                    isProgram
+                                                )
+                                                saveValued(index, item.id, dataValue, isProgram)
+
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    } else {
+                                        calculateRelevant(lnParent, index, item, value, isProgram)
+                                        saveValued(index, item.id, dataValue, isProgram)
+                                    }
+
+                                    val list = checkIfParentHasChildren(item.id)
+                                    for (i in 0 until lnParent.childCount) {
+                                        val child: View = lnParent.getChildAt(i)
+                                        // Check if any inner data of the list matches the child's tag
+                                        val matchFound = list.any { innerData ->
+                                            // Replace the condition below with the appropriate comparison between innerData and child's tag
+                                            innerData.parent == child.tag
+                                        }
+                                        if (matchFound) {
+                                            val validAnswer = checkProvidedAnswer(
+                                                child.tag.toString(), list, dataValue
+                                            )
+                                            if (validAnswer) {
+
+                                                val attributeValues =
+                                                    attributeList.find { it.parent == child.tag.toString() }
+                                                if (attributeValues != null) {
+                                                    val isInnerRequired: Boolean =
+                                                        extractAttributeValue(
+                                                            "Required",
+                                                            attributeValues.attributeValues
+                                                        )
+                                                    if (isInnerRequired) {
+                                                        requiredFieldsString.add(child.tag.toString())
+                                                    } else {
+
+                                                        requiredFieldsString.remove(child.tag.toString())
+                                                    }
+                                                }
+                                                child.visibility = View.VISIBLE
+                                            } else {
+                                                child.visibility = View.GONE
+                                                requiredFieldsString.remove(child.tag.toString())
+                                            }
+                                        } else {
+                                            // If no match is found, leave the visibility unchanged
+                                            if (child.visibility != View.VISIBLE) {
+                                                child.visibility = View.GONE
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+
+                    if (basicHiddenFields) {
+                        itemView.visibility = View.GONE
+                    }
+                }
+            }
+
+            "DATE" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_date, findViewById(R.id.lnParent), false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                editText.setKeyListener(null)
+                editText.isCursorVisible = false
+                editText.isFocusable = false
+                if (currentValue.isNotEmpty()) {
+                    val refinedDate = formatter.convertDateFormat(currentValue)
+                    if (refinedDate != null) {
+                        editText.setText(refinedDate)
+                    }
+                } else {
+                    if (isFirstTime == null) {
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
+                        )
+                    }
+                }
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        editText.isEnabled = false
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+                editText.setOnClickListener { v ->
+                    val calendar: Calendar = Calendar.getInstance()
+                    val datePickerDialog = DatePickerDialog(
+                        this,
+                        { datePicker: DatePicker?, year: Int, month: Int, day: Int ->
+                            val valueCurrent: String = getDate(year, month, day)
+                            editText.setText(valueCurrent)
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    )
+                    if (disableFutureDate) {
+                        datePickerDialog.datePicker.maxDate = calendar.getTimeInMillis()
+                    }
+                    datePickerDialog.show()
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?, start: Int, count: Int, after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?, start: Int, before: Int, count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                            //check if it is date of birth, calculate relevant
+                            if (hasValidator) {
+                                val passes = hasValidatorAndPasses(
+                                    "Validator", value, item.attributeValues
+                                )
+
+                                val parentName = formatter.getSharedPref(
+                                    "parent_name", this@PatientResponderActivity
+                                )
+                                if (passes) {
+                                    textInputLayout.error = null
+                                    calculateRelevant(lnParent, index, item, value, isProgram)
+                                    saveValued(index, item.id, value, isProgram)
+                                } else {
+                                    textInputLayout.error =
+                                        "${item.name} cannot come before $parentName"
+                                }
+                            } else {
+                                calculateRelevant(lnParent, index, item, value, isProgram)
+                                saveValued(index, item.id, value, isProgram)
+                            }
+                        }
+                    }
+                })
+                if (basicHiddenFields) {
+                    itemView.visibility = View.GONE
+                }
+            }
+
+            "PHONE_NUMBER" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_phone, findViewById(R.id.lnParent), false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                val countryCodePicker =
+                    itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
+
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                if (currentValue.isNotEmpty()) {
+                    // check if length is 12, split into 2 parts, the first 3 then remainder
+                    if (currentValue.length == 12) { // Check if length is 12
+                        val firstPart =
+                            currentValue.substring(0, 3) // Extract the first 3 characters
+                        val secondPart =
+                            currentValue.substring(3) // Extract the remainder of the string
+                        countryCodePicker.setCountryForPhoneCode(firstPart.toInt())//setselectedCountryCode = firstPart
+                        editText.setText(secondPart) // Set the text of the editText to the formatted value
+                    } else {
+                        editText.setText(currentValue) // If length is not 12, set the text as it is
+                    }
+                } else {
+                    if (isFirstTime == null) {
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
+                        )
+                    }
+                }
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        editText.keyListener = null;
+                        editText.isCursorVisible = false;
+                        editText.isFocusable = false;
+                        editText.isEnabled = false;
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?, start: Int, count: Int, after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?, start: Int, before: Int, count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            val countryCode = countryCodePicker.selectedCountryCode
+                            val completeCode = "$countryCode$value"
+                            saveValued(index, item.id, completeCode, isProgram)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                        }
+                    }
+                })
+                if (basicHiddenFields) {
+                    itemView.visibility = View.GONE
+                }
+            }
+
+            "INTEGER" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_number, lnParent, false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                if (currentValue.isNotEmpty()) {
+                    editText.setText(currentValue)
+                } else {
+                    if (isFirstTime == null) {
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
+                        )
+                    }
+                }
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                            val valueObtained = it.find { it.code == item.id }
+                            if (valueObtained != null) {
+                                editText.setText(valueObtained.value)
+                            }
+                        }
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?, start: Int, count: Int, after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?, start: Int, before: Int, count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            saveValued(index, item.id, value, isProgram)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                        }
+                    }
+                })
+
+                if (basicHiddenFields) {
+                    itemView.visibility = View.GONE
+                }
+            }
+
+            "NUMBER" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_number, lnParent, false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout = itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                if (currentValue.isNotEmpty()) {
+                    editText.setText(currentValue)
+                } else {
+                    if (isFirstTime == null) {
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
+                        )
+                    }
+                }
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
+                            val valueObtained = it.find { it.code == item.id }
+                            if (valueObtained != null) {
+                                editText.setText(valueObtained.value)
+                            }
+                        }
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?, start: Int, count: Int, after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?, start: Int, before: Int, count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            saveValued(index, item.id, value, isProgram)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                        }
+                    }
+                })
+
+                if (basicHiddenFields) {
+                    itemView.visibility = View.GONE
+                }
+            }
+
+            "BOOLEAN" -> {
+                val itemView = inflater.inflate(
+                    R.layout.item_boolean_field, findViewById(R.id.lnParent), false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
+                val name = if (isRequired) generateRequiredField(item.name) else item.name
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+                liveData.additionalInformationSaved.observe(this@PatientResponderActivity) {
+                    if (it) {
+                        isDisabled = it
+                    }
+                }
+                var isProgrammaticChange = false
+                radioGroup.setOnCheckedChangeListener(null)
+                when (currentValue) {
+                    "true" -> {
+                        radioGroup.check(R.id.radioButtonYes);
+                    }
+
+                    "false" -> {
+                        radioGroup.check(R.id.radioButtonNo);
+                    }
+
+                    else -> {
+                        radioGroup.clearCheck();
+                    }
+                }
+                radioGroup.setOnCheckedChangeListener { group, checkedId ->
+                    if (!isProgrammaticChange && checkedId != -1) {
+                        var dataValue: String? = null
+                        dataValue = when (checkedId) {
+                            R.id.radioButtonYes -> "true"
+                            R.id.radioButtonNo -> "false"
+                            else -> null
+                        }
+                        if (dataValue != null) {
+                            isProgrammaticChange = true
+                            saveValued(index, item.id, dataValue, isProgram)
+                            val list = checkIfParentHasChildren(item.id)
+                            Log.e("TAG", "Selected Radio Button $dataValue List of Children $list")
+                            for (i in 0 until lnParent.childCount) {
+                                val child: View = lnParent.getChildAt(i)
+                                // Check if any inner data of the list matches the child's tag
+                                val matchFound = list.any { innerData ->
+                                    // Replace the condition below with the appropriate comparison between innerData and child's tag
+                                    innerData.parent == child.tag
+                                }
+                                if (matchFound) {
+                                    val validAnswer = checkProvidedAnswer(
+                                        child.tag.toString(), list, dataValue
+                                    )
+                                    if (validAnswer) {
+                                        child.visibility = View.VISIBLE
+                                        val attributeValues =
+                                            attributeList.find { it.parent == child.tag.toString() }
+                                        if (attributeValues != null) {
+                                            val isInnerRequired: Boolean =
+                                                extractAttributeValue(
+                                                    "Required",
+                                                    attributeValues.attributeValues
+                                                )
+                                            if (isInnerRequired) {
+                                                requiredFieldsString.add(child.tag.toString())
+                                            } else {
+
+                                                requiredFieldsString.remove(child.tag.toString())
+                                            }
+                                        }
+                                    } else {
+                                        child.visibility = View.GONE
+                                        requiredFieldsString.remove(child.tag.toString())
+                                    }
+                                } else {
+                                    // If no match is found, leave the visibility unchanged
+                                    if (child.visibility != View.VISIBLE) {
+                                        child.visibility = View.GONE
+                                    }
+                                }
+                            }
+                            isProgrammaticChange = false
+                        }
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+                    if (isDisabled) {
+                        radioGroup.isEnabled = false
+                        for (i in 0 until radioGroup.childCount) {
+                            radioGroup.getChildAt(i).isEnabled = false
+                        }
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)

@@ -10,7 +10,7 @@
     <item android:gravity="top">
         <shape android:shape="rectangle">
             <solid android:color="@color/lightPurple"/>
-            <padding android:top="-6dp" />
+            <padding android:top="-5dp" />
         </shape>
     </item>
 </layer-list>
