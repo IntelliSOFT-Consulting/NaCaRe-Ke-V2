@@ -117,7 +117,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 isLocal = false,
-                isSubmitted=true,
+                isSubmitted = true,
                 attributes = Gson().toJson(data.attributes),
                 trackedUnique = patientIdentification
             )
@@ -262,8 +262,47 @@ class MainRepository(private val roomDao: RoomDao) {
 
     }
 
-    fun countEntities(): String {
-        val data = roomDao.countEntities()
+    fun countEntities(level: String?, code: String?): String {
+//        val data = roomDao.countAllEntities() ->ideal results
+        val data = if (level != "5") {
+            val open = roomDao.countByStatusEnrollments("ACTIVE")
+            val closed = roomDao.countByStatusEnrollments("COMPLETED")
+            open + closed
+        } else {
+            val open = roomDao.countByStatusEnrollmentsByOrg("ACTIVE", code.toString())
+            val closed = roomDao.countByStatusEnrollmentsByOrg("COMPLETED", code.toString())
+            open + closed
+        }
+        return "$data"
+    }
+
+    fun countByStatusEnrollments(status: String): String {
+        val data = roomDao.countByStatusEnrollments(status)
+        return "$data"
+    }
+
+    fun countDeceasedEntities(level: String?, code: String?): String {
+        var data = 0
+        try {
+            val allEnrollments =
+                if (level != "5") roomDao.getAllTrackedEvents() else roomDao.getAllTrackedEventsByOrg(
+                    code.toString()
+                )
+
+
+            if (allEnrollments != null) {
+                allEnrollments.forEach { q ->
+                    if (q.dataValues.isNotEmpty()) {
+                        val converters = Converters().fromJsonDataAttribute(q.dataValues)
+                        val counter = converters.count { it.value.contains("Dead") }
+                        data += counter
+
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return "$data"
     }
 

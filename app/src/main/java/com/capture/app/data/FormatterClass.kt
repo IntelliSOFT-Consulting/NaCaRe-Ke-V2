@@ -33,7 +33,7 @@ import java.util.UUID
 
 class FormatterClass {
 
-    fun generateHomeData(viewModel: MainViewModel): List<HomeData> {
+    fun generateHomeData(viewModel: MainViewModel, level: String?, code: String?): List<HomeData> {
         // Replace this logic with your actual implementation
         val homeDataList: MutableList<HomeData> = ArrayList()
         // Example: Adding dummy data
@@ -41,7 +41,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countEntities(level, code)
                 ), "All"
             )
         )
@@ -49,7 +49,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countCompleted()
+                    viewModel.countCompleted(level, code)
                 ), "Completed"
             )
         )
@@ -57,7 +57,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countOpenEntities()
+                    viewModel.countOpenEntities(level, code)
                 ), "Open"
             )
         )
@@ -65,7 +65,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countDeceasedEntities()
+                    viewModel.countDeceasedEntities(level, code)
                 ), "Deceased"
             )
         )
@@ -73,7 +73,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countLateNotificationsEntities()
+                    viewModel.countLateNotificationsEntities(level, code)
                 ), "Late Notifications"
             )
         )
@@ -81,7 +81,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countTwoSurvivorsEntities()
+                    viewModel.countTwoSurvivorsEntities(level, code)
                 ), "Survivorship not updated in 2 years"
             )
         )
@@ -89,7 +89,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countFiveSurvivorsEntities()
+                    viewModel.countFiveSurvivorsEntities(level, code)
                 ), "Survivorship not updated in 5 years"
             )
         )

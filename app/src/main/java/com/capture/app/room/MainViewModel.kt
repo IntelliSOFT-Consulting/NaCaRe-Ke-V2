@@ -95,30 +95,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadEvents(orgUnit)
     }
 
-    fun countEntities() = runBlocking {
-        repository.countEntities()
+    fun countEntities(level: String?, code: String?) = runBlocking {
+        repository.countEntities(level, code)
     }
 
-    fun countCompleted() = runBlocking {
-        repository.countEntities()
+    fun countCompleted(level: String?, code: String?) = runBlocking {
+        repository.countByStatusEnrollments("COMPLETED")
     }
 
-    fun countOpenEntities() = runBlocking {
-        repository.countEntities()
+    fun countOpenEntities(level: String?, code: String?) = runBlocking {
+        repository.countByStatusEnrollments("ACTIVE")
     }
 
-    fun countDeceasedEntities() = runBlocking {
-        repository.countEntities()
-    }
-    fun countLateNotificationsEntities() = runBlocking {
-        repository.countEntities()
-    }
-    fun countTwoSurvivorsEntities() = runBlocking {
-        repository.countEntities()
+    fun countDeceasedEntities(level: String?, code: String?) = runBlocking {
+        repository.countDeceasedEntities(level,code)
     }
 
-    fun countFiveSurvivorsEntities() = runBlocking {
-        repository.countEntities()
+    fun countLateNotificationsEntities(level: String?, code: String?) = runBlocking {
+        repository.countEntities(level, code)
+    }
+
+    fun countTwoSurvivorsEntities(level: String?, code: String?) = runBlocking {
+        repository.countEntities(level, code)
+    }
+
+    fun countFiveSurvivorsEntities(level: String?, code: String?) = runBlocking {
+        repository.countEntities(level, code)
     }
 
     fun loadEvent(uid: String, requireContext: Context) = runBlocking {

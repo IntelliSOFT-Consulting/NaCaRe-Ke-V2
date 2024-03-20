@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun uploadTrackedEvents() {
+    private fun uploadTrackedEvents() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                     formatter.saveSharedPref("orgCode", converters.organisationUnits[0].id, this)
                     formatter.saveSharedPref("orgName", converters.organisationUnits[0].name, this)
                     formatter.saveSharedPref(
-                        "orgLEvel",
+                        "orgLevel",
                         converters.organisationUnits[0].level,
                         this
                     )
@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity() {
         return data
     }
 
-    fun handleDataSync() {
+    private fun handleDataSync() {
         val tei = viewModel.loadTrackedEntities(this, false)
         if (tei != null) {
             trackedEntityInstances.clear()

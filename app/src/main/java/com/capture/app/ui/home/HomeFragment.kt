@@ -48,8 +48,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadDashBoard() {
-
-        val data: List<HomeData> = formatter.generateHomeData(viewModel)
+        val level = formatter.getSharedPref("orgLevel", requireContext())
+        val code = formatter.getSharedPref("orgCode", requireContext())
+        val data: List<HomeData> = formatter.generateHomeData(viewModel, level, code)
         binding.apply {
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
             val adapter = DashAdapter(requireContext(), data, this@HomeFragment::handleClick)

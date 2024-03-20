@@ -80,6 +80,15 @@ interface RoomDao {
     @Query("SELECT COUNT(*) FROM trackedEntity")
     fun countEntities(): Int
 
+    @Query("SELECT COUNT(*) FROM enrollmentevent")
+    fun countAllEntities(): Int
+
+    @Query("SELECT COUNT(*) FROM enrollmentevent WHERE status =:status ")
+    fun countByStatusEnrollments(status: String): Int
+
+    @Query("SELECT COUNT(*) FROM enrollmentevent WHERE status =:status AND orgUnit =:code")
+    fun countByStatusEnrollmentsByOrg(status: String, code: String): Int
+
     @Query("SELECT * FROM event WHERE uid =:uid ORDER BY id DESC")
     fun loadEvent(uid: String): EventData?
 
@@ -123,6 +132,12 @@ interface RoomDao {
 
     @Query("SELECT * FROM enrollmentevent WHERE isSynced =:synced ORDER BY id DESC LIMIT 10")
     fun getTrackedEvents(synced: Boolean): List<EnrollmentEventData>?
+
+    @Query("SELECT * FROM enrollmentevent ORDER BY id DESC")
+    fun getAllTrackedEvents(): List<EnrollmentEventData>?
+
+    @Query("SELECT * FROM enrollmentevent WHERE orgUnit =:orgUnit ORDER BY id DESC")
+    fun getAllTrackedEventsByOrg(orgUnit: String): List<EnrollmentEventData>?
 
     @Query("SELECT * FROM enrollmentevent WHERE trackedEntity =:trackedEntity ORDER BY id DESC LIMIT 1")
     fun getLatestEnrollment(
