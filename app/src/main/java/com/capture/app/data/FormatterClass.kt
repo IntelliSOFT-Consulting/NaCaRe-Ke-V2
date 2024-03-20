@@ -49,7 +49,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countCompleted()
                 ), "Completed"
             )
         )
@@ -57,7 +57,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countOpenEntities()
                 ), "Open"
             )
         )
@@ -65,7 +65,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countDeceasedEntities()
                 ), "Deceased"
             )
         )
@@ -73,7 +73,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countLateNotificationsEntities()
                 ), "Late Notifications"
             )
         )
@@ -81,7 +81,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countTwoSurvivorsEntities()
                 ), "Survivorship not updated in 2 years"
             )
         )
@@ -89,7 +89,7 @@ class FormatterClass {
             HomeData(
                 MessageFormat.format(
                     "{0}",
-                    viewModel.countEntities()
+                    viewModel.countFiveSurvivorsEntities()
                 ), "Survivorship not updated in 5 years"
             )
         )

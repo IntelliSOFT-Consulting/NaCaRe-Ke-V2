@@ -47,7 +47,6 @@ class OrganizationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.apply {
             btnProceed.apply {
                 setOnClickListener {
@@ -75,7 +74,12 @@ class OrganizationFragment : Fragment() {
             }
 
         }
-        loadOrganization()
+        val username = formatter.getSharedPref("username", requireContext())
+        if (username != null) {
+            if (username == "admin") {
+                loadOrganization()
+            }
+        }
 
     }
 
@@ -83,7 +87,7 @@ class OrganizationFragment : Fragment() {
     private fun loadOrganization() {
         val organization = viewModel.loadOrganization(requireContext())
         if (organization != null) {
-            Log.e("TAG", "Retrieved Organization Data $organization")
+
             val treeNodes = mutableListOf<OrgTreeNode>()
             try {
                 organization.forEach {

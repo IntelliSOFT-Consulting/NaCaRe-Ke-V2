@@ -38,6 +38,11 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/_10dp"
         android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/half_colored_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
@@ -60,4 +65,5 @@
             android:textSize="12sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 </LinearLayout>

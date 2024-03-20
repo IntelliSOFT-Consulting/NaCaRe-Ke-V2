@@ -34,6 +34,11 @@
             app:ccp_defaultLanguage="ENGLISH"
             app:ccp_defaultPhoneCode="254"
             app:ccp_textSize="12sp" />
+        <LinearLayout
+            android:id="@+id/half_colored_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
@@ -52,7 +57,7 @@
                 android:textSize="12sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
-
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
 

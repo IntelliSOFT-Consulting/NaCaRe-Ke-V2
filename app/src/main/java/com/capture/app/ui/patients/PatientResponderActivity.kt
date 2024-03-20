@@ -344,7 +344,6 @@ class PatientResponderActivity : AppCompatActivity() {
             val no_button: MaterialButton = itemView.findViewById(R.id.no_button)
             // Set text and other properties if needed
             textViewName.text = data.groupName
-
             if (index == 1) {
                 val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
                 if (isPatientUnderTreatment.isNotEmpty()) {
@@ -353,7 +352,12 @@ class PatientResponderActivity : AppCompatActivity() {
                         tvTreatmentDate.visibility = View.VISIBLE
                         try {
                             tvTreatmentDate.text =
-                                "Treatment Start Date: ${formatter.convertDateFormat(date, "dd-MM-yyyy")}"
+                                "Treatment Start Date: ${
+                                    formatter.convertDateFormat(
+                                        date,
+                                        "dd-MM-yyyy"
+                                    )
+                                }"
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -406,39 +410,39 @@ class PatientResponderActivity : AppCompatActivity() {
                         "isSubmitted",
                         this@PatientResponderActivity
                     )
-                    if (isSubmitted != null) {
-                        if (isSubmitted == "true") {
-                            try {
-                                for (i in 0 until size) {
-                                    val currentChildView = lnParent.getChildAt(i)
-                                    val childView = lnParent.getChildAt(i)
-                                    val currentLnWithButtons =
-                                        currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                    val currentRotationImageView: ImageView =
-                                        currentChildView.findViewById(R.id.rotationImageView)
-                                    val lnWithButtons =
-                                        childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
-                                    val nextRotationImageView: ImageView =
-                                        childView.findViewById(R.id.rotationImageView)
+                    /* if (isSubmitted != null) {
+                         if (isSubmitted == "true") {*/
+                    try {
+                        for (i in 0 until size) {
+                            val currentChildView = lnParent.getChildAt(i)
+                            val childView = lnParent.getChildAt(i)
+                            val currentLnWithButtons =
+                                currentChildView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                            val currentRotationImageView: ImageView =
+                                currentChildView.findViewById(R.id.rotationImageView)
+                            val lnWithButtons =
+                                childView.findViewById<LinearLayout>(R.id.ln_with_buttons)
+                            val nextRotationImageView: ImageView =
+                                childView.findViewById(R.id.rotationImageView)
 
-                                    if (i == index) {
-                                        currentLnWithButtons.visibility = View.VISIBLE
-                                        lnWithButtons.visibility = View.VISIBLE
-                                        currentRotationImageView.rotation = 180f
-                                        nextRotationImageView.rotation = 0f
-                                    } else {
-                                        currentLnWithButtons.visibility = View.GONE
-                                        lnWithButtons.visibility = View.GONE
-                                        currentRotationImageView.rotation = 180f
-                                        nextRotationImageView.rotation = 0f
-                                    }
-                                }
-
-                            } catch (e: Exception) {
-                                e.printStackTrace()
+                            if (i == index) {
+                                currentLnWithButtons.visibility = View.VISIBLE
+                                lnWithButtons.visibility = View.VISIBLE
+                                currentRotationImageView.rotation = 180f
+                                nextRotationImageView.rotation = 0f
+                            } else {
+                                currentLnWithButtons.visibility = View.GONE
+                                lnWithButtons.visibility = View.GONE
+                                currentRotationImageView.rotation = 180f
+                                nextRotationImageView.rotation = 0f
                             }
                         }
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
+                    /*     }
+                     }*/
                 }
             }
 
@@ -2339,6 +2343,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     val textInputLayout =
                         itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                    val halfColoredBackground =
+                        itemView.findViewById<LinearLayout>(R.id.half_colored_background)
                     val name =
                         if (isRequired) generateRequiredField(item.displayName) else item.displayName
                     tvName.text = Html.fromHtml(name)
@@ -2350,11 +2356,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.setText(currentValue)
                     } else {
                         if (isFirstTime == null) {
-                            editText.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this,
-                                    R.color.lightPurple
-                                )
+                            halfColoredBackground.setBackgroundResource(
+                                R.drawable.half_colored_background
                             )
                         }
                     }
@@ -2393,7 +2396,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
                                 saveValued(index, item.id, value, isProgram)
-                                editText.setBackgroundColor(Color.TRANSPARENT)
+
+                                halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                             }
                         }
                     })
@@ -2408,6 +2412,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                     val autoCompleteTextView =
                         itemView.findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+                    val halfColoredBackground =
+                        itemView.findViewById<LinearLayout>(R.id.half_colored_background)
                     tvElement.text = item.id
                     val optionsStringList: MutableList<String> = ArrayList()
                     item.optionSet.options.forEach {
@@ -2422,11 +2428,8 @@ class PatientResponderActivity : AppCompatActivity() {
                         autoCompleteTextView.setText(answer, false)
                     } else {
                         if (isFirstTime == null) {
-                            textInputLayout.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    this,
-                                    R.color.lightPurple
-                                )
+                            halfColoredBackground.setBackgroundResource(
+                                R.drawable.half_colored_background
                             )
                         }
                     }
@@ -2505,7 +2508,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                             textInputLayout.error = null
                                             saveValued(index, item.id, dataValue, isProgram)
 
-                                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
 
                                         }
                                     } catch (e: Exception) {
@@ -2513,7 +2516,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                     }
                                 } else {
                                     saveValued(index, item.id, dataValue, isProgram)
-                                    textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                                    halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                                 }
                                 val list = checkIfParentHasChildren(item.id)
                                 for (i in 0 until lnParent.childCount) {
@@ -2554,6 +2557,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 val textInputLayout =
                     itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
                 tvName.text = Html.fromHtml(name)
@@ -2565,11 +2570,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     editText.setText(currentValue)
                 } else {
                     if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
                         )
                     }
                 }
@@ -2627,7 +2629,7 @@ class PatientResponderActivity : AppCompatActivity() {
 //                            calculateRelevant(item, value)
                             saveValued(index, item.id, value, isProgram)
 
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2644,6 +2646,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
                 val countryCodePicker =
                     itemView.findViewById<CountryCodePicker>(R.id.countyCodePicker)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
 
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
@@ -2664,11 +2668,8 @@ class PatientResponderActivity : AppCompatActivity() {
 
                 } else {
                     if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
                         )
                     }
                 }
@@ -2712,7 +2713,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             val completeCode = "$countryCode$value"
                             saveValued(index, item.id, completeCode, isProgram)
 
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2724,6 +2725,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 ) as LinearLayout
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
                 val textInputLayout =
                     itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
@@ -2735,11 +2738,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     editText.setText(currentValue)
                 } else {
                     if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
                         )
                     }
                 }
@@ -2781,7 +2781,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
 
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })
@@ -2796,6 +2796,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 val textInputLayout =
                     itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
                 val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
                 tvName.text = Html.fromHtml(name)
@@ -2804,11 +2806,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     editText.setText(currentValue)
                 } else {
                     if (isFirstTime == null) {
-                        textInputLayout.setBackgroundColor(
-                            ContextCompat.getColor(
-                                this,
-                                R.color.lightPurple
-                            )
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
                         )
                     }
                 }
@@ -2850,7 +2849,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         if (value.isNotEmpty()) {
                             saveValued(index, item.id, value, isProgram)
 
-                            textInputLayout.setBackgroundColor(Color.TRANSPARENT)
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
                         }
                     }
                 })

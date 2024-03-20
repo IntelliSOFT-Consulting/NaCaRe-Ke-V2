@@ -39,18 +39,26 @@
         android:layout_marginBottom="@dimen/_10dp"
         android:visibility="gone" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:boxBackgroundMode="outline">
+        android:id="@+id/half_colored_background"
+        android:orientation="vertical">
 
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteTextView"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+            app:boxBackgroundMode="outline">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 </LinearLayout>

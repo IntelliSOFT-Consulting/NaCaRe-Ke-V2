@@ -1,9 +1,11 @@
 package com.capture.app.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.capture.app.data.FormatterClass
 import com.capture.app.model.CodeValuePair
 import com.capture.app.model.CodeValuePairPatient
 import com.capture.app.model.ProgramData
@@ -26,7 +28,7 @@ class ResponseViewModel : ViewModel() {
         MutableLiveData<String>().apply {
             value = "" // Initial value is an empty mutable list
         }
-   private val _alreadyAnsweredElements =
+    private val _alreadyAnsweredElements =
         MutableLiveData<String>().apply {
             value = "0" // Initial value is an empty mutable list
         }
@@ -48,6 +50,29 @@ class ResponseViewModel : ViewModel() {
     }
     val entireFormDisabled: LiveData<Boolean> = _entireFormDisabled
 
+    private val _diagnosisNameLiveData = MutableLiveData<String>()
+    val diagnosisNameLiveData: LiveData<String> = _diagnosisNameLiveData
+
+    fun fetchDiagnosisNameFromCode(context: Context, diagnosis: String, diagnosisCode: String) {
+        viewModelScope.launch {
+            val diagnosisName = withContext(Dispatchers.Default) {
+                extractDiagnosisNameFromCode(context, diagnosis, diagnosisCode)
+            }
+            _diagnosisNameLiveData.value = diagnosisName
+        }
+    }
+
+    private fun extractDiagnosisNameFromCode(
+        context: Context,
+        diagnosis: String,
+        diagnosisCode: String
+    ): String {
+        return FormatterClass().extractDiagnosisNameFromCodeChild(
+            context,
+            diagnosis,
+            diagnosisCode
+        )
+    }
 
     fun updatePatientDetails(boolean: Boolean) {
         viewModelScope.launch {
@@ -80,6 +105,7 @@ class ResponseViewModel : ViewModel() {
             }
         }
     }
+
     fun updateUniqueID(uid: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -87,6 +113,7 @@ class ResponseViewModel : ViewModel() {
             }
         }
     }
+
     fun updateAlreadySaved(uid: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

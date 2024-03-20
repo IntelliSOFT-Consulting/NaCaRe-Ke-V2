@@ -117,6 +117,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 isLocal = false,
+                isSubmitted=true,
                 attributes = Gson().toJson(data.attributes),
                 trackedUnique = patientIdentification
             )

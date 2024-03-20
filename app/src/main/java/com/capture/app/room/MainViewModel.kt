@@ -42,13 +42,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadOrganization(context)
     }
 
-    fun saveTrackedEntity(context: Context, data: TrackedEntityInstance,parentOrg:String,patientIdentification:String) = runBlocking {
+    fun saveTrackedEntity(
+        context: Context,
+        data: TrackedEntityInstance,
+        parentOrg: String,
+        patientIdentification: String
+    ) = runBlocking {
 
-        repository.saveTrackedEntity(context, data,parentOrg,patientIdentification)
+        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification)
     }
-    fun saveTrackedEntityServer(context: Context, data: TrackedEntityInstanceServer, parentOrg:String, patientIdentification:String) = runBlocking {
 
-        repository.saveTrackedEntityServer(context, data,parentOrg,patientIdentification)
+    fun saveTrackedEntityServer(
+        context: Context,
+        data: TrackedEntityInstanceServer,
+        parentOrg: String,
+        patientIdentification: String
+    ) = runBlocking {
+
+        repository.saveTrackedEntityServer(context, data, parentOrg, patientIdentification)
     }
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
@@ -67,6 +78,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadAllTrackedEntities(orgUnit: String, context: Context) = runBlocking {
         repository.loadAllTrackedEntities(orgUnit)
     }
+
     fun loadAllSystemTrackedEntities() = runBlocking {
         repository.loadAllSystemTrackedEntities()
     }
@@ -74,8 +86,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEvent(context: Context, data: EventData) = runBlocking {
         repository.saveEvent(data)
     }
-    fun saveEventUpdated(context: Context, data: EventData,id:String) = runBlocking {
-        repository.saveEventUpdated(context,data,id)
+
+    fun saveEventUpdated(context: Context, data: EventData, id: String) = runBlocking {
+        repository.saveEventUpdated(context, data, id)
     }
 
     fun loadEvents(orgUnit: String, context: Context) = runBlocking {
@@ -83,6 +96,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countEntities() = runBlocking {
+        repository.countEntities()
+    }
+
+    fun countCompleted() = runBlocking {
+        repository.countEntities()
+    }
+
+    fun countOpenEntities() = runBlocking {
+        repository.countEntities()
+    }
+
+    fun countDeceasedEntities() = runBlocking {
+        repository.countEntities()
+    }
+    fun countLateNotificationsEntities() = runBlocking {
+        repository.countEntities()
+    }
+    fun countTwoSurvivorsEntities() = runBlocking {
+        repository.countEntities()
+    }
+
+    fun countFiveSurvivorsEntities() = runBlocking {
         repository.countEntities()
     }
 
@@ -158,7 +193,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateFacilityEvent(id: String, reference: String) = runBlocking {
         repository.updateFacilityEvent(id, reference)
-    } fun updateFacilityEventSynced(id: String, synced: Boolean) = runBlocking {
+    }
+
+    fun updateFacilityEventSynced(id: String, synced: Boolean) = runBlocking {
         repository.updateFacilityEventSynced(id, synced)
     }
 
@@ -166,57 +203,70 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.loadTrackedEntity(id)
     }
 
-    fun loadEnrollment(context: Context, eventUid: String)= runBlocking {
-        repository.loadEnrollment(context,eventUid)
+    fun loadEnrollment(context: Context, eventUid: String) = runBlocking {
+        repository.loadEnrollment(context, eventUid)
     }
 
-    fun addEnrollmentData(data: EnrollmentEventData) = runBlocking{
+    fun addEnrollmentData(data: EnrollmentEventData) = runBlocking {
         repository.addEnrollmentData(data)
     }
 
-    fun saveTrackedEntityWithEnrollment(context: Context, data: TrackedEntityInstance, enrollment: EnrollmentEventData,parentOrg:String,patientIdentification:String) =
-        runBlocking{
-        repository.saveTrackedEntityWithEnrollment(context,data,enrollment,parentOrg,patientIdentification)
-    }
+    fun saveTrackedEntityWithEnrollment(
+        context: Context,
+        data: TrackedEntityInstance,
+        enrollment: EnrollmentEventData,
+        parentOrg: String,
+        patientIdentification: String
+    ) =
+        runBlocking {
+            repository.saveTrackedEntityWithEnrollment(
+                context,
+                data,
+                enrollment,
+                parentOrg,
+                patientIdentification
+            )
+        }
 
-    fun getAllFacilityData(context: Context, isSynced: Boolean)= runBlocking {
+    fun getAllFacilityData(context: Context, isSynced: Boolean) = runBlocking {
         repository.loadAllEvents(isSynced)
     }
 
-    fun updateEnrollment(enrollment: String, uid: String)= runBlocking {
-        repository.updateEnrollment(enrollment,uid)
+    fun updateEnrollment(enrollment: String, uid: String) = runBlocking {
+        repository.updateEnrollment(enrollment, uid)
     }
 
-    fun updateNotificationEvent(uid: String, reference: String, initialUpload: Boolean) = runBlocking{
-        repository.updateNotificationEvent(reference,uid,initialUpload)
+    fun updateNotificationEvent(uid: String, reference: String, initialUpload: Boolean) =
+        runBlocking {
+            repository.updateNotificationEvent(reference, uid, initialUpload)
+        }
+
+    fun updateTrackedAttributes(attributes: String, patientUid: String) = runBlocking {
+        repository.updateTrackedAttributes(attributes, patientUid)
     }
 
-    fun updateTrackedAttributes(attributes: String, patientUid: String)= runBlocking {
-        repository.updateTrackedAttributes(attributes,patientUid)
-    }
-
-    fun loadEventById(id: String, context: Context)= runBlocking {
+    fun loadEventById(id: String, context: Context) = runBlocking {
         repository.loadEventById(id)
     }
 
-    fun getPatientExistingCases(context: Context, patientUid: String)=
+    fun getPatientExistingCases(context: Context, patientUid: String) =
         runBlocking {
             repository.loadPatientEventById(patientUid)
-    }
+        }
 
-    fun loadPatientById(context: Context, patientUid: String)= runBlocking {
+    fun loadPatientById(context: Context, patientUid: String) = runBlocking {
         repository.loadPatientById(patientUid)
     }
 
-    fun deleteCurrentSimilarCase(context: Context, patientUid: String)= runBlocking {
+    fun deleteCurrentSimilarCase(context: Context, patientUid: String) = runBlocking {
         repository.deleteCurrentSimilarCase(patientUid)
     }
 
-    fun deleteEvent(id: Int) = runBlocking{
+    fun deleteEvent(id: Int) = runBlocking {
         repository.deleteEvent(id)
     }
 
-    fun getTrackedEntity(id: String) = runBlocking{
+    fun getTrackedEntity(id: String) = runBlocking {
         repository.getTrackedEntity(id)
     }
 

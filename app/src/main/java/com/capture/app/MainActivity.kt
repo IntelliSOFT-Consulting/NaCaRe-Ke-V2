@@ -216,6 +216,7 @@ class MainActivity : AppCompatActivity() {
         if (userData != null) {
             val converters = Converters().fromJsonUser(userData)
             if (s == "surname") {
+                formatter.saveSharedPref("username", converters.username, this)
                 data = converters.surname
             }
             if (s == "email") {
