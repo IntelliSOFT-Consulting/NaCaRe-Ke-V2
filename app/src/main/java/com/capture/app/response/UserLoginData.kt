@@ -38,6 +38,20 @@ data class OrganizationUnitResponse(
     val children: List<CountyUnit>,
 )
 
+data class TopographyResponse(
+    val pager: Pager,
+    val optionSets: List<OptionSets>,
+)
+
+data class OptionSets(
+    val options: List<OptionsData>
+)
+
+data class OptionsData(
+    val code: String,
+    val name: String,
+)
+
 data class FacilityEventResponse(
     val page: String,
     val pageSize: String,

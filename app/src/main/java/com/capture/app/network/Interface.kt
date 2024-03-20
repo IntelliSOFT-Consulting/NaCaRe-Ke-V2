@@ -13,6 +13,7 @@ import com.capture.app.response.OrganizationUnitResponse
 import com.capture.app.response.PatientRegistrationResponse
 import com.capture.app.response.ProgramResponse
 import com.capture.app.response.SearchPatientResponse
+import com.capture.app.response.TopographyResponse
 import com.capture.app.response.UserLoginData
 
 import retrofit2.Response
@@ -27,6 +28,9 @@ interface Interface {
 
     @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id,level]")
     suspend fun signIn(): Response<UserLoginData>
+
+    @GET("/api/40/optionSets?filter=name:ilike:topography&fields=options[name,code]")
+    suspend fun loadTopographies(): Response<TopographyResponse>
 
     @GET("/api/trackedEntityInstances.json")
     suspend fun searchPatient(

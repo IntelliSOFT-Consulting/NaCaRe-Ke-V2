@@ -94,8 +94,8 @@ class RetrofitCalls {
                         progressDialog.dismiss()
                     }
                     if (statusCode == 200 || statusCode == 201) {
-//                        formatter.saveSharedPref("username", "admin", context)
-//                        formatter.saveSharedPref("password", "district", context)
+                        formatter.deleteSharedPref("orgName", context)
+                        formatter.deleteSharedPref("orgCode",  context)
                         formatter.saveSharedPref("isLoggedIn", "true", context)
 
                         if (body != null) {

@@ -22,6 +22,8 @@ import com.capture.app.model.OrgTreeNode
 import com.capture.app.room.Converters
 import com.capture.app.room.MainViewModel
 
+private const val s = "orgCode"
+
 class OrganizationFragment : Fragment() {
     val hashMap1 = mutableMapOf<String, String>()
     private var _binding: FragmentGalleryBinding? = null
