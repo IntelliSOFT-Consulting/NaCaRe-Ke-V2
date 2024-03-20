@@ -57,7 +57,7 @@ class RetrofitCalls {
                     val body = apiInterface.body()
 
                     if (statusCode == 200 || statusCode == 201) {
-                        Log.e("TAG From", "Retrieved Data $body")
+
                         if (body != null) {
                             val converters = Converters().toJson(body)
                             val data =
@@ -95,7 +95,7 @@ class RetrofitCalls {
                     }
                     if (statusCode == 200 || statusCode == 201) {
                         formatter.deleteSharedPref("orgName", context)
-                        formatter.deleteSharedPref("orgCode",  context)
+                        formatter.deleteSharedPref("orgCode", context)
                         formatter.saveSharedPref("isLoggedIn", "true", context)
 
                         if (body != null) {
@@ -156,7 +156,7 @@ class RetrofitCalls {
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
-                    if (progressDialog.isShowing){
+                    if (progressDialog.isShowing) {
                         progressDialog.dismiss()
                     }
                     when (statusCode) {
@@ -189,7 +189,7 @@ class RetrofitCalls {
                         }
                     }
                 } else {
-                    if (progressDialog.isShowing){
+                    if (progressDialog.isShowing) {
                         progressDialog.dismiss()
                     }
                     val statusCode = apiInterface.code()
@@ -202,7 +202,7 @@ class RetrofitCalls {
             } catch (e: Exception) {
                 print(e)
                 Log.e("TAG", "Success Error:::: ${e.message}")
-                if (progressDialog.isShowing){
+                if (progressDialog.isShowing) {
                     progressDialog.dismiss()
                 }
 
@@ -994,7 +994,8 @@ class RetrofitCalls {
         }
     }
 
-    fun loadCancerByGender(context: Context, gender: String) {
+
+    fun loadTopography(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             val formatter = FormatterClass()
             val viewModel = MainViewModel(context.applicationContext as Application)
@@ -1002,18 +1003,15 @@ class RetrofitCalls {
                 RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
                     .create(Interface::class.java)
             try {
-                val apiInterface = apiService.loadCancerByGender(gender)
+                val apiInterface = apiService.loadTopographies()
                 if (apiInterface.isSuccessful) {
                     val statusCode = apiInterface.code()
                     val body = apiInterface.body()
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                val data = DataStoreData(
-                                    uid = gender,
-                                    dataValues = body.toString()
-                                )
-                                viewModel.addDataStore(data)
+                                val converters = Converters().toTopographyJson(body)
+                                formatter.saveSharedPref("topography", converters, context)
                             }
                         }
                     }

@@ -30,6 +30,7 @@ class SyncActivity : AppCompatActivity() {
             retrofitCalls.loadProgram(this@SyncActivity, "facility")
             retrofitCalls.loadAllFacilities(this@SyncActivity)
             retrofitCalls.loadTrackedEntities(this@SyncActivity)
+            retrofitCalls.loadTopography(this@SyncActivity)
 
             delay(10000) // Delay for 3 seconds
             val intent = Intent(this@SyncActivity, MainActivity::class.java)

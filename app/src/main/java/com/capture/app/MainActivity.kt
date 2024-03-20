@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         loadPrograms()
     }
 
-    fun handleFacilityUploads() {
+    private fun handleFacilityUploads() {
         val data = viewModel.getAllFacilityData(this, false)
         if (data != null) {
             if (data.isNotEmpty()) {
@@ -293,6 +293,7 @@ class MainActivity : AppCompatActivity() {
 //                    retrofitCalls.loadAllEvents(this@MainActivity)
                     retrofitCalls.loadAllFacilities(this@MainActivity)
                     retrofitCalls.loadTrackedEntities(this@MainActivity)
+                    retrofitCalls.loadTopography(this@MainActivity)
                 }
             }
         } catch (e: Exception) {

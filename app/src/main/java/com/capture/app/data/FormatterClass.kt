@@ -103,6 +103,28 @@ class FormatterClass {
     fun extractDiagnosisNameFromCodeChild(
         context: Context,
         diagnosis: String,
+        diagnosisCode: String,
+        topography: String
+    ): String {
+        var name = diagnosisCode
+        try {
+            // convert
+            val converters = Converters().fromTopographyJson(topography)
+            val data = converters.optionSets.first().options.find { it.code == diagnosisCode }
+            if (data != null) {
+                name = data.name
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return name
+    }
+
+    fun extractDiagnosisNameFromCodeChild(
+        context: Context,
+        diagnosis: String,
         diagnosisCode: String
     ): String {
         val viewModel = MainViewModel(context.applicationContext as Application)

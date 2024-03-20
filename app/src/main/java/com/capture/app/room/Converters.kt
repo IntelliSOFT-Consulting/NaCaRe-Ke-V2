@@ -6,9 +6,11 @@ import com.google.gson.reflect.TypeToken
 import com.capture.app.model.CountyUnit
 import com.capture.app.model.DataValue
 import com.capture.app.model.TrackedEntityInstanceAttributes
+import com.capture.app.response.OptionSets
 import com.capture.app.response.OrganizationUnitResponse
 import com.capture.app.response.ProgramResponse
 import com.capture.app.response.SearchPatientResponse
+import com.capture.app.response.TopographyResponse
 import com.capture.app.response.UserLoginData
 
 
@@ -46,11 +48,22 @@ class Converters {
     }
 
     @TypeConverter
+    fun toTopographyJson(json: TopographyResponse): String {
+        // convert json to MyJsonData object
+        return gson.toJson(json, TopographyResponse::class.java)
+    }
+
+    @TypeConverter
     fun fromJsonPatientSearch(json: String): SearchPatientResponse {
         // convert json to MyJsonData object
         return gson.fromJson(json, SearchPatientResponse::class.java)
     }
 
+    @TypeConverter
+    fun fromTopographyJson(json: String): TopographyResponse {
+        // convert json to MyJsonData object
+        return gson.fromJson(json, TopographyResponse::class.java)
+    }
     @TypeConverter
     fun fromJsonUser(json: String): UserLoginData {
         // convert json to MyJsonData object
@@ -62,6 +75,8 @@ class Converters {
         val listType = object : TypeToken<List<TrackedEntityInstanceAttributes>>() {}.type
         return gson.fromJson(json, listType)
     }
+
+
 
     @TypeConverter
     fun fromJsonDataAttribute(json: String): List<DataValue> {

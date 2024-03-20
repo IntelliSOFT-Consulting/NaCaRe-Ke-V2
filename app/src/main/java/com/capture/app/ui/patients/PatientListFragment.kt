@@ -117,15 +117,22 @@ class PatientListFragment : Fragment() {
                     }
                 }
                 dataList.clear()
+                val topography = FormatterClass().getSharedPref("topography", requireContext())
                 data.forEach {
                     val diagnosisCode = extractValueFromAttributes(DIAGNOSIS, it.attributes)
+                    val name =
+                        if (topography == null) diagnosisCode else extractDiagnosisNameFromCode(
+                            DIAGNOSIS,
+                            diagnosisCode,
+                            topography
+                        )
                     val single = EntityData(
                         id = it.id.toString(),
                         uid = it.trackedEntity,
                         date = it.enrollDate,
                         fName = extractValueFromAttributes("R1vaUuILrDy", it.attributes),
                         lName = extractValueFromAttributes("hzVijy6tEUF", it.attributes),
-                        diagnosis = extractDiagnosisNameFromCode(DIAGNOSIS, diagnosisCode),
+                        diagnosis = name,
                         attributes = it.attributes,
                         patientIdentification = extractValueFromAttributes(
                             PATIENT_UNIQUE,
@@ -158,12 +165,14 @@ class PatientListFragment : Fragment() {
 
     private fun extractDiagnosisNameFromCode(
         diagnosis: String,
-        diagnosisCode: String
+        diagnosisCode: String, topography: String
     ) = runBlocking {
+
+        Log.e("TAG", "Topography data **** $topography")
         FormatterClass().extractDiagnosisNameFromCodeChild(
             requireContext(),
             diagnosis,
-            diagnosisCode
+            diagnosisCode, topography
         )
     }
 
