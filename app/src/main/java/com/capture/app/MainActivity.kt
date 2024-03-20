@@ -216,8 +216,19 @@ class MainActivity : AppCompatActivity() {
         if (userData != null) {
             val converters = Converters().fromJsonUser(userData)
             if (s == "surname") {
-                formatter.saveSharedPref("username", converters.username, this)
                 data = converters.surname
+                try {
+                    formatter.saveSharedPref("username", converters.username, this)
+                    formatter.saveSharedPref("orgCode", converters.organisationUnits[0].id, this)
+                    formatter.saveSharedPref("orgName", converters.organisationUnits[0].name, this)
+                    formatter.saveSharedPref(
+                        "orgLEvel",
+                        converters.organisationUnits[0].level,
+                        this
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             if (s == "email") {
                 data = converters.email

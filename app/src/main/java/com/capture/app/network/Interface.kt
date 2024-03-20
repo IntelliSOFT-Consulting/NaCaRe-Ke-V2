@@ -25,7 +25,7 @@ interface Interface {
         @Query("filter") filter: String? = null
     ): Response<ProgramResponse>
 
-    @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id]")
+    @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id,level]")
     suspend fun signIn(): Response<UserLoginData>
 
     @GET("/api/trackedEntityInstances.json")

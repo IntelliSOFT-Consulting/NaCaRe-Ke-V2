@@ -60,6 +60,7 @@ class OrganizationFragment : Fragment() {
                         return@setOnClickListener
                     }
                     try {
+
                         val found = searchParameters.firstOrNull { it.value == organization }
                         if (found != null) {
                             formatter.saveSharedPref("orgCode", found.code, requireContext())
@@ -78,6 +79,13 @@ class OrganizationFragment : Fragment() {
         if (username != null) {
             if (username == "admin") {
                 loadOrganization()
+            } else {
+                //set current user org unit
+                val code = formatter.getSharedPref("orgCode", requireContext())
+                val name = formatter.getSharedPref("orgName", requireContext())
+                binding.apply {
+                    autoCompleteTextView.setText(name, false)
+                }
             }
         }
 
@@ -116,7 +124,6 @@ class OrganizationFragment : Fragment() {
                     manipulateChildren(it, it.level.toInt(), resultList)
                 }
             }
-            Log.e("TAG", "Collected Organizations **** $resultList")
             prepareSearchData(resultList)
         }
     }

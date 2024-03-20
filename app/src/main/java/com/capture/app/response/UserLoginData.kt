@@ -18,7 +18,8 @@ data class UserLoginData(
 
 data class OrgUnits(
     val id: String,
-    val name: String
+    val name: String,
+    val level: String
 )
 
 data class ProgramResponse(
