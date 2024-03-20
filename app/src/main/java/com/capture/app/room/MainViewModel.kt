@@ -64,6 +64,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
         repository.loadTrackedEntities(context, isSynced)
+    }  fun getTrackedEntities() = runBlocking {
+        repository.getTrackedEntities()
     }
 
     fun loadAllTrackedEntity(context: String) = runBlocking {
@@ -116,11 +118,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countTwoSurvivorsEntities(level: String?, code: String?) = runBlocking {
-        repository.countEntities(level, code)
+        repository.countSurvivorsEntities(2,level, code)
     }
 
     fun countFiveSurvivorsEntities(level: String?, code: String?) = runBlocking {
-        repository.countEntities(level, code)
+        repository.countSurvivorsEntities(5,level, code)
     }
 
     fun loadEvent(uid: String, requireContext: Context) = runBlocking {

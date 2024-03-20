@@ -6,6 +6,9 @@ import com.google.gson.Gson
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceServer
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Date
 
 class MainRepository(private val roomDao: RoomDao) {
@@ -209,6 +212,10 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadTrackedEntities(isSynced, true)
     }
 
+    fun getTrackedEntities(): List<TrackedEntityInstanceData>? {
+        return roomDao.getTrackedEntities()
+    }
+
     fun loadAllTrackedEntity(uid: String): TrackedEntityInstanceData? {
         return roomDao.loadAllTrackedEntity(uid)
     }
@@ -306,11 +313,12 @@ class MainRepository(private val roomDao: RoomDao) {
         return "$data"
     }
 
+
     fun countLateNotificationsEntities(level: String?, code: String?): String {
         var data = 0
         try {
             val allEnrollments =
-                if (level != "5") roomDao.getAllTrackedEvents() else roomDao.getAllTrackedEventsByOrg(
+                if (level != "5") roomDao.getTrackedEntities() else roomDao.getTrackedEntitiesByOrg(
                     code.toString()
                 )
 
@@ -318,16 +326,22 @@ class MainRepository(private val roomDao: RoomDao) {
                 allEnrollments.forEach { q ->
 
                     // creation date
-                    val date = q.eventDate
-                    if (q.dataValues.isNotEmpty()) {
-                        val converters = Converters().fromJsonDataAttribute(q.dataValues)
-                        val eachReporting = converters.find { it.dataElement == "k5cjujLd0nd" }
+
+                    if (q.attributes.isNotEmpty()) {
+                        val attributes = Converters().fromJsonAttribute(q.attributes)
+                        val eachReporting = attributes.find { it.attribute == "k5cjujLd0nd" }
+
                         if (eachReporting != null) {
 
-                            Log.e(
-                                "TAG",
-                                "Event Date ** $date Reporting Date ** ${eachReporting.value}"
-                            )
+//                            val event =                                formatterClass.convertDateFormat(eachReporting.value, "yyyy-MM-dd")
+//
+                            val eventDate = LocalDate.parse(q.enrollDate)
+                            val reportingDate = LocalDate.parse(eachReporting.value)
+                            val difference = ChronoUnit.DAYS.between(reportingDate, eventDate)
+                            val moreThan60Days = difference > 60
+                            if (moreThan60Days) {
+                                data++
+                            }
                         }
 
                     }
@@ -335,6 +349,48 @@ class MainRepository(private val roomDao: RoomDao) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("TAG", "Event Date ** Error ${e.message}")
+        }
+        return "$data"
+    }
+
+    fun countSurvivorsEntities(age: Int, level: String?, code: String?): String {
+        var data = 0
+        try {
+            val allEnrollments =
+                if (level != "5") roomDao.getTrackedEntities() else roomDao.getTrackedEntitiesByOrg(
+                    code.toString()
+                )
+
+            if (allEnrollments != null) {
+                allEnrollments.forEach { q ->
+
+                    // creation date
+
+                    if (q.attributes.isNotEmpty()) {
+                        val attributes = Converters().fromJsonAttribute(q.attributes)
+                        val eachReporting = attributes.find { it.attribute == "k5cjujLd0nd" }
+
+                        if (eachReporting != null) {
+
+//                            val event =                                formatterClass.convertDateFormat(eachReporting.value, "yyyy-MM-dd")
+//
+                            val eventDate = LocalDate.parse(q.enrollDate)
+                            val reportingDate = LocalDate.parse(eachReporting.value)
+                            val difference = ChronoUnit.YEARS.between(reportingDate, eventDate)
+
+                            val moreThan60Days = difference > age
+                            if (moreThan60Days) {
+                                data++
+                            }
+                        }
+
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("TAG", "Event Date ** Error ${e.message}")
         }
         return "$data"
     }

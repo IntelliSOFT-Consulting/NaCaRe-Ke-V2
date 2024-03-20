@@ -288,8 +288,7 @@ class RetrofitCalls {
         viewModel.saveTrackedEntityServer(
             context,
             entityData, orgUnit, patientUnique
-        )
-        Log.e("TAG", "Patient Unique ***** $patientUnique\nData *** $entityData")
+        ) 
     }
 
     private fun extractInitialEnrollmentEvent(
