@@ -306,6 +306,39 @@ class MainRepository(private val roomDao: RoomDao) {
         return "$data"
     }
 
+    fun countLateNotificationsEntities(level: String?, code: String?): String {
+        var data = 0
+        try {
+            val allEnrollments =
+                if (level != "5") roomDao.getAllTrackedEvents() else roomDao.getAllTrackedEventsByOrg(
+                    code.toString()
+                )
+
+            if (allEnrollments != null) {
+                allEnrollments.forEach { q ->
+
+                    // creation date
+                    val date = q.eventDate
+                    if (q.dataValues.isNotEmpty()) {
+                        val converters = Converters().fromJsonDataAttribute(q.dataValues)
+                        val eachReporting = converters.find { it.dataElement == "k5cjujLd0nd" }
+                        if (eachReporting != null) {
+
+                            Log.e(
+                                "TAG",
+                                "Event Date ** $date Reporting Date ** ${eachReporting.value}"
+                            )
+                        }
+
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return "$data"
+    }
+
     fun loadEvent(uid: String): EventData? {
         return roomDao.loadEvent(uid)
     }

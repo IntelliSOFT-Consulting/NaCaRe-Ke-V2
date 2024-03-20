@@ -112,7 +112,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countLateNotificationsEntities(level: String?, code: String?) = runBlocking {
-        repository.countEntities(level, code)
+        repository.countLateNotificationsEntities(level, code)
     }
 
     fun countTwoSurvivorsEntities(level: String?, code: String?) = runBlocking {
