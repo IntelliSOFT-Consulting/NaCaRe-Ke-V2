@@ -20,9 +20,11 @@ import com.capture.app.auth.LoginActivity
 import com.capture.app.data.Constants.HELP_DESK
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityMainBinding
+import com.capture.app.model.DataValue
 import com.capture.app.model.EnrollmentEventUploadData
 import com.capture.app.model.EnrollmentPostData
 import com.capture.app.model.EventUploadData
+import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
 import com.capture.app.network.RetrofitCalls
 import com.capture.app.room.Converters
@@ -31,6 +33,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -186,10 +190,9 @@ class MainActivity : AppCompatActivity() {
                                             enrollment = trackedEntity.enrollment,
                                             trackedEntityInstance = trackedEntity.trackedEntity,
                                             status = it.status,
-                                            dataValues = attributes
+                                            dataValues = workOnDateElements(attributes)
                                         )
 
-                                        Log.e("TAG", "Tracked Events Here **** $payload")
                                         retrofitCalls.uploadEnrollmentData(
                                             this@MainActivity,
                                             payload, "${it.id}", it.initialUpload, it.eventUid
@@ -259,19 +262,17 @@ class MainActivity : AppCompatActivity() {
                         incidentDate = it.enrollDate,
                     )
                 )
-                if (it.isSynced) {
 
-                }
                 val server = it.trackedEntity//
                 val inst = TrackedEntityInstancePostData(
                     orgUnit = it.orgUnit,
                     trackedEntity = server,//it.trackedEntity,
-                    attributes = attributes,
+                    attributes = refineAttributeDateValues(attributes),
                     trackedEntityType = trackedEntityType.toString(),
                     enrollments = enrollments
 
                 )
-                Log.e("TAG", "Upload Data Here Enrolled **** $inst")
+
                 trackedEntityInstances.add(inst)
                 CoroutineScope(Dispatchers.IO).launch {
                     retrofitCalls.uploadSingleTrackedEntity(this@MainActivity, inst, server)
@@ -279,6 +280,72 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun isDateType(uid: String, excludeHiddenFields: List<String>): Boolean {
+        return excludeHiddenFields.any { it == uid }
+    }
+
+    private fun refineAttributeDateValues(attributes: List<TrackedEntityInstanceAttributes>): List<TrackedEntityInstanceAttributes> {
+        val attributesList = mutableListOf<TrackedEntityInstanceAttributes>()
+
+        attributes.forEach {
+            val isDateType = isDateType(it.attribute, formatter.dateFields())
+            if (isDateType) {
+                //change data format to acceptable
+                if (it.value.isNotEmpty()) {
+                    val inputDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+
+                    try {
+                        val date = inputDateFormat.parse(it.value)
+                        val outputDateString = outputDateFormat.format(date)
+                        val data = TrackedEntityInstanceAttributes(
+                            attribute = it.attribute,
+                            value = outputDateString
+                        )
+                        attributesList.add(data)
+                    } catch (e: Exception) {
+                        println("Error parsing or formatting date: ${e.message}")
+                    }
+                }
+            } else {
+                attributesList.add(it)
+            }
+        }
+
+        return attributesList
+    }
+
+    private fun workOnDateElements(attributes: List<DataValue>): List<DataValue> {
+        val attributesList = mutableListOf<DataValue>()
+
+        attributes.forEach {
+            val isDateType = isDateType(it.dataElement, formatter.dateFields())
+            if (isDateType) {
+                //change data format to acceptable
+                if (it.value.isNotEmpty()) {
+                    val inputDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+
+                    try {
+                        val date = inputDateFormat.parse(it.value)
+                        val outputDateString = outputDateFormat.format(date)
+                        val data = DataValue(
+                            dataElement = it.dataElement,
+                            value = outputDateString
+                        )
+                        attributesList.add(data)
+                    } catch (e: Exception) {
+                        println("Error parsing or formatting date: ${e.message}")
+                    }
+                }
+            } else {
+                attributesList.add(it)
+            }
+        }
+
+        return attributesList
     }
 
     private fun loadPrograms() {
@@ -290,10 +357,9 @@ class MainActivity : AppCompatActivity() {
                     retrofitCalls.loadProgram(this@MainActivity, "facility")
                     retrofitCalls.loadAllSites(this@MainActivity)
                     retrofitCalls.loadAllCategories(this@MainActivity)
-//                    retrofitCalls.loadAllEvents(this@MainActivity)
+                    retrofitCalls.loadTopography(this@MainActivity)
                     retrofitCalls.loadAllFacilities(this@MainActivity)
                     retrofitCalls.loadTrackedEntities(this@MainActivity)
-                    retrofitCalls.loadTopography(this@MainActivity)
                 }
             }
         } catch (e: Exception) {

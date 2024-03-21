@@ -38,6 +38,8 @@ import com.capture.app.ui.patients.PatientSearchResultsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class RetrofitCalls {
 
@@ -288,7 +290,7 @@ class RetrofitCalls {
         viewModel.saveTrackedEntityServer(
             context,
             entityData, orgUnit, patientUnique
-        ) 
+        )
     }
 
     private fun extractInitialEnrollmentEvent(
@@ -325,10 +327,60 @@ class RetrofitCalls {
         return data
     }
 
+    private fun isDateType(uid: String, excludeHiddenFields: List<String>): Boolean {
+        return excludeHiddenFields.any { it == uid }
+    }
+
     private fun extractInitialEnrollmentAttribute(enrollments: List<Enrollments>): List<TrackedEntityInstanceAttributes> {
         val dataList = ArrayList<TrackedEntityInstanceAttributes>()
-        enrollments.forEach {
-            dataList.addAll(it.attributes)
+        enrollments.forEach { q ->
+            q.attributes.forEach {
+                val isDateType = isDateType(it.attribute, FormatterClass().dateFields())
+                if (isDateType) {
+                    try {
+                        val inputDateFormats = listOf(
+                            "yyyy-MM-dd",
+                            "MM/dd/yyyy",
+                            "yyyyMMdd",
+                            "dd-MM-yyyy",
+                            "yyyy/MM/dd",
+                            "MM-dd-yyyy",
+                            "dd/MM/yyyy",
+                            "yyyyMMddHHmmss",
+                            "yyyy-MM-dd HH:mm:ss",
+                            "EEE, dd MMM yyyy HH:mm:ss Z",
+                            "yyyy-MM-dd'T'HH:mm:ssXXX",
+                            "EEE MMM dd HH:mm:ss zzz yyyy",
+                        )
+                        val outputDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                        val inputDateFormat = SimpleDateFormat()
+
+                        var date: java.util.Date? = null
+                        if (it.value.isNotEmpty()) {
+                            for (pattern in inputDateFormats) {
+                                inputDateFormat.applyPattern(pattern)
+                                try {
+                                    date = inputDateFormat.parse(it.value)
+                                    break // If parsing succeeds, exit the loop
+                                } catch (e: Exception) {
+                                    // If parsing fails, continue to the next pattern
+                                    continue
+                                }
+                            }
+                            val outputDateString = outputDateFormat.format(date)
+                            val data = TrackedEntityInstanceAttributes(
+                                attribute = it.attribute,
+                                value = outputDateString
+                            )
+                            dataList.add(data)
+                        }
+                    } catch (e: Exception) {
+                        println("Error parsing or formatting date: ${e.message}")
+                    }
+                } else {
+                    dataList.add(it)
+                }
+            }
         }
         return dataList
     }
@@ -426,7 +478,10 @@ class RetrofitCalls {
                                                 )
                                             } catch (e: Exception) {
                                                 e.printStackTrace()
-                                                Log.e("TAG", "child units error:::: ${e.message}")
+                                                Log.e(
+                                                    "TAG",
+                                                    "child units error:::: ${e.message}"
+                                                )
                                             }
                                         } catch (e: Exception) {
                                             e.printStackTrace()
@@ -570,7 +625,10 @@ class RetrofitCalls {
         }
     }
 
-    private fun uploadTrackedEntityRetry(context: Context, payload: TrackedEntityInstancePostData) {
+    private fun uploadTrackedEntityRetry(
+        context: Context,
+        payload: TrackedEntityInstancePostData
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val formatter = FormatterClass()
             val viewModel = MainViewModel(context.applicationContext as Application)
@@ -877,7 +935,10 @@ class RetrofitCalls {
                             if (body != null) {
                                 Log.e("TAG", "Data Response **** $body")
                                 val data =
-                                    DataStoreData(uid = "site", dataValues = Gson().toJson(body))
+                                    DataStoreData(
+                                        uid = "site",
+                                        dataValues = Gson().toJson(body)
+                                    )
                                 viewModel.addDataStore(data)
 
                             }
@@ -969,7 +1030,11 @@ class RetrofitCalls {
                             if (body != null) {
                                 if (!initialUpload) {
                                     body.response.importSummaries.forEach {
-                                        viewModel.updateNotificationEvent(uid, it.reference, true)
+                                        viewModel.updateNotificationEvent(
+                                            uid,
+                                            it.reference,
+                                            true
+                                        )
                                     }
                                 }
                             }
@@ -978,7 +1043,7 @@ class RetrofitCalls {
                 } else {
                     val statusCode = apiInterface.code()
                     val errorBody = apiInterface.errorBody()?.string()
-                    Log.e("TAG", "Server Data Response **** Error $errorBody")
+
                     when (statusCode) {
                         409 -> {}
                         500 -> {}

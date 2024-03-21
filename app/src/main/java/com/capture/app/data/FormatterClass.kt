@@ -482,4 +482,20 @@ class FormatterClass {
         )
     }
 
+    fun dateFields(): List<String> {
+        return listOf(
+            "JkSdwVJ0Cvd",
+            "Bv1QzBVyXo3",
+            "oNPuF57JWui",
+            "fljqvOpheUV",
+            "SW7Nxz6M64z",
+            "qA5u5KweqU0",
+            "LTALxLrNHNB",
+            "yUFcwIifeA9",
+            "ZOdPQ6iLMV4",
+            "FqimnFgeqq1",
+            "QRAYZ3gXWEk", "mPpjmOxwsEZ", "HEoJiJqgPh1", "k5cjujLd0nd", "URvkIclUWjq"
+        )
+    }
+
 }
