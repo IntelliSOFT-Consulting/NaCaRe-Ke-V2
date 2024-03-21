@@ -102,11 +102,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countCompleted(level: String?, code: String?) = runBlocking {
-        repository.countByStatusEnrollments("COMPLETED")
+        repository.countByStatusEnrollments(level,code,"COMPLETED")
     }
 
     fun countOpenEntities(level: String?, code: String?) = runBlocking {
-        repository.countByStatusEnrollments("ACTIVE")
+        repository.countByStatusEnrollments(level,code,"ACTIVE")
     }
 
     fun countDeceasedEntities(level: String?, code: String?) = runBlocking {

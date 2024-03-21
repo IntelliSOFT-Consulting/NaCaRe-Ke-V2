@@ -47,6 +47,15 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        try {
+            loadDashBoard()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private fun loadDashBoard() {
         val level = formatter.getSharedPref("orgLevel", requireContext())
         val code = formatter.getSharedPref("orgCode", requireContext())

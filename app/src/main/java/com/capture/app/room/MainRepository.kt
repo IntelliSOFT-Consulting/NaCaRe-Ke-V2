@@ -271,7 +271,6 @@ class MainRepository(private val roomDao: RoomDao) {
     }
 
     fun countEntities(level: String?, code: String?): String {
-//        val data = roomDao.countAllEntities() ->ideal results
         val data = if (level != "5") {
             val open = roomDao.countByStatusEnrollments("ACTIVE")
             val closed = roomDao.countByStatusEnrollments("COMPLETED")
@@ -284,8 +283,12 @@ class MainRepository(private val roomDao: RoomDao) {
         return "$data"
     }
 
-    fun countByStatusEnrollments(status: String): String {
-        val data = roomDao.countByStatusEnrollments(status)
+    fun countByStatusEnrollments(level: String?, code: String?, status: String): String {
+        val data = if (level != "5") {
+            roomDao.countByStatusEnrollments(status)
+        } else {
+            roomDao.countByStatusEnrollmentsByOrg("ACTIVE", code.toString())
+        }
         return "$data"
     }
 
