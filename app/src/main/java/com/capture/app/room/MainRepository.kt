@@ -2,6 +2,7 @@ package com.capture.app.room
 
 import android.content.Context
 import android.util.Log
+import com.capture.app.data.Constants.DATE_OF_REPORTING
 import com.google.gson.Gson
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.TrackedEntityInstance
@@ -369,15 +370,15 @@ class MainRepository(private val roomDao: RoomDao) {
 
                     if (q.attributes.isNotEmpty()) {
                         val attributes = Converters().fromJsonAttribute(q.attributes)
-                        val eachReporting = attributes.find { it.attribute == "k5cjujLd0nd" }
+                        val eachReporting = attributes.find { it.attribute == DATE_OF_REPORTING }
 
                         if (eachReporting != null) {
-
-//                            val event =                                formatterClass.convertDateFormat(eachReporting.value, "yyyy-MM-dd")
-//
-                            val eventDate = LocalDate.parse(q.enrollDate)
+                            val currentDate = LocalDate.now()
+                            val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            println(formattedDate)
+                            val eventDate = LocalDate.parse(formattedDate)
                             val reportingDate = LocalDate.parse(eachReporting.value)
-                            val difference = ChronoUnit.YEARS.between(reportingDate, eventDate)
+                            val difference = ChronoUnit.YEARS.between(eventDate,reportingDate)
 
                             val moreThan60Days = difference > age
                             if (moreThan60Days) {

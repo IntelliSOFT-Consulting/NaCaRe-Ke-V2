@@ -22,11 +22,11 @@ import retrofit2.http.*
 interface Interface {
     @GET("/api/programs")
     suspend fun loadProgram(
-        @Query("fields") fields: String = "id,name,trackedEntityType,programStages[id,name,programStageSections[id,displayName,dataElements[id,valueType,optionSet[id,displayName,options[id,displayName,code]],displayName,attributeValues[attribute[id,name],value]]]],programSections[name,trackedEntityAttributes[id,valueType,optionSet[id,displayName,options[id,displayName,code]],name,attributeValues[attribute[id,name],value]]]",
+        @Query("fields") fields: String = "id,name,trackedEntityType,programStages[id,name,programStageSections[id,displayName,dataElements[id,valueType,optionSet[id,displayName,options[id,displayName,code]],displayName,attributeValues[attribute[id,name],value]]]],programSections[name,trackedEntityAttributes[id,valueType,optionSet[id,displayName,options[id,displayName,code]],name,attributeValues[attribute[id,name],value]]],userGroupAccesses[*]",
         @Query("filter") filter: String? = null
     ): Response<ProgramResponse>
 
-    @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id,level]")
+    @GET("/api/me.json?fields=id,username,email,surname,firstName,organisationUnits[name,id,level],userGroups[name,id]")
     suspend fun signIn(): Response<UserLoginData>
 
     @GET("/api/40/optionSets?filter=name:ilike:topography&fields=options[name,code]")
