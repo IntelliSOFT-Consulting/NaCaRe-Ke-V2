@@ -22,6 +22,10 @@ interface RoomDao {
 
     @Query("DELETE FROM program")
     fun deletePrograms()
+    @Query("DELETE FROM trackedEntity")
+    fun deleteTracked()
+    @Query("DELETE FROM enrollmentevent")
+    fun deleteEnrollments()
 
     @Query("SELECT * FROM program where userId =:userId LIMIT 1")
     fun loadSingleProgram(userId: String): ProgramData?
@@ -88,6 +92,9 @@ interface RoomDao {
 
     @Query("SELECT COUNT(*) FROM enrollmentevent")
     fun countAllEntities(): Int
+
+    @Query("SELECT COUNT(*) FROM enrollmentevent WHERE orgUnit =:code")
+    fun countAllEntitiesByOrg(code: String): Int
 
     @Query("SELECT COUNT(*) FROM enrollmentevent WHERE status =:status ")
     fun countByStatusEnrollments(status: String): Int

@@ -301,7 +301,7 @@ class RetrofitCalls {
         enrollments.forEach { q ->
             q.events.forEach {
                 data = when (type) {
-                    "status" -> it.status
+                    "status" -> q.status
                     "enrollmentUid" -> it.enrollment
                     "eventUid" -> it.event
                     "programStage" -> it.programStage

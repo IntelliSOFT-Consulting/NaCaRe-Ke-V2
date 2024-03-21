@@ -34,6 +34,11 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.deletePrograms()
     }
 
+    fun deleteTracked() {
+        roomDao.deleteEnrollments()
+        return roomDao.deleteTracked()
+    }
+
     fun loadSingleProgram(context: Context, userId: String): ProgramData? {
         return roomDao.loadSingleProgram(userId)
 
@@ -272,13 +277,9 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun countEntities(level: String?, code: String?): String {
         val data = if (level != "5") {
-            val open = roomDao.countByStatusEnrollments("ACTIVE")
-            val closed = roomDao.countByStatusEnrollments("COMPLETED")
-            open + closed
+            roomDao.countAllEntities()
         } else {
-            val open = roomDao.countByStatusEnrollmentsByOrg("ACTIVE", code.toString())
-            val closed = roomDao.countByStatusEnrollmentsByOrg("COMPLETED", code.toString())
-            open + closed
+            roomDao.countAllEntitiesByOrg(code.toString())
         }
         return "$data"
     }
@@ -287,7 +288,7 @@ class MainRepository(private val roomDao: RoomDao) {
         val data = if (level != "5") {
             roomDao.countByStatusEnrollments(status)
         } else {
-            roomDao.countByStatusEnrollmentsByOrg("ACTIVE", code.toString())
+            roomDao.countByStatusEnrollmentsByOrg(status, code.toString())
         }
         return "$data"
     }

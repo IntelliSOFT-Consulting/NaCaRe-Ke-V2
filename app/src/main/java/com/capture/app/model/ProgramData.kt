@@ -132,6 +132,7 @@ data class Enrollments(
     val enrollment: String,
     val enrollmentDate: String,
     val incidentDate: String,
+    val status: String,
     val events: List<Events>,
     val attributes: List<TrackedEntityInstanceAttributes>
 

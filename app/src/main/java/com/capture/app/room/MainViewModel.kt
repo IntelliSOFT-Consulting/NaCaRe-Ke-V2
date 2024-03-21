@@ -30,6 +30,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.deletePrograms()
     }
 
+    fun deleteTracked() = runBlocking {
+        repository.deleteTracked()
+    }
+
     fun loadSingleProgram(context: Context, userId: String) = runBlocking {
         repository.loadSingleProgram(context, userId)
     }
@@ -64,7 +68,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadTrackedEntities(context: Context, isSynced: Boolean) = runBlocking {
         repository.loadTrackedEntities(context, isSynced)
-    }  fun getTrackedEntities() = runBlocking {
+    }
+
+    fun getTrackedEntities() = runBlocking {
         repository.getTrackedEntities()
     }
 
@@ -102,15 +108,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countCompleted(level: String?, code: String?) = runBlocking {
-        repository.countByStatusEnrollments(level,code,"COMPLETED")
+        repository.countByStatusEnrollments(level, code, "COMPLETED")
     }
 
     fun countOpenEntities(level: String?, code: String?) = runBlocking {
-        repository.countByStatusEnrollments(level,code,"ACTIVE")
+        repository.countByStatusEnrollments(level, code, "ACTIVE")
     }
 
     fun countDeceasedEntities(level: String?, code: String?) = runBlocking {
-        repository.countDeceasedEntities(level,code)
+        repository.countDeceasedEntities(level, code)
     }
 
     fun countLateNotificationsEntities(level: String?, code: String?) = runBlocking {
@@ -118,11 +124,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun countTwoSurvivorsEntities(level: String?, code: String?) = runBlocking {
-        repository.countSurvivorsEntities(2,level, code)
+        repository.countSurvivorsEntities(2, level, code)
     }
 
     fun countFiveSurvivorsEntities(level: String?, code: String?) = runBlocking {
-        repository.countSurvivorsEntities(5,level, code)
+        repository.countSurvivorsEntities(5, level, code)
     }
 
     fun loadEvent(uid: String, requireContext: Context) = runBlocking {
