@@ -373,16 +373,23 @@ class MainRepository(private val roomDao: RoomDao) {
                         val eachReporting = attributes.find { it.attribute == DATE_OF_REPORTING }
 
                         if (eachReporting != null) {
-                            val currentDate = LocalDate.now()
-                            val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                            println(formattedDate)
-                            val eventDate = LocalDate.parse(formattedDate)
-                            val reportingDate = LocalDate.parse(eachReporting.value)
-                            val difference = ChronoUnit.YEARS.between(eventDate,reportingDate)
+                            try {
+                                val currentDate = LocalDate.now()
+                                val formattedDate =
+                                    currentDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                                val formattedEventDate =
+                                    eachReporting.value.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                                println(formattedDate)
+                                val eventDate = LocalDate.parse(formattedDate)
+                                val reportingDate = LocalDate.parse(formattedEventDate)
+                                val difference = ChronoUnit.YEARS.between(eventDate, reportingDate)
 
-                            val moreThan60Days = difference > age
-                            if (moreThan60Days) {
-                                data++
+                                val moreThan60Days = difference > age
+                                if (moreThan60Days) {
+                                    data++
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
                         }
 

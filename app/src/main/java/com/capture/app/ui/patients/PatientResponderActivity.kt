@@ -352,12 +352,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         tvTreatmentDate.visibility = View.VISIBLE
                         try {
                             tvTreatmentDate.text =
-                                "Treatment Start Date: ${
-                                    formatter.convertDateFormat(
-                                        date,
-                                        "dd-MM-yyyy"
-                                    )
-                                }"
+                                "Treatment Start Date: $date"
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -1240,7 +1235,6 @@ class PatientResponderActivity : AppCompatActivity() {
     }
 
 
-
     private fun getDate(year: Int, month: Int, day: Int): String {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
@@ -1751,6 +1745,77 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
 
+            "LONG_TEXT" -> {
+
+                val itemView = inflater.inflate(
+                    R.layout.item_edittext_long, lnParent, false
+                ) as LinearLayout
+                val tvName = itemView.findViewById<TextView>(R.id.tv_name)
+                val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
+                val textInputLayout =
+                    itemView.findViewById<TextInputLayout>(R.id.textInputLayout)
+                val editText = itemView.findViewById<TextInputEditText>(R.id.editText)
+                val halfColoredBackground =
+                    itemView.findViewById<LinearLayout>(R.id.half_colored_background)
+                val name =
+                    if (isRequired) generateRequiredField(item.displayName) else item.displayName
+                tvName.text = Html.fromHtml(name)
+                tvElement.text = item.id
+                itemView.tag = item.id
+                lnParent.addView(itemView)
+
+                if (currentValue.isNotEmpty()) {
+                    editText.setText(currentValue)
+                } else {
+                    if (isFirstTime == null) {
+                        halfColoredBackground.setBackgroundResource(
+                            R.drawable.half_colored_background
+                        )
+                    }
+                }
+                if (isHidden) {
+                    itemView.visibility = View.GONE
+                } else {
+
+                    if (isDisabled) {
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                    }
+                    if (showIf) {
+                        val showNow = showIfRespondedAttribute(item.attributeValues)
+                        if (showNow) {
+                            itemView.visibility = View.GONE
+                        } else {
+                            itemView.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?, start: Int, count: Int, after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?, start: Int, before: Int, count: Int
+                    ) {
+
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val value = s.toString()
+                        if (value.isNotEmpty()) {
+                            saveValued(index, item.id, value, isProgram)
+
+                            halfColoredBackground.setBackgroundColor(Color.TRANSPARENT)
+                        }
+                    }
+                })
+
+            }
+
             "DATE" -> {
                 val itemView = inflater.inflate(
                     R.layout.item_edittext_date, lnParent, false
@@ -2203,6 +2268,7 @@ class PatientResponderActivity : AppCompatActivity() {
 
         }
     }
+
     private fun createFormFieldsAttribute(
         index: Int,
         item: TrackedEntityAttributes,
@@ -2540,10 +2606,10 @@ class PatientResponderActivity : AppCompatActivity() {
                 editText.isCursorVisible = false
                 editText.isFocusable = false
                 if (currentValue.isNotEmpty()) {
-                    val refinedDate = formatter.convertDateFormat(currentValue)
-                    if (refinedDate != null) {
-                        editText.setText(refinedDate)
-                    }
+//                    val refinedDate = formatter.convertDateFormat(currentValue)
+//                    if (refinedDate != null) {
+                    editText.setText(currentValue)
+//                    }
                 } else {
                     if (isFirstTime == null) {
                         halfColoredBackground.setBackgroundResource(
@@ -3005,10 +3071,9 @@ class PatientResponderActivity : AppCompatActivity() {
             if (treatment != null) {
                 val date = treatment.value
                 if (date.isNotEmpty()) {
-                    val dateString = formatter.convertDateFormat(date)
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
                     // Parse the input date string to LocalDate
-                    val inputDate = LocalDate.parse(dateString, formatter)
+                    val inputDate = LocalDate.parse(date, formatter)
                     // Get the current date
                     val currentDate = LocalDate.now()
                     // Calculate the difference in years between current date and input date

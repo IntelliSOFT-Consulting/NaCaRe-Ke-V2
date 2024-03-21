@@ -399,27 +399,22 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     )
                 }
                 if (parentValue.isNotEmpty()) {
-                    val refinedParent = formatter.convertDateFormat(parentValue)
+                    val refinedParent = parentValue
 
-                    if (refinedParent != null) {
-                        parentValue = refinedParent
-                        val result = when (part1) {
-                            "eq" -> itemValue == parentValue
-                            "ne" -> itemValue != parentValue
-                            "gt" -> itemValue > parentValue
-                            "ge" -> itemValue >= parentValue
-                            "lt" -> itemValue < parentValue
-                            "le" -> itemValue <= parentValue
-                            "like" -> itemValue == parentValue
-                            "null" -> false
-                            "notnull" -> true
-                            else -> false
-                        }
-                        status = result
-
-                    } else {
-                        status = false
+                    parentValue = refinedParent
+                    val result = when (part1) {
+                        "eq" -> itemValue == parentValue
+                        "ne" -> itemValue != parentValue
+                        "gt" -> itemValue > parentValue
+                        "ge" -> itemValue >= parentValue
+                        "lt" -> itemValue < parentValue
+                        "le" -> itemValue <= parentValue
+                        "like" -> itemValue == parentValue
+                        "null" -> false
+                        "notnull" -> true
+                        else -> false
                     }
+                    status = result
 
                 } else {
                     status = false
@@ -948,9 +943,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 }
                             } else {
                                 calculateRelevant(lnParent, index, item, value)
-                                val dhis2Value =
-                                    FormatterClass().convertDateFormat(value, "yyyy-MM-dd")
-                                saveValued(index, item.id, dhis2Value)
+                                saveValued(index, item.id, value)
                             }
                         }
                     }
@@ -1369,7 +1362,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
         when (item.id) {
             DATE_OF_BIRTH -> {
-                val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
                 val birthDate = LocalDate.parse(value, dateFormatter)
                 // Get the current date
                 val currentDate = LocalDate.now()
@@ -1434,7 +1427,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
-        return FormatterClass().formatCurrentDate(date)
+        return FormatterClass().formatSimpleDate(date)
     }
 
     private fun getCodeFromText(value: String, options: List<Option>): String {
