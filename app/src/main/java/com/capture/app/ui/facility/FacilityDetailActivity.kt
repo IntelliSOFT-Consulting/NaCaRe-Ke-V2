@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.DatePicker
 import android.widget.LinearLayout
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -80,8 +81,28 @@ class FacilityDetailActivity : AppCompatActivity() {
                 // Handle back arrow click here
                 onBackPressed() // Or implement your own logic
             }
-            btnSave.apply {
+            var saveData = true
+            val canWrite =
+                FormatterClass().getSharedPref("canWrite", this@FacilityDetailActivity)
+            if (canWrite == null) {
+                saveData = false
+            }
+            if (saveData) {
+                btnSave.visibility = View.VISIBLE
+                btnCancel.visibility = View.GONE
+            } else {
+                btnSave.visibility = View.GONE
+                btnCancel.visibility = View.VISIBLE
+            }
+            btnCancel.apply {
                 setOnClickListener {
+                    this@FacilityDetailActivity.finish()
+                }
+            }
+            btnSave.apply {
+
+                setOnClickListener {
+
                     if (allRequiredFieldsComplete()) {
                         validateSearchData()
                     } else {
@@ -91,6 +112,7 @@ class FacilityDetailActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+
                 }
             }
 
@@ -161,8 +183,6 @@ class FacilityDetailActivity : AppCompatActivity() {
                     if (eventDate == null) {
                         eventDate = formatter.formatCurrentDate(Date())
                     }
-
-                    Log.e("TAG","Active Data Elements **** $dataValueList")
                     val data = EventData(
                         uid = eventUid,
                         program = programUid.toString(),
@@ -360,7 +380,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         val label: String = item.displayName
         val inflater = LayoutInflater.from(this)
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
-        val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
+        var isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
         val disableFutureDate: Boolean =
             extractAttributeValue("disableFutureDate", item.attributeValues)
@@ -368,6 +388,10 @@ class FacilityDetailActivity : AppCompatActivity() {
 
         if (isRequired) {
             requiredFieldsString.add(item.id)
+        }
+        val canWrite = FormatterClass().getSharedPref("canWrite", this)
+        if (canWrite == null) {
+            isDisabled = true
         }
         when (valueType) {
             "TEXT" -> {
@@ -802,6 +826,8 @@ class FacilityDetailActivity : AppCompatActivity() {
                 val tvName = itemView.findViewById<TextView>(R.id.tv_name)
                 val tvElement = itemView.findViewById<TextView>(R.id.tv_element)
                 val radioGroup = itemView.findViewById<RadioGroup>(R.id.radioGroup)
+                val radioButtonYes = itemView.findViewById<RadioButton>(R.id.radioButtonYes)
+                val radioButtonNo = itemView.findViewById<RadioButton>(R.id.radioButtonNo)
                 val name =
                     if (isRequired) generateRequiredField(item.displayName) else item.displayName
                 val lnViewParent = itemView.findViewById<LinearLayout>(R.id.ln_view_parent)
@@ -878,6 +904,8 @@ class FacilityDetailActivity : AppCompatActivity() {
                 } else {
                     if (isDisabled) {
                         radioGroup.isEnabled = false
+                        radioButtonYes.isEnabled = false
+                        radioButtonNo.isEnabled = false
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)

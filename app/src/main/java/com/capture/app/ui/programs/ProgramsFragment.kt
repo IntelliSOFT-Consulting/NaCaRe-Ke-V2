@@ -55,9 +55,13 @@ class ProgramsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val programs = viewModel.loadPrograms(requireContext())
-        binding.apply { btnProceed.apply { setOnClickListener {
-            NavHostFragment.findNavController(this@ProgramsFragment).navigateUp()
-        } } }
+        binding.apply {
+            btnProceed.apply {
+                setOnClickListener {
+                    NavHostFragment.findNavController(this@ProgramsFragment).navigateUp()
+                }
+            }
+        }
         if (!programs.isEmpty()) {
             programList.clear()
             programs.forEach {
@@ -71,7 +75,14 @@ class ProgramsFragment : Fragment() {
                             val progStage = it.programStages
                             val tei = it.trackedEntityType
                             val prog =
-                                ProgramDetails(id = id, name = name, progStage, progSection,tei)
+                                ProgramDetails(
+                                    id = id,
+                                    name = name,
+                                    progStage,
+                                    progSection,
+                                    tei,
+                                    userGroupAccesses = it.userGroupAccesses
+                                )
                             programList.add(prog)
                         }
 

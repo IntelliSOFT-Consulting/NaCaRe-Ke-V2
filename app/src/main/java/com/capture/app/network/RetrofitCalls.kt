@@ -233,14 +233,14 @@ class RetrofitCalls {
 
                                     } else {
                                         val converters = Converters().toJsonPatientSearch(body)
-                                        Log.e("TAG", "Search Results ***** $converters")
+
                                         body.trackedEntityInstances.forEach {
                                             saveUpdatePatient(context, it)
                                         }
                                     }
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    Log.e("TAG", "json err:::: ${e.message}")
+
                                 }
                             }
                         }

@@ -13,9 +13,14 @@ data class UserLoginData(
     val username: String,
     val surname: String,
     val email: String,
-    val organisationUnits: List<OrgUnits>
+    val organisationUnits: List<OrgUnits>,
+    val userGroups: List<UserGroups>
 )
 
+data class UserGroups(
+    val id: String,
+    val name: String,
+)
 data class OrgUnits(
     val id: String,
     val name: String,

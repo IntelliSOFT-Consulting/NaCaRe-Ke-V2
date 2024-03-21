@@ -13,7 +13,8 @@ import com.capture.app.model.FacilitySummary
 class FacilityAdapter(
     private val dataList: List<FacilitySummary>,
     private val context: Context,
-    private val click: (FacilitySummary) -> Unit
+    private val click: (FacilitySummary) -> Unit,
+    private val hasWriteAccess: Boolean
 ) : RecyclerView.Adapter<FacilityHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FacilityHolder {
         return FacilityHolder(
@@ -31,7 +32,7 @@ class FacilityAdapter(
         val date = formatter.convertDateFormat(data.date)//convertDateFormat("hhhh")
         holder.dateTextView.text = date
         holder.statusTextView.text = data.status
-        val htmlText = "<a href=\"\">Edit</a>"
+        val htmlText = if (hasWriteAccess) "<a href=\"\">Edit</a>" else "<a href=\"\">View</a>"
         holder.actionTextView.text = Html.fromHtml(htmlText)
         holder.itemView.setOnClickListener {
             click(data)

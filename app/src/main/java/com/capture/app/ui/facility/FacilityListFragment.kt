@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken
 import com.capture.app.R
 import com.capture.app.adapters.FacilityAdapter
 import com.capture.app.data.FormatterClass
+import com.capture.app.data.PermissionManager
 import com.capture.app.databinding.FragmentFacilityListBinding
 import com.capture.app.model.DataElements
 import com.capture.app.model.DataValue
@@ -76,7 +77,6 @@ class FacilityListFragment : Fragment() {
     }
 
     private fun loadEvents() {
-//        viewModel.deleteEvent(13)
         val orgUnit = formatter.getSharedPref("orgCode", requireContext())
         if (orgUnit != null) {
             val data = viewModel.loadEvents(orgUnit, requireContext())
@@ -106,8 +106,9 @@ class FacilityListFragment : Fragment() {
                     facilityList.add(fc)
                 }
 
+                val hasWriteAccess = PermissionManager().hadWriteAccess(requireContext())
                 val adapterProgram =
-                    FacilityAdapter(facilityList, requireContext(), this::handleClick)
+                    FacilityAdapter(facilityList, requireContext(), this::handleClick,hasWriteAccess)
 
                 binding.apply {
                     val manager = LinearLayoutManager(requireContext())
@@ -147,7 +148,7 @@ class FacilityListFragment : Fragment() {
         val data = viewModel.loadEventById(facilitySummary.id, requireContext())
         if (orgUnit != null) {
             if (data != null) {
-                 formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
+                formatter.saveSharedPref("current_event", facilitySummary.uid, requireContext())
                 formatter.saveSharedPref(
                     "current_event_date",
                     facilitySummary.date,

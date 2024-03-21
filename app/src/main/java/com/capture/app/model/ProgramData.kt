@@ -23,8 +23,17 @@ data class ProgramDetails(
     val name: String,
     val programStages: List<ProgramStages>,
     val programSections: List<ProgramSections>,
-    val trackedEntityType: TrackedEntityType?
+    val trackedEntityType: TrackedEntityType?,
+    val userGroupAccesses: List<UserGroupAccesses>
 )
+
+data class UserGroupAccesses(
+    val access: String,
+    val displayName: String,
+    val userGroupUid: String,
+    val id: String,
+
+    )
 
 data class TrackedEntityType(
     val id: String,
