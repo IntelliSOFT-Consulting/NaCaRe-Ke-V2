@@ -399,17 +399,17 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     )
                 }
                 if (parentValue.isNotEmpty()) {
-                    val refinedParent = parentValue
-
-                    parentValue = refinedParent
+                    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                    val formattedCurrent = dateFormat.parse(itemValue)
+                    val formattedParent = dateFormat.parse(parentValue)
                     val result = when (part1) {
-                        "eq" -> itemValue == parentValue
-                        "ne" -> itemValue != parentValue
-                        "gt" -> itemValue > parentValue
-                        "ge" -> itemValue >= parentValue
-                        "lt" -> itemValue < parentValue
-                        "le" -> itemValue <= parentValue
-                        "like" -> itemValue == parentValue
+                        "eq" -> formattedCurrent == formattedParent
+                        "ne" -> formattedCurrent != formattedParent
+                        "gt" -> formattedCurrent!! > formattedParent
+                        "ge" -> formattedCurrent!! >= formattedParent
+                        "lt" -> formattedCurrent!! < formattedParent
+                        "le" -> formattedCurrent!! <= formattedParent
+                        "like" -> formattedCurrent == formattedParent
                         "null" -> false
                         "notnull" -> true
                         else -> false

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.capture.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 4
         versionName = "1.0"

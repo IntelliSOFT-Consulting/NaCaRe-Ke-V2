@@ -102,16 +102,19 @@ class TrackedEntityAdapter(
 
     private fun extractValueFromDataValues(patient: String, uid: String): String {
         var data = ""
-       try{ val viewModel = MainViewModel(context.applicationContext as Application)
-        val single = viewModel.getLatestEnrollment(context, patient)
-        if (single != null) {
-            val dtValues = Converters().fromJsonDataAttribute(single.dataValues)
-            val found = dtValues.find { it.dataElement == uid }
-            if (found != null) {
-                data = found.value
+        try {
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val single = viewModel.getLatestEnrollment(context, patient)
+            if (single != null) {
+                if (single.dataValues.isNotEmpty()) {
+                    val dtValues = Converters().fromJsonDataAttribute(single.dataValues)
+                    val found = dtValues.find { it.dataElement == uid }
+                    if (found != null) {
+                        data = found.value
+                    }
+                }
             }
-
-        }}catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return data

@@ -73,11 +73,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 
 class PatientResponderActivity : AppCompatActivity() {
@@ -993,7 +995,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                     if (treatmentDate != null) {
                         if (matchedItems.isNotEmpty()) {
-                            val treatDate = FormatterClass().convertDateFormat(treatmentDate.value)
+                            val treatDate = treatmentDate.value
                             val atLeastOneFound = matchedItems.filter { it.value == treatDate }
 
                             return atLeastOneFound.isEmpty()
@@ -1184,27 +1186,23 @@ class PatientResponderActivity : AppCompatActivity() {
                     )
                 }
                 if (parentValue.isNotEmpty()) {
-                    val refinedParent = formatter.convertDateFormat(parentValue)
-
-                    if (refinedParent != null) {
-                        parentValue = refinedParent
-                        val result = when (part1) {
-                            "eq" -> itemValue == parentValue
-                            "ne" -> itemValue != parentValue
-                            "gt" -> itemValue > parentValue
-                            "ge" -> itemValue >= parentValue
-                            "lt" -> itemValue < parentValue
-                            "le" -> itemValue <= parentValue
-                            "like" -> itemValue == parentValue
-                            "null" -> false
-                            "notnull" -> true
-                            else -> false
-                        }
-                        status = result
-
-                    } else {
-                        status = false
+                    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                    val formattedCurrent = dateFormat.parse(itemValue)
+                    val formattedParent = dateFormat.parse(parentValue)
+                    val result = when (part1) {
+                        "eq" -> formattedCurrent == formattedParent
+                        "ne" -> formattedCurrent != formattedParent
+                        "gt" -> formattedCurrent!! > formattedParent
+                        "ge" -> formattedCurrent!! >= formattedParent
+                        "lt" -> formattedCurrent!! < formattedParent
+                        "le" -> formattedCurrent!! <= formattedParent
+                        "like" -> formattedCurrent == formattedParent
+                        "null" -> false
+                        "notnull" -> true
+                        else -> false
                     }
+                    status = result
+
 
                 } else {
                     status = false

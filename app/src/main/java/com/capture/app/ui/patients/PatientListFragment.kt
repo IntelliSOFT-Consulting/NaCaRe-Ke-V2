@@ -168,7 +168,6 @@ class PatientListFragment : Fragment() {
         diagnosisCode: String, topography: String
     ) = runBlocking {
 
-        Log.e("TAG", "Topography data **** $topography")
         FormatterClass().extractDiagnosisNameFromCodeChild(
             requireContext(),
             diagnosis,
@@ -220,6 +219,7 @@ class PatientListFragment : Fragment() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
+                formatter.saveSharedPref("is_first_time", "true",requireContext())
                 if (data.isDead) {
                     Toast.makeText(
                         requireContext(),

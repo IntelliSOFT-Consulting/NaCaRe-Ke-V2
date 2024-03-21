@@ -160,7 +160,7 @@ class FormatterClass {
         val calendar = Calendar.getInstance()
         calendar[year, month] = day
         val date: Date = calendar.time
-        return FormatterClass().formatCurrentDate(date)
+        return FormatterClass().formatSimpleDate(date)
     }
 
     fun formatDate(date: Date?): String? {
