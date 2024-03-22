@@ -222,13 +222,20 @@ class MainActivity : AppCompatActivity() {
                 data = converters.surname
                 try {
                     formatter.saveSharedPref("username", converters.username, this)
-                    formatter.saveSharedPref("orgCode", converters.organisationUnits[0].id, this)
-                    formatter.saveSharedPref("orgName", converters.organisationUnits[0].name, this)
-                    formatter.saveSharedPref(
-                        "orgLevel",
-                        converters.organisationUnits[0].level,
-                        this
-                    )
+                    converters.organisationUnits.forEach {
+                        formatter.saveSharedPref(
+                            "orgCode", it.id,
+                            this
+                        )
+                        formatter.saveSharedPref(
+                            "orgName", it.name,
+                            this
+                        )
+                        formatter.saveSharedPref(
+                            "orgLevel", it.level,
+                            this
+                        )
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

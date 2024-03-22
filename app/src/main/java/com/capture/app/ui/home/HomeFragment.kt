@@ -64,7 +64,6 @@ class HomeFragment : Fragment() {
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
             val adapter = DashAdapter(requireContext(), data, this@HomeFragment::handleClick)
             recyclerView.adapter = adapter
-//            recyclerView.layoutManager =                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         }
     }
 

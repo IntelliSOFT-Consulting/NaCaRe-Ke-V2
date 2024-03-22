@@ -101,8 +101,7 @@ class OrganizationFragment : Fragment() {
             val treeNodes = mutableListOf<OrgTreeNode>()
             try {
                 organization.forEach {
-                    Log.e("TAG", "Retrieved Organization Data $it")
-                    val converters = Converters().fromJsonOrgUnit(it.jsonData)
+                   val converters = Converters().fromJsonOrgUnit(it.jsonData)
 
                     val orgNode = OrgTreeNode(
                         label = converters.name,

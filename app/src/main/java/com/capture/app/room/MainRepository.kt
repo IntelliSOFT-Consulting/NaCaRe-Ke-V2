@@ -3,14 +3,16 @@ package com.capture.app.room
 import android.content.Context
 import android.util.Log
 import com.capture.app.data.Constants.DATE_OF_REPORTING
-import com.google.gson.Gson
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceServer
+import com.google.gson.Gson
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
+import java.util.Locale
 
 class MainRepository(private val roomDao: RoomDao) {
 
@@ -326,27 +328,68 @@ class MainRepository(private val roomDao: RoomDao) {
                 if (level != "5") roomDao.getTrackedEntities() else roomDao.getTrackedEntitiesByOrg(
                     code.toString()
                 )
+            allEnrollments?.forEach { q ->
+                if (q.attributes.isNotEmpty()) {
 
-            if (allEnrollments != null) {
-                allEnrollments.forEach { q ->
+                    val attributes = Converters().fromJsonAttribute(q.attributes)
+                    val eachReporting = attributes.find { it.attribute == "k5cjujLd0nd" }
 
-                    // creation date
+                    if (eachReporting != null) {
 
-                    if (q.attributes.isNotEmpty()) {
-                        val attributes = Converters().fromJsonAttribute(q.attributes)
-                        val eachReporting = attributes.find { it.attribute == "k5cjujLd0nd" }
+                        try {
+                            val inputDateFormats = listOf(
+                                "yyyy-MM-dd",
+                                "MM/dd/yyyy",
+                                "yyyyMMdd",
+                                "dd-MM-yyyy",
+                                "yyyy/MM/dd",
+                                "MM-dd-yyyy",
+                                "dd/MM/yyyy",
+                                "yyyyMMddHHmmss",
+                                "yyyy-MM-dd HH:mm:ss",
+                                "EEE, dd MMM yyyy HH:mm:ss Z",
+                                "yyyy-MM-dd'T'HH:mm:ssXXX",
+                                "EEE MMM dd HH:mm:ss zzz yyyy",
+                            )
+                            val outputDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                            val inputDateFormat = SimpleDateFormat()
 
-                        if (eachReporting != null) {
+                            var date: Date? = null
 
-//                            val event =                                formatterClass.convertDateFormat(eachReporting.value, "yyyy-MM-dd")
-//
-                            val eventDate = LocalDate.parse(q.enrollDate)
-                            val reportingDate = LocalDate.parse(eachReporting.value)
-                            val difference = ChronoUnit.DAYS.between(reportingDate, eventDate)
-                            val moreThan60Days = difference > 60
-                            if (moreThan60Days) {
+                            for (pattern in inputDateFormats) {
+                                inputDateFormat.applyPattern(pattern)
+                                try {
+                                    date = inputDateFormat.parse(q.enrollDate)
+                                    break // If parsing succeeds, exit the loop
+                                } catch (e: Exception) {
+                                    // If parsing fails, continue to the next pattern
+                                    continue
+                                }
+                            }
+
+                            val outputDateString = outputDateFormat.format(date)
+                            val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                            val formattedEvent = dateFormat.parse(outputDateString)
+                            val formattedReporting = dateFormat.parse(eachReporting.value)
+                            val eventDate = LocalDate.of(
+                                formattedEvent!!.year + 1900,
+                                formattedEvent.month + 1,
+                                formattedEvent.date
+                            )
+
+                            val reportingDate = LocalDate.of(
+                                formattedReporting!!.year + 1900,
+                                formattedReporting.month + 1,
+                                formattedReporting.date
+                            )
+
+                            val daysDifference = ChronoUnit.DAYS.between(reportingDate, eventDate)
+                            if (daysDifference > 60) {
                                 data++
                             }
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
 
                     }
@@ -354,7 +397,6 @@ class MainRepository(private val roomDao: RoomDao) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("TAG", "Event Date ** Error ${e.message}")
         }
         return "$data"
     }
@@ -378,20 +420,59 @@ class MainRepository(private val roomDao: RoomDao) {
 
                         if (eachReporting != null) {
                             try {
-                                val currentDate = LocalDate.now()
-                                val formattedDate =
-                                    currentDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                                val formattedEventDate =
-                                    eachReporting.value.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                                println(formattedDate)
-                                val eventDate = LocalDate.parse(formattedDate)
-                                val reportingDate = LocalDate.parse(formattedEventDate)
-                                val difference = ChronoUnit.YEARS.between(eventDate, reportingDate)
+                                val inputDateFormats = listOf(
+                                    "yyyy-MM-dd",
+                                    "MM/dd/yyyy",
+                                    "yyyyMMdd",
+                                    "dd-MM-yyyy",
+                                    "yyyy/MM/dd",
+                                    "MM-dd-yyyy",
+                                    "dd/MM/yyyy",
+                                    "yyyyMMddHHmmss",
+                                    "yyyy-MM-dd HH:mm:ss",
+                                    "EEE, dd MMM yyyy HH:mm:ss Z",
+                                    "yyyy-MM-dd'T'HH:mm:ssXXX",
+                                    "EEE MMM dd HH:mm:ss zzz yyyy",
+                                )
+                                val outputDateFormat =
+                                    SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                                val inputDateFormat = SimpleDateFormat()
 
-                                val moreThan60Days = difference > age
-                                if (moreThan60Days) {
+                                var date: Date? = null
+
+                                for (pattern in inputDateFormats) {
+                                    inputDateFormat.applyPattern(pattern)
+                                    try {
+                                        date = inputDateFormat.parse(q.enrollDate)
+                                        break // If parsing succeeds, exit the loop
+                                    } catch (e: Exception) {
+                                        // If parsing fails, continue to the next pattern
+                                        continue
+                                    }
+                                }
+
+                                val outputDateString = outputDateFormat.format(date)
+                                val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+                                val formattedEvent = dateFormat.parse(outputDateString)
+                                val formattedReporting = dateFormat.parse(eachReporting.value)
+                                val eventDate = LocalDate.of(
+                                    formattedEvent!!.year + 1900,
+                                    formattedEvent.month + 1,
+                                    formattedEvent.date
+                                )
+
+                                val reportingDate = LocalDate.of(
+                                    formattedReporting!!.year + 1900,
+                                    formattedReporting.month + 1,
+                                    formattedReporting.date
+                                )
+
+                                val daysDifference =
+                                    ChronoUnit.YEARS.between(reportingDate, eventDate)
+                                if (daysDifference > age) {
                                     data++
                                 }
+
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
