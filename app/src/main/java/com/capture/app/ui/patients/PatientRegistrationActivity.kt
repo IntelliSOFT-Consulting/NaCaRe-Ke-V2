@@ -35,9 +35,11 @@ import com.capture.app.data.Constants.DATE_OF_BIRTH
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
+import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.IDENTIFICATION_DOCUMENT
 import com.capture.app.data.Constants.IDENTIFICATION_NUMBER
+import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.Constants.SEX
@@ -1418,6 +1420,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     }
                 }
                 saveValued(index, ICD_CODE, "$dataValue")
+            }
+            HISTOLOGY -> {
+                val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
+                saveValued(index, MORPHOLOGY_CODE, "$dataValue")
             }
         }
     }

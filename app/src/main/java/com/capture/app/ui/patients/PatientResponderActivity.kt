@@ -40,7 +40,9 @@ import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
 import com.capture.app.data.Constants.FIVE_YEARS
+import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
+import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.SCREEN_FOR_CANCER
 import com.capture.app.data.Constants.SEX
@@ -1266,12 +1268,16 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 if (category != null && dataValue != null) {
                     val categoryValue = formatter.generateRespectiveValue(category, dataValue)
-                    Log.e("TAG", "Match found: $categoryValue")
+
                     if (categoryValue.isNotEmpty()) {
                         saveValued(index, DIAGNOSIS_CATEGORY, categoryValue, isProgram)
                     }
                 }
                 saveValued(index, ICD_CODE, "$dataValue", isProgram)
+            }
+            HISTOLOGY -> {
+                val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
+                saveValued(index, MORPHOLOGY_CODE, "$dataValue",isProgram)
             }
         }
     }
