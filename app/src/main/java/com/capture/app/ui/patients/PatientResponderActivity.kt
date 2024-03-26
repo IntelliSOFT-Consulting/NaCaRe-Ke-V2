@@ -859,7 +859,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                 val nextButton: MaterialButton =
                                     dialogView.findViewById(R.id.yes_button)
                                 dialog = dialogBuilder.create()
-                                tvTitle.text = context.getString(R.string.search_results)
+//                                tvTitle.text = context.getString(R.string.search_results)
                                 tvMessage.text = context.getString(R.string.save_and_continue)
                                 nextButton.setOnClickListener {
                                     dialog.dismiss()

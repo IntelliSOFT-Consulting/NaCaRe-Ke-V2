@@ -509,7 +509,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
                         var previousAnswer = extractCurrentValues(part1)
                         if (previousAnswer.isNotEmpty()) {
-                            Log.e("TAG", "Show me the Response to Compared $previousAnswer")
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
