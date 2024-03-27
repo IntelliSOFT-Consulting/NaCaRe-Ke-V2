@@ -64,7 +64,8 @@ class MainRepository(private val roomDao: RoomDao) {
         context: Context,
         data: TrackedEntityInstance,
         parentOrg: String,
-        patientIdentification: String
+        patientIdentification: String,
+        dataValues: String
     ) {
         val formatter = FormatterClass()
         val exists = false// roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
@@ -82,6 +83,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 enrollment = data.enrollment,
                 enrollDate = data.enrollDate,
                 isLocal = true,
+                isSubmitted = true,
                 attributes = Gson().toJson(data.attributes),
                 trackedUnique = patientIdentification
             )
@@ -89,7 +91,7 @@ class MainRepository(private val roomDao: RoomDao) {
             val eventUid = formatter.generateUUID(11)
             val enrollmentUid = formatter.generateUUID(11)
             val enrollment = EnrollmentEventData(
-                dataValues = "",
+                dataValues = dataValues,
                 uid = enrollmentUid,
                 eventUid = eventUid,
                 program = formatter.getSharedPref("programUid", context).toString(),

@@ -173,7 +173,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 viewModel.saveTrackedEntity(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    data.orgUnit, data.patientIdentification
+                    data.orgUnit, data.patientIdentification,""
                 )
                 startActivity(
                     Intent(

@@ -50,10 +50,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         data: TrackedEntityInstance,
         parentOrg: String,
-        patientIdentification: String
+        patientIdentification: String,
+        dataValues: String
     ) = runBlocking {
 
-        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification)
+        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification,dataValues)
     }
 
     fun saveTrackedEntityServer(

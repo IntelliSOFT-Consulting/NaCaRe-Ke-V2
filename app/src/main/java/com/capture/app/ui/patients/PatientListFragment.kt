@@ -244,7 +244,7 @@ class PatientListFragment : Fragment() {
                     viewModel.saveTrackedEntity(
                         context,
                         entityData,
-                        orgCode, data.patientIdentification
+                        orgCode, data.patientIdentification,""
                     )
 
                     startActivity(

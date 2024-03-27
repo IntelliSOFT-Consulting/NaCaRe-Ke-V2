@@ -42,13 +42,18 @@ import com.capture.app.data.Constants.IDENTIFICATION_NUMBER
 import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.PATIENT_UNIQUE
+import com.capture.app.data.Constants.RECEIVED_TREATMENT
 import com.capture.app.data.Constants.SEX
+import com.capture.app.data.Constants.SYSTEMIC_THERAPY
+import com.capture.app.data.Constants.TREATMENT_DATE
 import com.capture.app.data.Constants.UNDER_TREATMENT
 import com.capture.app.data.FormatterClass
+import com.capture.app.data.Mappings
 import com.capture.app.databinding.ActivityPatientRegistrationBinding
 import com.capture.app.model.Attribute
 import com.capture.app.model.AttributeValues
 import com.capture.app.model.CodeValuePair
+import com.capture.app.model.DataValue
 import com.capture.app.model.DocumentNumber
 import com.capture.app.model.Option
 import com.capture.app.model.ParentAttributeValues
@@ -126,22 +131,22 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 this@PatientRegistrationActivity
                             )
                             try {
-                                val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
-                                if (isPatientUnderTreatment.isNotEmpty()) {
-                                    if (isPatientUnderTreatment == "true") {
-                                        formatter.saveSharedPref(
-                                            "underTreatment",
-                                            "true",
-                                            this@PatientRegistrationActivity
-                                        )
-                                    } else {
-                                        formatter.deleteSharedPref(
-                                            "underTreatment",
-                                            this@PatientRegistrationActivity
-                                        )
-                                    }
+                            val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                            if (isPatientUnderTreatment.isNotEmpty()) {
+                                if (isPatientUnderTreatment == "true") {
+                                    formatter.saveSharedPref(
+                                        "underTreatment",
+                                        "true",
+                                        this@PatientRegistrationActivity
+                                    )
+                                } else {
+                                    formatter.deleteSharedPref(
+                                        "underTreatment",
+                                        this@PatientRegistrationActivity
+                                    )
                                 }
-                                validateSearchData()
+                            }
+                            validateSearchData()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -430,14 +435,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         return status
     }
 
-    private fun confirmAndExtractProvidedAnswer(parent: String): String? {
-        val single = searchParameters.singleOrNull { it.code == parent }
-
-        if (single != null) {
-            return single.value
-        }
-        return null
-    }
 
     private fun extractAttributeValue(
         target: String,
@@ -503,9 +500,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         val part1 = parts[0] // this is the attribute to get it's answer
                         val part2 = parts[1] //comparator
                         val part3 = parts[2] // required answer
-                        println("Part 1: $part1")
-                        println("Part 2: $part2")
-                        println("Part 3: $part3")
 
                         var previousAnswer = extractCurrentValues(part1)
                         if (previousAnswer.isNotEmpty()) {
@@ -1420,6 +1414,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
                 saveValued(index, ICD_CODE, "$dataValue")
             }
+
             HISTOLOGY -> {
                 val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
                 saveValued(index, MORPHOLOGY_CODE, "$dataValue")
@@ -1477,16 +1472,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     private fun validateSearchData() {
         try {
-            saveConfirmation()
+         saveConfirmation()
 
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            Log.e("TAG", "Error Generating the Unique ID ****" + e.message)
-        }
+          } catch (e:Exception) {
+              e.printStackTrace()
+          }
     }
 
     private fun saveConfirmation() {
-        val dialogBuilder = AlertDialog.Builder(this)
+
+         val dialogBuilder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.item_submit_cancel, null)
         dialogBuilder.setView(dialogView)
 
@@ -1495,7 +1490,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val yesButton: MaterialButton = dialogView.findViewById(R.id.yes_button)
         val noButton: MaterialButton = dialogView.findViewById(R.id.no_button)
         val dialog = dialogBuilder.create()
-//        tvTitle.text = getString(R.string.search_results)
         tvMessage.text =
             getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
 
@@ -1523,36 +1517,83 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         orgUnit = orgCode,
                         attributes = attributeValueList,
                     )
-                    viewModel.saveTrackedEntity(this, data, data.orgUnit, patientIdentification)
-                    formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
-                    formatter.saveSharedPref(
-                        "is_first_time",
-                        "true",
-                        this@PatientRegistrationActivity
-                    )
-                    startActivity(
-                        Intent(
-                            this@PatientRegistrationActivity,
-                            PatientResponderActivity::class.java
+                    var dataValues = ""
+                    val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                    if (isPatientUnderTreatment.isNotEmpty()) {
+                        if (isPatientUnderTreatment == "true") {
+                            dataValues = defaultTreatmentData()
+                        }
+                        viewModel.saveTrackedEntity(
+                            this,
+                            data,
+                            data.orgUnit,
+                            patientIdentification,
+                            dataValues
                         )
-                    )
-                    this@PatientRegistrationActivity.finish()
+                        formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
+                        formatter.saveSharedPref(
+                            "is_first_time",
+                            "true",
+                            this@PatientRegistrationActivity
+                        )
+                        startActivity(
+                            Intent(
+                                this@PatientRegistrationActivity,
+                                PatientResponderActivity::class.java
+                            )
+                        )
+                        this@PatientRegistrationActivity.finish()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Loading data, please try again to proceed",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 } else {
-                    Toast.makeText(
-                        this,
-                        "Loading data, please try again to proceed",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
-            }
 
-        }
-        noButton.setOnClickListener {
-            dialog.dismiss()
+            }
+            noButton.setOnClickListener {
+                dialog.dismiss()
+
+            }
 
         }
         dialog.show()
     }
+
+    private fun defaultTreatmentData(): String {
+        var dataValue = ""
+        val selectedTreatment = confirmUserResponse(RECEIVED_TREATMENT)
+        val selectedTreatmentDate = confirmUserResponse(TREATMENT_DATE)
+        if (selectedTreatment.isNotEmpty()) {
+            val starterDataValues = mutableListOf<DataValue>()
+            val isTherapy = Mappings().systemicTherapies().contains(selectedTreatment)
+            if (isTherapy) {
+                val parent = DataValue(dataElement = SYSTEMIC_THERAPY, value = "true")
+                starterDataValues.add(parent)
+            } else {
+                val data = Mappings().getTreatmentMapping().get(selectedTreatment)
+                if (data != null) {
+                    val treatment = data["treatment"]
+                    val date = data["date"]
+                    val value = data["value"]
+                    val child =
+                        DataValue(dataElement = treatment.toString(), value = value.toString())
+                    val childData =
+                        DataValue(dataElement = date.toString(), value = selectedTreatmentDate)
+
+                    starterDataValues.add(child)
+                    starterDataValues.add(childData)
+                    dataValue = Gson().toJson(starterDataValues)
+                }
+            }
+
+        }
+
+        return dataValue
+    }
+
 }
