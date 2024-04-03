@@ -484,7 +484,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace() 
+            e.printStackTrace()
         }
         return "$data"
     }
@@ -601,6 +601,22 @@ class MainRepository(private val roomDao: RoomDao) {
 
     fun updateTrackedAttributes(attributes: String, patientUid: String) {
         roomDao.updateTrackedAttributes(attributes, patientUid, true)
+
+    }
+
+    fun updateTrackedAttributesWithDataValues(
+        attributes: String,
+        patientUid: String,
+        dataValues: String
+    ) {
+        roomDao.updateTrackedAttributes(attributes, patientUid, true)
+        if (dataValues.isNotEmpty()) {
+            // get the enrollment and add the
+            val enrExist = roomDao.checkEnrollmentEventByTracked(patientUid)
+            if (enrExist) {
+                roomDao.updateEnrollmentDataValues(dataValues, patientUid)
+            }
+        }
 
     }
 

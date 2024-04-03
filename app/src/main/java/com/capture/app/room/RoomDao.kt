@@ -194,9 +194,14 @@ interface RoomDao {
 
     @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE eventUid =:eventUid)")
     fun checkEnrollmentEvent(eventUid: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE trackedEntity =:trackedEntity)")
+    fun checkEnrollmentEventByTracked(trackedEntity: String): Boolean
 
     @Query("UPDATE enrollmentevent SET initialUpload =:initialUpload WHERE eventUid =:eventUid")
     fun updateEnrollmentEvent(initialUpload: Boolean, eventUid: String)
+
+    @Query("UPDATE enrollmentevent SET dataValues =:dataValues WHERE trackedEntity =:trackedEntity")
+    fun updateEnrollmentDataValues(dataValues: String, trackedEntity: String)
 
     @Query("SELECT * FROM trackedEntity WHERE orgUnit =:orgUnit AND trackedEntity =:trackedEntity LIMIT 1")
     fun getSpecificTracked(orgUnit: String, trackedEntity: String): TrackedEntityInstanceData?

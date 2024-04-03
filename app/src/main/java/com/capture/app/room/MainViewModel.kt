@@ -282,4 +282,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    fun updateTrackedAttributesWithDataValues(attributes: String, patientUid: String, dataValues: String) = runBlocking {
+        repository.updateTrackedAttributesWithDataValues(attributes, patientUid,dataValues)
+    }
+
+
 }

@@ -249,7 +249,7 @@ class PatientListFragment : Fragment() {
 
                     startActivity(
                         Intent(
-                            context, PatientResponderActivity::class.java
+                            context, PatientNewCaseActivity::class.java
                         )
                     )
                 }
