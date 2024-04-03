@@ -2,6 +2,7 @@ package com.capture.app.ui.patients
 
 import android.app.Application
 import android.app.DatePickerDialog
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -53,6 +54,7 @@ import com.capture.app.databinding.ActivityPatientRegistrationBinding
 import com.capture.app.model.Attribute
 import com.capture.app.model.AttributeValues
 import com.capture.app.model.CodeValuePair
+import com.capture.app.model.DataElements
 import com.capture.app.model.DataValue
 import com.capture.app.model.DocumentNumber
 import com.capture.app.model.Option
@@ -65,6 +67,10 @@ import com.capture.app.network.RetrofitCalls
 import com.capture.app.room.Converters
 import com.capture.app.room.MainViewModel
 import com.capture.app.ui.viewmodel.ResponseViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.w3c.dom.Document
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -81,12 +87,14 @@ class PatientRegistrationActivity : AppCompatActivity() {
     private val searchList = ArrayList<TrackedEntityAttributes>()
     private val emptyList = ArrayList<TrackedEntityAttributes>()
     private val completeList = ArrayList<TrackedEntityAttributes>()
+    private val allTrackedElements = ArrayList<DataElements>()
     private val attributeValueList = ArrayList<TrackedEntityInstanceAttributes>()
     private var searchParameters = ArrayList<CodeValuePair>()
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
     private var attributeList = ArrayList<ParentAttributeValues>()
     private var requiredFieldsString = ArrayList<String>()
+    private lateinit var progressDialog: ProgressDialog
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,6 +103,10 @@ class PatientRegistrationActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = MainViewModel(this.applicationContext as Application)
         liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
+        progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Please wait...") // Set your message
+        progressDialog.setCancelable(true)
+
         attributeList.clear()
         requiredFieldsString.clear()
         formatter.deleteSharedPref(
@@ -131,22 +143,22 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 this@PatientRegistrationActivity
                             )
                             try {
-                            val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
-                            if (isPatientUnderTreatment.isNotEmpty()) {
-                                if (isPatientUnderTreatment == "true") {
-                                    formatter.saveSharedPref(
-                                        "underTreatment",
-                                        "true",
-                                        this@PatientRegistrationActivity
-                                    )
-                                } else {
-                                    formatter.deleteSharedPref(
-                                        "underTreatment",
-                                        this@PatientRegistrationActivity
-                                    )
+                                val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
+                                if (isPatientUnderTreatment.isNotEmpty()) {
+                                    if (isPatientUnderTreatment == "true") {
+                                        formatter.saveSharedPref(
+                                            "underTreatment",
+                                            "true",
+                                            this@PatientRegistrationActivity
+                                        )
+                                    } else {
+                                        formatter.deleteSharedPref(
+                                            "underTreatment",
+                                            this@PatientRegistrationActivity
+                                        )
+                                    }
                                 }
-                            }
-                            validateSearchData()
+                                validateSearchData()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -237,6 +249,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             attributes.find { r -> r.attribute == IDENTIFICATION_DOCUMENT }
                         val existingDocumentNumber =
                             attributes.find { r -> r.attribute == IDENTIFICATION_NUMBER }
+
                         if (existingDocumentType != null && existingDocumentNumber != null) {
                             similarIdentificationDocuments.add(
                                 DocumentNumber(
@@ -308,8 +321,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
             val converters = Converters().fromJson(data.jsonData)
             searchList.clear()
             emptyList.clear()
+            allTrackedElements.clear()
             converters.programs.forEach { it ->
+                it.programStages.forEach { stage ->
+                    stage.programStageSections.forEach {
+                        allTrackedElements.addAll(it.dataElements)
+                    }
+
+                }
                 it.programSections.forEach {
+
                     if (it.name == "SEARCH PATIENT") {
                         val section = it.trackedEntityAttributes
                         searchList.addAll(section)
@@ -496,7 +517,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     val currentValidator = patr.value
                     val parts = currentValidator.split(':')
 
-                    if (parts.size == 3) {
+                    if (parts.size >= 3) {
                         val part1 = parts[0] // this is the attribute to get it's answer
                         val part2 = parts[1] //comparator
                         val part3 = parts[2] // required answer
@@ -1472,16 +1493,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     private fun validateSearchData() {
         try {
-         saveConfirmation()
+            saveConfirmation()
 
-          } catch (e:Exception) {
-              e.printStackTrace()
-          }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun saveConfirmation() {
 
-         val dialogBuilder = AlertDialog.Builder(this)
+        val dialogBuilder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.item_submit_cancel, null)
         dialogBuilder.setView(dialogView)
 
@@ -1517,7 +1538,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         orgUnit = orgCode,
                         attributes = attributeValueList,
                     )
-                    var dataValues = ""
+                    var dataValues = "[]"
                     val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
                     if (isPatientUnderTreatment.isNotEmpty()) {
                         if (isPatientUnderTreatment == "true") {
@@ -1536,13 +1557,21 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             "true",
                             this@PatientRegistrationActivity
                         )
-                        startActivity(
-                            Intent(
-                                this@PatientRegistrationActivity,
-                                PatientResponderActivity::class.java
+
+                        CoroutineScope(Dispatchers.Main).launch {
+                            progressDialog.show()
+                            delay(3000)
+                            if (progressDialog.isShowing) {
+                                progressDialog.dismiss()
+                            }
+                            startActivity(
+                                Intent(
+                                    this@PatientRegistrationActivity,
+                                    PatientResponderActivity::class.java
+                                )
                             )
-                        )
-                        this@PatientRegistrationActivity.finish()
+                            this@PatientRegistrationActivity.finish()
+                        }
                     } else {
                         Toast.makeText(
                             this,
@@ -1565,35 +1594,95 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
     private fun defaultTreatmentData(): String {
-        var dataValue = ""
+        var dataValue = "[]"
         val selectedTreatment = confirmUserResponse(RECEIVED_TREATMENT)
         val selectedTreatmentDate = confirmUserResponse(TREATMENT_DATE)
+
         if (selectedTreatment.isNotEmpty()) {
             val starterDataValues = mutableListOf<DataValue>()
             val isTherapy = Mappings().systemicTherapies().contains(selectedTreatment)
             if (isTherapy) {
                 val parent = DataValue(dataElement = SYSTEMIC_THERAPY, value = "true")
                 starterDataValues.add(parent)
-            } else {
-                val data = Mappings().getTreatmentMapping().get(selectedTreatment)
-                if (data != null) {
-                    val treatment = data["treatment"]
-                    val date = data["date"]
-                    val value = data["value"]
-                    val child =
-                        DataValue(dataElement = treatment.toString(), value = value.toString())
-                    val childData =
-                        DataValue(dataElement = date.toString(), value = selectedTreatmentDate)
-
-                    starterDataValues.add(child)
-                    starterDataValues.add(childData)
-                    dataValue = Gson().toJson(starterDataValues)
-                }
             }
+            val data = Mappings().getTreatmentMapping().get(selectedTreatment)
+            if (data != null) {
+                val treatment = data["treatment"]
+                val date = data["date"]
+                val value = data["value"]
+                val child =
+                    DataValue(dataElement = treatment.toString(), value = value.toString())
+                val childDate =
+                    DataValue(dataElement = date.toString(), value = selectedTreatmentDate)
+
+                //if the data element has parent show true for the parent
+
+                starterDataValues.add(child)
+                starterDataValues.add(childDate)
+
+                val parents = confirmParentElements(treatment.toString())
+                if (parents.isNotEmpty()) {
+                    starterDataValues.addAll(parents)
+                }
+
+            }
+            dataValue = Gson().toJson(starterDataValues)
 
         }
 
         return dataValue
+    }
+
+    private fun confirmParentElements(dataElement: String): List<DataValue> {
+        val starterDataValues = mutableListOf<DataValue>()
+
+        val parent = allTrackedElements.find { it.id == dataElement }
+        if (parent != null) {
+            parent.attributeValues.forEach {
+                val data: Attribute = it.attribute
+                if (data.name == "showIf") {
+                    val currentValidator = it.value
+                    val parts = currentValidator.split(':')
+                    if (parts.size >= 3) {
+                        val part1 = parts[0]
+                        val childDate =
+                            DataValue(dataElement = part1, value = "true")
+                        starterDataValues.add(childDate)
+                        val parentData = confirmParentResponse(part1)
+                        if (parentData.isNotEmpty()) {
+                            starterDataValues.addAll(parentData)
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+        return starterDataValues
+    }
+
+    private fun confirmParentResponse(dataElement: String): List<DataValue> {
+        val starterDataValues = mutableListOf<DataValue>()
+        val parent = allTrackedElements.find { it.id == dataElement }
+        if (parent != null) {
+            parent.attributeValues.forEach {
+                val data: Attribute = it.attribute
+                if (data.name == "showIf") {
+                    val currentValidator = it.value
+                    val parts = currentValidator.split(':')
+                    if (parts.size >= 3) {
+                        val part1 = parts[0]
+                        val childDate =
+                            DataValue(dataElement = part1, value = "true")
+                        starterDataValues.add(childDate)
+                        confirmParentResponse(part1)
+                    }
+
+                }
+            }
+        }
+        return starterDataValues
     }
 
 }

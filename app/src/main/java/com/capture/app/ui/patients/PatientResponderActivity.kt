@@ -163,7 +163,7 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (attribute.attribute == DATE_OF_BIRTH) {
                         try {
                             if (attribute.value.isNotEmpty()) {
-                                val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
                                 val date = formatter.convertDateFormat(attribute.value)
                                 val birthDate = LocalDate.parse(date, dateFormatter)
                                 // Get the current date
@@ -220,7 +220,6 @@ class PatientResponderActivity : AppCompatActivity() {
                             val elementAttributes =
                                 Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
                             elementAttributes.forEachIndexed { index, attribute ->
-
                                 saveValued(index, attribute.dataElement, attribute.value, true)
                             }
                         }
@@ -349,6 +348,7 @@ class PatientResponderActivity : AppCompatActivity() {
             // Set text and other properties if needed
             textViewName.text = data.groupName
             if (index == 1) {
+                reloadEventData()
                 val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
                 if (isPatientUnderTreatment.isNotEmpty()) {
                     if (isPatientUnderTreatment == "true") {
@@ -371,6 +371,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (underTreatment != null) {
                     if (underTreatment == "true") {
                         if (index == 1) {
+
                             ln_with_buttons.visibility = View.VISIBLE
                         }
                     } else {
@@ -907,8 +908,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                             attributeValueList.find { it.dataElement == STATUS || it.dataElement == TWO_YEARS || it.dataElement == FIVE_YEARS }
                                         if (deadMentioned != null) {
                                             val valueFound = deadMentioned.value
-                                            Log.e("TAG", "Data Found ****** $valueFound")
-
                                             if (valueFound == "Dead") {
                                                 updateRelatedPatientData(
                                                     formatter.getSharedPref(
@@ -962,6 +961,25 @@ class PatientResponderActivity : AppCompatActivity() {
 
             lnParent.addView(itemView)
 
+        }
+    }
+
+    private fun reloadEventData() {
+        val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
+        if (eventUid != null) {
+            val dataEnrollment =
+                viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)
+            if (dataEnrollment != null) {
+
+                if (dataEnrollment.dataValues.isNotEmpty()) {
+                    val elementAttributes =
+                        Converters().fromJsonDataAttribute(dataEnrollment.dataValues)
+                    elementAttributes.forEachIndexed { index, attribute ->
+
+                        saveValued(index, attribute.dataElement, attribute.value, true)
+                    }
+                }
+            }
         }
     }
 
@@ -1275,9 +1293,10 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
                 saveValued(index, ICD_CODE, "$dataValue", isProgram)
             }
+
             HISTOLOGY -> {
                 val dataValue = item.optionSet?.let { getCodeFromText(value, it.options) }
-                saveValued(index, MORPHOLOGY_CODE, "$dataValue",isProgram)
+                saveValued(index, MORPHOLOGY_CODE, "$dataValue", isProgram)
             }
         }
     }
@@ -1304,10 +1323,12 @@ class PatientResponderActivity : AppCompatActivity() {
             for (patr in attributeValueList) {
                 val data: Attribute = patr.attribute
                 if (data.name == "showIf") {
-                    val currentValidator = patr.value
-                    val parts = currentValidator.split(':')
-
-                    if (parts.size == 3) {
+                    val currentValidator = patr.value.split(';')
+                    val parts = currentValidator[0].split(':')
+                    Log.e("TAG", "Splitter ***** $data")
+                    Log.e("TAG", "Splitter ***** $currentValidator")
+                    Log.e("TAG", "Splitter ***** $parts")
+                    if (parts.size >= 3) {
                         val part1 = parts[0] // this is the attribute to get it's answer
                         val part2 = parts[1] //comparator
                         val part3 = parts[2] // required answer
@@ -2998,7 +3019,7 @@ class PatientResponderActivity : AppCompatActivity() {
                             isProgrammaticChange = true
                             saveValued(index, item.id, dataValue, isProgram)
                             val list = checkIfParentHasChildren(item.id)
-                            Log.e("TAG", "Selected Radio Button $dataValue List of Children $list")
+
                             for (i in 0 until lnParent.childCount) {
                                 val child: View = lnParent.getChildAt(i)
                                 // Check if any inner data of the list matches the child's tag
@@ -3147,14 +3168,14 @@ class PatientResponderActivity : AppCompatActivity() {
                 if (it.attribute.name == "showIf") {
 
                     try {
-                        val currentValidator = it.value
-                        val parts = currentValidator.split(':')
-                        if (parts.size == 3) {
+                        val currentValidator = it.value.split(';')
+                        val parts = currentValidator[0].split(':')
+                        if (parts.size >= 3) {
                             val part1 = parts[0]
                             if (part1 == id) {
                                 childItem.add(
                                     RefinedAttributeValues(
-                                        q.parent, currentValidator
+                                        q.parent, currentValidator[0]
                                     )
                                 )
                             }

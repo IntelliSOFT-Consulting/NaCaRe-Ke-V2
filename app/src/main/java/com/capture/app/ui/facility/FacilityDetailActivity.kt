@@ -1008,7 +1008,7 @@ class FacilityDetailActivity : AppCompatActivity() {
             Gson().toJson(searchParameters),
             this
         )
-        Log.e("TAG", "Growing List $searchParameters")
+      
 
     }
 
@@ -1029,7 +1029,7 @@ class FacilityDetailActivity : AppCompatActivity() {
         val response = formatter.getSharedPref("current_facility_data", this)
         if (response != null) {
             searchParameters = getSavedValues()
-            Log.e("TAG", "Manipulated Data ***** $searchParameters")
+            
             val foundItem = searchParameters.find { it.dataElement == id }
             return foundItem?.value ?: ""
         }

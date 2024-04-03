@@ -18,7 +18,6 @@ class App : Application() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("App", "Service Failed to Start.....")
         }
     }
 }

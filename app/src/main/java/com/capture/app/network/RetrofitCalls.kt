@@ -169,7 +169,7 @@ class RetrofitCalls {
                                         noPatientRecordFound(context, layoutInflater)
                                     } else {
                                         val converters = Converters().toJsonPatientSearch(body)
-                                        Log.e("TAG", "Search Results ***** $converters")
+                                       
                                         formatter.saveSharedPref(
                                             "search_results",
                                             converters,
@@ -185,7 +185,7 @@ class RetrofitCalls {
                                     }
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    Log.e("TAG", "json err:::: ${e.message}")
+                                    
                                 }
                             }
                         }
@@ -203,7 +203,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+             
                 if (progressDialog.isShowing) {
                     progressDialog.dismiss()
                 }
@@ -257,7 +257,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+                
 
             }
         }
@@ -449,7 +449,7 @@ class RetrofitCalls {
                 converters.organisationUnits.forEach {
                     orgUid = it.id
                 }
-                Log.e("TAG", "Results $orgUid")
+                
                 if (orgUid.isNotEmpty()) {
 
                     val apiService =
@@ -485,7 +485,7 @@ class RetrofitCalls {
                                             }
                                         } catch (e: Exception) {
                                             e.printStackTrace()
-                                            Log.e("TAG", "json:::: ${e.message}")
+                                          
                                         }
                                     }
                                 }
@@ -500,7 +500,7 @@ class RetrofitCalls {
                         }
                     } catch (e: Exception) {
                         print(e)
-                        Log.e("TAG", "Success Error:::: ${e.message}")
+                        
 
                     }
                 }
@@ -557,7 +557,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+               
 
 
             }
@@ -618,7 +618,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+                
 
 
             }
@@ -645,7 +645,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Data Response Created ***** $body")
+                                
                             }
                         }
                     }
@@ -661,7 +661,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+            
 
 
             }
@@ -696,7 +696,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Event Upload Response:::: Event $id ****  $body")
+                               
                                 if (!serverSide) {
                                     body.response.importSummaries.forEach {
 
@@ -721,7 +721,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+              
 
 
             }
@@ -789,7 +789,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+               
                 progressBar.visibility = View.GONE
 
             }
@@ -849,7 +849,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+              
 
 
             }
@@ -909,7 +909,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+              
 
 
             }
@@ -933,7 +933,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                Log.e("TAG", "Data Response **** $body")
+                               
                                 val data =
                                     DataStoreData(
                                         uid = "site",
@@ -955,7 +955,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+                
 
 
             }
@@ -996,7 +996,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Success Error:::: ${e.message}")
+              
 
 
             }
@@ -1051,7 +1051,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Server Data Response ****:::: ${e.message}")
+                
 
 
             }
@@ -1089,7 +1089,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                Log.e("TAG", "Server Data Response ****:::: ${e.message}")
+                 
             }
         }
     }

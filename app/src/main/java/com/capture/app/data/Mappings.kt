@@ -67,9 +67,9 @@ class Mappings {
             "Chemotherapy 1st line",
             "Chemotherapy 2nd line",
             "Chemotherapy 3rd line",
-//            "Targeted therapy",
-//            "Immunotherapy",
-//            "Hormonal Therapy"
+            "Targeted therapy",
+            "Immunotherapy",
+            "Hormonal Therapy"
         )
     }
 }

@@ -484,8 +484,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("TAG", "Event Date ** Error ${e.message}")
+            e.printStackTrace() 
         }
         return "$data"
     }

@@ -85,8 +85,7 @@ class ExpandableListAdapter(
 //            val listType: Type = object : TypeToken<List<DataElements>>() {}.type
 //            val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
 //
-//            for (element in dataElements) {
-//                Log.e("TAG", "Program DataValues **** ${element.displayName}")
+//            for (element in dataElements) { 
 //                createFormFields(element, holder.linearLayout, "")
 //            }
 //
@@ -97,8 +96,7 @@ class ExpandableListAdapter(
             val listType: Type = object : TypeToken<List<DataElements>>() {}.type
             val dataElements: List<DataElements> = gson.fromJson(data.dataElements, listType)
 
-            for (element in dataElements) {
-                Log.e("TAG", "Program DataValues **** ${element.displayName}")
+            for (element in dataElements) { 
                 createFormFields(element, holder.linearLayout, "")
             }
 
@@ -152,8 +150,7 @@ class ExpandableListAdapter(
     private fun extractCurrentValues(id: String): String {
         val response = formatter.getSharedPref("current_data", context)
         if (response != null) {
-            searchParameters = getSavedValues()
-            Log.e("TAG", "Manipulated Data ***** $searchParameters")
+            searchParameters = getSavedValues() 
             val foundItem = searchParameters.find { it.code == id }
             return foundItem?.value ?: ""
         }
@@ -179,8 +176,7 @@ class ExpandableListAdapter(
         if (attributeValueList.isEmpty()) isHidden = false else {
             for (patr in attributeValueList) {
                 val data: Attribute = patr.attribute
-                if (data.name == "showIf") {
-                    Log.e("TAG", "Show me the Response to Compared ${patr.value}")
+                if (data.name == "showIf") { 
                     val currentValidator = patr.value
                     val parts = currentValidator.split(':')
 
@@ -193,8 +189,7 @@ class ExpandableListAdapter(
                         println("Part 3: $part3")
 
                         var previousAnswer = extractCurrentValues(part1)
-                        if (previousAnswer.isNotEmpty()) {
-                            Log.e("TAG", "Show me the Response to Compared $previousAnswer")
+                        if (previousAnswer.isNotEmpty()) { 
                             previousAnswer = previousAnswer.lowercase()
                             val part3Lower = parts[2].lowercase()
 
@@ -262,7 +257,7 @@ class ExpandableListAdapter(
             searchParameters.add(data)
         }
         formatter.saveSharedPref("current_data", Gson().toJson(searchParameters), context)
-        Log.e("TAG", "Growing List $searchParameters")
+       
 //        val reloadPage = formatter.getSharedPref("reload", context)
 //        if (reloadPage == null) {
 //            reloadActivity()
@@ -276,7 +271,7 @@ class ExpandableListAdapter(
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(context)
-        Log.e("TAG", "Data Populated $valueType")
+      
         val isHidden: Boolean = extractAttributeValue("Hidden", item.attributeValues)
         val isDisabled: Boolean = extractAttributeValue("Disabled", item.attributeValues)
         val isRequired: Boolean = extractAttributeValue("Required", item.attributeValues)
