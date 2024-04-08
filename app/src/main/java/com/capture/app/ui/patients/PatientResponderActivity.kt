@@ -97,9 +97,21 @@ class PatientResponderActivity : AppCompatActivity() {
     private val expandableList = ArrayList<ExpandableItem>()
     private val attributeValueList = ArrayList<DataValue>()
     private val newCaseResponses = ArrayList<TrackedEntityInstanceAttributes>()
-    private var linearLayouts: Array<LinearLayout?>? = null
     private var attributeList = ArrayList<ParentAttributeValues>()
     private var requiredFieldsString = ArrayList<String>()
+
+    override fun onStart() {
+        super.onStart()
+//        try {
+//            val currentPatient = formatter.getSharedPref("current_patient_id", this)
+//            if (currentPatient != null) {
+//                populateAvailableData(currentPatient)
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientResponderBinding.inflate(layoutInflater)
@@ -108,9 +120,9 @@ class PatientResponderActivity : AppCompatActivity() {
         liveData = ViewModelProvider(this).get(ResponseViewModel::class.java)
         attributeList.clear()
         requiredFieldsString.clear()
-        val current_patient = formatter.getSharedPref("current_patient_id", this)
-        if (current_patient != null) {
-            populateAvailableData(current_patient)
+        val currentPatient = formatter.getSharedPref("current_patient_id", this)
+        if (currentPatient != null) {
+            populateAvailableData(currentPatient)
         }
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
@@ -164,8 +176,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         try {
                             if (attribute.value.isNotEmpty()) {
                                 val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-                                val date = formatter.convertDateFormat(attribute.value)
-                                val birthDate = LocalDate.parse(date, dateFormatter)
+                                val birthDate = LocalDate.parse(attribute.value, dateFormatter)
                                 // Get the current date
                                 val currentDate = LocalDate.now()
                                 val (years, months) = formatter.calculateAge(birthDate, currentDate)
@@ -211,6 +222,8 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
 
                 val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
+
+               Log.e("TAG","Current Event At Hand $eventUid")
                 if (eventUid != null) {
                     val dataEnrollment =
                         viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)

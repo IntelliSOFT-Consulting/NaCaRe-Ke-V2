@@ -420,7 +420,7 @@ class FormatterClass {
             "BzhDnF5fG4x",
             "wzHl7HdsSlO",
             "PdDmTsAjysh",
-            "uR2Mnlh7sqn"
+            "uR2Mnlh7sqn", "Cvx3AQ1IQXb", "cBrY84DSFq5"
 
         ) // Add your items here
         // Check if the passed parameter is found in the list
