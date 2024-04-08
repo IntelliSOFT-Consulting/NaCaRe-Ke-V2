@@ -261,7 +261,10 @@ class PatientNewCaseActivity : AppCompatActivity() {
             searchParameters = getSavedValues()
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
-            // Check if all required field codes are present in searchParameterCodes
+            if (FormatterClass().responsesNonOther(searchParameters)) {
+                requiredFieldsString.remove(Constants.OTHER_FACILITY)
+
+            }
             val uniqueRequiredFields = requiredFieldsString.toSet()
 
             val missingFields =

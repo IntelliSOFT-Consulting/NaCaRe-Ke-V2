@@ -15,6 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.capture.app.R
+import com.capture.app.model.CodeValuePair
+import com.capture.app.model.CodeValuePairPatient
 import com.capture.app.model.HomeData
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.response.DataStoreResponse
@@ -496,6 +498,36 @@ class FormatterClass {
             "FqimnFgeqq1",
             "QRAYZ3gXWEk", "mPpjmOxwsEZ", "HEoJiJqgPh1", "k5cjujLd0nd", "URvkIclUWjq"
         )
+    }
+
+      fun responsesNonOther(searchParameters: ArrayList<CodeValuePair>): Boolean {
+        var remove = true
+        val diagnosis = searchParameters.find { it.code == Constants.DIAGNOSIS_PLACE }
+        if (diagnosis != null) {
+            remove = if (diagnosis.value == "Other") {
+                false
+            } else {
+                true
+            }
+
+        }
+        return remove
+
+    }
+
+      fun responsesNonOtherPatient(searchParameters: ArrayList<CodeValuePairPatient>): Boolean {
+        var remove = true
+        val diagnosis = searchParameters.find { it.code == Constants.DIAGNOSIS_PLACE }
+        if (diagnosis != null) {
+            remove = if (diagnosis.value == "Other") {
+                false
+            } else {
+                true
+            }
+
+        }
+        return remove
+
     }
 
 }

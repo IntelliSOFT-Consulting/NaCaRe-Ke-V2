@@ -1057,58 +1057,6 @@ class PatientResponderActivity : AppCompatActivity() {
 
     }
 
-    private fun noMatchingIdentification(): Boolean {
-
-        val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
-        val similarIdentificationNumbers = arrayListOf<String>()
-        try {
-            searchParameters = getSavedValues()
-            val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
-            val allTracked = viewModel.loadAllSystemTrackedEntities()
-            if (allTracked != null) {
-                similarIdentificationDocuments.clear()
-                allTracked.forEach {
-                    if (it.attributes.isNotEmpty()) {
-                        val attributes = Converters().fromJsonAttribute(it.attributes)
-                        val existingDocumentType =
-                            attributes.find { r -> r.attribute == Constants.IDENTIFICATION_DOCUMENT }
-                        val existingDocumentNumber =
-                            attributes.find { r -> r.attribute == Constants.IDENTIFICATION_NUMBER }
-                        if (existingDocumentType != null && existingDocumentNumber != null) {
-                            similarIdentificationDocuments.add(
-                                DocumentNumber(
-                                    type = existingDocumentType.value,
-                                    number = existingDocumentNumber.value
-                                )
-                            )
-                        }
-                    }
-                }
-                if (similarIdentificationDocuments.isEmpty()) {
-                    return true
-                } else {
-                    //current type
-                    val currentType =
-                        searchParameterCodes.first { it.first == Constants.IDENTIFICATION_DOCUMENT }.second
-                    val currentNumber =
-                        searchParameterCodes.first { it.first == Constants.IDENTIFICATION_NUMBER }.second
-
-                    similarIdentificationNumbers.clear()
-                    similarIdentificationDocuments.forEach {
-                        if (it.type == currentType) {
-                            similarIdentificationNumbers.add(it.number)
-                        }
-                    }
-                    return !similarIdentificationNumbers.contains(currentNumber)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return false
-
-    }
-
     private fun allRequiredFieldsComplete(): Boolean {
         try {
             searchParameters = getSavedValues()
@@ -1116,8 +1064,12 @@ class PatientResponderActivity : AppCompatActivity() {
             // make this unique
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
-            // Check if all required field codes are present in searchParameterCodes
-            val uniqueRequiredFields = requiredFieldsString.toSet()
+
+            if (FormatterClass().responsesNonOtherPatient(searchParameters)) {
+                requiredFieldsString.remove(Constants.OTHER_FACILITY)
+
+            }
+           val uniqueRequiredFields = requiredFieldsString.toSet()
 
             val missingFields = uniqueRequiredFields.filter { !searchParameterCodes.contains(it) }
 

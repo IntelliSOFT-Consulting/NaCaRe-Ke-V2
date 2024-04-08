@@ -21,6 +21,8 @@ object Constants {
     const val SYSTEMIC_THERAPY = "xMDNydpyKcj"
     const val OPEN_FOR_EDITING = "r3HXPfneylT"
     const val DATE_OF_REPORTING = "k5cjujLd0nd"
+    const val DIAGNOSIS_PLACE = "wzHl7HdsSlO"
+    const val OTHER_FACILITY = "IKubvZHR4gl"
     const val STATUS = "BITcpbzhbNm"
     const val TWO_YEARS = "Akvj6sjSWt1"
     const val FIVE_YEARS = "W17Cq7ZpgnY"

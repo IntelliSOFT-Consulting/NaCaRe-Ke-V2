@@ -35,6 +35,7 @@ import com.capture.app.data.Constants.AGE_YEARS
 import com.capture.app.data.Constants.DATE_OF_BIRTH
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
+import com.capture.app.data.Constants.DIAGNOSIS_PLACE
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
 import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
@@ -42,6 +43,7 @@ import com.capture.app.data.Constants.IDENTIFICATION_DOCUMENT
 import com.capture.app.data.Constants.IDENTIFICATION_NUMBER
 import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
+import com.capture.app.data.Constants.OTHER_FACILITY
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.Constants.RECEIVED_TREATMENT
 import com.capture.app.data.Constants.SEX
@@ -291,6 +293,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes
+
+            if (FormatterClass().responsesNonOther(searchParameters)) {
+                requiredFieldsString.remove(OTHER_FACILITY)
+
+            }
             val uniqueRequiredFields = requiredFieldsString.toSet()
 
             val missingFields =
@@ -310,6 +317,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
         }
 
     }
+
 
     private fun confirmUserResponse(id: String): String {
         val foundItem = searchParameters.find { it.code == id }
@@ -532,6 +540,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
                             val result = when (part2) {
                                 "eq" -> previousAnswer == part3Lower
+                                "in" -> previousAnswer == part3Lower
                                 "ne" -> previousAnswer != part3Lower
                                 "gt" -> previousAnswer > part3Lower
                                 "ge" -> previousAnswer >= part3Lower
@@ -827,7 +836,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                                 dataValue
                                             )
                                         if (validAnswer) {
-
                                             val attributeValues =
                                                 attributeList.find { it.parent == child.tag.toString() }
                                             if (attributeValues != null) {
