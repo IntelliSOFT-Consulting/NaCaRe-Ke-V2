@@ -1117,7 +1117,9 @@ class PatientResponderActivity : AppCompatActivity() {
 
             val searchParameterCodes = searchParameters.map { it.code }.distinct()
             // Check if all required field codes are present in searchParameterCodes
-            val missingFields = requiredFieldsString.filter { !searchParameterCodes.contains(it) }
+            val uniqueRequiredFields = requiredFieldsString.toSet()
+
+            val missingFields = uniqueRequiredFields.filter { !searchParameterCodes.contains(it) }
 
             return if (missingFields.isEmpty()) {
                 println("No fields are missing.")
