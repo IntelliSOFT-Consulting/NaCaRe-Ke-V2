@@ -1530,8 +1530,13 @@ class PatientRegistrationActivity : AppCompatActivity() {
         val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
         val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
         val yesButton: MaterialButton = dialogView.findViewById(R.id.yes_button)
-        val noButton: MaterialButton = dialogView.findViewById(R.id.no_button)
+
         val dialog = dialogBuilder.create()
+        val cancelButton: MaterialButton =
+            dialogView.findViewById(R.id.no_button)
+        cancelButton.apply {
+            setOnClickListener { dialog.dismiss() }
+        }
         tvMessage.text =
             getString(R.string.are_you_sure_you_wan_to_save_you_will_not_be_able_to_edit_this_patient_info_once_saved)
 
@@ -1605,11 +1610,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
 
             }
-            noButton.setOnClickListener {
-                dialog.dismiss()
-
-            }
-
         }
         dialog.show()
     }

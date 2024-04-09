@@ -693,7 +693,14 @@ class PatientResponderActivity : AppCompatActivity() {
                                         dialogView.findViewById(R.id.tv_message)
                                     val nextButton: MaterialButton =
                                         dialogView.findViewById(R.id.yes_button)
+
                                     dialog = dialogBuilder.create()
+                                    val cancelButton: MaterialButton =
+                                        dialogView.findViewById(R.id.no_button)
+                                    cancelButton.apply {
+                                        setOnClickListener { dialog.dismiss() }
+                                    }
+
 //                                    tvTitle.text = context.getString(R.string.search_results)
                                     tvMessage.text = context.getString(R.string.save_and_continue)
                                     nextButton.setOnClickListener {
@@ -749,6 +756,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                         }
 
                                     }
+
                                     dialog.show()
 
                                 } else {
@@ -775,6 +783,11 @@ class PatientResponderActivity : AppCompatActivity() {
                                         val nextButton: MaterialButton =
                                             dialogView.findViewById(R.id.yes_button)
                                         dialog = dialogBuilder.create()
+                                        val cancelButton: MaterialButton =
+                                            dialogView.findViewById(R.id.no_button)
+                                        cancelButton.apply {
+                                            setOnClickListener { dialog.dismiss() }
+                                        }
 //                                        tvTitle.text = context.getString(R.string.search_results)
                                         tvMessage.text =
                                             context.getString(R.string.save_and_continue)
@@ -853,6 +866,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                         val nextButton: MaterialButton =
                                             dialogView.findViewById(R.id.yes_button)
                                         dialog = dialogBuilder.create()
+
                                         tvTitle.text = context.getString(R.string.existing_case)
                                         tvMessage.text =
                                             context.getString(R.string.existing_case_description)
@@ -935,6 +949,11 @@ class PatientResponderActivity : AppCompatActivity() {
                                 val nextButton: MaterialButton =
                                     dialogView.findViewById(R.id.yes_button)
                                 dialog = dialogBuilder.create()
+                                val cancelButton: MaterialButton =
+                                    dialogView.findViewById(R.id.no_button)
+                                cancelButton.apply {
+                                    setOnClickListener { dialog.dismiss() }
+                                }
 //                                tvTitle.text = context.getString(R.string.search_results)
                                 tvMessage.text = context.getString(R.string.save_and_continue)
                                 nextButton.setOnClickListener {
