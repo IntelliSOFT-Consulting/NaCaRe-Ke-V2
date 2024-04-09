@@ -67,9 +67,16 @@ class OrganizationFragment : Fragment() {
                         if (found != null) {
                             formatter.saveSharedPref("orgCode", found.code, requireContext())
                             formatter.saveSharedPref("orgName", found.value, requireContext())
+                            NavHostFragment.findNavController(this@OrganizationFragment)
+                                .navigate(R.id.programsFragment)
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Invalid Organization Unit, Please try again",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                        NavHostFragment.findNavController(this@OrganizationFragment)
-                            .navigate(R.id.programsFragment)
+
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -101,7 +108,7 @@ class OrganizationFragment : Fragment() {
             val treeNodes = mutableListOf<OrgTreeNode>()
             try {
                 organization.forEach {
-                   val converters = Converters().fromJsonOrgUnit(it.jsonData)
+                    val converters = Converters().fromJsonOrgUnit(it.jsonData)
 
                     val orgNode = OrgTreeNode(
                         label = converters.name,

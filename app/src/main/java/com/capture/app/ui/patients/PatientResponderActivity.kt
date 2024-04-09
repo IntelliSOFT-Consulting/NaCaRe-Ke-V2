@@ -74,6 +74,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -135,7 +136,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 onBackPressed() // Or implement your own logic
             }
         }
-        loadProgramDetails()
+
     }
 
     override fun onBackPressed() {
@@ -155,7 +156,7 @@ class PatientResponderActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun populateAvailableData(currentPatient: String) {
+    private fun populateAvailableDataOld(currentPatient: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val data = viewModel.loadTrackedEntity(currentPatient)
             if (data != null) {
@@ -223,10 +224,10 @@ class PatientResponderActivity : AppCompatActivity() {
 
                 val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
 
-               Log.e("TAG","Current Event At Hand $eventUid")
                 if (eventUid != null) {
                     val dataEnrollment =
                         viewModel.loadEnrollment(this@PatientResponderActivity, eventUid)
+
                     if (dataEnrollment != null) {
 
                         if (dataEnrollment.dataValues.isNotEmpty()) {
@@ -236,11 +237,72 @@ class PatientResponderActivity : AppCompatActivity() {
                                 saveValued(index, attribute.dataElement, attribute.value, true)
                             }
                         }
+                        loadProgramDetails()
                     }
                 }
             }
         }
     }
+    private fun populateAvailableData(currentPatient: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val data = viewModel.loadTrackedEntity(currentPatient) ?: return@launch
+
+                withContext(Dispatchers.Main) {
+                    // Update LiveData and save preferences on the main thread
+                    liveData.updatePatientDetails(data.isSubmitted)
+                    formatter.saveSharedPref("isSubmitted", "${data.isSubmitted}", this@PatientResponderActivity)
+                    formatter.saveSharedPref("isDead", "${data.isDead}", this@PatientResponderActivity)
+                }
+
+                val attributes = Converters().fromJsonAttribute(data.attributes)
+
+                attributes.forEachIndexed { index, attribute ->
+                    if (attribute.attribute == DATE_OF_BIRTH) {
+                        try {
+                            if (attribute.value.isNotEmpty()) {
+                                val birthDate = LocalDate.parse(attribute.value, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                                val currentDate = LocalDate.now()
+                                val (years, months) = formatter.calculateAge(birthDate, currentDate)
+
+                                withContext(Dispatchers.Main) {
+                                    // Save age values on the main thread
+                                    saveValued(index, AGE_YEARS, "$years", false)
+                                    saveValued(index, AGE_MONTHS, "$months", false)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                    // Other attribute processing here (e.g., DIAGNOSIS)
+                    withContext(Dispatchers.Main) {
+                        // Save attribute values on the main thread
+                        saveValued(index, attribute.attribute, attribute.value, false)
+                    }
+                }
+
+                val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
+
+                eventUid?.let { uid ->
+                    val dataEnrollment = viewModel.loadEnrollment(this@PatientResponderActivity, uid)
+                    dataEnrollment?.let { enrollment ->
+                        val elementAttributes = Converters().fromJsonDataAttribute(enrollment.dataValues)
+                        withContext(Dispatchers.Main) {
+                            // Process enrollment data and update UI on the main thread
+                            elementAttributes.forEachIndexed { index, attribute ->
+                                saveValued(index, attribute.dataElement, attribute.value, true)
+                            }
+                            loadProgramDetails()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 
     private fun loadProgramDetails() {
         CoroutineScope(Dispatchers.Main).launch {

@@ -165,11 +165,22 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 e.printStackTrace()
                             }
                         } else {
-                            Toast.makeText(
-                                this@PatientRegistrationActivity,
-                                "Patient Identification Document Number already exists",
-                                Toast.LENGTH_LONG
-                            ).show()
+//                            Toast.makeText(
+//                                this@PatientRegistrationActivity,
+//                                "Patient Identification Document Number already exists",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+                            val alertDialogBuilder =
+                                AlertDialog.Builder(this@PatientRegistrationActivity)
+                            alertDialogBuilder.setTitle("Patient with the same registration document number already exist")
+                            alertDialogBuilder.setMessage("Please verify the registration document number and try again. Alternatively, you can search for the patient to update their information or register a new primary for them.")
+                            alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
+                                // Dismiss the dialog
+                                dialog.dismiss()
+                            }
+                            val alertDialog = alertDialogBuilder.create()
+                            alertDialog.show()
+                            return@setOnClickListener
                         }
                     } else {
                         Toast.makeText(
