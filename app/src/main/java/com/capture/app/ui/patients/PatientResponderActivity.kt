@@ -2347,7 +2347,10 @@ class PatientResponderActivity : AppCompatActivity() {
         item: TrackedEntityAttributes,
         lnParent: LinearLayout,
         currentValue: String,
-        isProgram: Boolean, isSubmitted: String, isDead: String, isFirstTime: String?
+        isProgram: Boolean,
+        isSubmitted: String,
+        isDead: String,
+        isFirstTime: String?
     ) {
         val valueType: String = item.valueType
         val inflater = LayoutInflater.from(this)

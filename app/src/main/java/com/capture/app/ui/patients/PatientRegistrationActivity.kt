@@ -45,6 +45,7 @@ import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.OTHER_FACILITY
 import com.capture.app.data.Constants.PATIENT_UNIQUE
+import com.capture.app.data.Constants.RADIO_THERAPY
 import com.capture.app.data.Constants.RECEIVED_TREATMENT
 import com.capture.app.data.Constants.SEX
 import com.capture.app.data.Constants.SYSTEMIC_THERAPY
@@ -1624,6 +1625,11 @@ class PatientRegistrationActivity : AppCompatActivity() {
             val isTherapy = Mappings().systemicTherapies().contains(selectedTreatment)
             if (isTherapy) {
                 val parent = DataValue(dataElement = SYSTEMIC_THERAPY, value = "true")
+                starterDataValues.add(parent)
+            }
+            val isRadio = Mappings().radioTherapies().contains(selectedTreatment)
+            if (isRadio) {
+                val parent = DataValue(dataElement = RADIO_THERAPY, value = "true")
                 starterDataValues.add(parent)
             }
             val data = Mappings().getTreatmentMapping().get(selectedTreatment)

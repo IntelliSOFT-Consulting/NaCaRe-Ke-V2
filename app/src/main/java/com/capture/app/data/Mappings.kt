@@ -72,4 +72,12 @@ class Mappings {
             "Hormonal Therapy"
         )
     }
+
+    fun radioTherapies(): List<String> {
+        return listOf(
+            "External beam radiation",
+            "Brachytherapy",
+            "Systemic radiotherapy",
+        )
+    }
 }

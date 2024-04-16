@@ -19,6 +19,7 @@ object Constants {
     const val RECEIVED_TREATMENT = "cBrY84DSFq5"
     const val TREATMENT_DATE = "URvkIclUWjq"
     const val SYSTEMIC_THERAPY = "xMDNydpyKcj"
+    const val RADIO_THERAPY = "vtU3HWpm3VQ"
     const val OPEN_FOR_EDITING = "r3HXPfneylT"
     const val DATE_OF_REPORTING = "k5cjujLd0nd"
     const val DIAGNOSIS_PLACE = "wzHl7HdsSlO"

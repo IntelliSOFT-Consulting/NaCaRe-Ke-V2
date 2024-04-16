@@ -1618,6 +1618,11 @@ class PatientNewCaseActivity : AppCompatActivity() {
                 val parent = DataValue(dataElement = Constants.SYSTEMIC_THERAPY, value = "true")
                 starterDataValues.add(parent)
             }
+            val isRadio = Mappings().radioTherapies().contains(selectedTreatment)
+            if (isRadio) {
+                val parent = DataValue(dataElement = Constants.RADIO_THERAPY, value = "true")
+                starterDataValues.add(parent)
+            }
             val data = Mappings().getTreatmentMapping().get(selectedTreatment)
             if (data != null) {
                 val treatment = data["treatment"]
