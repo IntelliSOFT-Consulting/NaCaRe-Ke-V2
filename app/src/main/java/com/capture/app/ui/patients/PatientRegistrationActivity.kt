@@ -9,7 +9,6 @@ import android.text.Editable
 import android.text.Html
 import android.text.InputType
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,10 +32,12 @@ import com.capture.app.R
 import com.capture.app.data.Constants.AGE_MONTHS
 import com.capture.app.data.Constants.AGE_YEARS
 import com.capture.app.data.Constants.DATE_OF_BIRTH
+import com.capture.app.data.Constants.DATE_OF_REPORTING
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
-import com.capture.app.data.Constants.DIAGNOSIS_PLACE
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
+import com.capture.app.data.Constants.DIAGNOSIS_TURNAROUND
+import com.capture.app.data.Constants.DURATION_OF_DIAGNOSIS
 import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.IDENTIFICATION_DOCUMENT
@@ -74,10 +75,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.w3c.dom.Document
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -145,10 +146,32 @@ class PatientRegistrationActivity : AppCompatActivity() {
                                 "true",
                                 this@PatientRegistrationActivity
                             )
+
+
+                            val turnAround = calculateDurationOfTreatment(
+                                TREATMENT_DATE,
+                                DATE_OF_REPORTING, DIAGNOSIS_TURNAROUND, true
+                            )
+                            if (turnAround != null) {
+                                searchParameters.add(turnAround)
+                            }
                             try {
                                 val isPatientUnderTreatment = confirmUserResponse(UNDER_TREATMENT)
                                 if (isPatientUnderTreatment.isNotEmpty()) {
                                     if (isPatientUnderTreatment == "true") {
+
+                                        /**
+                                         * Calculate the duration of treatment
+                                         */
+                                        val duration = calculateDurationOfTreatment(
+                                            TREATMENT_DATE,
+                                            DATE_OF_REPORTING, DURATION_OF_DIAGNOSIS, false
+                                        )
+                                        if (duration != null) {
+                                            searchParameters.add(duration)
+                                        }
+
+
                                         formatter.saveSharedPref(
                                             "underTreatment",
                                             "true",
@@ -198,6 +221,47 @@ class PatientRegistrationActivity : AppCompatActivity() {
                 }
             }
         }
+
+    }
+
+    private fun getDateToday(): String {
+
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+        // Get the current date
+        val currentDate = LocalDate.now()
+
+        // Format the current date using the formatter
+        return currentDate.format(formatter)
+    }
+
+    private fun calculateDurationOfTreatment(
+        treatmentDate: String,
+        dateOfReporting: String,
+        calculatedValue: String, isToday: Boolean
+    ): CodeValuePair? {
+        try {
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            val startDateResponse =
+                if (isToday) getDateToday() else confirmUserResponse(treatmentDate)
+            val endDateResponse = confirmUserResponse(dateOfReporting)
+
+            if (startDateResponse.isNotEmpty() && endDateResponse.isNotEmpty()) {
+                // Parse the date strings into LocalDate objects using the formatter
+                val date1 = LocalDate.parse(startDateResponse, formatter)
+                val date2 = LocalDate.parse(endDateResponse, formatter)
+
+                // Calculate the difference in days between the two dates
+                val differenceInDays = ChronoUnit.DAYS.between(date2, date1)
+
+                return CodeValuePair(calculatedValue, "$differenceInDays")
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return null
 
     }
 

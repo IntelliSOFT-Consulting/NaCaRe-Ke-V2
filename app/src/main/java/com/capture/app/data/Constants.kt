@@ -29,4 +29,9 @@ object Constants {
     const val FIVE_YEARS = "W17Cq7ZpgnY"
     const val IDENTIFICATION_DOCUMENT = "oob3a4JM7H6"
     const val IDENTIFICATION_NUMBER = "eFbT7iTnljR"
+
+    // REPORTING HIDDEN DATA
+    const val DIAGNOSIS_TURNAROUND = "SrmsM3GzSEl"
+    const val DURATION_OF_DIAGNOSIS = "CCDACaaGscC"
+
 }

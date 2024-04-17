@@ -60,6 +60,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -125,11 +126,28 @@ class PatientNewCaseActivity : AppCompatActivity() {
                             "true",
                             this@PatientNewCaseActivity
                         )
+                        val turnAround = calculateDurationOfTreatment(
+                            Constants.TREATMENT_DATE,
+                            Constants.DATE_OF_REPORTING, Constants.DIAGNOSIS_TURNAROUND, true
+                        )
+                        if (turnAround != null) {
+                            searchParameters.add(turnAround)
+                        }
                         try {
                             val isPatientUnderTreatment =
                                 confirmUserResponse(Constants.UNDER_TREATMENT)
                             if (isPatientUnderTreatment.isNotEmpty()) {
                                 if (isPatientUnderTreatment == "true") {
+
+                                    val duration = calculateDurationOfTreatment(
+                                        Constants.TREATMENT_DATE,
+                                        Constants.DATE_OF_REPORTING,
+                                        Constants.DURATION_OF_DIAGNOSIS, false
+                                    )
+                                    if (duration != null) {
+                                        searchParameters.add(duration)
+                                    }
+
                                     formatter.saveSharedPref(
                                         "underTreatment",
                                         "true",
@@ -162,6 +180,46 @@ class PatientNewCaseActivity : AppCompatActivity() {
                 }
             }
         }
+
+    }
+    private fun getDateToday(): String {
+
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+        // Get the current date
+        val currentDate = LocalDate.now()
+
+        // Format the current date using the formatter
+        return currentDate.format(formatter)
+    }
+
+    private fun calculateDurationOfTreatment(
+        treatmentDate: String,
+        dateOfReporting: String,
+        calculatedValue: String, isToday: Boolean
+    ): CodeValuePair? {
+        try {
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            val startDateResponse =
+                if (isToday) getDateToday() else confirmUserResponse(treatmentDate)
+            val endDateResponse = confirmUserResponse(dateOfReporting)
+
+            if (startDateResponse.isNotEmpty() && endDateResponse.isNotEmpty()) {
+                // Parse the date strings into LocalDate objects using the formatter
+                val date1 = LocalDate.parse(startDateResponse, formatter)
+                val date2 = LocalDate.parse(endDateResponse, formatter)
+
+                // Calculate the difference in days between the two dates
+                val differenceInDays = ChronoUnit.DAYS.between(date2, date1)
+
+                return CodeValuePair(calculatedValue, "$differenceInDays")
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return null
 
     }
 

@@ -70,11 +70,20 @@ class OrganizationFragment : Fragment() {
                             NavHostFragment.findNavController(this@OrganizationFragment)
                                 .navigate(R.id.programsFragment)
                         } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Invalid Organization Unit, Please try again",
-                                Toast.LENGTH_SHORT
-                            ).show()
+
+                            // check if it's level five
+
+                            val level = formatter.getSharedPref("orgLevel", requireContext())
+                            if (level=="5"){
+                                NavHostFragment.findNavController(this@OrganizationFragment)
+                                    .navigate(R.id.programsFragment)
+                            }else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Invalid Organization Unit, Please try again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
 
                     } catch (e: Exception) {
