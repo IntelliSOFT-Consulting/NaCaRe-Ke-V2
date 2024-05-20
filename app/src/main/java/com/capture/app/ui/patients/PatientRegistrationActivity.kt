@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.Html
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -311,12 +312,16 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
     private fun noMatchingIdentification(): Boolean {
+        Log.e("TAG", "******* Current Item starting here ")
 
         val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
         val similarIdentificationNumbers = arrayListOf<String>()
         try {
+
             searchParameters = getSavedValues()
             val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
+
+            Log.e("TAG", "******* Current Item $searchParameterCodes ")
             val allTracked = viewModel.loadAllSystemTrackedEntities()
             if (allTracked != null) {
                 similarIdentificationDocuments.clear()
@@ -344,20 +349,27 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     //current type
                     val currentType =
                         searchParameterCodes.first { it.first == IDENTIFICATION_DOCUMENT }.second
-                    val currentNumber =
-                        searchParameterCodes.first { it.first == IDENTIFICATION_NUMBER }.second
+                    Log.e("TAG", "******* Current Item $currentType")
 
-                    similarIdentificationNumbers.clear()
-                    similarIdentificationDocuments.forEach {
-                        if (it.type == currentType) {
-                            similarIdentificationNumbers.add(it.number)
+                    if (currentType.lowercase() == "none") {
+                        return true
+                    } else {
+
+                        val currentNumber =
+                            searchParameterCodes.first { it.first == IDENTIFICATION_NUMBER }.second
+                        similarIdentificationNumbers.clear()
+                        similarIdentificationDocuments.forEach {
+                            if (it.type == currentType) {
+                                similarIdentificationNumbers.add(it.number)
+                            }
                         }
+                        return !similarIdentificationNumbers.contains(currentNumber)
                     }
-                    return !similarIdentificationNumbers.contains(currentNumber)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            return false
         }
         return false
 
