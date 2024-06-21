@@ -349,7 +349,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                     //current type
                     val currentType =
                         searchParameterCodes.first { it.first == IDENTIFICATION_DOCUMENT }.second
-                    Log.e("TAG", "******* Current Item $currentType")
+
 
                     if (currentType.lowercase() == "none") {
                         return true

@@ -7,6 +7,7 @@ import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -142,6 +143,12 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         val tvMessage = customView.findViewById<TextView>(R.id.tv_message)
         val noButton = customView.findViewById<MaterialButton>(R.id.no_button)
         val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
+        val cancelButton = customView.findViewById<ImageButton>(R.id.cancel_button)
+        cancelButton.apply {
+            setOnClickListener{
+                alertDialog.dismiss()
+            }
+        }
 
         val htmlText = "Please select an action for the selected record:<br><br>1." +
                 "<b>Add new primary cancer information for an existing patient:</b> " +

@@ -85,7 +85,7 @@ class FacilityListFragment : Fragment() {
                 if (data.isEmpty()) {
                     loadLiveEvents(orgUnit)
                     binding.apply {
-                        eventButton.visibility = View.VISIBLE
+                        confirmIfCanCreate()
                         eventsNotificator.visibility = View.VISIBLE
                     }
                 } else {
@@ -108,7 +108,12 @@ class FacilityListFragment : Fragment() {
 
                 val hasWriteAccess = PermissionManager().hadWriteAccess(requireContext())
                 val adapterProgram =
-                    FacilityAdapter(facilityList, requireContext(), this::handleClick,hasWriteAccess)
+                    FacilityAdapter(
+                        facilityList,
+                        requireContext(),
+                        this::handleClick,
+                        hasWriteAccess
+                    )
 
                 binding.apply {
                     val manager = LinearLayoutManager(requireContext())
@@ -126,6 +131,17 @@ class FacilityListFragment : Fragment() {
                     eventButton.visibility = View.VISIBLE
                     eventsNotificator.visibility = View.VISIBLE
                 }
+            }
+        }
+    }
+
+    private fun confirmIfCanCreate() {
+
+        val canWrite =
+            FormatterClass().getSharedPref("canWrite", requireContext())
+        if (canWrite != null) {
+            binding.apply {
+                eventButton.visibility = View.VISIBLE
             }
         }
     }
