@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
 import android.widget.DatePicker
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RadioGroup
@@ -243,6 +244,7 @@ class PatientResponderActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun populateAvailableData(currentPatient: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -251,8 +253,16 @@ class PatientResponderActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     // Update LiveData and save preferences on the main thread
                     liveData.updatePatientDetails(data.isSubmitted)
-                    formatter.saveSharedPref("isSubmitted", "${data.isSubmitted}", this@PatientResponderActivity)
-                    formatter.saveSharedPref("isDead", "${data.isDead}", this@PatientResponderActivity)
+                    formatter.saveSharedPref(
+                        "isSubmitted",
+                        "${data.isSubmitted}",
+                        this@PatientResponderActivity
+                    )
+                    formatter.saveSharedPref(
+                        "isDead",
+                        "${data.isDead}",
+                        this@PatientResponderActivity
+                    )
                 }
 
                 val attributes = Converters().fromJsonAttribute(data.attributes)
@@ -261,7 +271,10 @@ class PatientResponderActivity : AppCompatActivity() {
                     if (attribute.attribute == DATE_OF_BIRTH) {
                         try {
                             if (attribute.value.isNotEmpty()) {
-                                val birthDate = LocalDate.parse(attribute.value, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                                val birthDate = LocalDate.parse(
+                                    attribute.value,
+                                    DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                                )
                                 val currentDate = LocalDate.now()
                                 val (years, months) = formatter.calculateAge(birthDate, currentDate)
 
@@ -285,9 +298,11 @@ class PatientResponderActivity : AppCompatActivity() {
                 val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
 
                 eventUid?.let { uid ->
-                    val dataEnrollment = viewModel.loadEnrollment(this@PatientResponderActivity, uid)
+                    val dataEnrollment =
+                        viewModel.loadEnrollment(this@PatientResponderActivity, uid)
                     dataEnrollment?.let { enrollment ->
-                        val elementAttributes = Converters().fromJsonDataAttribute(enrollment.dataValues)
+                        val elementAttributes =
+                            Converters().fromJsonDataAttribute(enrollment.dataValues)
                         withContext(Dispatchers.Main) {
                             // Process enrollment data and update UI on the main thread
                             elementAttributes.forEachIndexed { index, attribute ->
@@ -465,6 +480,9 @@ class PatientResponderActivity : AppCompatActivity() {
                 }
             }
             if (data.isProgram) {
+                no_button.visibility = View.GONE
+            } else {
+                yes_button.setText("Next")
                 no_button.visibility = View.GONE
             }
 
@@ -693,11 +711,15 @@ class PatientResponderActivity : AppCompatActivity() {
                                         dialogView.findViewById(R.id.tv_message)
                                     val nextButton: MaterialButton =
                                         dialogView.findViewById(R.id.yes_button)
-
+                                    val exitButton: ImageButton =
+                                        dialogView.findViewById(R.id.exit_button)
                                     dialog = dialogBuilder.create()
                                     val cancelButton: MaterialButton =
                                         dialogView.findViewById(R.id.no_button)
                                     cancelButton.apply {
+                                        setOnClickListener { dialog.dismiss() }
+                                    }
+                                    exitButton.apply {
                                         setOnClickListener { dialog.dismiss() }
                                     }
 
@@ -782,10 +804,15 @@ class PatientResponderActivity : AppCompatActivity() {
                                             dialogView.findViewById(R.id.tv_message)
                                         val nextButton: MaterialButton =
                                             dialogView.findViewById(R.id.yes_button)
+                                        val exitButton: ImageButton =
+                                            dialogView.findViewById(R.id.exit_button)
                                         dialog = dialogBuilder.create()
                                         val cancelButton: MaterialButton =
                                             dialogView.findViewById(R.id.no_button)
                                         cancelButton.apply {
+                                            setOnClickListener { dialog.dismiss() }
+                                        }
+                                        exitButton.apply {
                                             setOnClickListener { dialog.dismiss() }
                                         }
 //                                        tvTitle.text = context.getString(R.string.search_results)
@@ -865,6 +892,10 @@ class PatientResponderActivity : AppCompatActivity() {
                                             dialogView.findViewById(R.id.no_button)
                                         val nextButton: MaterialButton =
                                             dialogView.findViewById(R.id.yes_button)
+                                        val exitButton: MaterialButton =
+                                            dialogView.findViewById(R.id.exit_button)
+
+
                                         dialog = dialogBuilder.create()
 
                                         tvTitle.text = context.getString(R.string.existing_case)
@@ -874,6 +905,13 @@ class PatientResponderActivity : AppCompatActivity() {
                                             context.getString(R.string.existing_case_description)
                                         nextButton.text =
                                             context.getString(R.string.view_existing_case)
+
+
+                                        exitButton.apply {
+                                            setOnClickListener {
+                                                dialog.dismiss()
+                                            }
+                                        }
                                         nextButton.setOnClickListener {
                                             dialog.dismiss()
 
@@ -946,12 +984,17 @@ class PatientResponderActivity : AppCompatActivity() {
 
                                 val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
                                 val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
+                                val exitButton: ImageButton =
+                                    dialogView.findViewById(R.id.exit_button)
                                 val nextButton: MaterialButton =
                                     dialogView.findViewById(R.id.yes_button)
                                 dialog = dialogBuilder.create()
                                 val cancelButton: MaterialButton =
                                     dialogView.findViewById(R.id.no_button)
                                 cancelButton.apply {
+                                    setOnClickListener { dialog.dismiss() }
+                                }
+                                exitButton.apply {
                                     setOnClickListener { dialog.dismiss() }
                                 }
 //                                tvTitle.text = context.getString(R.string.search_results)
@@ -1150,7 +1193,7 @@ class PatientResponderActivity : AppCompatActivity() {
                 requiredFieldsString.remove(Constants.OTHER_FACILITY)
 
             }
-           val uniqueRequiredFields = requiredFieldsString.toSet()
+            val uniqueRequiredFields = requiredFieldsString.toSet()
 
             val missingFields = uniqueRequiredFields.filter { !searchParameterCodes.contains(it) }
 
