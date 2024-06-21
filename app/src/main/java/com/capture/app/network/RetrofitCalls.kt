@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.button.MaterialButton
@@ -419,11 +420,17 @@ class RetrofitCalls {
         val tvTitle: TextView = dialogView.findViewById(R.id.tv_title)
         val tvMessage: TextView = dialogView.findViewById(R.id.tv_message)
         val nextButton: MaterialButton = dialogView.findViewById(R.id.next_button)
+        val cancelButton: ImageView = dialogView.findViewById(R.id.cancel_button)
         dialog = dialogBuilder.create()
         tvTitle.text = context.getString(R.string.search_results)
         tvMessage.text =
             context.getString(R.string.no_record_found_of_patient_searched_with_those_parameters)
         nextButton.text = context.getString(R.string.register_new_patient)
+        cancelButton.apply {
+            setOnClickListener {
+                dialog.dismiss()
+            }
+        }
         nextButton.setOnClickListener {
             dialog.dismiss()
             context.startActivity(
