@@ -928,10 +928,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                                     this@PatientResponderActivity, similarId
                                                 )
                                                 if (singleRecord != null) {
-                                                    Log.e(
-                                                        "TAG",
-                                                        "Retrieved Event *** ${singleRecord.eventUid} Patient ${singleRecord.id}"
-                                                    )
+
                                                     formatter.saveSharedPref(
                                                         "eventUid",
                                                         singleRecord.eventUid,
@@ -1011,11 +1008,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                         }
                                     }
 
-
-                                    Log.e(
-                                        "TAG",
-                                        "Save attributes here **** search $searchParameters then final $attributeValueList"
-                                    )
 
                                     val payload = EnrollmentEventData(
                                         dataValues = Gson().toJson(attributeValueList),
@@ -1683,6 +1675,9 @@ class PatientResponderActivity : AppCompatActivity() {
                             editText.isCursorVisible = false
                             editText.isFocusable = false
                             editText.isEnabled = false
+                            editText.setTextColor(resources.getColor(R.color.black, null))
+                            tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -1762,6 +1757,9 @@ class PatientResponderActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
+                            autoCompleteTextView.setTextColor(resources.getColor(R.color.black, null))
+                            tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         }
                         if (showIf) {
                             val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -1898,6 +1896,9 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.isCursorVisible = false
                         editText.isFocusable = false
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -1966,6 +1967,9 @@ class PatientResponderActivity : AppCompatActivity() {
                 } else {
                     if (isDisabled) {
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2063,10 +2067,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2133,10 +2140,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2205,6 +2215,9 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.isCursorVisible = false
                         editText.isFocusable = false
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2311,6 +2324,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         radioGroup.isEnabled = false
                         for (i in 0 until radioGroup.childCount) {
                             radioGroup.getChildAt(i).isEnabled = false
@@ -2368,6 +2383,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         checkBox.isEnabled = false
                     }
                     if (showIf) {
@@ -2466,6 +2483,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             editText.isCursorVisible = false
                             editText.isFocusable = false
                             editText.isEnabled = false
+                            editText.setTextColor(resources.getColor(R.color.black, null))
+                            tvName.setTextColor(resources.getColor(R.color.black, null))
 
                             liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                                 val valueObtained = it.find { it.code == item.id }
@@ -2566,6 +2585,8 @@ class PatientResponderActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
+                            autoCompleteTextView.setTextColor(resources.getColor(R.color.black, null))
+                            tvName.setTextColor(resources.getColor(R.color.black, null))
 
                             liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                                 val valueObtained = it.find { it.code == item.id }
@@ -2748,6 +2769,9 @@ class PatientResponderActivity : AppCompatActivity() {
                 } else {
                     if (isDisabled) {
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2867,10 +2891,13 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
-                        editText.keyListener = null;
-                        editText.isCursorVisible = false;
-                        editText.isFocusable = false;
-                        editText.isEnabled = false;
+                        editText.keyListener = null
+                        editText.isCursorVisible = false
+                        editText.isFocusable = false
+                        editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                     }
                     if (showIf) {
                         val showNow = showIfRespondedAttribute(item.attributeValues)
@@ -2946,6 +2973,9 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.isCursorVisible = false
                         editText.isFocusable = false
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                             val valueObtained = it.find { it.code == item.id }
                             if (valueObtained != null) {
@@ -3026,6 +3056,9 @@ class PatientResponderActivity : AppCompatActivity() {
                         editText.isCursorVisible = false
                         editText.isFocusable = false
                         editText.isEnabled = false
+                        editText.setTextColor(resources.getColor(R.color.black, null))
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                             val valueObtained = it.find { it.code == item.id }
                             if (valueObtained != null) {
@@ -3161,6 +3194,8 @@ class PatientResponderActivity : AppCompatActivity() {
                     itemView.visibility = View.GONE
                 } else {
                     if (isDisabled) {
+                        tvName.setTextColor(resources.getColor(R.color.black, null))
+
                         radioGroup.isEnabled = false
                         for (i in 0 until radioGroup.childCount) {
                             radioGroup.getChildAt(i).isEnabled = false
