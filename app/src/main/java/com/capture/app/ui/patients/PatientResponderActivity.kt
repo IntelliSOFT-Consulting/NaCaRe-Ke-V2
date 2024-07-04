@@ -351,8 +351,10 @@ class PatientResponderActivity : AppCompatActivity() {
                         }
                         elementList.clear()
                         it.programStages.forEach { q ->
-                            q.programStageSections.forEach {
-                                elementList.add(it)
+                            if (q.name == "All") {
+                                q.programStageSections.forEach {
+                                    elementList.add(it)
+                                }
                             }
 
                         }
@@ -1757,7 +1759,12 @@ class PatientResponderActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
-                            autoCompleteTextView.setTextColor(resources.getColor(R.color.black, null))
+                            autoCompleteTextView.setTextColor(
+                                resources.getColor(
+                                    R.color.black,
+                                    null
+                                )
+                            )
                             tvName.setTextColor(resources.getColor(R.color.black, null))
 
                         }
@@ -2585,7 +2592,12 @@ class PatientResponderActivity : AppCompatActivity() {
                             autoCompleteTextView.isFocusable = false
                             autoCompleteTextView.isEnabled = false
                             autoCompleteTextView.setAdapter(null)
-                            autoCompleteTextView.setTextColor(resources.getColor(R.color.black, null))
+                            autoCompleteTextView.setTextColor(
+                                resources.getColor(
+                                    R.color.black,
+                                    null
+                                )
+                            )
                             tvName.setTextColor(resources.getColor(R.color.black, null))
 
                             liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {

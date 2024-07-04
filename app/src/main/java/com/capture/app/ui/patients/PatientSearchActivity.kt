@@ -50,9 +50,7 @@ class PatientSearchActivity : AppCompatActivity() {
         progressDialog = ProgressDialog(this)
         progressDialog.setMessage("Please wait...") // Set your message
         progressDialog.setCancelable(true)
-
         loadSearchParameters()
-
         binding.apply {
             setSupportActionBar(trackedEntityInstanceSearchToolbar)
             supportActionBar?.apply {
@@ -125,7 +123,6 @@ class PatientSearchActivity : AppCompatActivity() {
                     if (it.name == "SEARCH PATIENT") {
                         val section = it.trackedEntityAttributes
                         searchList.addAll(section)
-
                     }
                 }
             }
