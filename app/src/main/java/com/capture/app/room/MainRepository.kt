@@ -101,6 +101,7 @@ class MainRepository(private val roomDao: RoomDao) {
                 status = "ACTIVE",
                 trackedEntity = savedItemId.toString()
             )
+//            formatter.saveSharedPref("patient_identification", "$savedItemId", context)
             formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
             formatter.saveSharedPref("eventUid", eventUid, context)
             formatter.saveSharedPref("enrollmentUid", data.enrollment, context)
@@ -649,6 +650,38 @@ class MainRepository(private val roomDao: RoomDao) {
             roomDao.updateDeadPatients(data.trackedUnique, true, false)
         }
 
+    }
+
+    fun updateOrCreate(orgUnit: orgUnit) {
+        val data = roomDao.loadOrgUnitById(orgUnit.uuid)
+        if (data != null) {
+            roomDao.updateOrgUnitById(
+                orgUnit.uuid,
+                orgUnit.name,
+                orgUnit.parentOrgUnit,
+                orgUnit.level
+            )
+        } else {
+            roomDao.createOrgUnit(orgUnit)
+        }
+
+    }
+
+    fun pullSubCountiesPerCounty(countName: String): List<String> {
+        val optionsStringList: MutableList<String> = ArrayList()
+        val orgName = roomDao.pullOrgUnitByName(countName)
+        if (orgName != null) {
+            val children = roomDao.pullOrgUnitByParentUuid(orgName.uuid)
+            children?.forEach {
+                optionsStringList.add(it.name)
+            }
+        }
+        return optionsStringList
+
+    }
+
+    fun deleteOrgUnits() {
+        roomDao.deleteOrgUnits()
     }
 
 }

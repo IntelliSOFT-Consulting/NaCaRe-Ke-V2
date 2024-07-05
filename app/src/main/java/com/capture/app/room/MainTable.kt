@@ -41,6 +41,17 @@ data class TrackedEntityInstanceData(
     var id: Int? = null
 }
 
+@Entity(tableName = "orgUnit")
+data class orgUnit(
+    var uuid: String,
+    var level: String,
+    var name: String,
+    var parentOrgUnit: String = "",
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}
+
 @Entity(tableName = "event")
 data class EventData(
     @ColumnInfo(name = "dataValues") val dataValues: String,

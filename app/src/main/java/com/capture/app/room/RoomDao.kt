@@ -22,8 +22,10 @@ interface RoomDao {
 
     @Query("DELETE FROM program")
     fun deletePrograms()
+
     @Query("DELETE FROM trackedEntity")
     fun deleteTracked()
+
     @Query("DELETE FROM enrollmentevent")
     fun deleteEnrollments()
 
@@ -194,6 +196,7 @@ interface RoomDao {
 
     @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE eventUid =:eventUid)")
     fun checkEnrollmentEvent(eventUid: String): Boolean
+
     @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE trackedEntity =:trackedEntity)")
     fun checkEnrollmentEventByTracked(trackedEntity: String): Boolean
 
@@ -230,5 +233,23 @@ interface RoomDao {
 
     @Query("UPDATE trackedEntity SET isDead =:isDead, isSynced =:isSynced WHERE  trackedUnique =:trackedUnique")
     fun updateDeadPatients(trackedUnique: String, isDead: Boolean, isSynced: Boolean)
+
+    @Query("SELECT * FROM orgUnit WHERE uuid =:uuid ORDER BY id DESC LIMIT 1")
+    fun loadOrgUnitById(uuid: String): orgUnit?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun createOrgUnit(orgUnit: orgUnit)
+
+    @Query("UPDATE orgUnit SET name =:name, parentOrgUnit =:parentOrgUnit,level =:level WHERE  uuid =:uuid")
+    fun updateOrgUnitById(uuid: String, name: String, parentOrgUnit: String, level: String)
+
+    @Query("SELECT * FROM orgUnit WHERE name =:name ORDER BY id DESC LIMIT 1")
+    fun pullOrgUnitByName(name: String): orgUnit?
+
+    @Query("SELECT * FROM orgUnit WHERE parentOrgUnit =:parentOrgUnit ORDER BY id DESC")
+    fun pullOrgUnitByParentUuid(parentOrgUnit: String): List<orgUnit>?
+
+    @Query("DELETE FROM orgUnit")
+    fun deleteOrgUnits()
 
 }

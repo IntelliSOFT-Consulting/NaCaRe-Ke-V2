@@ -23,8 +23,8 @@ class SyncActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sync)
         viewModel = MainViewModel(this.applicationContext as Application)
-        viewModel.deletePrograms()
-        viewModel.deleteTracked()
+//        viewModel.deletePrograms()
+//        viewModel.deleteTracked()
         CoroutineScope(Dispatchers.Main).launch {
             retrofitCalls.loadAllSites(this@SyncActivity)
             retrofitCalls.loadAllCategories(this@SyncActivity)

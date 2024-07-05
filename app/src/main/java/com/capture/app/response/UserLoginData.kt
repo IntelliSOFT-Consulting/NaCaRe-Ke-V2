@@ -3,6 +3,7 @@ package com.capture.app.response
 import com.capture.app.model.CountyUnit
 import com.capture.app.model.EventInstances
 import com.capture.app.model.FacilityUpload
+import com.capture.app.model.OrgUnit
 import com.capture.app.model.Pager
 import com.capture.app.model.ProgramDetails
 import com.capture.app.model.RegistrationResponse
@@ -21,6 +22,7 @@ data class UserGroups(
     val id: String,
     val name: String,
 )
+
 data class OrgUnits(
     val id: String,
     val name: String,
@@ -90,4 +92,9 @@ data class FacilityUploadResponse(
 
 data class GenderCaseResponse(
     val cases: List<String>
+)
+
+data class OrgUnitResponse(
+    val pager: Pager,
+    val organisationUnits: List<OrgUnit>
 )

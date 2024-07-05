@@ -28,6 +28,10 @@ class ResponseViewModel : ViewModel() {
         MutableLiveData<String>().apply {
             value = "" // Initial value is an empty mutable list
         }
+    private val _mutableSubCountyLiveData =
+        MutableLiveData<String>().apply {
+            value = "" // Initial value is an empty mutable list
+        }
     private val _alreadyAnsweredElements =
         MutableLiveData<String>().apply {
             value = "0" // Initial value is an empty mutable list
@@ -36,6 +40,7 @@ class ResponseViewModel : ViewModel() {
     // Expose the LiveData as an immutable LiveData to observers
     val mutableListLiveData: LiveData<MutableList<CodeValuePair>> = _mutableListLiveData
     val mutablePatientUniqueLiveData: LiveData<String> = _mutablePatientUniqueLiveData
+    val mutableSubCountyLiveData: LiveData<String> = _mutableSubCountyLiveData
     val mutableAlreadyAnsweredElements: LiveData<String> = _alreadyAnsweredElements
     val mutableListLiveDataPatient: LiveData<MutableList<CodeValuePairPatient>> =
         _mutableListLiveDataPatient
@@ -94,6 +99,14 @@ class ResponseViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _mutableListLiveDataPatient.postValue(searchParameters)
+            }
+        }
+    }
+
+    fun populateRelevantSubCountyData(data: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _mutableSubCountyLiveData.postValue(data)
             }
         }
     }

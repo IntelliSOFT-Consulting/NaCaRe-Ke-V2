@@ -7,6 +7,7 @@ import com.capture.app.model.CountyUnit
 import com.capture.app.model.DataValue
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.response.OptionSets
+import com.capture.app.response.OrgUnitResponse
 import com.capture.app.response.OrganizationUnitResponse
 import com.capture.app.response.ProgramResponse
 import com.capture.app.response.SearchPatientResponse
@@ -51,6 +52,12 @@ class Converters {
     fun toTopographyJson(json: TopographyResponse): String {
         // convert json to MyJsonData object
         return gson.toJson(json, TopographyResponse::class.java)
+    }
+
+    @TypeConverter
+    fun toOrgUnitsJson(json: OrgUnitResponse): String {
+        // convert json to MyJsonData object
+        return gson.toJson(json, OrgUnitResponse::class.java)
     }
 
     @TypeConverter

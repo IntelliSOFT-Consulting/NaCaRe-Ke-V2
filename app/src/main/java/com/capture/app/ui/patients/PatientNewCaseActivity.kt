@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.Html
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -182,6 +183,7 @@ class PatientNewCaseActivity : AppCompatActivity() {
         }
 
     }
+
     private fun getDateToday(): String {
 
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -593,9 +595,11 @@ class PatientNewCaseActivity : AppCompatActivity() {
         }
         return isHidden
     }
+
     private fun isPartOfBasicInformation(uid: String, excludeHiddenFields: List<String>): Boolean {
         return excludeHiddenFields.any { it == uid }
     }
+
     private fun populateSearchFields(
         index: Int,
         item: TrackedEntityAttributes,
@@ -1592,73 +1596,73 @@ class PatientNewCaseActivity : AppCompatActivity() {
                     )
                     attributeValueList.add(attr)
                 }
-                val patientIdentification = formatter.getSharedPref(
-                    "patient_identification",
-                    this@PatientNewCaseActivity
+//                val patientIdentification = formatter.getSharedPref(
+//                    "patient_identification",
+//                    this@PatientNewCaseActivity
+//                )
+//                Log.e("TAG","patientIdentification***** $patientIdentification")
+//                if (patientIdentification != null) {
+                val data = TrackedEntityInstance(
+                    trackedEntity = formatter.generateUUID(11),
+                    enrollment = formatter.generateUUID(11),
+                    enrollDate = formatter.formatCurrentDate(Date()),
+                    orgUnit = orgCode,
+                    attributes = attributeValueList,
                 )
-                if (patientIdentification != null) {
-                    val data = TrackedEntityInstance(
-                        trackedEntity = formatter.generateUUID(11),
-                        enrollment = formatter.generateUUID(11),
-                        enrollDate = formatter.formatCurrentDate(Date()),
-                        orgUnit = orgCode,
-                        attributes = attributeValueList,
-                    )
-                    var dataValues = "[]"
-                    val isPatientUnderTreatment = confirmUserResponse(Constants.UNDER_TREATMENT)
-                    if (isPatientUnderTreatment.isNotEmpty()) {
-                        if (isPatientUnderTreatment == "true") {
-                            dataValues = defaultTreatmentData()
-                        }
-                        attributeValueList.clear()
-                        newCaseResponses.clear()
-                        searchParameters.forEach {
-                            newCaseResponses.add(
-                                TrackedEntityInstanceAttributes(
-                                    attribute = it.code, value = it.value
-                                )
-                            )
-
-                        }
-
-                        viewModel.updateTrackedAttributesWithDataValues(
-                            Gson().toJson(newCaseResponses), patientUid.toString(),dataValues
-                        )
-
-                        formatter.deleteSharedPref("index", this@PatientNewCaseActivity)
-                        formatter.saveSharedPref(
-                            "is_first_time",
-                            "true",
-                            this@PatientNewCaseActivity
-                        )
-
-                        CoroutineScope(Dispatchers.Main).launch {
-                            progressDialog.show()
-                            delay(3000)
-                            if (progressDialog.isShowing) {
-                                progressDialog.dismiss()
-                            }
-                            startActivity(
-                                Intent(
-                                    this@PatientNewCaseActivity,
-                                    PatientResponderActivity::class.java
-                                )
-                            )
-                            this@PatientNewCaseActivity.finish()
-                        }
-                    } else {
-                        Toast.makeText(
-                            this,
-                            "Loading data, please try again to proceed",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                var dataValues = "[]"
+                val isPatientUnderTreatment = confirmUserResponse(Constants.UNDER_TREATMENT)
+                if (isPatientUnderTreatment.isNotEmpty()) {
+                    if (isPatientUnderTreatment == "true") {
+                        dataValues = defaultTreatmentData()
                     }
-                } else {
-                    Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
+                }
+                attributeValueList.clear()
+                newCaseResponses.clear()
+                searchParameters.forEach {
+                    newCaseResponses.add(
+                        TrackedEntityInstanceAttributes(
+                            attribute = it.code, value = it.value
+                        )
+                    )
+
                 }
 
-            }
+                viewModel.updateTrackedAttributesWithDataValues(
+                    Gson().toJson(newCaseResponses), patientUid.toString(), dataValues
+                )
 
+                formatter.deleteSharedPref("index", this@PatientNewCaseActivity)
+                formatter.saveSharedPref(
+                    "is_first_time",
+                    "true",
+                    this@PatientNewCaseActivity
+                )
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    progressDialog.show()
+                    delay(3000)
+                    if (progressDialog.isShowing) {
+                        progressDialog.dismiss()
+                    }
+                    startActivity(
+                        Intent(
+                            this@PatientNewCaseActivity,
+                            PatientResponderActivity::class.java
+                        )
+                    )
+                    this@PatientNewCaseActivity.finish()
+                }
+//                }
+//                else {
+//                    Toast.makeText(
+//                        this,
+//                        "Loading data, please try again to proceed",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+            } else {
+                Toast.makeText(this, "Please Select Organization", Toast.LENGTH_SHORT).show()
+            }
 
         }
         dialog.show()

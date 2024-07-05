@@ -20,19 +20,23 @@ import com.capture.app.auth.SyncActivity
 import com.capture.app.data.Constants
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
+import com.capture.app.model.ChildOrgUnit
 import com.capture.app.model.DataValue
 import com.capture.app.model.EnrollmentEventUploadData
 import com.capture.app.model.Enrollments
 import com.capture.app.model.EventUploadData
+import com.capture.app.model.OrgUnit
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
 import com.capture.app.model.TrackedEntityInstanceServer
 import com.capture.app.model.TrackedEntityInstances
+import com.capture.app.response.OrgUnitResponse
 import com.capture.app.room.Converters
 import com.capture.app.room.DataStoreData
 import com.capture.app.room.EventData
 import com.capture.app.room.MainViewModel
 import com.capture.app.room.ProgramData
+import com.capture.app.room.orgUnit
 import com.capture.app.ui.patients.PatientRegistrationActivity
 import com.capture.app.ui.patients.PatientSearchActivity
 import com.capture.app.ui.patients.PatientSearchResultsActivity
@@ -170,7 +174,7 @@ class RetrofitCalls {
                                         noPatientRecordFound(context, layoutInflater)
                                     } else {
                                         val converters = Converters().toJsonPatientSearch(body)
-                                       
+
                                         formatter.saveSharedPref(
                                             "search_results",
                                             converters,
@@ -186,7 +190,7 @@ class RetrofitCalls {
                                     }
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    
+
                                 }
                             }
                         }
@@ -204,7 +208,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-             
+
                 if (progressDialog.isShowing) {
                     progressDialog.dismiss()
                 }
@@ -258,7 +262,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                
+
 
             }
         }
@@ -456,7 +460,7 @@ class RetrofitCalls {
                 converters.organisationUnits.forEach {
                     orgUid = it.id
                 }
-                
+
                 if (orgUid.isNotEmpty()) {
 
                     val apiService =
@@ -492,7 +496,7 @@ class RetrofitCalls {
                                             }
                                         } catch (e: Exception) {
                                             e.printStackTrace()
-                                          
+
                                         }
                                     }
                                 }
@@ -507,7 +511,7 @@ class RetrofitCalls {
                         }
                     } catch (e: Exception) {
                         print(e)
-                        
+
 
                     }
                 }
@@ -564,7 +568,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-               
 
 
             }
@@ -625,7 +628,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                
 
 
             }
@@ -652,7 +654,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                                
+
                             }
                         }
                     }
@@ -668,7 +670,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-            
 
 
             }
@@ -703,7 +704,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                               
+
                                 if (!serverSide) {
                                     body.response.importSummaries.forEach {
 
@@ -728,7 +729,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-              
 
 
             }
@@ -796,7 +796,7 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-               
+
                 progressBar.visibility = View.GONE
 
             }
@@ -856,7 +856,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-              
 
 
             }
@@ -916,7 +915,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-              
 
 
             }
@@ -940,7 +938,7 @@ class RetrofitCalls {
                     when (statusCode) {
                         200 -> {
                             if (body != null) {
-                               
+
                                 val data =
                                     DataStoreData(
                                         uid = "site",
@@ -962,7 +960,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                
 
 
             }
@@ -1003,7 +1000,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-              
 
 
             }
@@ -1058,7 +1054,6 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                
 
 
             }
@@ -1096,8 +1091,79 @@ class RetrofitCalls {
                 }
             } catch (e: Exception) {
                 print(e)
-                 
+
             }
+        }
+    }
+
+    fun loadAllOrganizations(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val formatter = FormatterClass()
+            val viewModel = MainViewModel(context.applicationContext as Application)
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                val apiInterface = apiService.loadOrgUnits()
+                if (apiInterface.isSuccessful) {
+                    val statusCode = apiInterface.code()
+                    val body = apiInterface.body()
+                    when (statusCode) {
+                        200 -> {
+                            if (body != null) {
+                                val converters = Converters().toOrgUnitsJson(body)
+                                manipulateResponse(context, body)
+//                                formatter.saveSharedPref("topography", converters, context)
+                            }
+                        }
+                    }
+                } else {
+                    val statusCode = apiInterface.code()
+                    val errorBody = apiInterface.errorBody()?.string()
+                    when (statusCode) {
+                        409 -> {}
+                        500 -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                print(e)
+
+            }
+        }
+    }
+
+    private fun manipulateResponse(context: Context, body: OrgUnitResponse) {
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        viewModel.deleteOrgUnits()
+        body.organisationUnits.forEach {
+            val parent = it.parent?.id ?: ""
+            val orgUnit = orgUnit(
+                uuid = it.id,
+                level = it.level,
+                name = it.name,
+                parentOrgUnit = parent
+            )
+            if (it.children.isNotEmpty()) {
+                saveChildData(context, it.children, it.id)
+            }
+
+
+            viewModel.updateOrCreate(orgUnit)
+        }
+
+    }
+
+    private fun saveChildData(context: Context, data: List<ChildOrgUnit>, parent: String) {
+
+        val viewModel = MainViewModel(context.applicationContext as Application)
+        data.forEach {
+            val orgUnit = orgUnit(
+                uuid = it.id,
+                level = it.level,
+                name = it.name,
+                parentOrgUnit = parent
+            )
+            viewModel.updateOrCreate(orgUnit)
         }
     }
 

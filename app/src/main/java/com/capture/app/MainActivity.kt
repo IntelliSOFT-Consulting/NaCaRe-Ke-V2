@@ -135,6 +135,14 @@ class MainActivity : AppCompatActivity() {
         headerView.findViewById<TextView>(R.id.tv_name).text = getUserData("surname")
         headerView.findViewById<TextView>(R.id.tv_email).text = getUserData("email")
         loadPrograms()
+        loadAndUpdateOrgUnits()
+    }
+
+    private fun loadAndUpdateOrgUnits() {
+        CoroutineScope(Dispatchers.Main).launch {
+
+            retrofitCalls.loadAllOrganizations(this@MainActivity)
+        }
     }
 
     private fun handleFacilityUploads() {

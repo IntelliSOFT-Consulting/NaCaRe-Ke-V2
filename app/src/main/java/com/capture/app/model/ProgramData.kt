@@ -348,3 +348,21 @@ data class DocumentNumber(
     val type: String,
     val number: String
 )
+
+data class OrgUnit(
+    val id: String,
+    val level: String,
+    val name: String,
+    val parent: ParentOrgUnit?,
+    val children: List<ChildOrgUnit>
+)
+
+data class ParentOrgUnit(
+    val id: String,
+)
+
+data class ChildOrgUnit(
+    val id: String,
+    val level: String,
+    val name: String,
+)

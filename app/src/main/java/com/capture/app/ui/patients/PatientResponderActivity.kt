@@ -36,6 +36,7 @@ import com.capture.app.R
 import com.capture.app.data.Constants
 import com.capture.app.data.Constants.AGE_MONTHS
 import com.capture.app.data.Constants.AGE_YEARS
+import com.capture.app.data.Constants.COUNTY_RESIDENCE
 import com.capture.app.data.Constants.DATE_OF_BIRTH
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
@@ -48,9 +49,11 @@ import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.SCREEN_FOR_CANCER
 import com.capture.app.data.Constants.SEX
 import com.capture.app.data.Constants.STATUS
+import com.capture.app.data.Constants.SUB_COUNTY_RESIDENCE
 import com.capture.app.data.Constants.TREATMENT_DATE
 import com.capture.app.data.Constants.TWO_YEARS
 import com.capture.app.data.Constants.UNDER_TREATMENT
+import com.capture.app.data.Constants.WARD_COUNTY_RESIDENCE
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientResponderBinding
 import com.capture.app.model.Attribute
@@ -102,17 +105,6 @@ class PatientResponderActivity : AppCompatActivity() {
     private var attributeList = ArrayList<ParentAttributeValues>()
     private var requiredFieldsString = ArrayList<String>()
 
-    override fun onStart() {
-        super.onStart()
-//        try {
-//            val currentPatient = formatter.getSharedPref("current_patient_id", this)
-//            if (currentPatient != null) {
-//                populateAvailableData(currentPatient)
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -301,8 +293,12 @@ class PatientResponderActivity : AppCompatActivity() {
                     val dataEnrollment =
                         viewModel.loadEnrollment(this@PatientResponderActivity, uid)
                     dataEnrollment?.let { enrollment ->
+                        var dataValues = enrollment.dataValues
+                        if (dataValues.isEmpty()) {
+                            dataValues = "[]"
+                        }
                         val elementAttributes =
-                            Converters().fromJsonDataAttribute(enrollment.dataValues)
+                            Converters().fromJsonDataAttribute(dataValues)
                         withContext(Dispatchers.Main) {
                             // Process enrollment data and update UI on the main thread
                             elementAttributes.forEachIndexed { index, attribute ->
@@ -338,15 +334,12 @@ class PatientResponderActivity : AppCompatActivity() {
                             if (it.name == "SEARCH PATIENT") {
                                 val section = it.trackedEntityAttributes
                                 searchList.addAll(section)
-
                             } else {
                                 val filteredSections =
                                     it.trackedEntityAttributes.filter { section ->
                                         section.id != OPEN_FOR_EDITING
                                     }
                                 emptyList.addAll(filteredSections)
-
-
                             }
                         }
                         elementList.clear()
@@ -356,7 +349,6 @@ class PatientResponderActivity : AppCompatActivity() {
                                     elementList.add(it)
                                 }
                             }
-
                         }
                     }
                     completeList.addAll(searchList)
@@ -559,8 +551,10 @@ class PatientResponderActivity : AppCompatActivity() {
                 val dataElements: List<TrackedEntityAttributes> =
                     gson.fromJson(data.dataElements, listType)
                 extractAlreadySaved(dataElements)
+                val totalVisible = onlyCountVisibleItems(dataElements)
                 liveData.mutableAlreadyAnsweredElements.observe(this@PatientResponderActivity) {
-                    smallTextView.setText("$it/${dataElements.count()}")
+
+                    smallTextView.setText("$it/$totalVisible")
                 }
                 liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                     var count = 0
@@ -603,6 +597,7 @@ class PatientResponderActivity : AppCompatActivity() {
                         gson.fromJson(data.dataElements, listType)
                     launch(Dispatchers.Main) {
                         extractAlreadySavedAlt(dataElements, data.groupName)
+                        val total = extractVisibleItems(dataElements)
                         liveData.mutableListLiveDataPatient.observe(this@PatientResponderActivity) {
                             var count = 0
                             if (it.isNotEmpty()) {
@@ -614,7 +609,7 @@ class PatientResponderActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-                            smallTextView.setText("$count/${dataElements.count()}")
+                            smallTextView.setText("$count/$total")
                         }
                         linearLayout.removeAllViews()
                         val formatter = FormatterClass()
@@ -1089,11 +1084,28 @@ class PatientResponderActivity : AppCompatActivity() {
                     }
                 }
             }
-
             lnParent.addView(itemView)
-
         }
     }
+
+    private fun extractVisibleItems(dataElements: List<DataElements>): String {
+        var count = 0
+        dataElements.forEach {
+            val isHidden: Boolean = extractAttributeValue("Hidden", it.attributeValues)
+            if (!isHidden) count++
+        }
+        return "$count"
+    }
+
+    private fun onlyCountVisibleItems(dataElements: List<TrackedEntityAttributes>): String {
+        var count = 0
+        dataElements.forEach {
+            val isHidden: Boolean = extractAttributeValue("Hidden", it.attributeValues)
+            if (!isHidden) count++
+        }
+        return "$count"
+    }
+
 
     private fun reloadEventData() {
         val eventUid = formatter.getSharedPref("eventUid", this@PatientResponderActivity)
@@ -1729,6 +1741,29 @@ class PatientResponderActivity : AppCompatActivity() {
                     item.optionSet.options.forEach {
                         optionsStringList.add(it.displayName)
                     }
+
+                    if (item.id == SUB_COUNTY_RESIDENCE) {
+                        // PULL THE LINKED SUB COUNTY FROM COUNTY OF RESIDENCE
+                        val countName = retrieveCountyOfResidenceFromRegistration(COUNTY_RESIDENCE)
+                        if (countName.isNotEmpty()) {
+                            val subCountyOptions = pullSubCountiesUnderTheCountyResidence(countName)
+                            optionsStringList.clear()
+                            optionsStringList.addAll(subCountyOptions)
+                        }
+                    }
+                    if (item.id == WARD_COUNTY_RESIDENCE) {
+                        // PULL THE LINKED SUB COUNTY FROM COUNTY OF RESIDENCE
+
+                        liveData.mutableSubCountyLiveData.observe(this@PatientResponderActivity) { k ->
+                            if (k.isNotEmpty()) {
+                                val subCountyOptions =
+                                    pullSubCountiesUnderTheCountyResidence(k)
+                                optionsStringList.clear()
+                                optionsStringList.addAll(subCountyOptions)
+                            }
+                        }
+
+                    }
                     val adp = ArrayAdapter(
                         this, android.R.layout.simple_list_item_1, optionsStringList
                     )
@@ -1793,7 +1828,10 @@ class PatientResponderActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
-
+                                if (item.id == SUB_COUNTY_RESIDENCE) {
+                                    // Reset Wards
+                                    liveData.populateRelevantSubCountyData(value)
+                                }
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
 
                                 if (item.id == SCREEN_FOR_CANCER) {
@@ -2407,6 +2445,24 @@ class PatientResponderActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun pullSubCountiesUnderTheCountyResidence(countName: String): List<String> {
+
+        val optionsStringList: MutableList<String> = ArrayList()
+        val subCountyList = viewModel.pullSubCountiesPerCounty(countName)
+        optionsStringList.addAll(subCountyList)
+
+        return optionsStringList
+    }
+
+    private fun retrieveCountyOfResidenceFromRegistration(parent: String): String {
+        var county = ""
+        val countyData = searchParameters.find { it.code == parent }
+        if (countyData != null) {
+            county = countyData.value
+        }
+        return county
     }
 
     private fun createFormFieldsAttribute(

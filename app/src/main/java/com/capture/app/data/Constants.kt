@@ -34,4 +34,9 @@ object Constants {
     const val DIAGNOSIS_TURNAROUND = "SrmsM3GzSEl"
     const val DURATION_OF_DIAGNOSIS = "CCDACaaGscC"
 
+    // Residential Data Elements
+    const val COUNTY_RESIDENCE = "uR2Mnlh7sqn"
+    const val SUB_COUNTY_RESIDENCE = "PdDmTsAjysh"
+    const val WARD_COUNTY_RESIDENCE = "Nv691bXYX2M"
+
 }

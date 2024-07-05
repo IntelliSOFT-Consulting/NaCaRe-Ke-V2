@@ -9,6 +9,7 @@ import com.capture.app.response.EnrollmentSingle
 import com.capture.app.response.FacilityEventResponse
 import com.capture.app.response.FacilityUploadResponse
 import com.capture.app.response.GenderCaseResponse
+import com.capture.app.response.OrgUnitResponse
 import com.capture.app.response.OrganizationUnitResponse
 import com.capture.app.response.PatientRegistrationResponse
 import com.capture.app.response.ProgramResponse
@@ -122,5 +123,7 @@ interface Interface {
 
     @GET("/api/40/dataStore/validations/{gender}")
     suspend fun loadCancerByGender(@Path("gender") gender: String): Response<GenderCaseResponse>
+    @GET("/api/40/organisationUnits?fields=name, id,level,parent,children[name,id,level]&pageSize=100000")
+    suspend fun loadOrgUnits(): Response<OrgUnitResponse>
 
 }

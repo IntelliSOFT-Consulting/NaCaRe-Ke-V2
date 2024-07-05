@@ -54,7 +54,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         dataValues: String
     ) = runBlocking {
 
-        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification,dataValues)
+        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification, dataValues)
     }
 
     fun saveTrackedEntityServer(
@@ -282,8 +282,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun updateTrackedAttributesWithDataValues(attributes: String, patientUid: String, dataValues: String) = runBlocking {
-        repository.updateTrackedAttributesWithDataValues(attributes, patientUid,dataValues)
+    fun updateTrackedAttributesWithDataValues(
+        attributes: String,
+        patientUid: String,
+        dataValues: String
+    ) = runBlocking {
+        repository.updateTrackedAttributesWithDataValues(attributes, patientUid, dataValues)
+    }
+
+    fun updateOrCreate(orgUnit: orgUnit) = runBlocking {
+        repository.updateOrCreate(orgUnit)
+    }
+
+    fun pullSubCountiesPerCounty(countName: String)= runBlocking {
+        repository.pullSubCountiesPerCounty(countName)
+
+    }
+
+    fun deleteOrgUnits() {
+        repository.deleteOrgUnits()
     }
 
 
