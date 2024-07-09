@@ -303,5 +303,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.deleteOrgUnits()
     }
 
+    fun deleteTrackedEntity(currentPatient: String)= runBlocking {
+        repository.deleteTrackedEntity(currentPatient)
+
+    }
+
 
 }

@@ -252,4 +252,9 @@ interface RoomDao {
     @Query("DELETE FROM orgUnit")
     fun deleteOrgUnits()
 
+    @Query("DELETE FROM trackedEntity WHERE id=:id")
+    fun deleteTrackedEntity(id: String)
+    @Query("DELETE FROM enrollmentevent WHERE trackedEntity=:id")
+    fun deleteTrackedEntityEnrollment(id: String)
+
 }

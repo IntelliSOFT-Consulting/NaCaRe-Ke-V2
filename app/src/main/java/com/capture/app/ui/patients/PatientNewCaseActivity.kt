@@ -312,8 +312,30 @@ class PatientNewCaseActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmation")
+        builder.setMessage("Are you sure you want to exit?\nThis will result to loss of your unsaved changes")
 
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            dialog.dismiss()
+            clearCurrentPatientInformation()
+            super.onBackPressed()
+        }
+
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.create().show()
+
+    }
+
+    private fun clearCurrentPatientInformation() {
+
+        val currentPatient = formatter.getSharedPref("current_patient_id", this)
+        if (currentPatient != null) {
+            viewModel.deleteTrackedEntity(currentPatient)
+        }
     }
 
     private fun allRequiredFieldsComplete(): Boolean {

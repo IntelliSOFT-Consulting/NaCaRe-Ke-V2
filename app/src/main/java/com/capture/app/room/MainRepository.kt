@@ -684,4 +684,10 @@ class MainRepository(private val roomDao: RoomDao) {
         roomDao.deleteOrgUnits()
     }
 
+    fun deleteTrackedEntity(id: String) {
+        roomDao.deleteTrackedEntity(id)
+        roomDao.deleteTrackedEntityEnrollment(id)
+
+    }
+
 }

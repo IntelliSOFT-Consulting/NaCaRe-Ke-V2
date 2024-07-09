@@ -312,7 +312,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
     }
 
     private fun noMatchingIdentification(): Boolean {
-        Log.e("TAG", "******* Current Item starting here ")
 
         val similarIdentificationDocuments = arrayListOf<DocumentNumber>()
         val similarIdentificationNumbers = arrayListOf<String>()
@@ -321,7 +320,6 @@ class PatientRegistrationActivity : AppCompatActivity() {
             searchParameters = getSavedValues()
             val searchParameterCodes = searchParameters.map { it.code to it.value }.distinct()
 
-            Log.e("TAG", "******* Current Item $searchParameterCodes ")
             val allTracked = viewModel.loadAllSystemTrackedEntities()
             if (allTracked != null) {
                 similarIdentificationDocuments.clear()
