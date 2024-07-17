@@ -34,7 +34,6 @@ class AppUtils {
         val orgUnit = FormatterClass().getSharedPref("orgCode", context)
         if (orgUnit != null) {
             val data = viewModel.loadEvents(orgUnit, context)
-            Log.e("TAG", "Facility Data ***** $data")
             if (data != null) {
                 if (data.isNotEmpty()) {
                     data.forEach {
@@ -46,7 +45,6 @@ class AppUtils {
                     }
                     val facilityData =
                         FormatterClass().getSharedPref("facility_checker_data", context)
-                    Log.e("TAG", "Facility Data *****  datas $facilityData")
                     if (facilityData != null) {
                         val attributes = Converters().fromJsonDataAttribute(facilityData)
                         if (attributes.isNotEmpty()) {
@@ -59,25 +57,19 @@ class AppUtils {
                                     searchParameters
                                 )
                             }
-                            Log.e("TAG", "Facility Data *****  params $searchParameters")
                             val facilityCodeValue =
                                 searchParameters.find { it.dataElement == FACILITY_STATUS }
                             if (facilityCodeValue != null) {
-                                Log.e(
-                                    "TAG",
-                                    "Facility Data *****  value ${facilityCodeValue.value}"
-                                )
-                                if (facilityCodeValue.value=="Functional"){
+
+                                if (facilityCodeValue.value == "Functional") {
                                     return true
                                 }
                             }
-                            Log.e("TAG", "Facility Data *****  value null $facilityCodeValue")
                         }
                     }
                 }
             }
         }
-        Log.e("TAG", "Facility Data ***** $orgUnit")
         return false
     }
 
