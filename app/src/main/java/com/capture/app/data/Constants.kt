@@ -39,4 +39,7 @@ object Constants {
     const val SUB_COUNTY_RESIDENCE = "PdDmTsAjysh"
     const val WARD_COUNTY_RESIDENCE = "Nv691bXYX2M"
 
+    //    Facility Status
+    const val FACILITY_STATUS = "w7pMmzmQji9"
+
 }
