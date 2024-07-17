@@ -1,5 +1,6 @@
 package com.capture.app.data
 
+import android.content.Context
 import com.capture.app.model.CountyUnit
 import com.capture.app.model.OrgTreeNode
 
@@ -19,5 +20,9 @@ class AppUtils {
         }
 
         return treeNodes.sortedBy { it.label }
+    }
+
+    fun checkIfFacilityIsFunctional(context: Context): Boolean {
+        return  false
     }
 }

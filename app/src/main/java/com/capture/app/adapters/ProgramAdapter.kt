@@ -1,5 +1,6 @@
 package com.capture.app.adapters
 
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.capture.app.R
+import com.capture.app.data.AppUtils
 import com.capture.app.data.FormatterClass
 import com.capture.app.holders.PatientHolder
 import com.capture.app.model.ProgramDetails
@@ -37,24 +39,36 @@ class ProgramAdapter(
             formatter.saveSharedPref("programUid", data.id, context)
             formatter.saveSharedPref("program", data.name, context)
             if (data.name.contains("Registry")) {
-                data.trackedEntityType?.let { it1 ->
-                    formatter.saveSharedPref(
-                        "trackedEntity",
-                        it1.id,
-                        context
-                    )
-                }
-                data.programStages.forEach {
+                val isFunctional = AppUtils().checkIfFacilityIsFunctional(context)
+                if (isFunctional) {
+                    data.trackedEntityType?.let { it1 ->
+                        formatter.saveSharedPref(
+                            "trackedEntity",
+                            it1.id,
+                            context
+                        )
+                    }
+                    data.programStages.forEach {
 
-                    formatter.saveSharedPref(
-                        "programStage",
-                        it.id,
-                        context
-                    )
-                }
+                        formatter.saveSharedPref(
+                            "programStage",
+                            it.id,
+                            context
+                        )
+                    }
 
-                NavHostFragment.findNavController(fragment)
-                    .navigate(R.id.patientListFragment)
+                    NavHostFragment.findNavController(fragment)
+                        .navigate(R.id.patientListFragment)
+                }else{
+                    val builder = AlertDialog.Builder(context)
+                    builder.setTitle("Notice")
+                    builder.setMessage("This facility is currently not functional")
+                    builder.setPositiveButton("OK") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+                }
             } else {
                 NavHostFragment.findNavController(fragment)
                     .navigate(R.id.facilityListFragment)
