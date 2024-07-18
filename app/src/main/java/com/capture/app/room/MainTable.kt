@@ -93,3 +93,21 @@ data class EnrollmentEventData(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }
+
+@Entity(tableName = "reportEvent")
+data class EnrollmentEventSpecific(
+    @ColumnInfo(name = "dataValues") val dataValues: String,
+    var uid: String,
+    var eventUid: String,
+    var enrollmentId: String,
+    var program: String,
+    var programStage: String,
+    var orgUnit: String,
+    var eventDate: String,
+    var status: String,
+    var initialUpload: Boolean = false,
+    val isSynced: Boolean = false,
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+}

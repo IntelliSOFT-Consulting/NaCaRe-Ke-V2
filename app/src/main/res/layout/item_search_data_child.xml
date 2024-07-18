@@ -1,111 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:stretchColumns="*">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-
-        <TextView
-            android:id="@+id/uniqueTextView"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.35"
-            android:background="@drawable/cell_bg_1"
-            android:ellipsize="marquee"
-            android:paddingStart="@dimen/size_4"
-            android:paddingLeft="@dimen/size_4"
-            android:paddingTop="@dimen/size_8"
-            android:paddingEnd="@dimen/size_4"
-            android:paddingRight="@dimen/size_4"
-            android:paddingBottom="@dimen/size_4"
-            android:singleLine="false"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_size_12"
-            tools:text="09/04/2018" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/table_border"
+            android:padding="10dp">
 
+            <TextView
+                android:id="@+id/uniqueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/hospitalNo"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.35"
-            android:background="@drawable/cell_bg"
-            android:ellipsize="marquee"
-            android:paddingStart="@dimen/size_4"
-            android:paddingLeft="@dimen/size_4"
-            android:paddingTop="@dimen/size_8"
-            android:paddingEnd="@dimen/size_4"
-            android:paddingRight="@dimen/size_4"
-            android:paddingBottom="@dimen/size_4"
-            android:singleLine="false"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_size_12"
-            tools:text="A00234" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/table_border"
+            android:padding="10dp">
 
-        <TextView
-            android:id="@+id/patientName"
+            <TextView
+                android:id="@+id/hospitalNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.35"
-            android:background="@drawable/cell_bg"
-            android:ellipsize="marquee"
-            android:paddingStart="@dimen/size_4"
-            android:paddingLeft="@dimen/size_4"
-            android:paddingTop="@dimen/size_8"
-            android:paddingEnd="@dimen/size_4"
-            android:paddingRight="@dimen/size_4"
-            android:paddingBottom="@dimen/size_4"
-            android:singleLine="false"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_size_12"
-            tools:text="A00234" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/table_border"
+            android:padding="10dp">
 
-        <TextView
-            android:id="@+id/identificationDoc"
+            <TextView
+                android:id="@+id/patientName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.35"
-            android:background="@drawable/cell_bg"
-            android:ellipsize="marquee"
-            android:paddingStart="@dimen/size_4"
-            android:paddingLeft="@dimen/size_4"
-            android:paddingTop="@dimen/size_8"
-            android:paddingEnd="@dimen/size_4"
-            android:paddingRight="@dimen/size_4"
-            android:paddingBottom="@dimen/size_4"
-            android:singleLine="false"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_size_12"
-            tools:text="A00234" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/table_border"
+            android:padding="10dp">
 
-        <TextView
-            android:id="@+id/diagnosis"
+            <TextView
+                android:id="@+id/identificationDoc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.35"
-            android:background="@drawable/cell_bg"
-            android:ellipsize="marquee"
-            android:paddingStart="@dimen/size_4"
-            android:paddingLeft="@dimen/size_4"
-            android:paddingTop="@dimen/size_8"
-            android:paddingEnd="@dimen/size_4"
-            android:paddingRight="@dimen/size_4"
-            android:paddingBottom="@dimen/size_4"
-            android:singleLine="false"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_size_12"
-            tools:text="A00234" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/table_border"
+            android:padding="10dp">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/diagnosis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                 android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_1dp"
-        android:background="@color/purple_200" />
-</LinearLayout>
+    </TableRow>
+
+</TableLayout>
+
+

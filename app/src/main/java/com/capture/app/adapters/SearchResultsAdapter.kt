@@ -32,11 +32,11 @@ class SearchResultsAdapter(
         holder.identificationDoc.text = data.identification
         holder.diagnosis.text = data.diagnosis
 
-        holder.uniqueTextView.setTextColor(context.resources.getColor(R.color.black))
-        holder.hospitalNo.setTextColor(context.resources.getColor(R.color.black))
-        holder.patientName.setTextColor(context.resources.getColor(R.color.black))
-        holder.identificationDoc.setTextColor(context.resources.getColor(R.color.black))
-        holder.diagnosis.setTextColor(context.resources.getColor(R.color.black))
+//        holder.uniqueTextView.setTextColor(context.resources.getColor(R.color.black))
+//        holder.hospitalNo.setTextColor(context.resources.getColor(R.color.black))
+//        holder.patientName.setTextColor(context.resources.getColor(R.color.black))
+//        holder.identificationDoc.setTextColor(context.resources.getColor(R.color.black))
+//        holder.diagnosis.setTextColor(context.resources.getColor(R.color.black))
 
         holder.itemView.apply {
             setOnClickListener {
