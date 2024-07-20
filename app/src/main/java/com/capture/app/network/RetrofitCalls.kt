@@ -26,6 +26,7 @@ import com.capture.app.model.EnrollmentEventUploadData
 import com.capture.app.model.Enrollments
 import com.capture.app.model.EventUploadData
 import com.capture.app.model.OrgUnit
+import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
 import com.capture.app.model.TrackedEntityInstanceServer
@@ -42,6 +43,8 @@ import com.capture.app.ui.patients.PatientSearchActivity
 import com.capture.app.ui.patients.PatientSearchResultsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -142,7 +145,7 @@ class RetrofitCalls {
 
     }
 
-    fun performPatientSearch(
+    fun performPatientSearchOld(
         context: Context,
         programUid: String,
         trackedEntity: String,
@@ -206,6 +209,116 @@ class RetrofitCalls {
                         500 -> {}
                     }
                 }
+            } catch (e: Exception) {
+                print(e)
+
+                if (progressDialog.isShowing) {
+                    progressDialog.dismiss()
+                }
+
+            }
+        }
+    }
+
+    fun performPatientSearch(
+        context: Context,
+        programUid: String,
+        trackedEntity: String,
+        searchParametersString: String,
+        searchParametersStringMiddle: String,
+        searchParametersStringLast: String,
+        layoutInflater: LayoutInflater,
+        progressDialog: ProgressDialog
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val formatter = FormatterClass()
+
+            val apiService =
+                RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                    .create(Interface::class.java)
+            try {
+                progressDialog.show()
+
+                val deferredResults = listOf(
+                    async {
+                        apiService.searchPatient(
+                            filter = searchParametersString,
+                            program = programUid
+                        )
+                    },
+                    async {
+                        apiService.searchPatient(
+                            filter = searchParametersStringMiddle,
+                            program = programUid
+                        )
+                    },
+                    async {
+                        apiService.searchPatient(
+                            filter = searchParametersStringLast,
+                            program = programUid
+                        )
+                    }
+
+                )
+
+                val results = deferredResults.awaitAll()
+
+                if (progressDialog.isShowing) {
+                    progressDialog.dismiss()
+                }
+
+                // Process the results
+                // Process the results
+                val successfulResults = results.filter { it.isSuccessful }
+
+                // If all API calls are successful
+                if (successfulResults.size == 3) {
+                    val bodies = successfulResults.mapNotNull { it.body() }
+
+                    val body1 = bodies.getOrNull(0)
+                    val body2 = bodies.getOrNull(1)
+                    val body3 = bodies.getOrNull(2)
+
+                    // Check if all trackedEntityInstances are empty
+                    val noPatientRecords = bodies.all { it.trackedEntityInstances.isEmpty() }
+
+                    if (noPatientRecords) {
+                        // Show "No Patient Record Found" message
+                        noPatientRecordFound(context, layoutInflater)
+                    } else {
+                        // Manipulate the results
+                        val mergedResults = mutableListOf<TrackedEntityInstances>()
+                        body1?.takeIf { it.trackedEntityInstances.isNotEmpty() }?.let {
+                            mergedResults.addAll(it.trackedEntityInstances)
+                        }
+                        body2?.takeIf { it.trackedEntityInstances.isNotEmpty() }?.let {
+                            mergedResults.addAll(it.trackedEntityInstances)
+                        }
+                        body3?.takeIf { it.trackedEntityInstances.isNotEmpty() }?.let {
+                            mergedResults.addAll(it.trackedEntityInstances)
+                        }
+                        val uniqueResults = mergedResults.distinctBy { it.trackedEntityInstance }
+
+                        formatter.saveSharedPref(
+                            "search_results",
+                            Gson().toJson(uniqueResults),
+                            context
+                        )
+                        context.startActivity(
+                            Intent(
+                                context,
+                                PatientSearchResultsActivity::class.java
+                            )
+                        )
+                        (context as PatientSearchActivity).finish()
+                    }
+                    // Manipulate the results as needed
+                } else {
+                    if (progressDialog.isShowing) {
+                        progressDialog.dismiss()
+                    }
+                }
+
             } catch (e: Exception) {
                 print(e)
 

@@ -42,4 +42,11 @@ object Constants {
     //    Facility Status
     const val FACILITY_STATUS = "w7pMmzmQji9"
 
+
+    // Search Paremeters
+
+    const val FIRST_NAME = "R1vaUuILrDy"
+    const val MIDDLE_NAME = "hn8hJsBAKrh"
+    const val LAST_NAME = "hzVijy6tEUF"
+
 }

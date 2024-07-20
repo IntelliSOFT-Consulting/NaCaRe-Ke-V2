@@ -5,6 +5,7 @@ import android.app.ProgressDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -17,6 +18,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.capture.app.R
+import com.capture.app.data.Constants.FIRST_NAME
+import com.capture.app.data.Constants.LAST_NAME
+import com.capture.app.data.Constants.MIDDLE_NAME
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientSearchBinding
 import com.capture.app.model.CodeValuePair
@@ -83,10 +87,34 @@ class PatientSearchActivity : AppCompatActivity() {
                 .show()
             return
         }
+        val middleSearchParameters = searchParameters.map {
+            if (it.code == FIRST_NAME)
+                it.copy(code = MIDDLE_NAME)
+            else
+                it
+        }.toMutableList()
+        val lastSearchParameters = searchParameters.map {
+            if (it.code == FIRST_NAME)
+                it.copy(code = LAST_NAME)
+            else
+                it
+        }.toMutableList()
+
+
         val searchParametersString =
             searchParameters.joinToString(separator = ",") { filterItem ->
                 "${filterItem.code}:ilike:${filterItem.value}"
             }
+        val searchParametersStringMiddle =
+            middleSearchParameters.joinToString(separator = ",") { filterItem ->
+                "${filterItem.code}:ilike:${filterItem.value}"
+            }
+        val searchParametersStringLast =
+            lastSearchParameters.joinToString(separator = ",") { filterItem ->
+                "${filterItem.code}:ilike:${filterItem.value}"
+            }
+
+
         val programUid = formatter.getSharedPref("programUid", this)
         val trackedEntity = formatter.getSharedPref("trackedEntity", this)
 
@@ -109,6 +137,8 @@ class PatientSearchActivity : AppCompatActivity() {
             programUid,
             trackedEntity,
             searchParametersString,
+            searchParametersStringMiddle,
+            searchParametersStringLast,
             inflater, progressDialog
         )
     }

@@ -1832,6 +1832,35 @@ class PatientResponderActivity : AppCompatActivity() {
                                     // Reset Wards
                                     liveData.populateRelevantSubCountyData(value)
                                 }
+
+
+                                /**
+                                 * Check for HIV Status
+                                 */
+
+                                if (item.id == "hiv status") {
+
+                                    val currentPatient = formatter.getSharedPref(
+                                        "current_patient_id",
+                                        this@PatientResponderActivity
+                                    )
+                                    if (currentPatient != null) {
+                                        val eventUid = formatter.getSharedPref(
+                                            "eventUid",
+                                            this@PatientResponderActivity
+                                        )
+                                        if (eventUid != null) {
+                                            createOrUpdateOrDelete(
+                                                item.id,
+                                                value,
+                                                currentPatient,
+                                                eventUid
+                                            )
+                                        }
+                                    }
+
+                                }
+
                                 val dataValue = getCodeFromText(value, item.optionSet.options)
 
                                 if (item.id == SCREEN_FOR_CANCER) {
@@ -2445,6 +2474,15 @@ class PatientResponderActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun createOrUpdateOrDelete(
+        dataElement: String,
+        value: String,
+        trackedEntity: String,
+        enrollmentId: String
+    ) {
+
     }
 
     private fun pullSubCountiesUnderTheCountyResidence(countName: String): List<String> {

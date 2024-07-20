@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -24,9 +25,12 @@ import com.capture.app.model.Attributes
 import com.capture.app.model.SearchResult
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceAttributes
+import com.capture.app.model.TrackedEntityInstances
 import com.capture.app.room.Converters
 import com.capture.app.room.EnrollmentEventData
 import com.capture.app.room.MainViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.runBlocking
 import java.util.Date
 
@@ -69,6 +73,64 @@ class PatientSearchResultsActivity : AppCompatActivity() {
     }
 
     private fun displayResults() {
+        val results = formatter.getSharedPref("search_results", this)
+        if (results != null) {
+            try {
+                val type = object : TypeToken<List<TrackedEntityInstances>>() {}.type
+                val trackedList: List<TrackedEntityInstances> = Gson().fromJson(results, type)
+                val entities = ArrayList<TrackedEntityInstances>()
+                entities.clear()
+                entities.addAll(trackedList)
+                Log.e("TAG", "searchParameters **** $entities")
+                searchResult.clear()
+
+                entities.forEach {
+                    attributesList.clear()
+
+                    it.attributes.forEach {
+                        attributesList.add(TrackedEntityInstanceAttributes(it.attribute, it.value))
+                    }
+                    it.attributes
+                    val diagnosis = extractValue("BzhDnF5fG4x", it.attributes, false)
+                    val data = SearchResult(
+                        trackedEntityInstance = it.trackedEntityInstance,
+                        orgUnit = it.enrollments.getOrNull(0)?.orgUnit.orEmpty(),
+                        enrollmentUid = it.enrollments.getOrNull(0)?.enrollment.orEmpty(),
+                        eventUid = it.enrollments.getOrNull(0)?.events?.getOrNull(0)?.event.orEmpty(),
+                        uniqueId = extractValue("AP13g7NcBOf", it.attributes, false),
+                        hospitalNo = extractValue("MiXrdHDZ6Hw", it.attributes, false),
+                        patientName = extractValue("R1vaUuILrDy", it.attributes, true),
+                        identification = extractValue("eFbT7iTnljR", it.attributes, false),
+                        diagnosis = extractDiagnosisNameFromCode(Constants.DIAGNOSIS, diagnosis),
+                        attributeValues = attributesList,
+                        enrollmentEvents = it.enrollments,
+                        patientIdentification = extractPatientId(it.attributes, PATIENT_UNIQUE)
+                    )
+                    searchResult.add(data)
+                }
+                val adapterProgram =
+                    SearchResultsAdapter(searchResult, this, this::handleClick)
+                binding.apply {
+                    val manager = LinearLayoutManager(this@PatientSearchResultsActivity)
+                    trackedEntityInstanceRecyclerView.apply {
+                        adapter = adapterProgram
+                        layoutManager = manager
+                    }
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this,
+                    "Experienced problems, please try again later",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+
+    }
+
+    private fun displayResultsOld() {
         val results = formatter.getSharedPref("search_results", this)
 
         if (results != null) {
@@ -145,7 +207,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
         val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
         val cancelButton = customView.findViewById<ImageButton>(R.id.cancel_button)
         cancelButton.apply {
-            setOnClickListener{
+            setOnClickListener {
                 alertDialog.dismiss()
             }
         }
@@ -180,7 +242,7 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                 viewModel.saveTrackedEntity(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    data.orgUnit, data.patientIdentification,""
+                    data.orgUnit, data.patientIdentification, ""
                 )
                 startActivity(
                     Intent(
