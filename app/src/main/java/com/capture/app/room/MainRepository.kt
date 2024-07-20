@@ -597,16 +597,15 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "smoking"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "smoking"
 
                         )
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
+                    }else{
+                        roomDao.removeExtraCategory("smoking", enrollmentId.toString())
                     }
                 }
 
@@ -629,16 +628,15 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "drinking"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "drinking"
 
                         )
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
+                    }else{
+                        roomDao.removeExtraCategory("drinking", enrollmentId.toString())
                     }
                 }
 
@@ -661,16 +659,15 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "hiv-status"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "hiv-status"
 
                         )
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
+                    }else{
+                        roomDao.removeExtraCategory("hiv-status", enrollmentId.toString())
                     }
                 }
 
@@ -695,16 +692,15 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "family-history"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "family-history"
 
                         )
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
+                    }else{
+                        roomDao.removeExtraCategory("family-history", enrollmentId.toString())
                     }
                 }
 
@@ -729,10 +725,7 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "Hepatitis-B"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "Hepatitis-B"
 
                         )
@@ -761,10 +754,7 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "Hepatitis-C"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "Hepatitis-C"
 
                         )
@@ -793,10 +783,7 @@ class MainRepository(private val roomDao: RoomDao) {
                             category = "HPV"
                         )
                         val exists = roomDao.checkReportEventStageEnrollment(
-                            payload.eventUid,
-                            payload.program,
-                            payload.programStage,
-                            payload.orgUnit,
+                            enrollmentId.toString(),
                             "HPV"
 
                         )

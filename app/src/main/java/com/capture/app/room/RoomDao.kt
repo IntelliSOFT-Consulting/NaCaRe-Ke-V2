@@ -119,12 +119,9 @@ interface RoomDao {
     @Query("SELECT * FROM dataStore WHERE uid =:uid ORDER BY id DESC")
     fun loadDataStore(uid: String): DataStoreData?
 
-    @Query("SELECT EXISTS (SELECT 1 FROM reportEvent WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit AND category =:category)")
+    @Query("SELECT EXISTS (SELECT 1 FROM reportEvent WHERE enrollmentId =:eventUid   AND category =:category)")
     fun checkReportEventStageEnrollment(
         eventUid: String,
-        program: String,
-        programStage: String,
-        orgUnit: String,
         category: String
     ): Boolean
 
