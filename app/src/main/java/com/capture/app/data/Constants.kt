@@ -30,9 +30,17 @@ object Constants {
     const val IDENTIFICATION_DOCUMENT = "oob3a4JM7H6"
     const val IDENTIFICATION_NUMBER = "eFbT7iTnljR"
 
+
+    //Registration Reporting Details
+    const val INSURANCE_COVER="yIp9UZ1Bex6"
+    const val INSURANCE_COVER_OTHER="RhplKXZoKsC"
+
     // REPORTING HIDDEN DATA
     const val DIAGNOSIS_TURNAROUND = "SrmsM3GzSEl"
     const val DURATION_OF_DIAGNOSIS = "CCDACaaGscC"
+    const val INSURANCE_COVER_REPORT = "UUv9zSzUlKo"
+    const val RISK_FACTORS_REPORT = "ycGAtZJpZkm"
+    const val REPORT_STAGE_SECTION = "OkZxndpR3Km"
 
     // Residential Data Elements
     const val COUNTY_RESIDENCE = "uR2Mnlh7sqn"
@@ -43,7 +51,7 @@ object Constants {
     const val FACILITY_STATUS = "w7pMmzmQji9"
 
 
-    // Search Paremeters
+    // Search Parameters
 
     const val FIRST_NAME = "R1vaUuILrDy"
     const val MIDDLE_NAME = "hn8hJsBAKrh"

@@ -175,7 +175,7 @@ interface RoomDao {
     fun loadTrackedEntity(id: String): TrackedEntityInstanceData?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveEnrollment(enrollment: EnrollmentEventData)
+    fun saveEnrollment(enrollment: EnrollmentEventData): Long
 
     @Query("SELECT * FROM enrollmentevent WHERE eventUid=:eventUid  ORDER BY id DESC LIMIT 1")
     fun loadEnrollment(eventUid: String): EnrollmentEventData?
@@ -254,7 +254,12 @@ interface RoomDao {
 
     @Query("DELETE FROM trackedEntity WHERE id=:id")
     fun deleteTrackedEntity(id: String)
+
     @Query("DELETE FROM enrollmentevent WHERE trackedEntity=:id")
     fun deleteTrackedEntityEnrollment(id: String)
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveReportingEvent(repo: EnrollmentEventSpecific): Long
 
 }

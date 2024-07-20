@@ -9,7 +9,6 @@ import android.text.Editable
 import android.text.Html
 import android.text.InputType
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +42,8 @@ import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
 import com.capture.app.data.Constants.IDENTIFICATION_DOCUMENT
 import com.capture.app.data.Constants.IDENTIFICATION_NUMBER
+import com.capture.app.data.Constants.INSURANCE_COVER
+import com.capture.app.data.Constants.INSURANCE_COVER_OTHER
 import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.OTHER_FACILITY
@@ -58,6 +59,7 @@ import com.capture.app.data.Mappings
 import com.capture.app.databinding.ActivityPatientRegistrationBinding
 import com.capture.app.model.Attribute
 import com.capture.app.model.AttributeValues
+import com.capture.app.model.CodeValueEventPair
 import com.capture.app.model.CodeValuePair
 import com.capture.app.model.DataElements
 import com.capture.app.model.DataValue
@@ -95,6 +97,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
     private val allTrackedElements = ArrayList<DataElements>()
     private val attributeValueList = ArrayList<TrackedEntityInstanceAttributes>()
     private var searchParameters = ArrayList<CodeValuePair>()
+    private var reportingParameters = ArrayList<CodeValueEventPair>()
     private val retrofitCalls = RetrofitCalls()
     private val formatter = FormatterClass()
     private var attributeList = ArrayList<ParentAttributeValues>()
@@ -758,6 +761,9 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
+                                if (item.id == INSURANCE_COVER_OTHER) {
+                                    createUpdateDelete(item.id, value, "insurance-cover-other")
+                                }
                                 saveValued(index, item.id, editText.text.toString())
                             }
                         }
@@ -856,7 +862,15 @@ class PatientRegistrationActivity : AppCompatActivity() {
                         override fun afterTextChanged(s: Editable?) {
                             val value = s.toString()
                             if (value.isNotEmpty()) {
-                                val dataValue = getCodeFromText(value, item.optionSet.options)
+                                val dataValue = getCodeFromText(
+                                    value,
+                                    item.optionSet.options
+                                )
+                                if (item.id == INSURANCE_COVER) {
+                                    if (value.lowercase() != "none") {
+                                        createUpdateDelete(item.id, value, "insurance-cover")
+                                    }
+                                }
                                 if (item.id == DIAGNOSIS) {
                                     var gender = ""
                                     val genders = searchParameters.find { it.code == SEX }
@@ -1573,6 +1587,18 @@ class PatientRegistrationActivity : AppCompatActivity() {
 
     }
 
+    private fun createUpdateDelete(id: String, value: String, category: String) {
+        val existingIndex = reportingParameters.indexOfFirst { it.dataElement == id }
+        if (existingIndex != -1) {
+            // Update the existing entry if the code is found
+            reportingParameters[existingIndex] =
+                CodeValueEventPair(dataElement = id, value = value, category = category)
+        } else {
+            // Add a new entry if the code is not found
+            val data = CodeValueEventPair(dataElement = id, value = value, category = category)
+            reportingParameters.add(data)
+        }
+    }
 
     private fun extractDesiredValue(dateString: String, format: String): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -1650,7 +1676,7 @@ class PatientRegistrationActivity : AppCompatActivity() {
                             data,
                             data.orgUnit,
                             patientIdentification,
-                            dataValues
+                            dataValues, reportingParameters
                         )
                         formatter.deleteSharedPref("index", this@PatientRegistrationActivity)
                         formatter.saveSharedPref(

@@ -12,7 +12,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.capture.app.R
@@ -22,6 +21,7 @@ import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.ActivityPatientSearchResultsBinding
 import com.capture.app.model.Attributes
+import com.capture.app.model.CodeValueEventPair
 import com.capture.app.model.SearchResult
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceAttributes
@@ -239,10 +239,11 @@ class PatientSearchResultsActivity : AppCompatActivity() {
                         .toString(),
                     attributes = refinedAttributes
                 )
+                val list = ArrayList<CodeValueEventPair>()
                 viewModel.saveTrackedEntity(
                     this@PatientSearchResultsActivity,
                     entityData,
-                    data.orgUnit, data.patientIdentification, ""
+                    data.orgUnit, data.patientIdentification, "", list
                 )
                 startActivity(
                     Intent(

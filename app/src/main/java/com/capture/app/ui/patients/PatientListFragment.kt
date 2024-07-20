@@ -5,7 +5,6 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +24,7 @@ import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.PATIENT_UNIQUE
 import com.capture.app.data.FormatterClass
 import com.capture.app.databinding.FragmentPatientListBinding
+import com.capture.app.model.CodeValueEventPair
 import com.capture.app.model.EntityData
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.room.Converters
@@ -205,7 +204,7 @@ class PatientListFragment : Fragment() {
         val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
         val cancelButton = customView.findViewById<ImageButton>(R.id.cancel_button)
         cancelButton.apply {
-            setOnClickListener{
+            setOnClickListener {
                 alertDialog.dismiss()
             }
         }
@@ -226,7 +225,7 @@ class PatientListFragment : Fragment() {
         noButton.apply {
             setOnClickListener {
                 alertDialog.dismiss()
-                formatter.saveSharedPref("is_first_time", "true",requireContext())
+                formatter.saveSharedPref("is_first_time", "true", requireContext())
                 if (data.isDead) {
                     Toast.makeText(
                         requireContext(),
@@ -248,10 +247,11 @@ class PatientListFragment : Fragment() {
                         orgUnit = orgCode,
                         attributes = refinedAttributes
                     )
+                    val list = ArrayList<CodeValueEventPair>()
                     viewModel.saveTrackedEntity(
                         context,
                         entityData,
-                        orgCode, data.patientIdentification,""
+                        orgCode, data.patientIdentification, "", list
                     )
 
                     startActivity(

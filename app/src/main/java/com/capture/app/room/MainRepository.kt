@@ -1,15 +1,16 @@
 package com.capture.app.room
 
 import android.content.Context
-import android.util.Log
 import com.capture.app.data.Constants.DATE_OF_REPORTING
+import com.capture.app.data.Constants.SYSTEMIC_THERAPY
 import com.capture.app.data.FormatterClass
+import com.capture.app.model.CodeValueEventPair
+import com.capture.app.model.DataValue
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceServer
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
@@ -65,7 +66,8 @@ class MainRepository(private val roomDao: RoomDao) {
         data: TrackedEntityInstance,
         parentOrg: String,
         patientIdentification: String,
-        dataValues: String
+        dataValues: String,
+        reportingParameters: ArrayList<CodeValueEventPair>
     ) {
         val formatter = FormatterClass()
         val exists = false// roomDao.checkTrackedEntity(data.orgUnit, data.trackedEntity)
@@ -105,7 +107,26 @@ class MainRepository(private val roomDao: RoomDao) {
             formatter.saveSharedPref("current_patient_id", "$savedItemId", context)
             formatter.saveSharedPref("eventUid", eventUid, context)
             formatter.saveSharedPref("enrollmentUid", data.enrollment, context)
-            roomDao.saveEnrollment(enrollment)
+            val savedEnrollmentId = roomDao.saveEnrollment(enrollment)
+            if (reportingParameters.isNotEmpty()) {
+                reportingParameters.forEach {
+
+                    val parent = DataValue(dataElement = it.dataElement, value = it.value)
+                    val reportDataValues = Gson().toJson(parent)
+                    val repo = EnrollmentEventSpecific(
+                        dataValues = reportDataValues,
+                        uid = eventUid,
+                        eventUid = eventUid,
+                        enrollmentId = savedEnrollmentId.toString(),
+                        program = formatter.getSharedPref("programUid", context).toString(),
+                        programStage = formatter.getSharedPref("programStage", context).toString(),
+                        orgUnit = formatter.getSharedPref("orgCode", context).toString(),
+                        eventDate = formatter.formatCurrentDate(Date()),
+                        status = "ACTIVE",
+                    )
+                    roomDao.saveReportingEvent(repo)
+                }
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package com.capture.app.room
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import com.capture.app.model.CodeValueEventPair
 import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceServer
 import kotlinx.coroutines.runBlocking
@@ -51,10 +52,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         data: TrackedEntityInstance,
         parentOrg: String,
         patientIdentification: String,
-        dataValues: String
+        dataValues: String,
+        reportingParameters: ArrayList<CodeValueEventPair>
     ) = runBlocking {
 
-        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification, dataValues)
+        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification, dataValues,reportingParameters)
     }
 
     fun saveTrackedEntityServer(
