@@ -1,7 +1,13 @@
 package com.capture.app.room
 
 import android.content.Context
+import android.util.Log
 import com.capture.app.data.Constants.DATE_OF_REPORTING
+import com.capture.app.data.Constants.DRINKING_CODE
+import com.capture.app.data.Constants.FAMILY_CANCER_CODE
+import com.capture.app.data.Constants.HIV_STATUS_CODE
+import com.capture.app.data.Constants.INFECTIONS_CODE
+import com.capture.app.data.Constants.SMOKING_CODE
 import com.capture.app.data.Constants.SYSTEMIC_THERAPY
 import com.capture.app.data.FormatterClass
 import com.capture.app.model.CodeValueEventPair
@@ -123,6 +129,7 @@ class MainRepository(private val roomDao: RoomDao) {
                         orgUnit = formatter.getSharedPref("orgCode", context).toString(),
                         eventDate = formatter.formatCurrentDate(Date()),
                         status = "ACTIVE",
+                        category = it.category
                     )
                     roomDao.saveReportingEvent(repo)
                 }
@@ -528,7 +535,11 @@ class MainRepository(private val roomDao: RoomDao) {
         return roomDao.loadDataStore(uid)
     }
 
-    fun addProgramStage(payload: EnrollmentEventData) {
+    fun addProgramStage(payload: EnrollmentEventData, context: Context) {
+
+
+        val enrollmentId: Long
+
         val exists = roomDao.checkProgramStageEnrollment(
             payload.eventUid,
             payload.program,
@@ -536,6 +547,13 @@ class MainRepository(private val roomDao: RoomDao) {
             payload.orgUnit
         )
         if (exists) {
+            val data = roomDao.getProgramStageEnrollment(
+                payload.eventUid,
+                payload.program,
+                payload.programStage,
+                payload.orgUnit
+            )
+            enrollmentId = data.id?.toLong() ?: 0
             roomDao.updateProgramStageEnrollment(
                 payload.dataValues,
                 payload.eventUid,
@@ -544,8 +562,258 @@ class MainRepository(private val roomDao: RoomDao) {
                 payload.orgUnit
             )
         } else {
-            roomDao.addProgramStageEnrollment(payload)
+            enrollmentId = roomDao.addProgramStageEnrollment(payload)
         }
+
+        // Let's search for risk factors
+        manipulateReportingFields(enrollmentId, payload, context)
+    }
+
+    private fun manipulateReportingFields(
+        enrollmentId: Long,
+        payload: EnrollmentEventData,
+        context: Context
+    ) {
+        val dataAllValues = Converters().fromJsonDataAttribute(payload.dataValues)
+
+        val formatter = FormatterClass()
+        dataAllValues.forEach {
+            when (it.dataElement) {
+                SMOKING_CODE -> {
+                    // Handle smoking case
+                    if (it.value == "true") {
+                        val parent = DataValue(dataElement = it.dataElement, value = "Smoking")
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "smoking"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "smoking"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    }
+                }
+
+                DRINKING_CODE -> {
+                    // Handle drinking case
+                    if (it.value == "true") {
+                        val parent =
+                            DataValue(dataElement = it.dataElement, value = "Drinking alcohol")
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "drinking"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "drinking"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    }
+                }
+
+                HIV_STATUS_CODE -> {
+                    // Handle HIV status case
+                    if (it.value == "0") {
+                        val parent =
+                            DataValue(dataElement = it.dataElement, value = "HIV Positive")
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "hiv-status"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "hiv-status"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    }
+                }
+
+                FAMILY_CANCER_CODE -> {
+                    // Handle family history of cancer case
+                    if (it.value == "true") {
+                        val parent = DataValue(
+                            dataElement = it.dataElement,
+                            value = "Family history of cancer"
+                        )
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "family-history"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "family-history"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    }
+                }
+
+                INFECTIONS_CODE -> {
+                    // Handle infections case
+                    if (it.value == "Hepatitis B") {
+                        val parent = DataValue(
+                            dataElement = it.dataElement,
+                            value = it.value
+                        )
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "Hepatitis-B"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "Hepatitis-B"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    } else {
+                        roomDao.removeExtraCategory("Hepatitis-B", enrollmentId.toString())
+                    }
+                    if (it.value == "Hepatitis C") {
+                        val parent = DataValue(
+                            dataElement = it.dataElement,
+                            value = it.value
+                        )
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "Hepatitis-C"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "Hepatitis-C"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    } else {
+                        roomDao.removeExtraCategory("Hepatitis-C", enrollmentId.toString())
+                    }
+                    if (it.value == "HPV") {
+                        val parent = DataValue(
+                            dataElement = it.dataElement,
+                            value = it.value
+                        )
+                        val reportDataValues = Gson().toJson(parent)
+                        val repo = EnrollmentEventSpecific(
+                            dataValues = reportDataValues,
+                            uid = formatter.generateUUID(11),
+                            eventUid = formatter.generateUUID(11),
+                            enrollmentId = enrollmentId.toString(),
+                            program = payload.program,
+                            programStage = payload.programStage,
+                            orgUnit = payload.orgUnit,
+                            eventDate = formatter.formatCurrentDate(Date()),
+                            status = "ACTIVE",
+                            category = "HPV"
+                        )
+                        val exists = roomDao.checkReportEventStageEnrollment(
+                            payload.eventUid,
+                            payload.program,
+                            payload.programStage,
+                            payload.orgUnit,
+                            "HPV"
+
+                        )
+                        if (!exists) {
+                            roomDao.saveReportingEvent(repo)
+                        }
+                    } else {
+                        roomDao.removeExtraCategory("HPV", enrollmentId.toString())
+                    }
+                }
+
+                else -> {
+                    // Handle any other cases, if needed
+                }
+            }
+        }
+
     }
 
     fun updateEntity(trackedEntity: String, reference: String) {

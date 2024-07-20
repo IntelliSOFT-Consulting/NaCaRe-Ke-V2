@@ -119,6 +119,15 @@ interface RoomDao {
     @Query("SELECT * FROM dataStore WHERE uid =:uid ORDER BY id DESC")
     fun loadDataStore(uid: String): DataStoreData?
 
+    @Query("SELECT EXISTS (SELECT 1 FROM reportEvent WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit AND category =:category)")
+    fun checkReportEventStageEnrollment(
+        eventUid: String,
+        program: String,
+        programStage: String,
+        orgUnit: String,
+        category: String
+    ): Boolean
+
     @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit)")
     fun checkProgramStageEnrollment(
         eventUid: String,
@@ -127,8 +136,16 @@ interface RoomDao {
         orgUnit: String
     ): Boolean
 
+    @Query("SELECT * FROM enrollmentevent WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit")
+    fun getProgramStageEnrollment(
+        eventUid: String,
+        program: String,
+        programStage: String,
+        orgUnit: String
+    ): EnrollmentEventData
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addProgramStageEnrollment(payload: EnrollmentEventData)
+    fun addProgramStageEnrollment(payload: EnrollmentEventData): Long
 
     @Query(" UPDATE enrollmentevent SET dataValues =:dataValues WHERE eventUid =:eventUid AND program =:program AND programStage =:programStage AND orgUnit =:orgUnit")
     fun updateProgramStageEnrollment(
@@ -261,5 +278,7 @@ interface RoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveReportingEvent(repo: EnrollmentEventSpecific): Long
+    @Query("DELETE FROM reportEvent WHERE category =:category AND enrollmentId =:enrollment")
+    fun removeExtraCategory(category: String, enrollment: String)
 
 }

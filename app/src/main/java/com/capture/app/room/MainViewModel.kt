@@ -151,7 +151,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addProgramStage(context: Context, payload: EnrollmentEventData) = runBlocking {
-        repository.addProgramStage(payload)
+        repository.addProgramStage(payload,context)
     }
 
     fun updateEntity(trackedEntity: String, reference: String) = runBlocking {

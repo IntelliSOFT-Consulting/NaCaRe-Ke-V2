@@ -105,6 +105,7 @@ data class EnrollmentEventSpecific(
     var orgUnit: String,
     var eventDate: String,
     var status: String,
+    var category: String,
     var initialUpload: Boolean = false,
     val isSynced: Boolean = false,
 ) {

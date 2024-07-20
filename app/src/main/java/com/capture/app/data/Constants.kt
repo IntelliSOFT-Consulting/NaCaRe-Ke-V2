@@ -35,6 +35,14 @@ object Constants {
     const val INSURANCE_COVER="yIp9UZ1Bex6"
     const val INSURANCE_COVER_OTHER="RhplKXZoKsC"
 
+    // Risk Factors Reporting Details
+
+    const val SMOKING_CODE="qTA8KZ1ZBHG"
+    const val DRINKING_CODE="XGvVjwdVuhF"
+    const val HIV_STATUS_CODE="EgYxoi5tTWB"
+    const val FAMILY_CANCER_CODE="vTZWDY1Sei0"
+    const val INFECTIONS_CODE="U357CYMYOQ0"
+
     // REPORTING HIDDEN DATA
     const val DIAGNOSIS_TURNAROUND = "SrmsM3GzSEl"
     const val DURATION_OF_DIAGNOSIS = "CCDACaaGscC"

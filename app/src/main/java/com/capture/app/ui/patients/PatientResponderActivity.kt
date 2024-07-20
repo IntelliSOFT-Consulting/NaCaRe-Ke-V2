@@ -41,6 +41,7 @@ import com.capture.app.data.Constants.DATE_OF_BIRTH
 import com.capture.app.data.Constants.DIAGNOSIS
 import com.capture.app.data.Constants.DIAGNOSIS_CATEGORY
 import com.capture.app.data.Constants.DIAGNOSIS_SITE
+import com.capture.app.data.Constants.DRINKING_CODE
 import com.capture.app.data.Constants.FIVE_YEARS
 import com.capture.app.data.Constants.HISTOLOGY
 import com.capture.app.data.Constants.ICD_CODE
@@ -48,6 +49,7 @@ import com.capture.app.data.Constants.MORPHOLOGY_CODE
 import com.capture.app.data.Constants.OPEN_FOR_EDITING
 import com.capture.app.data.Constants.SCREEN_FOR_CANCER
 import com.capture.app.data.Constants.SEX
+import com.capture.app.data.Constants.SMOKING_CODE
 import com.capture.app.data.Constants.STATUS
 import com.capture.app.data.Constants.SUB_COUNTY_RESIDENCE
 import com.capture.app.data.Constants.TREATMENT_DATE
@@ -2365,6 +2367,16 @@ class PatientResponderActivity : AppCompatActivity() {
                         if (dataValue != null) {
                             isProgrammaticChange = true
                             saveValued(index, item.id, dataValue, isProgram)
+                            if (dataValue == "true") {
+//                                if (item.id == SMOKING_CODE) {
+//                                    createUpdateDelete(item.id, "Smoking", "smoking")
+//
+//                                }
+//                                if (item.id == DRINKING_CODE) {
+//                                    createUpdateDelete(item.id, "Drinking alcohol", "drinking")
+//
+//                                }
+                            }
                             val list = checkIfParentHasChildren(item.id)
                             for (i in 0 until lnParent.childCount) {
                                 val child: View = lnParent.getChildAt(i)
