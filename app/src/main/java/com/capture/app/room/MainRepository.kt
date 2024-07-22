@@ -604,7 +604,7 @@ class MainRepository(private val roomDao: RoomDao) {
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
-                    }else{
+                    } else {
                         roomDao.removeExtraCategory("smoking", enrollmentId.toString())
                     }
                 }
@@ -635,7 +635,7 @@ class MainRepository(private val roomDao: RoomDao) {
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
-                    }else{
+                    } else {
                         roomDao.removeExtraCategory("drinking", enrollmentId.toString())
                     }
                 }
@@ -666,7 +666,7 @@ class MainRepository(private val roomDao: RoomDao) {
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
-                    }else{
+                    } else {
                         roomDao.removeExtraCategory("hiv-status", enrollmentId.toString())
                     }
                 }
@@ -699,7 +699,7 @@ class MainRepository(private val roomDao: RoomDao) {
                         if (!exists) {
                             roomDao.saveReportingEvent(repo)
                         }
-                    }else{
+                    } else {
                         roomDao.removeExtraCategory("family-history", enrollmentId.toString())
                     }
                 }
@@ -876,6 +876,10 @@ class MainRepository(private val roomDao: RoomDao) {
         roomDao.updateNotificationEvent(reference, uid, true, initialUpload)
     }
 
+    fun updateNotificationReportEvent(uid: String, reference: String, initialUpload: Boolean) {
+        roomDao.updateNotificationReportEvent(uid, reference, true, initialUpload)
+    }
+
     fun updateTrackedAttributes(attributes: String, patientUid: String) {
         roomDao.updateTrackedAttributes(attributes, patientUid, true)
 
@@ -964,6 +968,10 @@ class MainRepository(private val roomDao: RoomDao) {
         roomDao.deleteTrackedEntity(id)
         roomDao.deleteTrackedEntityEnrollment(id)
 
+    }
+
+    fun loadReportEvent(uid: String): List<EnrollmentEventSpecific> {
+        return roomDao.loadReportEvent(uid)
     }
 
 }

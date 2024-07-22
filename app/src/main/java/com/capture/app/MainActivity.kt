@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.widget.TextView
 import com.google.android.material.navigation.NavigationView
@@ -203,7 +202,7 @@ class MainActivity : AppCompatActivity() {
 
                                         retrofitCalls.uploadEnrollmentData(
                                             this@MainActivity,
-                                            payload, "${it.id}", it.initialUpload, it.eventUid
+                                            payload, "${it.id}", it.initialUpload, it.eventUid,trackedEntity
                                         )
 
 

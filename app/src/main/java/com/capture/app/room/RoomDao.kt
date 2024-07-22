@@ -207,6 +207,13 @@ interface RoomDao {
         isSynced: Boolean,
         initialUpload: Boolean
     )
+    @Query("UPDATE reportEvent SET eventUid =:reference, isSynced =:isSynced, initialUpload =:initialUpload WHERE id =:uid")
+    fun updateNotificationReportEvent(
+        uid: String,
+        reference: String,
+        isSynced: Boolean,
+        initialUpload: Boolean
+    )
 
     @Query("SELECT EXISTS (SELECT 1 FROM enrollmentevent WHERE eventUid =:eventUid)")
     fun checkEnrollmentEvent(eventUid: String): Boolean
@@ -277,5 +284,7 @@ interface RoomDao {
     fun saveReportingEvent(repo: EnrollmentEventSpecific): Long
     @Query("DELETE FROM reportEvent WHERE category =:category AND enrollmentId =:enrollment")
     fun removeExtraCategory(category: String, enrollment: String)
+    @Query("SELECT * FROM reportEvent WHERE enrollmentId =:uid ORDER BY id DESC")
+    fun loadReportEvent(uid: String): List<EnrollmentEventSpecific>
 
 }

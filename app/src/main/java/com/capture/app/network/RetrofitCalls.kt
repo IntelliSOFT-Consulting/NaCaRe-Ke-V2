@@ -25,8 +25,6 @@ import com.capture.app.model.DataValue
 import com.capture.app.model.EnrollmentEventUploadData
 import com.capture.app.model.Enrollments
 import com.capture.app.model.EventUploadData
-import com.capture.app.model.OrgUnit
-import com.capture.app.model.TrackedEntityInstance
 import com.capture.app.model.TrackedEntityInstanceAttributes
 import com.capture.app.model.TrackedEntityInstancePostData
 import com.capture.app.model.TrackedEntityInstanceServer
@@ -37,6 +35,7 @@ import com.capture.app.room.DataStoreData
 import com.capture.app.room.EventData
 import com.capture.app.room.MainViewModel
 import com.capture.app.room.ProgramData
+import com.capture.app.room.TrackedEntityInstanceData
 import com.capture.app.room.orgUnit
 import com.capture.app.ui.patients.PatientRegistrationActivity
 import com.capture.app.ui.patients.PatientSearchActivity
@@ -1124,7 +1123,8 @@ class RetrofitCalls {
         payload: EnrollmentEventUploadData,
         uid: String,
         initialUpload: Boolean,
-        eventUid: String
+        eventUid: String,
+        trackedEntity: TrackedEntityInstanceData
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val formatter = FormatterClass()
@@ -1153,6 +1153,12 @@ class RetrofitCalls {
                                         )
                                     }
                                 }
+
+                                /**
+                                 * Check for reporting events
+                                 */
+
+                                checkAndUploadReportsEvents(context, uid, trackedEntity)
                             }
                         }
                     }
@@ -1171,6 +1177,82 @@ class RetrofitCalls {
 
             }
         }
+    }
+
+    private fun checkAndUploadReportsEvents(
+        context: Context,
+        uid: String,
+        trackedEntity: TrackedEntityInstanceData
+    ) {
+
+        val viewModel = MainViewModel(context.applicationContext as Application)
+
+        val reportsData = viewModel.loadReportEvent(uid)
+        if (reportsData.isNotEmpty()) {
+
+            reportsData.forEach {
+
+                val attributes =
+                    Converters().fromJsonDataAttribute(it.dataValues)
+                val payload = EnrollmentEventUploadData(
+                    eventDate = it.eventDate,
+                    orgUnit = it.orgUnit,
+                    program = it.program,
+                    programStage = "HfVOnjywr82",
+                    enrollment = trackedEntity.enrollment,
+                    trackedEntityInstance = trackedEntity.trackedEntity,
+                    status = it.status,
+                    dataValues = attributes
+                )
+                CoroutineScope(Dispatchers.IO).launch {
+                    val formatter = FormatterClass()
+                    val apiService =
+                        RetrofitBuilder.getRetrofit(context, Constants.BASE_URL)
+                            .create(Interface::class.java)
+                    try {
+                        val apiInterface =
+                            if (!it.initialUpload) apiService.uploadEnrollmentData(payload) else apiService.uploadEnrollmentDataUpdate(
+                                payload,
+                                it.eventUid
+                            )
+                        if (apiInterface.isSuccessful) {
+                            val statusCode = apiInterface.code()
+                            val body = apiInterface.body()
+                            when (statusCode) {
+                                200 -> {
+                                    if (body != null) {
+                                        if (!it.initialUpload) {
+                                            body.response.importSummaries.forEach {k->
+                                                viewModel.updateNotificationReportEvent(
+                                                    it.id.toString(),
+                                                    k.reference,
+                                                    true
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            val statusCode = apiInterface.code()
+                            val errorBody = apiInterface.errorBody()?.string()
+
+                            when (statusCode) {
+                                409 -> {}
+                                500 -> {}
+                            }
+                        }
+                    } catch (e: Exception) {
+                        print(e)
+
+
+                    }
+                }
+
+            }
+
+        }
+
     }
 
 

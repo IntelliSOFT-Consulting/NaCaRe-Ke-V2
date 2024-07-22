@@ -56,7 +56,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         reportingParameters: ArrayList<CodeValueEventPair>
     ) = runBlocking {
 
-        repository.saveTrackedEntity(context, data, parentOrg, patientIdentification, dataValues,reportingParameters)
+        repository.saveTrackedEntity(
+            context,
+            data,
+            parentOrg,
+            patientIdentification,
+            dataValues,
+            reportingParameters
+        )
     }
 
     fun saveTrackedEntityServer(
@@ -151,7 +158,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addProgramStage(context: Context, payload: EnrollmentEventData) = runBlocking {
-        repository.addProgramStage(payload,context)
+        repository.addProgramStage(payload, context)
     }
 
     fun updateEntity(trackedEntity: String, reference: String) = runBlocking {
@@ -253,6 +260,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         runBlocking {
             repository.updateNotificationEvent(reference, uid, initialUpload)
         }
+    fun updateNotificationReportEvent(uid: String, reference: String, initialUpload: Boolean) =
+        runBlocking {
+            repository.updateNotificationReportEvent(uid, reference, initialUpload)
+        }
 
     fun updateTrackedAttributes(attributes: String, patientUid: String) = runBlocking {
         repository.updateTrackedAttributes(attributes, patientUid)
@@ -296,7 +307,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.updateOrCreate(orgUnit)
     }
 
-    fun pullSubCountiesPerCounty(countName: String)= runBlocking {
+    fun pullSubCountiesPerCounty(countName: String) = runBlocking {
         repository.pullSubCountiesPerCounty(countName)
 
     }
@@ -305,9 +316,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.deleteOrgUnits()
     }
 
-    fun deleteTrackedEntity(currentPatient: String)= runBlocking {
+    fun deleteTrackedEntity(currentPatient: String) = runBlocking {
         repository.deleteTrackedEntity(currentPatient)
 
+    }
+
+    fun loadReportEvent(uid: String) = runBlocking {
+        repository.loadReportEvent(uid)
     }
 
 
