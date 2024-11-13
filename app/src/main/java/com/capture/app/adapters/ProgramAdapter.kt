@@ -62,7 +62,8 @@ class ProgramAdapter(
                 }else{
                     val builder = AlertDialog.Builder(context)
                     builder.setTitle("Notice")
-                    builder.setMessage("This facility is currently not functional")
+//                    builder.setMessage("This facility is currently not functional")
+                    builder.setMessage("This facility’s details are not registered. Please contact NCI-K for further assistance")
                     builder.setPositiveButton("OK") { dialog, _ ->
                         dialog.dismiss()
                     }
