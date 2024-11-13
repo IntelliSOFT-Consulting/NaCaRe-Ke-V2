@@ -169,4 +169,5 @@
     <string name="existing_case_description">This patient has previously been diagnosed with the documented cancer. Would you like to review the existing diagnosis details?</string>
     <string name="view_existing_case">View existing diagnosis details</string>
     <string name="change_diagnosis">Change Diagnosis</string>
+    <string name="patient_status">Status</string>
 </resources>

@@ -2,6 +2,7 @@ package com.capture.app.adapters
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,10 @@ class TrackedEntityAdapter(
         val name = "${data.fName} ${data.lName}"
 
         holder.tv_place_of_notification.text = org
-        holder.tv_patient_name.text = name
+        holder.tv_patient_status.text = extractValueFromDataValues(
+            data.id,
+            "BITcpbzhbNm",
+        )
         holder.tv_phone_no.text = extractValueFromDataValues(
             data.id,
             "fZB1WuCDlHt",
@@ -94,7 +98,21 @@ class TrackedEntityAdapter(
 
         holder.btnProceed.apply {
             setOnClickListener {
-                click(data)
+//                try {
+//                    val viewModel = MainViewModel(context.applicationContext as Application)
+//                    val single = viewModel.getLatestEnrollment(context, data.id)
+//                    if (single != null) {
+//                        if (single.dataValues.isNotEmpty()) {
+//                            val dtValues = Converters().fromJsonDataAttribute(single.dataValues)
+//                            dtValues.forEach {
+//                                Log.e("TAG", "Individual Elements ${it.dataElement}  ${it.value}")
+//                            }
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//                click(data)
             }
         }
 

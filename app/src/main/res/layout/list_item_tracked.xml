@@ -98,16 +98,14 @@
                         android:text="@string/place_of_notification" />
 
                     <TextView
-                        android:id="@+id/tv_patient_name"
                         style="@style/txtFeatureName"
-                        android:text="@string/place_of_notification"
-                        android:visibility="invisible" />
+                        android:text="@string/patient_status"
+                        android:visibility="visible" />
 
                     <TextView
-                        android:id="@+id/tv_patient_name_alt"
-                        style="@style/txtFeatureName"
-                        android:text="@string/place_of_notification"
-                        android:visibility="invisible" />
+                        android:id="@+id/tv_patient_status"
+                        style="@style/txtfeatureNameStyle"
+                        android:visibility="visible" />
 
                 </TableRow>
             </TableLayout>
