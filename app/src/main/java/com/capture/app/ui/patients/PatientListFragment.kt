@@ -2,9 +2,11 @@ package com.capture.app.ui.patients
 
 import android.app.Application
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -187,106 +189,126 @@ class PatientListFragment : Fragment() {
 
     }
 
-    private fun handleClick(data: EntityData) {
+    private fun handleClick(data: EntityData, status: String) {
+
+        Log.e("TAG", "Clicking patient here status $status")
+        Log.e("TAG", "Clicking patient here ${data.isDead}")
+
         formatter.deleteSharedPref("underTreatment", requireContext())
         formatter.deleteSharedPref("isRegistration", requireContext())
         formatter.deleteSharedPref("is_first_time", requireContext())
         formatter.saveSharedPref("gender", data.gender, requireContext())
         formatter.saveSharedPref("isDead", "${data.isDead}", requireContext())
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = LayoutInflater.from(requireContext())
-        val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
-        builder.setView(customView)
-        val alertDialog = builder.create()
-        val tvTitle = customView.findViewById<TextView>(R.id.tv_title)
-        val tvMessage = customView.findViewById<TextView>(R.id.tv_message)
-        val noButton = customView.findViewById<MaterialButton>(R.id.no_button)
-        val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
-        val cancelButton = customView.findViewById<ImageButton>(R.id.cancel_button)
-        cancelButton.apply {
-            setOnClickListener {
-                alertDialog.dismiss()
+        if (status != "Alive") {
+// here show the toast and open view form
+            Toast.makeText(requireContext(), " Patient Deceased", Toast.LENGTH_SHORT).show()
+
+            openExistingCase(requireContext(), data)
+        } else {
+            val builder = AlertDialog.Builder(requireContext())
+            val inflater = LayoutInflater.from(requireContext())
+            val customView: View = inflater.inflate(R.layout.custom_layout_cases, null)
+            builder.setView(customView)
+            val alertDialog = builder.create()
+            val tvTitle = customView.findViewById<TextView>(R.id.tv_title)
+            val tvMessage = customView.findViewById<TextView>(R.id.tv_message)
+            val noButton = customView.findViewById<MaterialButton>(R.id.no_button)
+            val yesButton = customView.findViewById<MaterialButton>(R.id.yes_button)
+            val cancelButton = customView.findViewById<ImageButton>(R.id.cancel_button)
+            cancelButton.apply {
+                setOnClickListener {
+                    alertDialog.dismiss()
+                }
             }
-        }
 
-        val htmlText = "Please select an action for the selected record:<br><br>1." +
-                "<b>Add new primary cancer information for an existing patient:</b> " +
-                "Choose this option if this is new primary cancer information for an existing patient.<br><br> " +
-                "2.<b>Update an Existing Cancer Case:</b> Choose this option if you want to update any other additional information " +
-                "relating to an existing cancer case."
+            val htmlText = "Please select an action for the selected record:<br><br>1." +
+                    "<b>Add new primary cancer information for an existing patient:</b> " +
+                    "Choose this option if this is new primary cancer information for an existing patient.<br><br> " +
+                    "2.<b>Update an Existing Cancer Case:</b> Choose this option if you want to update any other additional information " +
+                    "relating to an existing cancer case."
 
-        tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-        tvTitle.setText(R.string.alert)
-        tvMessage.text = Html.fromHtml(htmlText)
-        tvMessage.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-        noButton.setText(R.string.add_new_primary_cancer_info)
-        yesButton.setText(R.string.update_an_existing_cancer_case)
+            tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            tvTitle.setText(R.string.alert)
+            tvMessage.text = Html.fromHtml(htmlText)
+            tvMessage.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            noButton.setText(R.string.add_new_primary_cancer_info)
+            yesButton.setText(R.string.update_an_existing_cancer_case)
 
-        noButton.apply {
-            setOnClickListener {
-                alertDialog.dismiss()
-                formatter.saveSharedPref("is_first_time", "true", requireContext())
-                if (data.isDead) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Can't add a cancer case to dead patient",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    // add new event
-                    val attributes = Converters().fromJsonAttribute(data.attributes)
-                    val trackedEntityInstance = formatter.generateUUID(11)
-                    formatter.saveSharedPref("new_case", "true", context).toString()
-                    val orgCode = formatter.getSharedPref("orgCode", context).toString()
+            noButton.apply {
+                setOnClickListener {
+                    alertDialog.dismiss()
+                    formatter.saveSharedPref("is_first_time", "true", requireContext())
+                    if (data.isDead) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Can't add a cancer case to dead patient",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        // add new event
+                        val attributes = Converters().fromJsonAttribute(data.attributes)
+                        val trackedEntityInstance = formatter.generateUUID(11)
+                        formatter.saveSharedPref("new_case", "true", context).toString()
+                        val orgCode = formatter.getSharedPref("orgCode", context).toString()
 
-                    val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
-                    val entityData = TrackedEntityInstance(
-                        trackedEntity = trackedEntityInstance,
-                        enrollment = trackedEntityInstance,
-                        enrollDate = formatter.formatCurrentDate(Date()),
-                        orgUnit = orgCode,
-                        attributes = refinedAttributes
-                    )
-                    val list = ArrayList<CodeValueEventPair>()
-                    viewModel.saveTrackedEntity(
-                        context,
-                        entityData,
-                        orgCode, data.patientIdentification, "", list
-                    )
-
-                    startActivity(
-                        Intent(
-                            context, PatientNewCaseActivity::class.java
+                        val refinedAttributes = formatter.excludeBareMinimumInformation(attributes)
+                        val entityData = TrackedEntityInstance(
+                            trackedEntity = trackedEntityInstance,
+                            enrollment = trackedEntityInstance,
+                            enrollDate = formatter.formatCurrentDate(Date()),
+                            orgUnit = orgCode,
+                            attributes = refinedAttributes
                         )
-                    )
+                        val list = ArrayList<CodeValueEventPair>()
+                        viewModel.saveTrackedEntity(
+                            context,
+                            entityData,
+                            orgCode, data.patientIdentification, "", list
+                        )
+
+                        startActivity(
+                            Intent(
+                                context, PatientNewCaseActivity::class.java
+                            )
+                        )
+                    }
                 }
             }
-        }
-        yesButton.apply {
-            setOnClickListener {
-                alertDialog.dismiss()
-                // get latest event
+            yesButton.apply {
+                setOnClickListener {
+                    alertDialog.dismiss()
+                    // get latest event
 
-                formatter.deleteSharedPref("new_case", context).toString()
-                formatter.saveSharedPref("current_patient", data.uid, requireContext())
-                formatter.saveSharedPref("current_patient_id", data.id, requireContext())
-                val single = viewModel.getLatestEnrollment(requireContext(), data.id)
-                if (single != null) {
-
-                    formatter.saveSharedPref("eventUid", single.eventUid, requireContext())
-                    startActivity(Intent(requireContext(), PatientResponderActivity::class.java))
-
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Loading... please refresh",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    openExistingCase(context, data)
                 }
             }
-        }
 
-        alertDialog.show()
+            alertDialog.show()
+        }
+    }
+
+    private fun openExistingCase(context: Context, data: EntityData) {
+        formatter.deleteSharedPref("new_case", context).toString()
+        formatter.saveSharedPref("current_patient", data.uid, requireContext())
+        formatter.saveSharedPref("current_patient_id", data.id, requireContext())
+        val single = viewModel.getLatestEnrollment(requireContext(), data.id)
+        if (single != null) {
+
+            formatter.saveSharedPref("eventUid", single.eventUid, requireContext())
+            startActivity(
+                Intent(
+                    requireContext(),
+                    PatientResponderActivity::class.java
+                )
+            )
+
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Loading... please refresh",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
 

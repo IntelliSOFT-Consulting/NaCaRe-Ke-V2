@@ -19,7 +19,7 @@ import com.capture.app.room.MainViewModel
 class TrackedEntityAdapter(
     private val dataList: List<EntityData>,
     private val context: Context,
-    private val click: (EntityData) -> Unit
+    private val click: (EntityData, status: String) -> Unit
 ) : RecyclerView.Adapter<TrackedEntityHolder>() {
     private val formatter = FormatterClass()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackedEntityHolder {
@@ -41,7 +41,10 @@ class TrackedEntityAdapter(
         holder.actionTextView.text = data.diagnosis
 
         val name = "${data.fName} ${data.lName}"
-
+        val status = extractValueFromDataValues(
+            data.id,
+            "BITcpbzhbNm",
+        )
         holder.tv_place_of_notification.text = org
         holder.tv_patient_status.text = extractValueFromDataValues(
             data.id,
@@ -112,7 +115,7 @@ class TrackedEntityAdapter(
 //                } catch (e: Exception) {
 //                    e.printStackTrace()
 //                }
-//                click(data)
+                click(data, status)
             }
         }
 
